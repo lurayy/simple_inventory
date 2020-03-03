@@ -1,6 +1,6 @@
 digraph model_graph {
   // Dotfile by Django-Extensions graph_models
-  // Created: 2020-03-03 07:40
+  // Created: 2020-03-03 10:44
   // Cli Options: -a
 
   fontname = "Roboto"
@@ -339,11 +339,11 @@ digraph model_graph {
     </TABLE>
     >]
 
-  inventory_models_Item [label=<
+  inventory_models_PurchaseOrder [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
     <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    Item
+    PurchaseOrder
     </B></FONT></TD></TR>
   
   
@@ -372,15 +372,33 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">is_active</FONT>
+    <FONT FACE="Roboto">status</FONT>
     </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">BooleanField</FONT>
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  inventory_models_Item [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    Item
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
     </TD></TR>
   
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">is_in_stock</FONT>
+    <FONT FACE="Roboto">is_active</FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto">BooleanField</FONT>
     </TD></TR>
@@ -396,17 +414,67 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">quantity</FONT>
+    <FONT FACE="Roboto">sales_price</FONT>
     </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">PositiveIntegerField</FONT>
+    <FONT FACE="Roboto">FloatField</FONT>
     </TD></TR>
   
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">rate</FONT>
+    <FONT FACE="Roboto">stock</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">PositiveIntegerField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  inventory_models_PurchaseItem [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    PurchaseItem
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>item</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>name</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">purchase_price</FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto">FloatField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">quantity</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">PositiveIntegerField</FONT>
     </TD></TR>
   
   
@@ -464,7 +532,7 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>item</B></FONT>
+    <FONT FACE="Roboto"><B>placed_on</B></FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
     </TD></TR>
@@ -472,7 +540,7 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>placed_on</B></FONT>
+    <FONT FACE="Roboto"><B>purchase_item</B></FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
     </TD></TR>
@@ -772,14 +840,20 @@ digraph model_graph {
   inventory_models_Vendor -> inventory_models_CustomUserBase
   [label=" added_by (vendor)"] [arrowhead=none, arrowtail=dot, dir=both];
 
-  inventory_models_Item -> inventory_models_CustomUserBase
-  [label=" added_by (item)"] [arrowhead=none, arrowtail=dot, dir=both];
+  inventory_models_PurchaseOrder -> inventory_models_CustomUserBase
+  [label=" added_by (purchaseorder)"] [arrowhead=none, arrowtail=dot, dir=both];
 
-  inventory_models_Item -> inventory_models_Vendor
-  [label=" vendor (item)"] [arrowhead=none, arrowtail=dot, dir=both];
+  inventory_models_PurchaseOrder -> inventory_models_Vendor
+  [label=" vendor (purchaseorder)"] [arrowhead=none, arrowtail=dot, dir=both];
 
-  inventory_models_Placement -> inventory_models_Item
-  [label=" item (placement)"] [arrowhead=none, arrowtail=dot, dir=both];
+  inventory_models_PurchaseItem -> inventory_models_Item
+  [label=" item (purchaseitem)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  inventory_models_PurchaseItem -> inventory_models_PurchaseOrder
+  [label=" name (purchaseitem)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  inventory_models_Placement -> inventory_models_PurchaseItem
+  [label=" purchase_item (placement)"] [arrowhead=none, arrowtail=dot, dir=both];
 
   inventory_models_Placement -> inventory_models_Place
   [label=" placed_on (placement)"] [arrowhead=none, arrowtail=dot, dir=both];

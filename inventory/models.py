@@ -8,8 +8,7 @@ class CustomUserBase(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_destroyed = models.BooleanField(default=False)
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
-    is_super = models.BooleanField(default=True)
-
+    
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
@@ -34,29 +33,57 @@ class Vendor(models.Model):
         return f'{self.first_name} {self.last_name}'
 
 
-class Item(models.Model):
+class PurchaseOrder(models.Model):
     added_by = models.ForeignKey(CustomUserBase, on_delete= models.SET_NULL, null=True)
-
-    name = models.CharField(max_length=255)
     vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True)
+    invoiced_on = models.DateTimeField()
+    completed_on = models.DateTimeField(null=True, blank=True) 
+    
+    DISCOUNT = (
+        ('PERCENT', "percent"),
+        ('FIXED', "fixed")
+    )
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
 
-    #number of items registered 
-    quantity = models.PositiveIntegerField()
-    rate = models.FloatField()
+    discount = models.PositiveIntegerField()
 
+
+class Item(models.Model):
+    name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    is_in_stock = models.BooleanField(default=True)
 
-    # number of items still in stock
     stock = models.PositiveIntegerField()
+    sales_price = models.FloatField()
 
     class Meta:
-        unique_together = ['vendor', 'rate', 'name']
+        unique_together = ['sales_price', 'name']
 
     def __str__(self):
         return f'{self.name}'
     
+    def is_in_stock(self):
+        if self.stock > 0:
+            return True
+        else:
+            return False
+
+class PurchaseItem(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
+    name = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    non_discount_price = models.FloatField()
+    purchase_price = models.FloatField()
+    stock = models.PositiveIntegerField()
+    DISCOUNT = (
+        ('PERCENT', "percent"),
+        ('fixed', 'fixed')
+    )
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
+
+    discount = models.PositiveIntegerField()
     
+    def __str__(self):
+        return f'{self.item}'
 
 class Place(models.Model):
     name = models.CharField(max_length=255)
@@ -66,22 +93,25 @@ class Place(models.Model):
 
 
 class Placement(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    purchase_item = models.ForeignKey(PurchaseItem, on_delete=models.CASCADE)
     placed_on = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True)
     qunatity = models.PositiveIntegerField()
 
     def __str__(self):
-        return f'{self.item} on {self.placed_on}'
+        return f'{self.purchase_item} on {self.placed_on}'
 
 
-@receiver(models.signals.post_save, sender=Item)
-def placement_creator(sender, instance, created, *args, **kwargs):
-    print('triggered')
-    if created:
-        print('created')
-        try:
-            place = Place.objects.get(name='Unassigned')
-        except:
-            place = Place.objects.create(name='Unassigned')
-        placement = Placement.objects.create(item=instance, placed_on=place, qunatity=instance.stock)
-        placement.save()
+# @receiver(models.signals.post_save, sender=PurchaseItem)
+# def placement_creator(sender, instance, created, *args, **kwargs):
+#     print('triggered')
+#     if created:
+#         print('created')
+#         try:
+#             place = Place.objects.get(name='Unassigned')
+#         except:
+#             place = Place.objects.create(name='Unassigned')
+#         placement = Placement.objects.create(purchase_item=instance, placed_on=place, qunatity=instance.stock)
+#         placement.save()
+#         item_s = Item.objects.get(id=instance.item)
+#         item_s = instance.stock + item_s.stock
+#         item_s.save()
