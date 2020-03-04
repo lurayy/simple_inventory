@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'user_handler',
     'inventory',
     'sales',
     'django_extensions',
@@ -134,4 +135,7 @@ STATICFILES_DIRS = (
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 django_heroku.settings(locals())
 
-AUTH_USER_MODEL = 'inventory.CustomUserBase'
+AUTH_USER_MODEL = 'user_handler.CustomUserBase'
+LOGIN_REDIRECT_URL = ''
+LOGIN_URL='/login'
+

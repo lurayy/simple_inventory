@@ -1,0 +1,68 @@
+<html lang="en">
+
+  <head>
+    {% load static %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script src="{% static 'js/csrf.js' %}"></script>
+    
+    <script src="{% static 'js/delete_user.js' %}"></script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>DashBoard</title>
+    <!-- DO some importing here -->
+  </head>
+
+  <body id="page-top">
+
+    Username : {{ user.username }}<br>
+    Post : {{ user.user_type }}<br>
+    <a href="/logout">Logout</a>
+
+    <h1>Dashboard</h1>
+    {% if user.user_type == "MANAGER" %}
+      
+    <ul>
+      <li>User Management
+        <ul>
+          <li>
+            <a href="/user/create">Create New User</a>
+          </li>
+          <li>
+            <a href="/user/modify">Modify User</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    {% endif %}
+    
+    <ul>
+      <li>Inventory Management
+        <ul>
+          <li>
+            <a href="/apiv1/inventory/purchaseorder">Manage Purchase Order</a>
+          </li>
+          <li>
+            <a href="/apiv1/inventory/items">Manave Items</a>
+          </li>
+
+          
+          <li>
+            <a href="/apiv1/inventory/places">Manage Places</a>
+          </li>
+
+        </ul>
+      </li>
+    </ul>
+    
+
+
+    {% block content %}
+    {% endblock %}
+</body>
+
+</html>

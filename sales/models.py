@@ -1,29 +1,7 @@
 from django.db import models
 from inventory.models import CustomUserBase, PurchaseItem
-# Create your models here.
+from user_handler.models import Customer
 
-
-
-class Customer(models.Model):
-    ''' model schema for customer '''
-    first_name = models.CharField(max_length=255)
-    middle_name = models.CharField(max_length=255, null=True)
-    last_name = models.CharField(max_length=255)
-    email = models.EmailField()
-    website = models.CharField(null=True, max_length=255)
-    tax_number = models.CharField(max_length=255)
-    phone1 = models.CharField(max_length=25)
-    phone2 = models.CharField(max_length=25)
-    address = models.TextField()
-
-
-    is_active = models.BooleanField(default=True)
-
-    #reference ??
-    # logo/picture ?
-
-    def __str__(self):
-        return f'{self.first_name} + {self.last_name}'
 
 
 class Invoice(models.Model):
