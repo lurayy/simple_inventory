@@ -20,6 +20,7 @@ def check(user):
     else:
         return False
 
+
 @require_http_methods(['GET', 'POST'])
 def user_login(request):
     '''user login function'''
@@ -105,7 +106,7 @@ def user_modify(request):
     }
     futher query : 
     {
-        'action':'query',
+        'action':'get',
         'start':11,
         'end':20
     }
@@ -114,7 +115,7 @@ def user_modify(request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if str(data_json['action']).lower() == "query":
+            if str(data_json['action']).lower() == "get":
                 response_json = {'status':'', 'users':[]}
                 response_json['users'] = get_users_data(int(data_json['start']), int(data_json['end']))
                 response_json['status'] = True

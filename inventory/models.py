@@ -9,7 +9,8 @@ class PurchaseOrder(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True)
     invoiced_on = models.DateTimeField()
     completed_on = models.DateTimeField(null=True, blank=True) 
-    
+    total_cost = models.FloatField()
+
     DISCOUNT = (
         ('PERCENT', "percent"),
         ('FIXED', "fixed")
@@ -40,7 +41,7 @@ class Item(models.Model):
 
 class PurchaseItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
-    name = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='items')
     quantity = models.PositiveIntegerField()
     non_discount_price = models.FloatField()
     purchase_price = models.FloatField()

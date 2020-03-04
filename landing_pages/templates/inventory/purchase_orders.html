@@ -1,0 +1,13 @@
+{% extends 'user_handler/dashboard.html' %}
+{% block content %}
+{% load static %}
+<script src="{% static 'inventory/js/porders.js' %}"></script>
+
+<h1> List Of Purchase Order </h1>
+
+{{ response_json }}
+<button onclick="get_purchase_orders()">Get data</button>
+<br>
+<button onclick="get_purchase_order()">Get data of single purchase order </button>
+
+{% endblock %}
