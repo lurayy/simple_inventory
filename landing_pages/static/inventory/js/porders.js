@@ -25,7 +25,85 @@ function get_purchase_order(){
     $.ajax (
         {
             type: 'GET',
-            url: '/apiv1/inventory/porders/'+id,
+            url: '/apiv1/inventory/porders/'+1,
+            success: function(data){
+                console.log(data)
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+
+function get_vendors(){
+    info = 
+    {
+        'action':"get",
+        'start':0,
+        'end':10
+    } 
+    $.ajax (
+        {
+            type: 'POST',
+            url: '/apiv1/inventory/vendors',
+            data: JSON.stringify(info),
+            success: function(data){
+                console.log(data)
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+
+function get_vendor(){
+    id = 1
+    $.ajax (
+        {
+            type: 'GET',
+            url: '/apiv1/inventory/vendors/'+id,
+            success: function(data){
+                console.log(data)
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+
+
+
+function get_items(){
+    info = 
+    {
+        'action':"get",
+        'start':0,
+        'end':10
+    } 
+    $.ajax (
+        {
+            type: 'POST',
+            url: '/apiv1/inventory/items',
+            data: JSON.stringify(info),
+            success: function(data){
+                console.log(data)
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+
+function get_item(){
+    id = 1
+    $.ajax (
+        {
+            type: 'GET',
+            url: '/apiv1/inventory/items/'+id,
             success: function(data){
                 console.log(data)
             },

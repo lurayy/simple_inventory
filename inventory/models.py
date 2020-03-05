@@ -1,8 +1,11 @@
 from django.db import models
 import uuid 
 from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from user_handler.models import CustomUserBase, Vendor
+
+
 
 class PurchaseOrder(models.Model):
     added_by = models.ForeignKey(CustomUserBase, on_delete= models.SET_NULL, null=True)
@@ -16,16 +19,31 @@ class PurchaseOrder(models.Model):
         ('FIXED', "fixed")
     )
     discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
-
     discount = models.PositiveIntegerField()
+    STATUS_S = (
+        ('DRAFT', "Draft"),
+        ('SENT', "Sent"),
+        ('DUE', "Due"),
+        ('PAID', "Paid"),
+        ('DELIVERED','Delivered'),
+        ('COMPLETED', 'complete')
+    )
+    status = models.CharField(max_length=10, choices=STATUS_S, default='DRAFT')
 
+
+class ItemCatagory(models.Model):
+    name = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return self.name
 
 class Item(models.Model):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-
+    catagory = models.ForeignKey(ItemCatagory, on_delete=models.SET_NULL, null=True, blank=True)
     stock = models.PositiveIntegerField()
     sales_price = models.FloatField()
+    
 
     class Meta:
         unique_together = ['sales_price', 'name']
@@ -39,23 +57,32 @@ class Item(models.Model):
         else:
             return False
 
+
 class PurchaseItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='items')
     quantity = models.PositiveIntegerField()
     non_discount_price = models.FloatField()
+    sold = models.PositiveIntegerField()
     purchase_price = models.FloatField()
     stock = models.PositiveIntegerField()
+    defective = models.PositiveIntegerField()
     DISCOUNT = (
         ('PERCENT', "percent"),
         ('fixed', 'fixed')
     )
     discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
-
     discount = models.PositiveIntegerField()
+    STATUS_S = (
+        ('delivered','Delivered'),
+        ('incomplete', 'Incomplete'),
+        ('addedtocirculation', 'Added To Circulation')
+    )
+    status = models.CharField(max_length=25, choices=STATUS_S, default='INCOMPLETE')
     
     def __str__(self):
         return f'{self.item}'
+
 
 class Place(models.Model):
     name = models.CharField(max_length=255)
@@ -73,17 +100,23 @@ class Placement(models.Model):
         return f'{self.purchase_item} on {self.placed_on}'
 
 
-# @receiver(models.signals.post_save, sender=PurchaseItem)
-# def placement_creator(sender, instance, created, *args, **kwargs):
-#     print('triggered')
-#     if created:
-#         print('created')
-#         try:
-#             place = Place.objects.get(name='Unassigned')
-#         except:
-#             place = Place.objects.create(name='Unassigned')
-#         placement = Placement.objects.create(purchase_item=instance, placed_on=place, qunatity=instance.stock)
-#         placement.save()
-#         item_s = Item.objects.get(id=instance.item)
-#         item_s = instance.stock + item_s.stock
-#         item_s.save()
+@receiver(models.signals.pre_save, sender=PurchaseItem)
+def pre_save_handler(sender, instance, *args, **kwargs):
+
+    if (instance.quantity < instance.defective):
+        raise Exception("Number of defective items are greater than the quntity of the purchase item ")
+    instance.stock = instance.quantity - instance.defective    
+    if instance.id is not None:
+        old_status = PurchaseItem.objects.get(id=instance.id).status
+    else:
+        old_status = ""
+    if str(old_status).lower() == str(instance.status).lower() == "addedtocirculation" :
+        raise Exception("Cannot edit Purchase's item descriptions when it's in cirulation.")
+    
+    if str(instance.status).lower() != str(old_status).lower():
+        if str(instance.status).lower() == "addedtocirculation":
+            instance.item.stock = instance.item.stock + instance.stock
+            instance.item.save()
+        if str(old_status).lower() == "addedtocirculation"  and str(instance.status).lower() != str(old_status).lower():
+            instance.item.stock = instance.item.stock - instance.stock
+            instance.item.save()
