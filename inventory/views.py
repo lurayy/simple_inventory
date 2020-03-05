@@ -102,7 +102,7 @@ def purchase_order(request,id):
     To edit the data, you can POST on the same link: 
     POST format:
     {
-        'action':'post',
+        'action':'edit',
         'id':1,
         'invoiced_on': "2019-11-16T08:15:00.000",
         'completed_on: "2019-11-16T08:15:00.000",
@@ -118,19 +118,24 @@ def purchase_order(request,id):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            purchase_order = PurchaseOrder.objects.get(id=int(data_json['id']))
-            purchase_order.total_cost = data_json['total_cost']
-            purchase_order.discount_type = data_json['discount_type']
-            purchase_order.discount = data_json['discount']
-            purchase_order.added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])) 
-            purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
-            ### change data after being final about date format 
-            purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
-            purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
-            purchase_order.status = str(data_json['status']).upper()
-            purchase_order.save()
-            response_json = {'status':True}
-            return JsonResponse(response_json)
+            if request.method == "edit":
+                purchase_order = PurchaseOrder.objects.get(id=int(data_json['id']))
+                purchase_order.total_cost = data_json['total_cost']
+                purchase_order.discount_type = data_json['discount_type']
+                purchase_order.discount = data_json['discount']
+                purchase_order.added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])) 
+                purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
+                ### change data after being final about date format 
+                purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
+                purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
+                purchase_order.status = str(data_json['status']).upper()
+                purchase_order.save()
+                response_json = {'status':True}
+                return JsonResponse(response_json)
+
+            if request.method == "add":
+                pass 
+                # purchase_order = PurchaseOrder.objects.create()
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     response_json = {'status':'', 'p_order':{}, 'p_items':[]}
@@ -157,16 +162,46 @@ def vendors(request):
         'start':0,
         'end':20
     } 
+    add format : 
+    {
+        'action':'add',
+        first_name: "lkj"
+        middle_name: "lkj"
+        last_name: "lk"
+        email: "jlk@c.com"
+        website: "j"
+        tax_number: "lkj"
+        phone1: "lk"
+        phone2: "j"
+        address: "lk"
+    }
     '''
     response_json = {'status':'', 'vendors':[]}
     if request.method == "POST":
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            vendors = Vendor.objects.filter().order_by('id')[int(data_json['start']):int(data_json['end'])]
-            response_json['vendors'] = vendors_to_json(vendors)
-            response_json['status'] = True
-            return JsonResponse(response_json)
+            if data_json['action'] == "add":
+                vendor = Vendor.objects.create(
+                    first_name = str(data_json['first_name']),
+                    last_name = str(data_json['last_name']),
+                    middle_name = str(data_json['middle_name']),
+                    email = str(data_json['email']),
+                    website = str(data_json['website']),
+                    tax_number = str(data_json['tax_number']),
+                    phone1 = str(data_json['phone1']),
+                    phone2 = str(data_json['phone2']),
+                    address = str(data_json['address']),
+                    added_by = CustomUserBase.objects.get(id=request.user.id)
+                )
+                vendor.save()
+                response_json = {'status':True}
+                return JsonResponse(response_json)
+            if data_json['action'] == "get":
+                vendors = Vendor.objects.filter().order_by('id')[int(data_json['start']):int(data_json['end'])]
+                response_json['vendors'] = vendors_to_json(vendors)
+                response_json['status'] = True
+                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
@@ -178,6 +213,7 @@ def vendor(request, id):
     To edit [POST] 
     Format : 
     {
+        'action':'edit',
         id: 1
         first_name: "kj"
         middle_name: "lkj"
@@ -192,27 +228,28 @@ def vendor(request, id):
         added_by: 1
     }
     '''
-
     response_json = {'status':'', 'vendors':[]}
     if request.method == "POST":
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            vendor = Vendor.objects.get(id=int(data_json['id']))
-            vendor.first_name = str(data_json['first_name'])
-            vendor.last_name = str(data_json['last_name'])
-            vendor.middle_name = str(data_json['middle_name'])
-            vendor.email = str(data_json['email'])
-            vendor.website = str(data_json['website'])
-            vendor.tax_number = str(data_json['tax_number'])
-            vendor.phone1 = str(data_json['phone1'])
-            vendor.phone2 = str(data_json['phone2'])
-            vendor.address = str(data_json['address'])
-            vendor.is_active = (data_json['is_active'])
-            vendor.added_by = CustomUserBase.objects.get(id=int(data_json['added_by']))
-            vendor.save()
-            response_json = {'status':True}
-            return JsonResponse(response_json)
+            if data_json['action'] == "edit":
+                vendor = Vendor.objects.get(id=int(data_json['id']))
+                vendor.first_name = str(data_json['first_name'])
+                vendor.last_name = str(data_json['last_name'])
+                vendor.middle_name = str(data_json['middle_name'])
+                vendor.email = str(data_json['email'])
+                vendor.website = str(data_json['website'])
+                vendor.tax_number = str(data_json['tax_number'])
+                vendor.phone1 = str(data_json['phone1'])
+                vendor.phone2 = str(data_json['phone2'])
+                vendor.address = str(data_json['address'])
+                vendor.is_active = (data_json['is_active'])
+                vendor.added_by = CustomUserBase.objects.get(id=int(data_json['added_by']))
+                vendor.save()
+                response_json = {'status':True}
+                return JsonResponse(response_json)
+           
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
@@ -234,6 +271,9 @@ def items(request):
         'start':0,
         'end':10,
     }
+    Add format 
+    {
+    }
     '''
     response_json = {'status':'', 'items':[]}
     if request.method == "POST":
@@ -250,7 +290,43 @@ def items(request):
 
 @login_required
 def item(request, id):
+    '''
+    POST 
+    {
+        'action':'edit',
+        id: 1
+        name: "klj"
+        is_active: true
+        stock: 509
+        sales_price: 50000
+        sold: 3
+        catagory: 1
+    }
+    '''
     response_json = {'status':'', 'items':[]}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            vendor = Vendor.objects.get(id=int(data_json['id']))
+            vendor.first_name = str(data_json['first_name'])
+            vendor.last_name = str(data_json['last_name'])
+            vendor.middle_name = str(data_json['middle_name'])
+            vendor.email = str(data_json['email'])
+            vendor.website = str(data_json['website'])
+            vendor.tax_number = str(data_json['tax_number'])
+            vendor.phone1 = str(data_json['phone1'])
+            vendor.phone2 = str(data_json['phone2'])
+            vendor.address = str(data_json['address'])
+            vendor.is_active = (data_json['is_active'])
+            vendor.added_by = CustomUserBase.objects.get(id=int(data_json['added_by']))
+            vendor.save()
+            response_json = {'status':True}
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    
+
     try:
         item = Item.objects.get(id=int(id))
         response_json['items'] = items_to_json([item])

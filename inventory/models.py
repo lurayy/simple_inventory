@@ -43,7 +43,7 @@ class Item(models.Model):
     catagory = models.ForeignKey(ItemCatagory, on_delete=models.SET_NULL, null=True, blank=True)
     stock = models.PositiveIntegerField()
     sales_price = models.FloatField()
-    
+    sold = models.PositiveIntegerField()
 
     class Meta:
         unique_together = ['sales_price', 'name']
@@ -102,7 +102,6 @@ class Placement(models.Model):
 
 @receiver(models.signals.pre_save, sender=PurchaseItem)
 def pre_save_handler(sender, instance, *args, **kwargs):
-
     if (instance.quantity < instance.defective):
         raise Exception("Number of defective items are greater than the quntity of the purchase item ")
     instance.stock = instance.quantity - instance.defective    
