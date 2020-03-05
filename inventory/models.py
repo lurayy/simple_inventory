@@ -107,12 +107,14 @@ def pre_save_handler(sender, instance, *args, **kwargs):
         raise Exception("Number of defective items are greater than the quntity of the purchase item ")
     instance.stock = instance.quantity - instance.defective    
     if instance.id is not None:
-        old_status = PurchaseItem.objects.get(id=instance.id).status
+        p_item = PurchaseItem.objects.get(id=instance.id)
+        old_status = p_item.status
+        old_sold = p_item.sold
     else:
         old_status = ""
+        old_sold = 0
     if str(old_status).lower() == str(instance.status).lower() == "addedtocirculation" :
         raise Exception("Cannot edit Purchase's item descriptions when it's in cirulation.")
-    
     if str(instance.status).lower() != str(old_status).lower():
         if str(instance.status).lower() == "addedtocirculation":
             instance.item.stock = instance.item.stock + instance.stock
@@ -120,3 +122,5 @@ def pre_save_handler(sender, instance, *args, **kwargs):
         if str(old_status).lower() == "addedtocirculation"  and str(instance.status).lower() != str(old_status).lower():
             instance.item.stock = instance.item.stock - instance.stock
             instance.item.save()
+    if old_sold != instance.sold:
+        raise Exception('Cannot edit already sold items.')
