@@ -1,6 +1,6 @@
 ''' Searializers module for models of api '''
 from rest_framework import serializers
-from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement
+from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, ItemCatagory
 from user_handler.models import Vendor
 
 class PurchaseOrderSerializer(serializers.ModelSerializer):
@@ -26,4 +26,17 @@ class ItemSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Item
+        fields= '__all__'
+
+class ItemCatagorySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ItemCatagory
+        fields= '__all__'
+
+
+class PlaceSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Place
         fields= '__all__'

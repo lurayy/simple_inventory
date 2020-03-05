@@ -19,7 +19,7 @@ class PurchaseOrder(models.Model):
         ('FIXED', "fixed")
     )
     discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
-    discount = models.PositiveIntegerField()
+    discount = models.PositiveIntegerField(default=0)
     STATUS_S = (
         ('DRAFT', "Draft"),
         ('SENT', "Sent"),
@@ -41,9 +41,9 @@ class Item(models.Model):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     catagory = models.ForeignKey(ItemCatagory, on_delete=models.SET_NULL, null=True, blank=True)
-    stock = models.PositiveIntegerField()
+    stock = models.PositiveIntegerField(default=0)
     sales_price = models.FloatField()
-    sold = models.PositiveIntegerField()
+    sold = models.PositiveIntegerField(default=0)
 
     class Meta:
         unique_together = ['sales_price', 'name']
@@ -61,18 +61,18 @@ class Item(models.Model):
 class PurchaseItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='items')
-    quantity = models.PositiveIntegerField()
-    non_discount_price = models.FloatField()
-    sold = models.PositiveIntegerField()
-    purchase_price = models.FloatField()
-    stock = models.PositiveIntegerField()
-    defective = models.PositiveIntegerField()
+    quantity = models.PositiveIntegerField(default=0)
+    non_discount_price = models.FloatField(default=0)
+    sold = models.PositiveIntegerField(default=0)
+    purchase_price = models.FloatField(default=0)
+    stock = models.PositiveIntegerField(default=0)
+    defective = models.PositiveIntegerField(default=0)
     DISCOUNT = (
         ('PERCENT', "percent"),
         ('fixed', 'fixed')
     )
     discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
-    discount = models.PositiveIntegerField()
+    discount = models.PositiveIntegerField(default=0)
     STATUS_S = (
         ('delivered','Delivered'),
         ('incomplete', 'Incomplete'),
@@ -94,7 +94,7 @@ class Place(models.Model):
 class Placement(models.Model):
     purchase_item = models.ForeignKey(PurchaseItem, on_delete=models.CASCADE)
     placed_on = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True)
-    qunatity = models.PositiveIntegerField()
+    qunatity = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f'{self.purchase_item} on {self.placed_on}'
