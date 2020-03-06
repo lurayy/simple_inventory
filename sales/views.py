@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 
 
 @login_required
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['POST'])
 def invoices(request):
     ''' fucntion to get data from sales, will add filter later
     filter = None
@@ -89,9 +89,18 @@ def invoices(request):
                 response_json['invoices'] = invoices_to_json(invoices)
                 response_json['status'] = True
                 return JsonResponse(response_json)
-            # add after frontend
             if str(data_json['action'] == "add"):
-                pass
+                invoice = Invoice.objects.create(
+                    paid_amount = data_json['paid_amount'],
+                    added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])),
+                    customer = Customer.objects.get(id=int(data_json['customer'])),
+                    invoiced_on = str_to_datetime(data_json['invoiced_on']),
+                    due_on = str_to_datetime(data_json['due_on']),
+                    status = str(data_json['status']).upper()                    
+                )
+                invoice.save()
+                response_json['status'] = True
+                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
@@ -147,6 +156,7 @@ def invoice(request,id):
 
 
 @login_required
+@require_http_methods(['POST'])
 def delete_invoices(request):
     '''
     {
@@ -233,6 +243,7 @@ def customers(request):
 
 
 @login_required
+@require_http_methods(['POST'])
 def delete_customers(request):
     '''
     {
@@ -259,6 +270,7 @@ def delete_customers(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
+@require_http_methods(['POST', 'GET'])
 def customer(request, id):
     '''
     TO get data [GET] to the url : /apiv1/sales/customers/<customer id>
@@ -313,6 +325,7 @@ def customer(request, id):
 
 ######################################## InvoieItems ########################################
 @login_required
+@require_http_methods(['POST'])
 def invoice_items(request):
     '''
     function to add purchase item 
@@ -336,7 +349,7 @@ def invoice_items(request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if request.method == "add":
+            if data_json['action'] == "add":
                 invoice_item = InvoiceItem.objects.create(
                     item = Item.objects.get(id=int(data_json['item'])),
                     purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item'])),
@@ -358,6 +371,7 @@ def invoice_items(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
+@require_http_methods(['POST', 'GET'])
 def invoice_item(request, id):
     '''
     function to edit purchase item 
@@ -408,6 +422,7 @@ def invoice_item(request, id):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
+@require_http_methods(['POST'])
 def delete_invoice_items(request):
     '''
         {

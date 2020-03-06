@@ -63,6 +63,14 @@ def purchase_orders(request):
     add : 
     {
         'action':'add',
+        'invoiced_on': "2019-11-16T08:15:00.000",
+        'completed_on: "2019-11-16T08:15:00.000",
+        'total_cost': 2500,
+        'discount_type': 'fixed',    <- can be fixed or percent
+        'discount': 25,
+        'added_by':1,                <- added_by id
+        'vendor':1,                  <- vendor id 
+        'status':'paid',
     }
     '''
     # This serach method can be optimized futher more
@@ -94,7 +102,19 @@ def purchase_orders(request):
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if str(data_json['action'] == "add"):
-                pass
+                purchase_order = PurchaseOrder.objects.create(
+                    total_cost = data_json['total_cost'],
+                    discount_type = data_json['discount_type'],
+                    discount = data_json['discount'],
+                    added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])),
+                    vendor = Vendor.objects.get(id=int(data_json['vendor'])),
+                    invoiced_on = str_to_datetime(data_json['invoiced_on']),
+                    completed_on = str_to_datetime(data_json['completed_on']),
+                    status = str(data_json['status']).upper()                    
+                )
+                purchase_order.save()
+                response_json['status'] = True
+                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 

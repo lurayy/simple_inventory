@@ -15,9 +15,6 @@ class Invoice(models.Model):
     invoiced_on = models.DateTimeField()
     due_on = models.DateTimeField()
     order_number = models.BigIntegerField()
-    notes = models.TextField()
-    footer = models.TextField()
-
     paid_amount = models.FloatField()
     
     STATUS_S = (
