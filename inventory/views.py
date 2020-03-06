@@ -26,28 +26,28 @@ def purchase_orders(request):
     }
     filter by date :
     {
-        'action':'get',
-        'start':0,
-        'end':20,
-        'filter':'date',
-        'start_date': "2019-11-16T08:15:00.000",
-        'end_date': "2019-11-16T08:15:00.000",
+        "action":"get",
+        "start":0,
+        "end":5,
+        "filter":"date",
+        "start_date": "2020-02-06T11:03:03",
+        "end_date": "2020-03-06T11:05:03"
     }
     filter by vendor :
     {
-        'action':'get',
-        'start':0,
-        'end':20,
-        'filter':'vendor',
-        'vendor_id':1
+        "action":"get",
+        "start":0,
+        "end":5,
+        "filter":"vendor",
+        "vendor":1
     }
     filter by status: 
     {
-        'action':'get',
-        'start':0,
-        'end':20,
-        'filter':'status',
-        'status':'draft'
+        "action":"get",
+        "start":0,
+        "end":5,
+        "filter":"status",
+        "status":"sent"
     }
     filter by multiple:
     {
@@ -72,7 +72,6 @@ def purchase_orders(request):
             data_json = json.loads(json_str)
             # GET Handler
             if str(data_json['action']).lower() == "get":
-
                 start = int(data_json["start"])
                 end = int(data_json["end"])
                 response_json = {'status':'', 'p_orders':[]}
@@ -103,8 +102,9 @@ def purchase_orders(request):
 
 
 @login_required
-@require_http_methods(['GET', 'POST'])
 #edit purchase order 
+
+@require_http_methods(['POST', 'GET'])
 def purchase_order(request,id):
     ''' To get data about single purchase order
     To get info about a single purchase_order, trigger /apiv1/inventory/porders/<purchase_order_id>/
@@ -127,7 +127,7 @@ def purchase_order(request,id):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if request.method == "edit":
+            if data_json['action'] == "edit":
                 purchase_order = PurchaseOrder.objects.get(id=int(data_json['id']))
                 purchase_order.total_cost = data_json['total_cost']
                 purchase_order.discount_type = data_json['discount_type']
@@ -139,9 +139,9 @@ def purchase_order(request,id):
                 purchase_order.status = str(data_json['status']).upper()
                 purchase_order.save()
                 response_json = {'status':True}
-                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+        return JsonResponse(response_json)
     response_json = {'status':'', 'p_order':{}, 'p_items':[]}
     try:
         order = PurchaseOrder.objects.get(id=int(id))
@@ -154,6 +154,7 @@ def purchase_order(request,id):
 
 
 @login_required
+@require_http_methods(['POST'])
 def delete_purchase_orders(request):
     '''
     {
@@ -184,7 +185,7 @@ def delete_purchase_orders(request):
 
 ######################################## Vendor  ########################################
 
-@login_required
+# @login_required
 @require_http_methods(['POST'])
 def vendors(request):
     '''
@@ -197,16 +198,16 @@ def vendors(request):
     } 
     add format : 
     {
-        'action':'add',
-        first_name: "lkj"
-        middle_name: "lkj"
-        last_name: "lk"
-        email: "jlk@c.com"
-        website: "j"
-        tax_number: "lkj"
-        phone1: "lk"
-        phone2: "j"
-        address: "lk"
+        "action":"add",
+        "first_name": "Raven2",
+        "middle_name": "Ulric2 Davenport",
+        "last_name": "Solomon2",
+        "email": "qadeg@maili2nator.net",
+        "website": "https://www.dogotime.org.uk",
+        "tax_number": "974",
+        "phone1": "+1 (149) 119-4092",
+        "phone2": "+1 (381) 765-8778",
+        "address": "Qui in at culpa unde"
     }
     '''
     response_json = {'status':'', 'vendors':[]}
@@ -241,6 +242,7 @@ def vendors(request):
 
 
 @login_required
+@require_http_methods(['POST'])
 def delete_vendors(request):
     '''
     {
@@ -267,25 +269,25 @@ def delete_vendors(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
+@require_http_methods(['POST', 'GET'])
 def vendor(request, id):
     '''
     TO get data [GET] to the url : /apiv1/inventory/vendors/<vendor id>
     To edit [POST] 
     Format : 
     {
-        'action':'edit',
-        id: 1
-        first_name: "kj"
-        middle_name: "lkj"
-        last_name: "lkj"
-        email: "kj@l.com"
-        website: "lkj"
-        tax_number: "lkj"
-        phone1: "lkj"
-        phone2: "lkj"
-        address: "lkj"
-        is_active: true
-        added_by: 1
+        "action":"edit",
+        "id":2,
+        "first_name": "Raven2",
+        "middle_name": "Ulric2 Davenport",
+        "last_name": "Solomon2",
+        "email": "qadeg@maili2nator.net",
+        "website": "https://www.dogotime.org.uk",
+        "tax_number": "974",
+        "phone1": "+1 (149) 119-4092",
+        "phone2": "+1 (381) 765-8778",
+        "address": "Qui in at culpa unde",
+        "is_active":true
     }
     '''
     response_json = {'status':'', 'vendors':[]}
@@ -305,7 +307,6 @@ def vendor(request, id):
                 vendor.phone2 = str(data_json['phone2'])
                 vendor.address = str(data_json['address'])
                 vendor.is_active = (data_json['is_active'])
-                vendor.added_by = CustomUserBase.objects.get(id=int(data_json['added_by']))
                 vendor.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
@@ -322,6 +323,7 @@ def vendor(request, id):
 
 ######################################## Items ########################################
 @login_required
+@require_http_methods(['POST'])
 def items(request):
     '''
     get data about the items
@@ -362,6 +364,8 @@ def items(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
+
+@require_http_methods(['POST', 'GET'])
 def item(request, id):
     '''
     use only get to get data 
@@ -400,6 +404,7 @@ def item(request, id):
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
+@require_http_methods(['POST'])
 def delete_items(request):
     '''
     {
@@ -428,6 +433,7 @@ def delete_items(request):
 ######################################## itemCatagory ########################################
 
 @login_required
+@require_http_methods(['POST'])
 def item_catagories(request):
     '''
     get data about the items
@@ -464,6 +470,7 @@ def item_catagories(request):
 
 
 @login_required
+@require_http_methods(['POST', 'GET'])
 def item_catagory(request, id):
     '''
     POST For editing
@@ -498,6 +505,7 @@ def item_catagory(request, id):
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
+@require_http_methods(['POST', 'GET'])
 def delete_item_catagories(request):
     '''
     {
@@ -524,6 +532,7 @@ def delete_item_catagories(request):
 
 ######################################## Place ########################################
 @login_required
+@require_http_methods(['POST'])
 def places(request):
     '''
     get data about the items
@@ -560,6 +569,7 @@ def places(request):
 
 
 @login_required
+@require_http_methods(['POST', 'GET'])
 def place(request, id):
     '''
     POST For editing
@@ -592,6 +602,7 @@ def place(request, id):
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
+@require_http_methods(['POST'])
 def delete_places(request):
     '''
     {
@@ -617,6 +628,8 @@ def delete_places(request):
 
 
 ######################################## Placement ########################################
+@login_required
+@require_http_methods(['POST'])
 def assign_place(request):
     '''
     To increase quntity, there must be objects unassigned on the related purchase_item
@@ -676,6 +689,7 @@ def assign_place(request):
 
 
 @login_required
+@require_http_methods(['POST'])
 def purchase_items(request):
     '''
     function to add purchase item 
@@ -698,7 +712,7 @@ def purchase_items(request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if request.method == "add":
+            if data_json['action'] == "add":
                 purchase_item = PurchaseItem.objects.create(
                     item = Item.objects.get(id=int(data_json['item'])),
                     purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order'])),
@@ -728,6 +742,7 @@ def purchase_items(request):
 
 
 @login_required
+@require_http_methods(['POST', 'GET'])
 def purchase_item(request, id):
     '''
     function to edit purchase item 
@@ -750,7 +765,7 @@ def purchase_item(request, id):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if request.method == "add":
+            if data_json['action'] == "add":
                 purchase_item = PurchaseItem.objects.get(id=id)
                 purchase_item.item = Item.objects.get(id=int(data_json['item'])),
                 purchase_item.purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order'])),
@@ -768,6 +783,7 @@ def purchase_item(request, id):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
+@require_http_methods(['POST'])
 def delete_purchase_items(request):
     '''
         {

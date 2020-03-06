@@ -29,7 +29,7 @@ class PurchaseOrder(models.Model):
         ('COMPLETED', 'complete')
     )
     status = models.CharField(max_length=10, choices=STATUS_S, default='DRAFT')
-
+    is_active = models.BooleanField(default=True)
 
 class ItemCatagory(models.Model):
     name = models.CharField(max_length=255)
