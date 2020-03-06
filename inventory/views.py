@@ -12,6 +12,7 @@ from django.db import IntegrityError
 
 @login_required
 @require_http_methods(['POST'])
+# get/serach or add purchase orders
 def purchase_orders(request):
     '''
     View for handling operations related to Purchase orders
@@ -59,6 +60,10 @@ def purchase_orders(request):
         ...... 
         # need more work after colaborating with front end
     }
+    add : 
+    {
+        'action':'add',
+    }
     '''
     # This serach method can be optimized futher more
     if request.method == "POST":
@@ -88,6 +93,8 @@ def purchase_orders(request):
                 response_json['p_orders'] = purchase_orders_to_json(orders)
                 response_json['status'] = True
                 return JsonResponse(response_json)
+            if str(data_json['action'] == "add"):
+                pass
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
@@ -96,6 +103,7 @@ def purchase_orders(request):
 
 @login_required
 @require_http_methods(['GET', 'POST'])
+#edit purchase order 
 def purchase_order(request,id):
     ''' To get data about single purchase order
     To get info about a single purchase_order, trigger /apiv1/inventory/porders/<purchase_order_id>/
@@ -131,10 +139,6 @@ def purchase_order(request,id):
                 purchase_order.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
-
-            if request.method == "add":
-                pass 
-                # purchase_order = PurchaseOrder.objects.create()
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     response_json = {'status':'', 'p_order':{}, 'p_items':[]}
@@ -193,6 +197,7 @@ def vendors(request):
                     added_by = CustomUserBase.objects.get(id=request.user.id)
                 )
                 vendor.save()
+                response_json['vendors'] = vendors_to_json([vendor])
                 response_json = {'status':True}
                 return JsonResponse(response_json)
             if data_json['action'] == "get":
@@ -219,10 +224,13 @@ def delete_vendors(request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             ids = data_json['vendors_id']
+            if ids is None:
+                raise Exception('Empty Vendor list')
             for id in ids:
                 vendor = Vendor.objects.get(id=int(id))
                 vendor.is_active = False
                 vendor.save()
+            response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -573,6 +581,58 @@ def delete_places(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
+######################################## Placement ########################################
+def assign_place(request):
+    '''
+    To increase quntity, there must be objects unassigned on the related purchase_item
 
-
-# # def Placement()
+    assign placement foramt : 
+    {
+        'action':'assign',
+        'place_id':1,
+        'purchase_item':2,
+        'stock':3        
+    }
+    Delete placement:
+    {
+        'action':'delete',
+        'id':2
+        'place_id':1,
+        'purchase_item':3,
+    }
+    edit quantity in the placement 
+    {
+        'action':'edit',
+        'id':3,
+        'stock':3        
+    }
+    '''    
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "assign":
+                place = Place.objects.get(id=int(data_json['place_id']))
+                purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item']))
+                placement = Placement.objects.create(
+                    item = purchase_item,
+                    place_on = place,
+                    stock = int(data_json["quantity"])
+                )
+                placement.save()
+                response_json['status'] = True
+                return JsonResponse(response_json)
+            if data_json['action'] == 'delete':
+                placement = Placement.objects.get(id=int(data_json['id']))
+                placement.delete()
+                response_json['status'] = True
+                return JsonResponse(response_json)
+            if data_json['action'] == 'edit':
+                placement = Placement.objects.get(id= int(data_json['id']))
+                placement.stock = int(data_json['quantity'])
+                placement.save()
+                response_json['status'] = True
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

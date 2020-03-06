@@ -8,8 +8,8 @@
 - create a clean up script that deletes all the inactive objects in the database that are not related to anything (as a key)
 
 ### Things 
-- cannot edit purchase item with the item's stock is in circulation
-
+- make ;; To increase quntity, there must be objects unassigned on the related purchase_item
+- make trascition fucntion to handle consistency 
 
 
 ## complete 
