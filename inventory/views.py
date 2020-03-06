@@ -72,24 +72,25 @@ def purchase_orders(request):
             data_json = json.loads(json_str)
             # GET Handler
             if str(data_json['action']).lower() == "get":
+
                 start = int(data_json["start"])
                 end = int(data_json["end"])
                 response_json = {'status':'', 'p_orders':[]}
                 if str(data_json['filter']).lower() == "none":
-                    orders = PurchaseOrder.objects.filter().order_by('-invoiced_on')[start:end]
+                    orders = PurchaseOrder.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "status":
-                    orders = PurchaseOrder.objects.filter(status=str(data_json['status']).upper()).order_by('-invoiced_on')[start:end]                
+                    orders = PurchaseOrder.objects.filter(is_active=True, status=str(data_json['status']).upper()).order_by('-invoiced_on')[start:end]                
                 # filter using date, will have to do after front-end
                 if str(data_json['filter']).lower() == "date":
                     start_date = str_to_datetime(str(data_json['start_date']))
                     end_date = str_to_datetime(str(data_json['end_date']))
-                    orders = PurchaseOrder.objects.filter(invoiced_on__range = [start_date, end_date]).order_by('-invoiced_on')[start:end]
+                    orders = PurchaseOrder.objects.filter(is_active=True, invoiced_on__range = [start_date, end_date]).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "vendor":
                     vendor_obj = Vendor.objects.get(id=int(data_json['vendor']))
-                    orders = PurchaseOrder.objects.filter(vendor=vendor_obj).order_by('-invoiced_on')[start:end]
+                    orders = PurchaseOrder.objects.filter(is_active=True, vendor=vendor_obj).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "added_by":
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
-                    orders = PurchaseOrder.objects.filter(added_by=added_by_obj).order_by('-invoiced_on')[start:end]    
+                    orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end]    
                 response_json['p_orders'] = purchase_orders_to_json(orders)
                 response_json['status'] = True
                 return JsonResponse(response_json)
@@ -150,6 +151,36 @@ def purchase_order(request,id):
         return JsonResponse(response_json)
     except(ObjectDoesNotExist) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+@login_required
+def delete_purchase_orders(request):
+    '''
+    {
+        "purchase_orders_id":[
+            1,2
+        ]
+    }
+    '''
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            ids = data_json['purchase_orders_id']
+            for id in ids:
+                purchase_order = PurchaseOrder.objects.get(id=int(id))
+                purchase_order.is_active = False
+                purchase_order.save()
+                for p_item in PurchaseItem.objects.filter(purchase_order = purchase_order):
+                    p_item.is_active = False
+                    p_item.save()
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
 
 ######################################## Vendor  ########################################
 
@@ -340,6 +371,7 @@ def item(request, id):
         'action':'edit',
         id: 1
         name: "klj"
+        is_active:True,
         catagory: 1
     }
     '''
@@ -353,6 +385,7 @@ def item(request, id):
             if data_json['action'] == "edit":
                 item.name = str(data_json['name'])
                 item.catagory = ItemCatagory.objects.get(id=int(data_json['catagory']))
+                item.is_active = data_json['is_active']
                 item.save()
                 response_json = {'status':True}
             return JsonResponse(response_json)
@@ -436,6 +469,7 @@ def item_catagory(request, id):
     POST For editing
     {
         'action':'edit',
+        is_active :True
         id: 1
         name: "klj"
     }
@@ -449,6 +483,7 @@ def item_catagory(request, id):
             response_json = {'status':False}
             if data_json['action'] == "edit":
                 item_catagory.name = str(data_json['name'])
+                item_catagory.is_active = data_json['is_active']
                 item.save()
                 response_json = {'status':True}
             return JsonResponse(response_json)
@@ -634,5 +669,124 @@ def assign_place(request):
                 placement.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+
+
+@login_required
+def purchase_items(request):
+    '''
+    function to add purchase item 
+    {
+        'action':'add',
+        'item': 1,
+        'purchase_order':5,
+        'quantity':3,
+        'non_discount_price': 234,
+        'purchase_price':34234,
+        'defective':55,
+        'discount_type':'fixed',
+        'discount':1351,
+        'status':'addedtocirculation',
+
+    }
+    '''
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if request.method == "add":
+                purchase_item = PurchaseItem.objects.create(
+                    item = Item.objects.get(id=int(data_json['item'])),
+                    purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order'])),
+                    quantity = int(data_json['quantity']),
+                    non_discount_price = data_json['non_discount_price'],
+                    purchase_price = data_json['purchase_price'],
+                    defective = data_json['defective'],
+                    discount_type = data_json['discount_type'],
+                    discount = data_json['discount'],
+                    status = data_json['status']
+                    )                
+                purchase_item.save()
+                response_json = {'status':True}
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+        response_json = {'status':'', 'p_items':[]}
+        # try:
+
+        #     purchase_item = PurchaseOrder.objects.get(id=int(id))
+        #     response_json['p_items'] = purchase_items_to_json([purchase_item])        
+        #     response_json['status'] = True
+        #     return JsonResponse(response_json)
+        # except(ObjectDoesNotExist) as exp:
+        #     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+
+@login_required
+def purchase_item(request, id):
+    '''
+    function to edit purchase item 
+    {
+        'action':'edit',
+        'item': 1,
+        'purchase_order':5,
+        'quantity':3,
+        'non_discount_price': 234,
+        'purchase_price':34234,
+        'defective':55,
+        'discount_type':'fixed',
+        'discount':1351,
+        'status':'addedtocirculation',
+
+    }
+    '''
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if request.method == "add":
+                purchase_item = PurchaseItem.objects.get(id=id)
+                purchase_item.item = Item.objects.get(id=int(data_json['item'])),
+                purchase_item.purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order'])),
+                purchase_item.quantity = int(data_json['quantity']),
+                purchase_item.non_discount_price = data_json['non_discount_price'],
+                purchase_item.purchase_price = data_json['purchase_price'],
+                purchase_item.defective = data_json['defective'],
+                purchase_item.discount_type = data_json['discount_type'],
+                purchase_item.discount = data_json['discount'],
+                purchase_item.status = data_json['status']              
+                purchase_item.save()
+                response_json = {'status':True}
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+@login_required
+def delete_purchase_items(request):
+    '''
+        {
+            "purchase_items_id":[
+                1,2
+            ]
+        }
+    '''
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            ids = data_json['purchase_items_id']
+            for id in ids:
+                purhcase_item = PurchaseItem.objects.get(id=int(id))
+                purchase_item.is_active = False
+                purchase_item.save()
+            response_json['status'] = True
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

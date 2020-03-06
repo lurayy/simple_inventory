@@ -72,27 +72,27 @@ def invoices(request):
                 end = int(data_json["end"])
                 response_json = {'status':'', 'sales':[]}
                 if str(data_json['filter']).lower() == "none":
-                    invoices = Invoice.objects.filter().order_by('-invoiced_on')[start:end]
+                    invoices = Invoice.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "status":
-                    invoices = Invoice.objects.filter(status=str(data_json['status']).upper()).order_by('-invoiced_on')[start:end]            
+                    invoices = Invoice.objects.filter(is_active=True, status=str(data_json['status']).upper()).order_by('-invoiced_on')[start:end]            
                 # filter using date, will have to do after front-end
                 if str(data_json['filter']).lower() == "date":
                     start_date = str_to_datetime(str(data_json['start_date']))
                     end_date = str_to_datetime(str(data_json['end_date']))
-                    invoices = Invoice.objects.filter(invoiced_on__range = [start_date, end_date]).order_by('-invoiced_on')[start:end]
+                    invoices = Invoice.objects.filter(is_active=True, invoiced_on__range = [start_date, end_date]).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "customer":
-                    customer_obj = Customer.objects.get(id=int(data_json['customer_id']))
+                    customer_obj = Customer.objects.get(is_active=True, id=int(data_json['customer_id']))
                     invoices = Invoice.objects.filter(customer=customer_obj).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "added_by":
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
-                    invoices = Invoice.objects.filter(added_by=added_by_obj).order_by('-invoiced_on')[start:end]    
+                    invoices = Invoice.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end] 
                 response_json['invoices'] = invoices_to_json(invoices)
                 response_json['status'] = True
                 return JsonResponse(response_json)
             # add after frontend
             if str(data_json['action'] == "add"):
                 pass
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -121,7 +121,7 @@ def invoice(request,id):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if request.method == "edit":
+            if data_json['edit'] == "edit":
                 invoice = PurchaseOrder.objects.get(id=int(data_json['id']))
                 invoice.total_cost = data_json['total_cost']
                 invoice.added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])) 
@@ -132,7 +132,7 @@ def invoice(request,id):
                 invoice.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
     try:
@@ -169,7 +169,7 @@ def delete_invoices(request):
                 invoice.save()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -228,7 +228,7 @@ def customers(request):
                 response_json['customers'] = customers_to_json(customer)
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -255,7 +255,7 @@ def delete_customers(request):
                 customer.save()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
@@ -301,7 +301,7 @@ def customer(request, id):
                 customer.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     try:
         customer = customer.objects.get(id=int(id))
@@ -310,3 +310,123 @@ def customer(request, id):
         return JsonResponse(response_json)
     except (KeyError, ObjectDoesNotExist) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+######################################## InvoieItems ########################################
+@login_required
+def invoice_items(request):
+    '''
+    function to add purchase item 
+    {
+        'action':'add',
+        'item': 1,
+        'purchase_item':5,
+        'sold_from':2,
+        'invoice':3,
+        'quantity':3,
+        'price':34234,
+        'tax_total':55,
+        'discount_type':'fixed',
+        'discount':1351,
+        'sub_total':54,
+        'total':234
+    }
+    '''
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if request.method == "add":
+                invoice_item = InvoiceItem.objects.create(
+                    item = Item.objects.get(id=int(data_json['item'])),
+                    purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item'])),
+                    sold_from = Place.objects.get(id=int(data_json['sold_from'])),
+                    invoice = Invoice.objects.get(id=int(data_json['invoice'])),
+
+                    quantity = int(data_json['quantity']),
+                    price = data_json['price'],
+                    discount_type = data_json['discount_type'],
+                    discount = data_json['discount'],
+                    tax_total = data_json['tax_total'],
+                    sub_total = data_json['sub_total'],
+                    total = data_json['total']
+                    )                
+                invoice_item.save()
+                response_json = {'status':True}
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+@login_required
+def invoice_item(request, id):
+    '''
+    function to edit purchase item 
+    {
+        'action':'edit',
+        'item': 1,
+        'purchase_item':5,
+        'sold_from':2,
+        'invoice':3,
+        'quantity':3,
+        'price':34234,
+        'tax_total':55,
+        'discount_type':'fixed',
+        'discount':1351,
+        'sub_total':54,
+        'total':234
+    }
+    delete
+    {
+        action:delete,
+        'id':3
+    }
+    '''
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "edit":
+                invoice_item = InvoiceItem.objects.get(id=id)
+                invoice_item.item = Item.objects.get(id=int(data_json['item'])),
+                invoice_item.purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item'])),
+                invoice_item.sold_from = Place.objects.get(id=int(data_json['sold_from'])),
+                invoice_item.invoice = Invoice.objects.get(id=int(data_json['invoice'])),
+
+                invoice_item.quantity = int(data_json['quantity']),
+                invoice_item.price = data_json['price'],
+                invoice_item.discount_type = data_json['discount_type'],
+                invoice_item.discount = data_json['discount'],
+                invoice_item.tax_total = data_json['tax_total'],
+                invoice_item.sub_total = data_json['sub_total'],
+                invoice_item.total = data_json['total']           
+                invoice_item.save()
+                response_json = {'status':True}
+                return JsonResponse(response_json)
+            
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+@login_required
+def delete_invoice_items(request):
+    '''
+        {
+            "invoice_items_id":[
+                1,2
+            ]
+        }
+    '''
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            ids = data_json['invoice_items_id']
+            for id in ids:
+                invoice_item = InvoiceItem.objects.get(id=int(id))
+                invoice_item.is_active = False
+                invoice_item.save()
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

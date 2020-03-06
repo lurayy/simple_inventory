@@ -50,4 +50,3 @@ class InvoiceItem(models.Model):
     )
     discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
     discount = models.PositiveIntegerField(default=0)
-    
