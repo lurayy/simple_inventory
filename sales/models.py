@@ -1,6 +1,6 @@
 from django.db import models
-from inventory.models import CustomUserBase, PurchaseItem
-from user_handler.models import Customer
+from inventory.models import  PurchaseItem, Place, Item
+from user_handler.models import Customer, CustomUserBase
 
 
 
@@ -12,14 +12,14 @@ class Invoice(models.Model):
     # currency = models.ForeignKey(Currency, on_delete=models.SET_NULL, null=True)
     # used_currency_rate = models.FloatField()
 
-    invoiced_at = models.DateTimeField()
-    due_at = models.DateTimeField()
+    invoiced_on = models.DateTimeField()
+    due_on = models.DateTimeField()
     order_number = models.BigIntegerField()
     notes = models.TextField()
     footer = models.TextField()
 
     paid_amount = models.FloatField()
-
+    
     STATUS_S = (
         ('DRAFT', "Draft"),
         ('SENT', "Sent"),
@@ -33,18 +33,21 @@ class Invoice(models.Model):
         return str(self.customer)
 
 
-class InvoiceItems(models.Model):
+class InvoiceItem(models.Model):
     ''' this model hold the items and the details of that item, that are add to invoice'''
-    item = models.ForeignKey(PurchaseItem, on_delete = models.SET_NULL, null=True)
+    purchase_item = models.ForeignKey(PurchaseItem, on_delete = models.SET_NULL, null=True)
+    item  = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
+    sold_from = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
-
     quantity = models.PositiveIntegerField(default=1)
-    # this will be item.sale_price, but can be changed if needed.
     price = models.FloatField()
-    # add a way to distingush tax and it's price
-    #The total price of taxes
     tax_total = models.FloatField()
-    # will be calculated using self.price
     sub_total = models.FloatField()
-    # sub_total+tax
     total = models.FloatField()
+    DISCOUNT = (
+        ('PERCENT', "percent"),
+        ('fixed', 'fixed')
+    )
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
+    discount = models.PositiveIntegerField(default=0)
+    

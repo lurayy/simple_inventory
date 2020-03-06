@@ -15,4 +15,6 @@ urlpatterns = [
     path('places', views.places, name="GET json of purchase orders"),
     path('places/<int:id>', views.place, name='Get data ofa pruchase order'),
     path('places/delete', views.delete_places, name="delete vendor"),
+
+    path('places/assign', views.assign_place, name="placement curd"),
 ]
