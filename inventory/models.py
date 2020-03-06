@@ -159,7 +159,6 @@ def pre_save_handler(sender, instance, *args, **kwargs):
             instance.item.save()
             for placement in instance.items_places.all():
                 placement.delete()    
-    
 
 @receiver(post_save, sender=PurchaseItem)
 def post_save_handler(sender, instance, **kwargs):
