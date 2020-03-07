@@ -55,7 +55,7 @@ def user_logout(request):
 @login_required
 def dashboard(request):
     '''Dashboard entry point fucntion'''
-    return render (request, 'user_handler/dashboard.html')
+    return render (request, 'dashboard.html')
 
 
 @require_http_methods(['GET', 'POST'])
