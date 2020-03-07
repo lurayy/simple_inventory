@@ -15,20 +15,20 @@ class PurchaseOrder(models.Model):
     total_cost = models.FloatField()
 
     DISCOUNT = (
-        ('PERCENT', "percent"),
-        ('FIXED', "fixed")
+        ('percent', "percent"),
+        ('fixed', "fixed")
     )
-    discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='percent')
     discount = models.PositiveIntegerField(default=0)
     STATUS_S = (
-        ('DRAFT', "Draft"),
-        ('SENT', "Sent"),
-        ('DUE', "Due"),
-        ('PAID', "Paid"),
-        ('DELIVERED','Delivered'),
-        ('COMPLETED', 'complete')
+        ('draft', "Draft"),
+        ('sent', "Sent"),
+        ('due', "Due"),
+        ('paid', "Paid"),
+        ('delivered','Delivered'),
+        ('completed', 'completed')
     )
-    status = models.CharField(max_length=10, choices=STATUS_S, default='DRAFT')
+    status = models.CharField(max_length=10, choices=STATUS_S, default='draft')
     is_active = models.BooleanField(default=True)
 
 class ItemCatagory(models.Model):
@@ -71,21 +71,26 @@ class PurchaseItem(models.Model):
     stock = models.PositiveIntegerField(default=0)
     defective = models.PositiveIntegerField(default=0)
     DISCOUNT = (
-        ('PERCENT', "percent"),
-        ('fixed', 'fixed')
+        ('percent', "Percent"),
+        ('fixed', 'Fixed')
     )
-    discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='PERCENT')
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='percent')
     discount = models.PositiveIntegerField(default=0)
     STATUS_S = (
         ('delivered','Delivered'),
         ('incomplete', 'Incomplete'),
         ('addedtocirculation', 'Added To Circulation')
     )
-    status = models.CharField(max_length=25, choices=STATUS_S, default='INCOMPLETE')
+    status = models.CharField(max_length=25, choices=STATUS_S, default='incomplete')
 
     is_active = models.BooleanField(default=True)    
     def __str__(self):
         return f'{self.item} of {self.purchase_order}'
+
+
+# @receiver(pre_save, sender=Invoice)
+# def tranction_handler(sender, instance, created, **kwargs):
+
 
 
 class Place(models.Model):
@@ -105,20 +110,27 @@ class Placement(models.Model):
     
     class Meta:
         unique_together = ('purchase_item', 'placed_on')
+    
 
 @receiver(pre_save, sender=Placement)
 def placement_pre_save_handler(sender, instance, *args, **kwargs):
     if instance.id:
-        if str(instance.placed_on == "unassigned"):
+        if str(instance.placed_on) == "unassigned":
+            print("sad")
+            print(instance)
             if instance.stock > instance.purchase_item.stock:
+                print(instance.stock,  instance.purchase_item.stock)
                 raise Exception('Total placed stocked of this item is greater than the purchased item stock.')
         else:
+            print("triggered")
             place = Place.objects.get(name = "unassigned")
             unassigned = Placement.objects.get(purchase_item=instance.purchase_item, placed_on = place)
             if instance.stock > unassigned.stock:
                 raise Exception('More stock is assiged than there is unassigned stock')
+            print("triggered")
             unassigned.stock = unassigned.stock - instance.stock
             unassigned.save()
+        
 
     if instance.id is None:
         if str(instance.placed_on) == 'unassigned':
@@ -134,10 +146,9 @@ def placement_pre_save_handler(sender, instance, *args, **kwargs):
 
 @receiver(models.signals.pre_save, sender=PurchaseItem)
 def pre_save_handler(sender, instance, *args, **kwargs):
-    
     if (instance.quantity < instance.defective):
         raise Exception("Number of defective items are greater than the quntity of the purchase item ")
-    instance.stock = instance.quantity - instance.defective
+    instance.stock = instance.quantity - instance.defective - instance.sold
     if instance.id is not None:
         p_item = PurchaseItem.objects.get(id=instance.id)
         old_status = p_item.status
@@ -145,9 +156,11 @@ def pre_save_handler(sender, instance, *args, **kwargs):
     else:
         old_status = ""
         old_sold = 0
-    if str(old_status).lower() == str(instance.status).lower() == "addedtocirculation" :
-        raise Exception("Cannot edit Purchase's item descriptions when it's in cirulation.")
+    
+    # if str(old_status).lower() == str(instance.status).lower() == "addedtocirculation" :
+    #     raise Exception("Cannot edit Purchase's item descriptions when it's in cirulation.")
     if instance.quantity != instance.sold + instance.stock + instance.defective:
+        print(instance.quantity, instance.sold, instance.stock, instance.defective)
         raise Exception('Items sold, defective and in stock doesnot add up to total quantity of the purchase item.')
     # if old_sold != instance.sold:
     #     raise Exception('Cannot edit already sold items.')
@@ -162,7 +175,7 @@ def pre_save_handler(sender, instance, *args, **kwargs):
                 placement.delete()    
 
 @receiver(post_save, sender=PurchaseItem)
-def post_save_handler(sender, instance, **kwargs):
+def post_save_handler(sender, instance, created, **kwargs):
     try:
         place = Place.objects.get(name='unassigned')
     except:
@@ -174,6 +187,6 @@ def post_save_handler(sender, instance, **kwargs):
         except:
             placement = Placement.objects.create(purchase_item=instance, placed_on=place, stock=0)
             placement.save()
-        placement.stock = placement.stock + instance.stock
-        print(placement.stock, instance.stock)
-        placement.save()
+            placement.stock = placement.stock + instance.stock
+            print(placement.stock, instance.stock)
+            placement.save()

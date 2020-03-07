@@ -74,7 +74,7 @@ def invoices(request):
                 if str(data_json['filter']).lower() == "none":
                     invoices = Invoice.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "status":
-                    invoices = Invoice.objects.filter(is_active=True, status=str(data_json['status']).upper()).order_by('-invoiced_on')[start:end]            
+                    invoices = Invoice.objects.filter(is_active=True, status=str(data_json['status']).lower()).order_by('-invoiced_on')[start:end]            
                 # filter using date, will have to do after front-end
                 if str(data_json['filter']).lower() == "date":
                     start_date = str_to_datetime(str(data_json['start_date']))
@@ -96,7 +96,7 @@ def invoices(request):
                     customer = Customer.objects.get(id=int(data_json['customer'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     due_on = str_to_datetime(data_json['due_on']),
-                    status = str(data_json['status']).upper()                    
+                    status = str(data_json['status']).lower()                    
                 )
                 invoice.save()
                 response_json['status'] = True
@@ -137,7 +137,7 @@ def invoice(request,id):
                 invoice.customer = Customer.objects.get(id=int(data_json['customer']))
                 invoice.invoiced_on = str_to_datetime(data_json['invoiced_on'])
                 invoice.completed_on = str_to_datetime(data_json['completed_on'])
-                invoice.status = str(data_json['status']).upper()
+                invoice.status = str(data_json['status']).lower()
                 invoice.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)

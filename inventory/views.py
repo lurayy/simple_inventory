@@ -86,7 +86,7 @@ def purchase_orders(request):
                 if str(data_json['filter']).lower() == "none":
                     orders = PurchaseOrder.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "status":
-                    orders = PurchaseOrder.objects.filter(is_active=True, status=str(data_json['status']).upper()).order_by('-invoiced_on')[start:end]                
+                    orders = PurchaseOrder.objects.filter(is_active=True, status=str(data_json['status']).lower()).order_by('-invoiced_on')[start:end]                
                 # filter using date, will have to do after front-end
                 if str(data_json['filter']).lower() == "date":
                     start_date = str_to_datetime(str(data_json['start_date']))
@@ -110,7 +110,7 @@ def purchase_orders(request):
                     vendor = Vendor.objects.get(id=int(data_json['vendor'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     completed_on = str_to_datetime(data_json['completed_on']),
-                    status = str(data_json['status']).upper()                    
+                    status = str(data_json['status']).lower()                    
                 )
                 purchase_order.save()
                 response_json['status'] = True
@@ -156,7 +156,7 @@ def purchase_order(request,id):
                 purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
                 purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
                 purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
-                purchase_order.status = str(data_json['status']).upper()
+                purchase_order.status = str(data_json['status']).lower()
                 purchase_order.save()
                 response_json = {'status':True}
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
