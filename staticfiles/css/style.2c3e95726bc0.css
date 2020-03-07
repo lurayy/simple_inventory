@@ -8,8 +8,8 @@
 */
 @font-face {
   font-family: 'Glyphicons Halflings';
-  src: url('../fonts/glyphicons-halflings-regular.eot');
-  src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff2') format('woff2'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg') format('svg');
+  src: url("../fonts/glyphicons-halflings-regular.f4769f9bdb74.eot");
+  src: url("../fonts/glyphicons-halflings-regular.f4769f9bdb74.eot?#iefix") format('embedded-opentype'), url("../fonts/glyphicons-halflings-regular.448c34a56d69.woff2") format('woff2'), url("../fonts/glyphicons-halflings-regular.fa2772327f55.woff") format('woff'), url("../fonts/glyphicons-halflings-regular.e18bbf611f2a.ttf") format('truetype'), url("../fonts/glyphicons-halflings-regular.89889688147b.svg") format('svg');
 }
 .glyphicon {
   position: relative;
@@ -998,7 +998,7 @@ h5 {
 .nav-header {
   padding: 33px 25px;
   background-color: #2f4050;
-  background-image: url("patterns/header-profile.png");
+  background-image: url("patterns/header-profile.2a634a94d5b1.png");
 }
 .caret {
   display: inline-block;
@@ -4425,7 +4425,7 @@ body.full-height-layout #page-wrapper {
   min-height: 100vh;
 }
 body.boxed-layout {
-  background: url('patterns/shattered.png');
+  background: url("patterns/shattered.ea2316224d45.png");
 }
 body.boxed-layout #wrapper {
   background-color: #2f4050;
@@ -8777,14 +8777,14 @@ body.rtls.top-navigation .footer.fixed {
 }
 .blue-skin {
   font-weight: 600;
-  background: url("patterns/header-profile-skin-1.png") repeat scroll 0 0;
+  background: url("patterns/header-profile-skin-1.85efa900c0fc.png") repeat scroll 0 0;
 }
 .blue-skin:hover {
   background: #0d8ddb;
 }
 .yellow-skin {
   font-weight: 600;
-  background: url("patterns/header-profile-skin-3.png") repeat scroll 0 100%;
+  background: url("patterns/header-profile-skin-3.bf471ec3d408.png") repeat scroll 0 100%;
 }
 .yellow-skin:hover {
   background: #ce8735;
@@ -8792,10 +8792,10 @@ body.rtls.top-navigation .footer.fixed {
 .ultra-skin {
   padding: 20px 10px;
   font-weight: 600;
-  background: url("patterns/3.png") repeat scroll 0 0;
+  background: url("patterns/3.7615d7da6d79.png") repeat scroll 0 0;
 }
 .ultra-skin:hover {
-  background: url("patterns/4.png") repeat scroll 0 0;
+  background: url("patterns/4.dd77cc9a3890.png") repeat scroll 0 0;
 }
 /*
  *
@@ -8817,7 +8817,7 @@ body.rtls.top-navigation .footer.fixed {
 }
 .skin-1 .nav-header {
   background-color: #0e9aef;
-  background-image: url('patterns/header-profile-skin-1.png');
+  background-image: url("patterns/header-profile-skin-1.85efa900c0fc.png");
 }
 .skin-1.mini-navbar .nav-second-level {
   background: #3e495f;
@@ -8923,7 +8923,7 @@ body.skin-2 {
 }
 .skin-2 .nav-header {
   background-color: #23c6c8;
-  background-image: url('patterns/header-profile-skin-2.png');
+  background-image: url("patterns/header-profile-skin-2.8307c45ca34d.png");
 }
 .skin-2.mini-navbar .nav-second-level {
   background: #ededed;
@@ -9076,7 +9076,7 @@ body.boxed-layout.skin-3 #wrapper {
 }
 .skin-3 .nav-header {
   background-color: #ecba52;
-  background-image: url('patterns/header-profile-skin-3.png');
+  background-image: url("patterns/header-profile-skin-3.bf471ec3d408.png");
 }
 .skin-3.mini-navbar .nav-second-level {
   background: #3e2c42;
@@ -9357,7 +9357,7 @@ body.md-skin {
   background-color: #ffffff;
 }
 .md-skin .nav-header {
-  background: url("patterns/4.png") no-repeat;
+  background: url("patterns/4.dd77cc9a3890.png") no-repeat;
 }
 .md-skin .label,
 .md-skin .badge {
