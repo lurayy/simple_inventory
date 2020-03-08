@@ -4,6 +4,8 @@ urlpatterns = [
     path('staffs', views.staff_list, name = 'get staff lists'),
 
     path('purchaseorders', views.purchase_orders, name='get purhcase order list'),
+    
+    path('purchaseorders/create', views.create_purchase_order, name='create order list'),
 
     
     path('vendors', views.vendors, name = 'get vendors'),

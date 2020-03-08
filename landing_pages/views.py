@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from .forms import PurchaseOrderForm
 
 @login_required
 def purchase_orders(request):
@@ -33,4 +34,13 @@ def invoices(request):
 @login_required
 def customers(request):
     return render (request, 'sales/customers.html')
+
+
+@login_required
+def create_purchase_order(request):
+    form = PurchaseOrderForm()
+    print(form)
+    return render(request, 'inventory/create_purchase_order.html',{'form':form})
+    
+
 

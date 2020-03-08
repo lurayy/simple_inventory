@@ -13,10 +13,14 @@
     <button type="button" class="btn btn-primary" onclick="search_book()">Search</button>
     
     
-    <a href=""><button type="button" class="btn btn-success">Create New Purchase Order</button></a>
+    <a href="/land/purchaseorders/create"><button type="button" class="btn btn-success">Create New Purchase Order</button></a>
+
+    <div id='purchase_order_modify'>
+        <h1>Some generic modify form</h1>
+    </div>
 
 
-<div class="container">
+
     <div id="order_table" class="table-responsive">
             <hr>
         <div class="card shadow">
@@ -48,6 +52,8 @@
 $( document ).ready(function() {
     getStatus();
     getPurchaseOrder(0,10);
+    
+    $("#purchase_order_modify").hide();
 });
 
 function notify_error(data)
@@ -140,9 +146,16 @@ function getSelectedOrder(id)
         type: 'GET',
         url: '/apiv1/inventory/porders/'+id,
         success: function(data){
+            processSinglePurchaseOrder(data);
             console.log(data);        
     }
     }); 
+}
+function processSinglePurchaseOrder(data)
+{
+    $("#order_table").hide();
+    $("#purchase_order_modify").show();
+    
 }
 
 function process_data(data)
@@ -166,6 +179,9 @@ function process_data(data)
     else{
         notify_error(data);
     }
+    
+    $("#purchase_order_modify").hide();
+    $("#order_table").show();
 }
 
 </script>
