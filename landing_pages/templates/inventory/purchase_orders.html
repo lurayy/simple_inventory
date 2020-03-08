@@ -5,28 +5,94 @@
 
 <h1> List Of Purchase Order </h1>
 
-<button onclick="get_purchase_orders()">Get data</button>
-<br>
-<button onclick="get_purchase_order()">Get data of single purchase order </button>
-<br>
-<br>
-<button onclick="get_vendors()">Get Vendors</button>
-<br>
-<button onclick="get_vendor()">Get data of single vendor </button>
 
-<br>
-<br>
-<button onclick="get_items()">Get Items</button>
-<br>
-<button onclick="get_item()">Get data of single Item </button>
+ <div class="container">
+    
+    <label for="book_name">Search Order:</label>
+    <input type="text" id="book_name" required autofocus placeholder="Need search filters">    
+    <button type="button" class="btn btn-primary" onclick="search_book()">Search</button>
+    
+    
+    <a href=""><button type="button" class="btn btn-success">Create New Purchase Order</button></a>
 
 
-<br>
-<br>
-<button onclick="add_vendor()">Add Vendor</button>
-<br>
-<button onclick="delete_vendors()">Delete Vendors</button>
-<br>
+<div class="container">
+    <div id="order_table" class="table-responsive">
+            <hr>
+        <div class="card shadow">
+            <div class="card-header border-0">
+                <h4 class="mb-0">Status :  <select id = "select_status" onchange="getPurchaseOrderUsingStatus(this.value)">
+                    
+                </select> </h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-items-center table-flush table-hover">
+                    <tr>
+                    <th scope="col">Vendor</th>
+                    <th scope="col">Items</th>
+                    <th scope="col">Invoiced On</th>
+                    <th scope="col">Completed On</th>
+                    <th scope="col">Total Cost</th>
+                    <th scope="col">Status</th>
+                    </tr>
+                <tbody id="order_results">
+                </tbody>
+            </div>
+        </div>
+    </div>
+</div>
 
+<script>
 
+// to get single purchase item data
+function getSelectedPurchaseOrder(id){
+    var xhttp = new XMLHttpRequest();
+    var info = {
+    };
+    $.ajax ({
+        type: 'POST',
+        url: '/apiv1/inventory/porders',
+        data: JSON.stringify(info),
+        success: function(data){
+            outputData(data);        
+    }
+    }); 
+
+function getStatus(start,end){
+    var xhttp = new XMLHttpRequest();
+    info = {
+        'action':'get',
+        'start':start,
+        'end':end,
+        'filter':'none'
+    }
+    $.ajax ({
+        type: 'POST',
+        url: 'apiv1/inventory/porders',
+        data: JSON.stringify(info),
+        success: function(data){
+            outputData(data);        
+    },
+    error: function(data){
+            swal("An unexpected error occured, Please report to the devs. Error : "+data, {
+                dangerMode: true,
+                buttons: {
+                    confirm: true,
+                },
+                })
+        }
+    });
+    function outputData(data){
+        y = y = data['semester'].length;
+        while (y) {
+        y = y -1;
+        $("#select_sem").append(
+            '<option value = '+data['semester'][y]+'>'+data['semester'][y]+'</option>'
+        )
+    }
+    }
+}
+}
+
+</script>
 {% endblock %}

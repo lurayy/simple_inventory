@@ -6,6 +6,13 @@ from django.dispatch import receiver
 from user_handler.models import CustomUserBase, Vendor
 from django.db.models import Q
 
+class PurchaseOrderStatus(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    is_end = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.name}'
+    
 
 class PurchaseOrder(models.Model):
     added_by = models.ForeignKey(CustomUserBase, on_delete= models.SET_NULL, null=True)
@@ -20,16 +27,27 @@ class PurchaseOrder(models.Model):
     )
     discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='percent')
     discount = models.PositiveIntegerField(default=0)
-    STATUS_S = (
-        ('draft', "Draft"),
-        ('sent', "Sent"),
-        ('due', "Due"),
-        ('paid', "Paid"),
-        ('delivered','Delivered'),
-        ('completed', 'completed')
-    )
-    status = models.CharField(max_length=10, choices=STATUS_S, default='draft')
+    # STATUS_S = (
+    #     ('draft', "Draft"),
+    #     ('sent', "Sent"),
+    #     ('due', "Due"),
+    #     ('paid', "Paid"),
+    #     ('delivered','Delivered'),
+    #     ('completed', 'completed')
+    # )
+    # status = models.CharField(max_length=10, choices=STATUS_S, default='draft')
+    status = models.ForeignKey(PurchaseOrderStatus, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)
+
+
+@receiver(models.signals.post_save, sender=PurchaseOrder)
+def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
+    if instance.status.is_end == True:
+        for item in instance.items.filter(is_active=True):
+            item.status = "addedtocirculation"
+            item.save()
+        
+
 
 class ItemCatagory(models.Model):
     name = models.CharField(max_length=255)

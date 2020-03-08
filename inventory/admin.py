@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUserBase, Vendor, PurchaseOrder, PurchaseItem, Item, Place, Placement, ItemCatagory
+from .models import CustomUserBase, Vendor, PurchaseOrder, PurchaseItem, Item, Place, Placement, ItemCatagory, PurchaseOrderStatus
 # Register your models here.
 
 admin.site.register(ItemCatagory)
@@ -10,4 +10,8 @@ admin.site.register(Place)
 admin.site.register(Placement)
 
 admin.site.register(PurchaseOrder)
+
+admin.site.register(PurchaseOrderStatus)
 admin.site.register(PurchaseItem)
+
+admin.site.site_header = "Mandala Management"
