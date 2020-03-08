@@ -6,13 +6,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Generic App Name Here</title>
+    <title>Mandala Mgmt</title>
     {% load static %}
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'font-awesome/css/font-awesome.css' %}" rel="stylesheet">
 
     <link href="{% static 'css/animate.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
 
 </head>
 
@@ -35,11 +36,45 @@
                         </ul> -->
                     </div>
                     <div class="logo-element">
-                        App Name
+                        Mandala Mgmt
                     </div>
                 </li>
                 <li class="active">
                     <a href=""><i class="fa fa-th-large"></i> <span class="nav-label">Dashbaord</span></a>
+                </li>
+                {% if user.user_type == "MANAGER" %}
+                <span class="block m-t-xs font-bold">Staff Manager</span>
+
+                <li class="active">
+                    <a href="/user/create"><i class="fa fa-th-large"></i> <span class="nav-label">Create New Staff Id</span></a>
+                </li>
+                <li class="active">
+                    <a href="/land/staffs"><i class="fa fa-th-large"></i> <span class="nav-label">Staff List</span></a>
+                </li>
+                {% endif %}
+    
+               
+                <span class="block m-t-xs font-bold">Inventory Management</span>
+
+                <li class="active">
+                    <a href="/land/purchaseorders"><i class="fa fa-th-large"></i> <span class="nav-label">Purchase Order</span></a>
+                </li>
+                <li class="active">
+                    <a href="/land/vendors"><i class="fa fa-th-large"></i> <span class="nav-label">Vendors</span></a>
+                </li>
+                <li class="active">
+                    <a href="/land/items"><i class="fa fa-th-large"></i> <span class="nav-label">Items</span></a>
+                </li>
+                <li class="active">
+                    <a href="/land/places"><i class="fa fa-th-large"></i> <span class="nav-label">Places For Items</span></a>
+                    <!-- create new places, and assign placements -->
+                </li>   
+                <span class="block m-t-xs font-bold">Sales</span>
+                <li class="active">
+                    <a href="/land/invoices"><i class="fa fa-th-large"></i> <span class="nav-label">Invoices</span></a>
+                </li>
+                <li class="active">
+                    <a href="/land/customers"><i class="fa fa-th-large"></i> <span class="nav-label">Customers</span></a>
                 </li>
             </ul>
 
@@ -80,6 +115,7 @@
 <script src="{% static 'js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
 
 <!-- Custom and plugin javascript -->
+<script src="{% static 'js/csrf.js' %}"></script>
 <script src="{% static 'js/inspinia.js' %}"></script>
 <script src="{% static 'js/plugins/pace/pace.min.js' %}"></script>
 

@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.views.decorators.http import require_http_methods
-
+from django.core.exceptions import ObjectDoesNotExist
 from .exceptions import  EmptyValueException
 
 from .forms import UserForm, LoginForm
@@ -55,7 +55,7 @@ def user_logout(request):
 @login_required
 def dashboard(request):
     '''Dashboard entry point fucntion'''
-    return render (request, 'dashboard.html')
+    return render (request, 'dashboard/main.html')
 
 
 @require_http_methods(['GET', 'POST'])
@@ -68,13 +68,11 @@ def user_creation(request):
         if user_data.is_valid():
             new_user = user_data.save(commit=False)
             new_user.save()
-            print(new_user)
             return HttpResponseRedirect('/')
         else:
-            print(user_data)
             return HttpResponse('Bad Data')
     user_form = UserForm()
-    return render(request, 'user_handler/user_form.html',{'user_form':user_form})
+    return render(request, 'user/user_form.html',{'user_form':user_form})
 
 
 def get_users_data(start, end):
@@ -95,15 +93,9 @@ def get_users_data(start, end):
 @require_http_methods(['GET', 'POST'])
 @login_required
 @user_passes_test(check)
-def user_modify(request):
+def users(request):
     '''Deletes non-super users'''
     '''
-    POST json format: 
-    {
-        'action':'delete'/'revive',
-        'user_id':'4',
-        'uuid':'c4971e44-a4d8-4675-ad27-e7b3fd24332a',
-    }
     futher query : 
     {
         'action':'get',
@@ -120,17 +112,71 @@ def user_modify(request):
                 response_json['users'] = get_users_data(int(data_json['start']), int(data_json['end']))
                 response_json['status'] = True
                 return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    response_json = {'status':'', 'users':[]}
+    response_json['users'] = get_users_data(0,10)
+    response_json['status'] = True
+    return JsonResponse(response_json)
+
+
+# for geting single user details and modify
+@login_required
+def s_user(request,id):
+    '''POST json format: 
+    {
+        'action':'delete'/'revive','modify'
+        'user_id':'4',
+        'uuid':'c4971e44-a4d8-4675-ad27-e7b3fd24332a',
+    }
+    for modify:
+    {
+        'action':'edit',
+        'user_id':'4',
+        'uuid':'c4971e44-a4d8-4675-ad27-e7b3fd24332a',
+        'first_name'
+        'last_name'
+        'email'
+        'username'
+        'user_type'
+    }
+    '''
+    users_json = []
+    if request.method == 'POST':
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)   
+        try:
+            if (id != int(data_json['user_id'])):
+                raise Exception('Consisteny Error, id mismatch. ')
             user = CustomUserBase.objects.get(id=int(data_json['user_id']), uuid=str(data_json['uuid']))
             if str(data_json['action']).lower() == 'delete':
                 user.is_active = False
             if str(data_json['action']).lower() == 'revive':
                 user.is_active = True
+            if str(data_json['action']) == "edit":
+                user.first_name = data_json['first_name']
+                user.last_name = data_json['last_name']
+                user.email = data_json['email']
+                user.username = data_json['username']
+                user.user_type = data_json['user_type']
             user.save()
             return JsonResponse({'status':True, 'msg':f'Change is made to {user.username}'})
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    try:
+        user = CustomUserBase.objects.get(id=id)
+        user_json = {'id':'', 'name':'', 'status':'','user_name':'', 'uuid':''}
+        user_json['id'] = str(user.id)
+        user_json['name'] = f'{user.first_name} {user.last_name}'
+        user_json['first_name'] = user.first_name
+        user_json['last_name'] = user.last_name
+        user_json['status'] = str(user.user_type)
+        user_json['user_name'] = str(user.username)
+        user_json['is_active'] = user.is_active
+        user_json['email'] = str(user.email)
+        user_json['uuid'] = str(user.uuid)
+        return JsonResponse(user_json)
+    except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
-    response_json = {'status':'', 'users':[]}
-    response_json['users'] = get_users_data(0,10)
-    response_json['status'] = True
-    return render(request, 'user_handler/user_delete.html', {'response_json':response_json})
+

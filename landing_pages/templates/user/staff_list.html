@@ -1,0 +1,158 @@
+
+{% extends 'header.html' %}
+{% block content %}
+<h1>
+    staff list
+    <button onclick="get_users()" >get list json</button>
+    
+    <button onclick="revive_user()" >revive json</button>
+    <button onclick="delete_user()" >delete json</button>
+    
+    <button onclick="get_user()" >GET single whole user json</button>
+    
+    <button onclick="edit_user()" >Edit  user json</button>
+</h1>
+<script>
+    function get_users(){
+    // dummy data
+    info = {
+        'action':'get',
+        'start':0,
+        'end':10        
+    }
+    $.ajax (
+        {
+            type: 'POST',
+            url: '/users',
+            data: JSON.stringify(info),
+            success: function(data){
+                console.log(data)            
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+function revive_user(){
+    // dummy data
+    info = {
+        'action':'revive',
+        'user_id':'2',
+        'uuid':'e0f8860b-fda0-4743-bc5d-ece4b19d953f',
+    }
+    $.ajax (
+        {
+            type: 'POST',
+            url: '/user/modify',
+            data: JSON.stringify(info),
+            success: function(data){
+                console.log(data)
+                if(data['status']){
+                }                
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+function revive_user(){
+    // dummy data
+    info = {
+        'action':'revive',
+        'user_id':2,
+        'uuid':'e0f8860b-fda0-4743-bc5d-ece4b19d953f',
+    }
+    $.ajax (
+        {
+            type: 'POST',
+            url: '/user/'+info['user_id'],
+            data: JSON.stringify(info),
+            success: function(data){
+                console.log(data)
+                if(data['status']){
+                }                
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+function delete_user(){
+    info = {
+        'action':'delete',
+        'user_id':2,
+        'uuid':'e0f8860b-fda0-4743-bc5d-ece4b19d953f',
+    }
+    $.ajax (
+        {
+            type: 'POST',
+            url: '/user/'+info['user_id'],
+            data: JSON.stringify(info),
+            success: function(data){
+                console.log(data)
+                if(data['status']){
+                }                
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+
+function get_user(){
+    info = {
+        'action':'get',
+        'user_id':2,
+        'uuid':'e0f8860b-fda0-4743-bc5d-ece4b19d953f',
+    }
+    $.ajax (
+        {
+            type: 'get',
+            url: '/user/'+info['user_id'],
+            data: JSON.stringify(info),
+            success: function(data){
+                console.log(data)
+                if(data['status']){
+                }                
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+function edit_user(){
+    info = {
+        'action':'edit',
+        'user_id': 2,
+        'first_name': "manager",
+        'last_name': "changed",
+        'email':'email@change.com',
+        'status': "MANAGER",
+        'username': "manager",
+        'uuid': "e0f8860b-fda0-4743-bc5d-ece4b19d953f",
+        'is_active': true,
+        'user_type':'manager'
+    }
+    $.ajax (
+        {
+            type: 'POST',
+            url: '/user/'+info['user_id'],
+            data: JSON.stringify(info),
+            success: function(data){
+                console.log(data)
+                if(data['status']){
+                }                
+            },
+            error: function(data){ 
+                console.log(data)
+            }
+        });
+}
+
+</script>
+{% endblock %}
