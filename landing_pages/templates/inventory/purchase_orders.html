@@ -21,8 +21,8 @@
             <hr>
         <div class="card shadow">
             <div class="card-header border-0">
-                <h4 class="mb-0">Status :  <select id = "select_status" onchange="getPurchaseOrderUsingStatus(this.value)">
-                    
+                <h4 class="mb-0">Status :  <select id = "select_status" onchange="getPurchaseOrderUsingStatus(this.value,0,10)">
+
                 </select> </h4>
             </div>
             <div class="table-responsive">
@@ -44,54 +44,128 @@
 
 <script>
 
-// to get single purchase item data
-function getSelectedPurchaseOrder(id){
-    var xhttp = new XMLHttpRequest();
-    var info = {
-    };
-    $.ajax ({
-        type: 'POST',
-        url: '/apiv1/inventory/porders',
-        data: JSON.stringify(info),
-        success: function(data){
-            outputData(data);        
-    }
-    }); 
 
-function getStatus(start,end){
+$( document ).ready(function() {
+    getStatus();
+    getPurchaseOrder(0,10);
+});
+
+function notify_error(data)
+{
+    swal("An unexpected error occured, Please report to the devs. Error : "+data['error'], {
+        dangerMode: true,
+        buttons: {
+            confirm: true,
+        },
+        })
+}
+
+function getPurchaseOrder(start, end)
+{
     var xhttp = new XMLHttpRequest();
     info = {
         'action':'get',
         'start':start,
         'end':end,
-        'filter':'none'
+        'filter':'none',
     }
     $.ajax ({
         type: 'POST',
-        url: 'apiv1/inventory/porders',
-        data: JSON.stringify(info),
+        url: '/apiv1/inventory/porders',
+        data:JSON.stringify(info),
         success: function(data){
-            outputData(data);        
-    },
-    error: function(data){
-            swal("An unexpected error occured, Please report to the devs. Error : "+data, {
-                dangerMode: true,
-                buttons: {
-                    confirm: true,
-                },
-                })
+            process_data(data)
+        },
+        error:function(data){
+            notify_error(data)
         }
     });
+
+}
+
+function getStatus(){
+    var xhttp = new XMLHttpRequest();
+    $.ajax ({
+        type: 'GET',
+        url: '/apiv1/inventory/status',
+        success: function(data){
+            outputData(data);     
+    },
+    error: function(data){
+            notify_error(data)
+        }
+    });
+
     function outputData(data){
-        y = y = data['semester'].length;
+        y = data['data'].length;
+        data = data['data']
         while (y) {
         y = y -1;
-        $("#select_sem").append(
-            '<option value = '+data['semester'][y]+'>'+data['semester'][y]+'</option>'
+        $("#select_status").append(
+            '<option value = '+data[y]['id']+'>'+data[y]['name']+'</option>'
         )
     }
     }
 }
+
+
+function getPurchaseOrderUsingStatus(status,start,end)
+{
+    var xhttp = new XMLHttpRequest();
+    info = {
+        'action':'get',
+        'start':start,
+        'end':end,
+        'filter':'status',
+        'status_id':status
+    }
+    $.ajax ({
+        type: 'POST',
+        url: '/apiv1/inventory/porders',
+        data:JSON.stringify(info),
+        success: function(data){
+            process_data(data)
+        },
+        error:function(data){
+            notify_error(data)
+        }
+    });
+
+}
+
+function getSelectedOrder(id)
+{
+    var xhttp = new XMLHttpRequest();
+    $.ajax ({
+        type: 'GET',
+        url: '/apiv1/inventory/porders/'+id,
+        success: function(data){
+            console.log(data);        
+    }
+    }); 
+}
+
+function process_data(data)
+{
+    if (data['status'])
+    {
+        data = data['p_orders']
+        y  = data.length
+        $("tr").remove(".table-row");
+        while (y) {
+            y = y -1;
+            $("#order_results").append(
+                '<tr data-href="'+data[y]['id']+'" class="table-row"><td>'+data[y]['vendor_name'] +'</td><td>'+data[y]['items'] +'</td><td>'+data[y]['invoiced_on'] +'</td><td>'+data[y]['completed_on'] +'</td><td>'+data[y]['total_cost'] +'</td><td>'+data[y]['status_name'] +'</td></tr>'
+            )
+        }
+        $(".table-row").click(function() {
+        x = $(this).data("href");
+        getSelectedOrder(x);
+        });
+    }
+    else{
+        notify_error(data);
+    }
 }
 
 </script>

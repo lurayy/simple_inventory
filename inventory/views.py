@@ -4,11 +4,13 @@ from django.views.decorators.http import require_http_methods
 import json
 import datetime
 from user_handler.models import Vendor, CustomUserBase
-from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement
+from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus
 from .utils import purchase_orders_to_json, purchase_items_to_json, str_to_datetime, vendors_to_json, items_to_json, item_catagories_to_json, places_to_json
 from .exceptions import  EmptyValueException
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
+from .serializers import StatusSerializer
+
 
 @login_required
 @require_http_methods(['POST'])
@@ -48,6 +50,7 @@ def purchase_orders(request):
         "end":5,
         "filter":"status",
         "status":"sent"
+        "status_id":1
     }
     filter by multiple:
     {
@@ -86,7 +89,8 @@ def purchase_orders(request):
                 if str(data_json['filter']).lower() == "none":
                     orders = PurchaseOrder.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "status":
-                    orders = PurchaseOrder.objects.filter(is_active=True, status=str(data_json['status']).lower()).order_by('-invoiced_on')[start:end]                
+                    status = PurchaseOrderStatus.objects.get(id=data_json['status_id'])
+                    orders = PurchaseOrder.objects.filter(is_active=True, status=status).order_by('-invoiced_on')[start:end]                
                 # filter using date, will have to do after front-end
                 if str(data_json['filter']).lower() == "date":
                     start_date = str_to_datetime(str(data_json['start_date']))
@@ -121,8 +125,6 @@ def purchase_orders(request):
 
 
 
-@login_required
-#edit purchase order 
 
 @require_http_methods(['POST', 'GET'])
 def purchase_order(request,id):
@@ -826,3 +828,12 @@ def delete_purchase_items(request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+@login_required
+def purchase_order_statuss(request):
+    statuss = PurchaseOrderStatus.objects.all()
+    data = []
+    for status in statuss:
+        temp =  StatusSerializer(status).data
+        data.append(temp)
+    return JsonResponse({'status':True, 'data':data})

@@ -18,4 +18,6 @@ urlpatterns = [
     path('places/delete', views.delete_places, name="delete places"),
 
     path('places/assign', views.assign_place, name="placement curd"),
+
+    path('status',views.purchase_order_statuss, name="get status")
 ]
