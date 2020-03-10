@@ -24,4 +24,13 @@ class PurchaseOrderForm(ModelForm):
     
     class Meta:
         model = PurchaseOrder
-        fields = ['vendor','invoiced_on', 'completed_on']
+        fields = '__all__'
+        exclude = ['added_by']
+
+
+class PurchaseItemForm(ModelForm):
+    
+    class Meta:
+        model = PurchaseItem
+        fields = '__all__'
+        exclude = ['added_by', 'purchase_order']

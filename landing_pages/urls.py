@@ -6,6 +6,7 @@ urlpatterns = [
     path('purchaseorders', views.purchase_orders, name='get purhcase order list'),
     
     path('purchaseorders/create', views.create_purchase_order, name='create order list'),
+    path('purchaseorder/<int:id>', views.edit_purchase_order, name='edit purchase order'),
 
     
     path('vendors', views.vendors, name = 'get vendors'),

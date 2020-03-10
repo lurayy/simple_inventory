@@ -21,7 +21,7 @@ def purchase_items_to_json(items):
     data = []
     for item in items:
         temp = PurchaseItemSerializer(item).data
-        temp['item'] = str(Item.objects.get(id=temp['item']))
+        temp['item_name'] = str(Item.objects.get(id=temp['item']))
         data.append(temp)
     return data
 

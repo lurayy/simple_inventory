@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from .forms import PurchaseOrderForm
+from .forms import PurchaseOrderForm, PurchaseItemForm
+from inventory.models import PurchaseOrder, PurchaseItem 
+from inventory.utils import purchase_orders_to_json, purchase_items_to_json
 
 @login_required
 def purchase_orders(request):
@@ -39,8 +41,23 @@ def customers(request):
 @login_required
 def create_purchase_order(request):
     form = PurchaseOrderForm()
-    print(form)
     return render(request, 'inventory/create_purchase_order.html',{'form':form})
     
+@login_required
+def edit_purchase_order(request,id):
+    order_object = PurchaseOrder.objects.get(id=id)
+    order = purchase_orders_to_json([order_object])
+    form = PurchaseOrderForm(
+        initial=order[0]
+    )
+    items_obj = order_object.items.all()
+    item_forms = []
+    for item  in items_obj:
+        temp = purchase_items_to_json([item])
+        item_form = PurchaseItemForm(
+            initial = temp[0]
+        )
+        item_forms.append(item_form)
+    return render(request, 'inventory/purchase_order.html',{'form':form, 'item_forms':item_forms})
 
 
