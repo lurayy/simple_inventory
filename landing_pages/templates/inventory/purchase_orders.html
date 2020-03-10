@@ -1,7 +1,8 @@
 {% extends 'header.html' %}
 {% block content %}
 {% load static %}
-<script src="{% static 'inventory/js/porders.js' %}"></script>
+<script src="{% static 'inventory/js/purchase_order.js' %}"></script>
+<link href="{% static 'inventory/css/purchase_order.css' %}" rel="stylesheet">
 
 <h1> List Of Purchase Order </h1>
 
@@ -17,6 +18,21 @@
 
     <div id='purchase_order_modify'>
         <h1>Some generic modify form</h1>
+        <div >
+            <table>
+                <tr>
+                    <th>Vendor</th>
+                    <th>
+                        <div class="dropdown">
+                            <input id='search_vendor' placeholder='First Name Only'> 
+                            <div class='dropdown-content' id='vendor_dropdown_data'>
+                                <div class="loader" id="loader_id"></div>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </table>
+        </div>
     </div>
 
 
@@ -47,142 +63,6 @@
 </div>
 
 <script>
-
-
-$( document ).ready(function() {
-    getStatus();
-    getPurchaseOrder(0,10);
-    
-    $("#purchase_order_modify").hide();
-});
-
-function notify_error(data)
-{
-    swal("An unexpected error occured, Please report to the devs. Error : "+data['error'], {
-        dangerMode: true,
-        buttons: {
-            confirm: true,
-        },
-        })
-}
-
-function getPurchaseOrder(start, end)
-{
-    var xhttp = new XMLHttpRequest();
-    info = {
-        'action':'get',
-        'start':start,
-        'end':end,
-        'filter':'none',
-    }
-    $.ajax ({
-        type: 'POST',
-        url: '/apiv1/inventory/porders',
-        data:JSON.stringify(info),
-        success: function(data){
-            process_data(data)
-        },
-        error:function(data){
-            notify_error(data)
-        }
-    });
-
-}
-
-function getStatus(){
-    var xhttp = new XMLHttpRequest();
-    $.ajax ({
-        type: 'GET',
-        url: '/apiv1/inventory/status',
-        success: function(data){
-            outputData(data);     
-    },
-    error: function(data){
-            notify_error(data)
-        }
-    });
-
-    function outputData(data){
-        y = data['data'].length;
-        data = data['data']
-        while (y) {
-        y = y -1;
-        $("#select_status").append(
-            '<option value = '+data[y]['id']+'>'+data[y]['name']+'</option>'
-        )
-    }
-    }
-}
-
-
-function getPurchaseOrderUsingStatus(status,start,end)
-{
-    var xhttp = new XMLHttpRequest();
-    info = {
-        'action':'get',
-        'start':start,
-        'end':end,
-        'filter':'status',
-        'status_id':status
-    }
-    $.ajax ({
-        type: 'POST',
-        url: '/apiv1/inventory/porders',
-        data:JSON.stringify(info),
-        success: function(data){
-            process_data(data)
-        },
-        error:function(data){
-            notify_error(data)
-        }
-    });
-
-}
-
-function getSelectedOrder(id)
-{
-    var xhttp = new XMLHttpRequest();
-    $.ajax ({
-        type: 'GET',
-        url: '/apiv1/inventory/porders/'+id,
-        success: function(data){
-            processSinglePurchaseOrder(data);
-            console.log(data);        
-    }
-    }); 
-}
-function processSinglePurchaseOrder(data)
-{
-    $("#order_table").hide();
-    $("#purchase_order_modify").show();
-    
-}
-
-function process_data(data)
-{
-    if (data['status'])
-    {
-        data = data['p_orders']
-        y  = data.length
-        $("tr").remove(".table-row");
-        while (y) {
-            y = y -1;
-            $("#order_results").append(
-                '<tr data-href="'+data[y]['id']+'" class="table-row"><td>'+data[y]['vendor_name'] +'</td><td>'+data[y]['items'] +'</td><td>'+data[y]['invoiced_on'] +'</td><td>'+data[y]['completed_on'] +'</td><td>'+data[y]['total_cost'] +'</td><td>'+data[y]['status_name'] +'</td></tr>'
-            )
-        }
-        $(".table-row").click(function() {
-        x = $(this).data("href");
-        getSelectedOrder(x);
-        });
-    }
-    else{
-        notify_error(data);
-    }
-    
-    $("#purchase_order_modify").hide();
-    $("#order_table").show();
-}
-
+    $('#search_vendor').on("input", search_vendor);
 </script>
 {% endblock %}

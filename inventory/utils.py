@@ -11,6 +11,9 @@ def purchase_orders_to_json(models):
         temp['vendor_name'] = str(Vendor.objects.get(id=temp['vendor']))
         temp['added_by_name'] = str(CustomUserBase.objects.get(id=temp['added_by']))
         temp['status_name'] = str(PurchaseOrderStatus.objects.get(id=temp['status']))
+        temp['items'] = ''
+        for item in model.items.filter(is_active=True):
+            temp['items'] = f'{item.item}, {temp["items"]}'
         data.append(temp)
     return data
 

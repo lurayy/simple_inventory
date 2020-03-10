@@ -232,7 +232,7 @@ def vendors(request):
         "address": "Qui in at culpa unde"
     }
     '''
-    response_json = {'status':'', 'vendors':[]}
+    response_json = {'status':False, 'vendors':[]}
     if request.method == "POST":
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -255,11 +255,18 @@ def vendors(request):
                 response_json = {'status':True}
                 return JsonResponse(response_json)
             if data_json['action'] == "get":
-                vendors = Vendor.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                response_json['vendors'] = vendors_to_json(vendors)
-                response_json['status'] = True
-                return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+                if data_json['filter'] == 'none':
+                    vendors = Vendor.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['vendors'] = vendors_to_json(vendors)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
+                if data_json['filter'] == 'name':
+                    vendors = Vendor.objects.filter(is_active=True, first_name=data_json['first_name'])
+                    response_json['vendors'] = vendors_to_json(vendors)
+                    if response_json['vendors']:
+                        response_json['status'] = True
+                    return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
