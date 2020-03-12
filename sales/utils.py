@@ -1,6 +1,6 @@
 from .models import Invoice, InvoiceItem 
 from user_handler.models import Customer, CustomUserBase
-from .serializers import InvoiceSerializer, InvoiceItemSerializer, CustomerSerializer
+from .serializers import InvoiceSerializer, InvoiceItemSerializer, CustomerSerializer, TaxSerializer, DiscountSerializer
 from inventory.models import PurchaseItem, Place, Item
 
 def invoices_to_json(models):
@@ -18,7 +18,13 @@ def invoice_items_to_json(items):
     for item in items:
         temp = InvoiceItemSerializer(item).data
         temp['item_name'] = str(Item.objects.get(id=temp['item']))
-        temp['sold_from_name'] = str(Place.objects.get(id=id=temp['sold_from']))
+        temp['sold_from_name'] = str(Place.objects.get(id=temp['sold_from']))
+        temp['applied_tax'] = []
+        temp['applied_discount'] = []
+        for tax in item.taxes.all().filter(is_active=True):
+            temp['applied_tax'].append(TaxSerializer(tax).data)
+        for discount in item.discount.all().filter(is_active=True):
+            temp['applied_discount'].append(DiscountSerializer(discount).data)
         data.append(temp)
     return data
 

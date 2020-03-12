@@ -1,9 +1,9 @@
 from .models import Invoice, InvoiceItem
-from inventory.utils import str_to_datetime
+from inventory.utils import str_to_datetime 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 import json
-
+from .utils import invoices_to_json, invoice_items_to_json
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_http_methods
@@ -417,9 +417,17 @@ def invoice_item(request, id):
                 invoice_item.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
-            
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    try:
+        invoice_item = InvoiceItem.objects.get(id=int(id))
+        response_json['invoice_items'] = invoice_items_to_json([invoice_item])
+        response_json['status'] = True
+        return JsonResponse(response_json)
+    except (KeyError, ObjectDoesNotExist) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
 
 @login_required
 @require_http_methods(['POST'])
