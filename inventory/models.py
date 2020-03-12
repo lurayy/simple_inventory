@@ -3,7 +3,7 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
-from user_handler.models import CustomUserBase, Vendor
+from user_handler.models import CustomUserBase, Vendor, Tax, Discount 
 from django.db.models import Q
 
 class PurchaseOrderStatus(models.Model):
@@ -27,15 +27,6 @@ class PurchaseOrder(models.Model):
     )
     discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='percent')
     discount = models.PositiveIntegerField(default=0)
-    # STATUS_S = (
-    #     ('draft', "Draft"),
-    #     ('sent', "Sent"),
-    #     ('due', "Due"),
-    #     ('paid', "Paid"),
-    #     ('delivered','Delivered'),
-    #     ('completed', 'completed')
-    # )
-    # status = models.CharField(max_length=10, choices=STATUS_S, default='draft')
     status = models.ForeignKey(PurchaseOrderStatus, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)
 

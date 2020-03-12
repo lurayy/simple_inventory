@@ -9,9 +9,11 @@
 
 ### Things 
 - make ;; To increase quntity, there must be objects unassigned on the related purchase_item
-- make trascition fucntion to handle consistency 
 - in fend , is_active true is normal , false is muted gray  
-
+- to apply discount or taxes, 2 saves have to be done. .save() .save()
+    - first save creates the relations 
+    - second save triggers the update 
+    
 ## complete 
 - purchase_order/purchase_item
 - Vendors

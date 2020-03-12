@@ -55,8 +55,32 @@ class Customer(models.Model):
 
     is_active = models.BooleanField(default=True)
 
-    #reference ??
-    # logo/picture ?
-
     def __str__(self):
         return f'{self.first_name} + {self.last_name}'
+
+class Tax(models.Model):
+    name = models.CharField(max_length=255)
+    rate = models.PositiveIntegerField()
+    tax_types = (
+        ('fixed', "Fixed"),
+        ('normal', "Normal")
+    )
+    tax_type = models.CharField(max_length=30, choices=tax_types, default='normal')
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.name} {self.rate}'
+
+class Discount(models.Model):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255, null=True, blank=True)
+    discount_types =(
+        ('fixed',"Fixed"),
+        ('percent', "Percent")
+    )
+    discount_type = models.CharField(max_length=20, default="Percent")
+    rate = models.PositiveIntegerField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.name} {self.code} {self.rate}'
