@@ -146,7 +146,7 @@ def invoice(request,id):
     response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
     try:
         invoice = Invoice.objects.get(id=int(id))
-        response_json['invoice'] = invoices_to_json([order])
+        response_json['invoice'] = invoices_to_json([invoice])
         response_json['invoice_items'] = invoice_items_to_json(InvoiceItem.objects.filter(invoice=invoice))        
         response_json['status'] = True
         return JsonResponse(response_json)
