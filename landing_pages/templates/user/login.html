@@ -24,7 +24,6 @@
             }
     </style>
 </head>
-
 <body>
     <div class="container loginPage">
         <div class="row">
@@ -32,7 +31,7 @@
             </div>
             <div class="col-md-4">
                 <h4 style="text-align:center;">Simple Inventory</h4>
-                <form role="form" method="POST">
+                <form role="form" method="POST" id="test">
                     {% csrf_token %}
                     <div class="form-group">
                       <!-- <label for="inputUserName">User name</label> -->
@@ -43,7 +42,7 @@
                       <!-- <label for="inputPassword">Password</label> -->
                       <input type="password" class="form-control" id="password" placeholder="Password" name="password">
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                    <button onClick="submitForm()" class="btn btn-primary btn-block">Submit</button>
                     <!--forget password-->
                     <!-- <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="fotgetPassword">
@@ -55,5 +54,25 @@
             <div class="cl-md-4"></div>
         </div>
     </div>
+
+    <script>
+        function submitForm(){
+            $.ajax ({
+        type: 'POST',
+        url: '/apiv1/sales/invoices',
+        dataType:'json',
+        data: $('#test').serialize(),
+        success: function(data){
+            console.log(data)
+            process_data(data)
+        },
+        error:function(data){
+            notify_error(data)
+        }
+    });
+        }
+    </script>
+
+
 </body>
 </html>
