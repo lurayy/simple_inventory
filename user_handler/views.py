@@ -24,24 +24,33 @@ def check(user):
 @require_http_methods(['GET', 'POST'])
 def user_login(request):
     '''user login function'''
-    if request.user.is_authenticated:
-        return HttpResponseRedirect('/')
-    else:
-        if request.method == 'POST':
-            form = LoginForm(request.POST)
-            if form.is_valid():
-                username = form.cleaned_data['username']
-                password = form.cleaned_data['password']
-                user = authenticate(request, username = username, password = password)
-                if user is not None:
-                    login(request,user)
-                    return HttpResponseRedirect('/')
-                else:
-                    response_json = {'status':False, 'error':'Username or Password is not correct.'}
-                    return HttpResponse(json.dumps(response_json),content_type = 'application/json')
+    try:    
+        if request.user.is_authenticated:
+            return HttpResponseRedirect('/')
         else:
-            form = LoginForm()
-            return render (request, 'user/login.html',{'form':form})
+            if request.method == 'POST':
+                form = LoginForm(request.POST)
+                if form.is_valid():
+                    username = form.cleaned_data['username']
+                    password = form.cleaned_data['password']
+                    user = authenticate(request, username = username, password = password)
+                    if user is not None:
+                        login(request,user)
+                        return HttpResponseRedirect('/')
+                    else:
+                        response_json = {'status':False, 'error':'Username or Password is not correct.'}
+                        return HttpResponse(json.dumps(response_json),content_type = 'application/json')
+                else:
+                    response_json = {'status':False, 'error':'The given form is invalid.'}
+                    return HttpResponse(json.dumps(response_json),content_type = 'application/json')
+            else:
+                form = LoginForm()
+                return render (request, 'user/login.html',{'form':form})
+    except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+
 
 
 @login_required
