@@ -39,18 +39,15 @@ def user_login(request):
                         return HttpResponseRedirect('/')
                     else:
                         response_json = {'status':False, 'error':'Username or Password is not correct.'}
-                        return HttpResponse(json.dumps(response_json),content_type = 'application/json')
+                        return JsonResponse(response_json)
                 else:
                     response_json = {'status':False, 'error':'The given form is invalid.'}
-                    return HttpResponse(json.dumps(response_json),content_type = 'application/json')
+                    return JsonResponse(response_json)
             else:
                 form = LoginForm()
                 return render (request, 'user/login.html',{'form':form})
     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
-
-
 
 
 @login_required
