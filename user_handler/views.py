@@ -41,7 +41,7 @@ def user_login(request):
                     return HttpResponse(json.dumps(response_json),content_type = 'application/json')
         else:
             form = LoginForm()
-            return render (request, 'user_handler/login.html',{'form':form})
+            return render (request, 'user/login.html',{'form':form})
 
 
 @login_required
