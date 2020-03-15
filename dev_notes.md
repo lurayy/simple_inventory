@@ -10,7 +10,7 @@
 ### Things 
 - make ;; To increase quntity, there must be objects unassigned on the related purchase_item
 - in fend , is_active true is normal , false is muted gray  
-- to apply discount or taxes, 2 saves have to be done. .save() .save()
+- to apply discount or taxes, 2 saves have to be done. item.save() .save()
     - first save creates the relations 
     - second save triggers the update 
     

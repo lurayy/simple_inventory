@@ -28,6 +28,7 @@ class Invoice(models.Model):
     )
     status = models.CharField(max_length=10, choices=STATUS_S, default='COMPLETED')
     is_active = models.BooleanField(default=True)
+    
     def __str__(self):
         return str(self.customer)
 
@@ -43,51 +44,52 @@ class InvoiceItem(models.Model):
     
     price = models.FloatField()
 
-    tax_total = models.FloatField(blank=True)
+    tax_total = models.FloatField(blank=True, null=True)
 
-    sub_total = models.FloatField(blank=True)
+    sub_total = models.FloatField(blank=True, null=True)
 
-    discount_amount = models.FloatField(blank=True)
+    discount_amount = models.FloatField(blank=True, null=True)
 
-    total_without_discount  = models.FloatField(blank=True)
+    total_without_discount  = models.FloatField(blank=True, null=True)
 
-    total = models.FloatField(blank=True)
+    total = models.FloatField(blank=True, null=True)
     
     discount = models.ManyToManyField(Discount, blank=True)
     taxes = models.ManyToManyField(Tax, blank=True)
 
-    def save(self, *args, **kwargs):    # pylint: disable=arguments-differ
-        if self.id is None:
-            super(InvoiceItem, self).save(*args, **kwargs)
-        #reseting values
-        self.tax_total = 0
-        self.sub_total = 0
-        self.discount_amount = 0
-        self.total = 0
 
-        applied_taxex = self.taxes.all().filter(is_active=True)
-        for tax in applied_taxex:
-            if tax.tax_type == 'fixed':
-                self.tax_total = self.tax_total + (tax.rate) * self.quantity
-            else:
-                self.tax_total = self.tax_total + (self.price*tax.rate*self.quantity)/100
-        applied_discounts = self.discount.all().filter(is_active=True)
-        for discount in applied_discounts:
-            if discount.discount_type == 'fixed':
-                self.discount_amount = self.discount_amount + (discount.rate) * self.quantity
-            else:
-                self.discount_amount = self.discount_amount + (self.price*discount.rate*self.quantity)/100
-        self.sub_total = self.price*self.quantity
-        self.total_without_discount = self.sub_total+self.tax_total
-        self.total = self.total_without_discount - self.discount_amount
-        super(InvoiceItem, self).save(*args, **kwargs)
+@receiver(post_save, sender=InvoiceItem)
+def post_save_handler(sender, created, instance, **kwargs):
+    instance.tax_total = 0
+    instance.sub_total = 0
+    instance.discount_amount = 0
+    instance.total = 0
+    applied_taxex = instance.taxes.all().filter(is_active=True)
+    for tax in applied_taxex:
+        if tax.tax_type == 'fixed':
+            instance.tax_total = instance.tax_total + (tax.rate) * instance.quantity
+        else:
+            instance.tax_total = instance.tax_total + (instance.price*tax.rate*instance.quantity)/100
+    applied_discounts = instance.discount.all().filter(is_active=True)
+    for discount in applied_discounts:
+        if discount.discount_type == 'fixed':
+            instance.discount_amount = instance.discount_amount + (discount.rate) * instance.quantity
+        else:
+            instance.discount_amount = instance.discount_amount + (instance.price*discount.rate*instance.quantity)/100
+    instance.sub_total = instance.price*instance.quantity
+    instance.total_without_discount = instance.sub_total+instance.tax_total
+    instance.total = instance.total_without_discount - instance.discount_amount
+    signals.post_save.disconnect(post_save_handler, sender=InvoiceItem)
+    instance.save()
+    signals.post_save.connect(post_save_handler, sender=InvoiceItem)
+
 
 
 @receiver(pre_save, sender=Invoice)
 def tranction_handler(sender, instance, **kwargs):
     if instance.id is None:
         if instance.status == "completed" or instance.status == "shiped":
-            sales_sub(invoice)
+            sales_sub(instance)
     else:
         old_status = Invoice.objects.get(id=instance.id).status
         if instance.status != old_status:
@@ -99,6 +101,11 @@ def tranction_handler(sender, instance, **kwargs):
                 if instance.status != "completed" or instance.status != "shiped":
                     print("sales revert back")
                     sales_add(instance)
+    instance.paid_amount = 0
+    for invoice_item in instance.invoice_items.all():
+        print("here")
+        instance.paid_amount = instance.paid_amount + invoice_item.total 
+
 
 # @receiver(post_save, sender=InvoiceItem)
 # def invoice_item_handler(sender, instance, **kwargs):
