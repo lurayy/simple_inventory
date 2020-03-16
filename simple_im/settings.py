@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'landing_pages',
     'user_handler',
     'inventory',
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -135,3 +137,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 django_heroku.settings(locals())
 
 AUTH_USER_MODEL = 'user_handler.CustomUserBase'
+
+CORS_ORIGIN_ALLOW_ALL = False
+
+CORS_ROIGIN_WHITELIST = (
+    'localhost:3000',
+    'localhost:8000'
+)

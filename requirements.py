@@ -4,11 +4,13 @@ certifi==2019.11.28
 chardet==3.0.4
 dj-database-url==0.5.0
 Django==3.0.3
+django-cors-headers==3.2.1
 django-extensions==2.2.8
 django-heroku==0.3.1
 djangorestframework==3.11.0
 gunicorn==20.0.4
 idna==2.9
+psycopg2==2.8.4
 pycodestyle==2.5.0
 python-dateutil==2.8.1
 pytz==2019.3
