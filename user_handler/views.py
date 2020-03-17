@@ -7,10 +7,15 @@ from django.db import IntegrityError
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ObjectDoesNotExist
 from .exceptions import  EmptyValueException
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .forms import UserForm, LoginForm
 from .models import CustomUserBase
 import json
+
+from django.middleware.csrf import get_token
+
+def csrf(request):
+    return JsonResponse({'csrfToken': get_token(request)})
 
 
 def check(user):
@@ -21,31 +26,31 @@ def check(user):
         return False
 
 
-@require_http_methods(['GET', 'POST'])
+@ensure_csrf_cookie
+@require_http_methods(['GET','POST'])
 def user_login(request):
     '''user login function'''
+    response_json = {}
     try:    
         if request.user.is_authenticated:
-            return HttpResponseRedirect('/')
+            response_json['status'] = True
+            return JsonResponse(response_json)
         else:
             if request.method == 'POST':
-                form = LoginForm(request.POST)
-                if form.is_valid():
-                    username = form.cleaned_data['username']
-                    password = form.cleaned_data['password']
-                    user = authenticate(request, username = username, password = password)
-                    if user is not None:
-                        login(request,user)
-                        return HttpResponseRedirect('/')
-                    else:
-                        response_json = {'status':False, 'error':'Username or Password is not correct.'}
-                        return JsonResponse(response_json)
+                json_str = request.body.decode(encoding='UTF-8')
+                data_json = json.loads(json_str)
+                username = data_json['username']
+                password = data_json['password']
+                user = authenticate(request, username = username, password = password)
+                if user is not None:
+                    login(request,user)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
                 else:
-                    response_json = {'status':False, 'error':'The given form is invalid.'}
+                    response_json = {'status':False, 'error':'Username or Password is not correct.'}
                     return JsonResponse(response_json)
             else:
-                form = LoginForm()
-                return render (request, 'user/login.html',{'form':form})
+                return render(request, 'build/index.html')
     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 

@@ -64,7 +64,7 @@ ROOT_URLCONF = 'simple_im.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'frontend')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -139,8 +139,39 @@ django_heroku.settings(locals())
 AUTH_USER_MODEL = 'user_handler.CustomUserBase'
 
 CORS_ORIGIN_ALLOW_ALL = False
+CORS_ALLOW_CREDENTIALS = True
 
-CORS_ROIGIN_WHITELIST = (
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000' # Here was the problem indeed and it has to be http://localhost:3000, not http://localhost:3000/
+]
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+from corsheaders.defaults import default_headers
+
+# CORS_ALLOW_HEADERS = [
+#     'accept',
+#     'accept-encoding',
+#     'authorization',
+#     'content-type',
+#     'dnt',
+#     'origin',
+#     'user-agent',
+#     'x-csrftoken',
+#     'x-requested-with',
+# ]
+CSRF_COOKIE_NAME = 'x-csrftoken'
+
+CSRF_TRUSTED_ORIGINS = [
     'localhost:3000',
-    'localhost:8000'
+]
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'frontend', "build", "static"),  # update the STATICFILES_DIRS
 )

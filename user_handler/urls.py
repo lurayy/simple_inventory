@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 urlpatterns = [
+    path('verify', views.csrf, name = 'get things'),
     path('login',views.user_login, name = 'User Login'),
     path('',views.dashboard, name = 'Dashbaord'),
     path('logout', views.user_logout, name='user logout'),
