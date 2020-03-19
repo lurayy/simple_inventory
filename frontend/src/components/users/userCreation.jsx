@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
-// import { isLoggedIn, permission} from '../common.jsx'
 import {  connect } from 'react-redux';
 
 
 class UserCreation extends Component {
 
     componentDidMount() {
-
+        if (!this.props.user.isLoggedIn){
+            this.props.history.push('/')
+        }
     }
 
     render() {
