@@ -6,7 +6,7 @@ import { loggedIn } from '../actions';
 import Login from './users/login';
 import Logout from './users/logout';
 
-// import CreateUser from './users/createUser';
+import UserCreation from './users/userCreation';
 import { BrowserRouter as Router, Switch , Route, Link} from 'react-router-dom';
 
 
@@ -16,7 +16,6 @@ class Index extends Component {
         var loading=true;
         console.log(loading)
         await getCurrentUser().then(data => {
-            console.log(data)
             if (data['status'])
             {
                 this.props.dispatch(loggedIn(data['user_data']))
@@ -45,7 +44,7 @@ class Index extends Component {
                         <Switch>
                         <Route path='/login' component={Login}></Route>
                         <Route path='/logout' component={Logout}></Route>
-                        {/* <Route path='/create' component = {CreateUser}></Route> */}
+                        <Route path='/create' component = {UserCreation}></Route>
                         </Switch>
                 </Router>
             </div>
