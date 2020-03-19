@@ -17,3 +17,11 @@ export const setUsers = (data) => {
         payload: data
     }
 }
+
+
+export const setVendors = (data) => {
+    return{
+        type: 'setVendors',
+        payload: data
+    }
+}

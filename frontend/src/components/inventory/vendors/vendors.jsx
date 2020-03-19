@@ -1,38 +1,35 @@
 import React, { Component } from 'react'
-import { getUsers } from '../../api/user'
 import {  connect } from 'react-redux';
-import { setUsers } from '../../actions';
+import { setVendors } from '../../../actions';
+import { getVendors } from '../../../api/inventory';
 
 
-class Users extends Component {
+class Vendors extends Component {
 
     async componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
         }
-        console.log(this.props.user.data.user_type)
-        if (this.props.user.data.user_type !== "MANAGER"){
-            this.props.history.push('/')
-        }
         var dummy = {
             'action':'get',
+            'filter':'none',
             'start':0,
-            'end':20
+            'end':10
         }
-        await getUsers(JSON.stringify(dummy)).then(data => {
+        await getVendors(JSON.stringify(dummy)).then(data => {
             console.log(data)
             if (data['status']){
-                this.props.dispatch(setUsers(data['users']))
+                this.props.dispatch(setVendors(data['vendors']))
             }  
         })
         // access props with this 
-        console.log(this.props.users.users[0]['name'])
+        // console.log(this.props.users)
 }
 
     render() {
         return (
             <div>
-                <h1>Users </h1>
+                <h1>Vendors list</h1>
             </div>
         )
     }
@@ -45,4 +42,4 @@ const mapStateToProps = state => ({
     users: state.users
 })
 
-export default connect(mapStateToProps)(Users)
+export default connect(mapStateToProps)(Vendors)
