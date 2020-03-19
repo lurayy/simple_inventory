@@ -36,14 +36,7 @@ const baseRequest = async (url, method, body, signal) => {
         }
     });
     const myResponse = await getResponse(response);
-//   if ([500, 405, 400].includes(response.status)) {
-//     if (myResponse.json) {
-//       alert(JSON.stringify(myResponse.json));
-//     } else {
-//       alert(response.statusText);
-//     }
-//   }
-      return myResponse;
+    return myResponse.json;
 };
 
 export { baseRequest };

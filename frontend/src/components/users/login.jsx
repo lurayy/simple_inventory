@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import swal from 'sweetalert';
-import { loginUser } from '../../api/user';
+import { loginUser, getCurrentUser } from '../../api/user';
+import {  connect } from 'react-redux';
+import { loggedIn } from '../../actions';
+
 
 class Login extends Component {
     constructor(props){
@@ -8,40 +10,39 @@ class Login extends Component {
         this.state = {
             username:'',
             password:'',
-            token : '',
         };
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.outputData = this.outputData.bind(this)
     }
+
     onChange(e)
     {
         this.setState({[e.target.name]: [e.target.value]})
     }
 
-    onSubmit(e){
+
+    async onSubmit(e){
         e.preventDefault();
         const data = {
             username: this.state.username[0],
             password: this.state.password[0]
         }
-        
-        console.log(data)
-        
-    loginUser(JSON.stringify(data)).then(data => console.log(data))
-    
+        loginUser(JSON.stringify(data)).then(data => {
+            try{
+                if (data['status']){
+                    getCurrentUser().then(data => {
+                        this.props.dispatch(loggedIn(data['user_data']))
+                    })
+                    this.props.history.push('/')
+                }
+                else if (data['status']=== false){
+                    alert(data['msg'])
+                }
+            }catch(e){
+                alert(e)
+            }
+        })       
     }
-
-    outputData(data){
-        if (data.status){
-            console.log('logined')
-        }
-        else{
-            console.log(data)
-            swal(data)
-        }
-    }
-
 
 
     render() {
@@ -54,17 +55,20 @@ class Login extends Component {
                         <input type='text' name='username' onChange={this.onChange} value={this.state.username}></input>
                     </div>
                     <br></br>
-                    
                     <div>
                         <label> Password : </label>
                         <input type='password' name='password' onChange={this.onChange} value={this.state.password}></input>
                     </div><br></br>
                     <button type='submit'>Submit</button>
                 </form>
+                {this.props.state}
             </div>
         )
     }
 }
 
+const mapStateToProps = state => ({
+    user_state: state
+})
 
-export default Login
+export default connect(mapStateToProps)(Login)

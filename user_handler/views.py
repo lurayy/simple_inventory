@@ -27,7 +27,7 @@ def check(user):
 
 
 @ensure_csrf_cookie
-@require_http_methods(['GET','POST'])
+@require_http_methods(['POST'])
 def user_login(request):
     '''user login function'''
     response_json = {}
@@ -47,7 +47,7 @@ def user_login(request):
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 else:
-                    response_json = {'status':False, 'error':'Username or Password is not correct.'}
+                    response_json = {'status':False, 'msg':'Username or Password is not correct.'}
                     return JsonResponse(response_json)
             else:
                 return render(request, 'build/index.html')
@@ -66,10 +66,10 @@ def user_logout(request):
 @login_required
 def dashboard(request):
     '''Dashboard entry point fucntion'''
-    return render (request, 'dashboard/main.html')
+    return render (request, 'build/index.html')
 
 
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['POST'])
 @login_required
 @user_passes_test(check)
 def user_creation(request):
@@ -82,9 +82,6 @@ def user_creation(request):
             return HttpResponseRedirect('/')
         else:
             return HttpResponse('Bad Data')
-    user_form = UserForm()
-    return render(request, 'user/user_form.html',{'user_form':user_form})
-
 
 def get_users_data(start, end):
     users_json = []
@@ -101,7 +98,7 @@ def get_users_data(start, end):
     return users_json
 
 
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['POST'])
 @login_required
 @user_passes_test(check)
 def users(request):
@@ -133,7 +130,7 @@ def users(request):
 
 # for geting single user details and modify
 @login_required
-def s_user(request,id):
+def s_user(request):
     '''POST json format: 
     {
         'action':'delete'/'revive','modify'
@@ -157,37 +154,52 @@ def s_user(request,id):
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)   
         try:
-            if (id != int(data_json['user_id'])):
-                raise Exception('Consisteny Error, id mismatch. ')
-            user = CustomUserBase.objects.get(id=int(data_json['user_id']), uuid=str(data_json['uuid']))
-            if str(data_json['action']).lower() == 'delete':
-                user.is_active = False
-            if str(data_json['action']).lower() == 'revive':
-                user.is_active = True
-            if str(data_json['action']) == "edit":
-                user.first_name = data_json['first_name']
-                user.last_name = data_json['last_name']
-                user.email = data_json['email']
-                user.username = data_json['username']
-                user.user_type = data_json['user_type']
-            user.save()
-            return JsonResponse({'status':True, 'msg':f'Change is made to {user.username}'})
+            if data_json['action'] == "GET":
+                user = CustomUserBase.objects.get(id=id)
+                user_json = {'id':'', 'name':'', 'status':'','user_name':'', 'uuid':''}
+                user_json['id'] = str(user.id)
+                user_json['name'] = f'{user.first_name} {user.last_name}'
+                user_json['first_name'] = user.first_name
+                user_json['last_name'] = user.last_name
+                user_json['status'] = str(user.user_type)
+                user_json['user_name'] = str(user.username)
+                user_json['is_active'] = user.is_active
+                user_json['email'] = str(user.email)
+                user_json['uuid'] = str(user.uuid)
+                return JsonResponse(user_json)
+            else:
+                user = CustomUserBase.objects.get(id=int(data_json['user_id']), uuid=str(data_json['uuid']))
+                if str(data_json['action']).lower() == 'delete':
+                    user.is_active = False
+                if str(data_json['action']).lower() == 'revive':
+                    user.is_active = True
+                if str(data_json['action']) == "edit":
+                    user.first_name = data_json['first_name']
+                    user.last_name = data_json['last_name']
+                    user.email = data_json['email']
+                    user.username = data_json['username']
+                    user.user_type = data_json['user_type']
+                user.save()
+                return JsonResponse({'status':True, 'msg':f'Change is made to {user.username}. Change Type: {data["action"]}'})
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+@login_required
+@require_http_methods(['POST'])
+def get_current_user(request):
+    users_json = []
     try:
-        user = CustomUserBase.objects.get(id=id)
-        user_json = {'id':'', 'name':'', 'status':'','user_name':'', 'uuid':''}
-        user_json['id'] = str(user.id)
-        user_json['name'] = f'{user.first_name} {user.last_name}'
-        user_json['first_name'] = user.first_name
-        user_json['last_name'] = user.last_name
-        user_json['status'] = str(user.user_type)
-        user_json['user_name'] = str(user.username)
-        user_json['is_active'] = user.is_active
-        user_json['email'] = str(user.email)
-        user_json['uuid'] = str(user.uuid)
-        return JsonResponse(user_json)
+        if request.method == 'POST':
+            print(request.user.uuid) 
+            user = CustomUserBase.objects.get(id=int(request.user.id), uuid=request.user.uuid)
+            user_json = {'first_name':user.first_name,
+                'last_name':user.last_name,
+                'user_type':user.user_type,
+                'user_name':user.username
+                }
+            response_json = {'status':True, 'user_data':user_json}
+            return JsonResponse(response_json)
     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
 
