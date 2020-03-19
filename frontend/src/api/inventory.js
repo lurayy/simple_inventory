@@ -2,11 +2,20 @@ import { baseRequest } from './base';
 
 const getVendors = async data => {
   try {
-    return await baseRequest('apiv1/inventory/vendors/get','POST', data);
+    return await baseRequest('apiv1/inventory/vendors','POST', data);
   } catch(e){
     alert(e)
   }
 };
+
+const createVendor = async data => {
+    try {
+      return await baseRequest('apiv1/inventory/vendors','POST', data);
+    } catch(e){
+      alert(e)
+    }
+};
+
 
 const deleteVendors = async data => {
   try {
@@ -16,20 +25,22 @@ const deleteVendors = async data => {
   }
 };
 
+
 const updateVendor = async data => {
   try {
-    return await baseRequest('apiv1/inventory/vendors/0','POST', data);
+    return await baseRequest('apiv1/inventory/vendor','POST', data);
   } catch(e){
     alert(e)
   }
 };
 
-const createVendor = async data => {
+const getVendor = async data => {
     try {
-      return await baseRequest('apiv1/inventory/vendor/create','POST', data);
+      return await baseRequest('apiv1/inventory/vendor','POST', data);
     } catch(e){
       alert(e)
     }
-};
+  };
+  
 
-export { getVendors, createVendor, deleteVendors, updateVendor}
+export { getVendors, createVendor, deleteVendors, updateVendor, getVendor}

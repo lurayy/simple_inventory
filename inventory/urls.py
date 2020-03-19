@@ -5,9 +5,8 @@ urlpatterns = [
     path('porders/<int:id>', views.purchase_order, name='edit  pruchase order'),
     path('porders/delete', views.delete_purchase_orders, name = "Delete purhcase orders"),
 
-    path('vendors/get', views.vendors, name="GET and add vendors"),
-    path('vendor/0', views.vendor, name='edit  data of a vendor'),
-    path('vendor/create', views.vendors, name="add vendors"),
+    path('vendors', views.vendors, name="GET and add vendors"),
+    path('vendor', views.vendor, name='edit and get  data of a vendor'),
     path('vendors/delete', views.delete_vendors, name="delete vendors"),
 
     path('items', views.items, name="GET and add items "),

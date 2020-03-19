@@ -166,8 +166,8 @@ def s_user(request):
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)   
         try:
-            if data_json['action'] == "GET":
-                user = CustomUserBase.objects.get(id=id)
+            if data_json['action'] == "get":
+                user = CustomUserBase.objects.get(id=data_json['user_id'], uuid=data_json['uuid'])
                 user_json = {'id':'', 'name':'', 'status':'','username':'', 'uuid':''}
                 user_json['id'] = str(user.id)
                 user_json['name'] = f'{user.first_name} {user.last_name}'
@@ -178,6 +178,7 @@ def s_user(request):
                 user_json['is_active'] = user.is_active
                 user_json['email'] = str(user.email)
                 user_json['uuid'] = str(user.uuid)
+                user_json['status'] = True
                 return JsonResponse(user_json)
             else:
                 user = CustomUserBase.objects.get(id=int(data_json['user_id']), uuid=str(data_json['uuid']))
@@ -192,7 +193,7 @@ def s_user(request):
                     user.username = data_json['username']
                     user.user_type = data_json['user_type']
                 user.save()
-                return JsonResponse({'status':True, 'msg':f'Change is made to {user.username}. Change Type: {data["action"]}'})
+                return JsonResponse({'status':True, 'msg':f'Change is made to {user.username}. Change Type: {data_json["action"]}'})
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 

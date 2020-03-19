@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
 import { setVendors } from '../../../actions';
-import { getVendors } from '../../../api/inventory';
+import { getVendors, getVendor } from '../../../api/inventory';
 
 
 class Vendors extends Component {
@@ -21,6 +21,16 @@ class Vendors extends Component {
             if (data['status']){
                 this.props.dispatch(setVendors(data['vendors']))
             }  
+        })
+
+        
+        //get single user
+        dummy = {
+            'action':'get',
+            'vendor_id':2,
+        }
+        await getVendor(JSON.stringify(dummy)).then(data => {
+            console.log(data)
         })
         // access props with this 
         // console.log(this.props.users)

@@ -298,8 +298,8 @@ def delete_vendors(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
-@require_http_methods(['POST', 'GET'])
-def vendor(request, id):
+@require_http_methods(['POST'])
+def vendor(request):
     '''
     TO get data [GET] to the url : /apiv1/inventory/vendors/<vendor id>
     To edit [POST] 
@@ -317,6 +317,11 @@ def vendor(request, id):
         "phone2": "+1 (381) 765-8778",
         "address": "Qui in at culpa unde",
         "is_active":true
+    }
+    get :
+    {
+        'action':'get',
+        'vendor_id':2
     }
     '''
     response_json = {'status':'', 'vendors':[]}
@@ -339,16 +344,13 @@ def vendor(request, id):
                 vendor.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
+            if data_json['action'] =="get":
+                vendor = Vendor.objects.get(id=int(data_json['vendor_id']))
+                response_json['vendors'] = vendors_to_json([vendor])
+                response_json['status'] = True
+                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    try:
-        vendor = Vendor.objects.get(id=int(id))
-        response_json['vendors'] = vendors_to_json([vendor])
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except (KeyError, ObjectDoesNotExist) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
 
 ######################################## Items ########################################
 @login_required

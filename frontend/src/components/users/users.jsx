@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
-import { getUsers } from '../../api/user'
+import { getUsers, getUser } from '../../api/user'
 import {  connect } from 'react-redux';
 import { setUsers } from '../../actions';
 
 
 class Users extends Component {
+
 
     async componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
@@ -25,9 +26,18 @@ class Users extends Component {
                 this.props.dispatch(setUsers(data['users']))
             }  
         })
-        // access props with this 
-        console.log(this.props.users.users[0]['name'])
-}
+
+        
+        //get single user
+        dummy = {
+            'action':'get',
+            'user_id':2,
+            'uuid':"c08c318e-4157-4426-97e3-1d0366400b86"
+        }
+        await getUser(JSON.stringify(dummy)).then(data => {
+            console.log(data)
+        })
+    }
 
     render() {
         return (
