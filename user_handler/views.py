@@ -185,21 +185,24 @@ def s_user(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
-@login_required
 @require_http_methods(['POST'])
 def get_current_user(request):
     users_json = []
+
     try:
-        if request.method == 'POST':
-            print(request.user.uuid) 
-            user = CustomUserBase.objects.get(id=int(request.user.id), uuid=request.user.uuid)
-            user_json = {'first_name':user.first_name,
-                'last_name':user.last_name,
-                'user_type':user.user_type,
-                'user_name':user.username
-                }
-            response_json = {'status':True, 'user_data':user_json}
+        if (request.user.uuid):
+            if request.method == 'POST':
+                user = CustomUserBase.objects.get(id=int(request.user.id), uuid=request.user.uuid)
+                user_json = {'first_name':user.first_name,
+                    'last_name':user.last_name,
+                    'user_type':user.user_type,
+                    'user_name':user.username
+                    }
+                response_json = {'status':True, 'user_data':user_json}
+                return JsonResponse(response_json)
+        else:
+            response_json = {'status':False, 'user_data':{}}
             return JsonResponse(response_json)
-    except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError) as exp:
+    except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 

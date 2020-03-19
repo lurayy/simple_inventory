@@ -5,6 +5,8 @@ import { getCurrentUser } from '../api/user';
 import { loggedIn } from '../actions';
 import Login from './users/login';
 import Logout from './users/logout';
+
+// import CreateUser from './users/createUser';
 import { BrowserRouter as Router, Switch , Route, Link} from 'react-router-dom';
 
 
@@ -14,12 +16,14 @@ class Index extends Component {
         var loading=true;
         console.log(loading)
         await getCurrentUser().then(data => {
-            this.props.dispatch(loggedIn(data['user_data']))
+            console.log(data)
+            if (data['status'])
+            {
+                this.props.dispatch(loggedIn(data['user_data']))
+            }
             loading = false
         })
     }
-
-    
 
     render() {
         var log;
@@ -41,6 +45,7 @@ class Index extends Component {
                         <Switch>
                         <Route path='/login' component={Login}></Route>
                         <Route path='/logout' component={Logout}></Route>
+                        {/* <Route path='/create' component = {CreateUser}></Route> */}
                         </Switch>
                 </Router>
             </div>
