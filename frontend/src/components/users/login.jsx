@@ -15,6 +15,12 @@ class Login extends Component {
         this.onSubmit = this.onSubmit.bind(this);
     }
 
+    componentDidMount() {
+        if (this.props.current_state.user.isLoggedIn === true){
+            this.props.history.push('/')
+        }
+    }
+
     onChange(e)
     {
         this.setState({[e.target.name]: [e.target.value]})

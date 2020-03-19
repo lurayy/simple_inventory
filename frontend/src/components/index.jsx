@@ -15,6 +15,7 @@ class Index extends Component {
     async componentDidMount() { 
         var loading=true;
         console.log(loading)
+        //check redux data first 
         await getCurrentUser().then(data => {
             if (data['status'])
             {
@@ -27,10 +28,20 @@ class Index extends Component {
     render() {
         var log;
         if (this.props.user.isLoggedIn){
-            log = <Link to='/logout'>Logout</Link>
+            log = (
+                    <div>
+                        <Link to='/logout'>Logout</Link><br></br>
+                        <Link to='/create'>Create New User</Link>
+                    </div>                    
+                    )
           }
           else{
-            log =  <Link to='/login'>Login</Link>
+            log =  (
+                <div>
+                    <Link to='/login'>Login</Link>
+                </div>
+                
+                )
           }
       
         return (
