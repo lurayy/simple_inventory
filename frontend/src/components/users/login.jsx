@@ -61,14 +61,13 @@ class Login extends Component {
                     </div><br></br>
                     <button type='submit'>Submit</button>
                 </form>
-                {this.props.state}
             </div>
         )
     }
 }
 
 const mapStateToProps = state => ({
-    user_state: state
+    current_state: state
 })
 
 export default connect(mapStateToProps)(Login)
