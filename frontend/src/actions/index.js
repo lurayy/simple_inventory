@@ -10,3 +10,10 @@ export const loggedIn = (data) => {
         payload: data
     };
 }
+
+export const setUsers = (data) => {
+    return{
+        type: 'setUsers',
+        payload: data
+    }
+}
