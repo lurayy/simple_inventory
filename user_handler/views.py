@@ -25,6 +25,12 @@ def check(user):
     else:
         return False
 
+@ensure_csrf_cookie
+@require_http_methods(['GET'])
+def entry_point(request):
+    return render (request, 'build/index.html')
+
+
 
 @ensure_csrf_cookie
 @require_http_methods(['POST'])
@@ -49,8 +55,6 @@ def user_login(request):
                 else:
                     response_json = {'status':False, 'msg':'Username or Password is not correct.'}
                     return JsonResponse(response_json)
-            else:
-                return render(request, 'build/index.html')
     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 

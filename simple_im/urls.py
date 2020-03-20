@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView
+from user_handler.views import entry_point
 
 urlpatterns = [
     path('super/', admin.site.urls),
     path('apiv1/sales/', include('sales.urls')),
     path('apiv1/inventory/', include('inventory.urls')),
     path('apiv1/users/', include('user_handler.urls')),
-    path('', TemplateView.as_view(template_name='build/index.html')),
-    re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='build/index.html'))
+    path('', entry_point, name = " entry point"),
+    re_path(r'^(?:.*)/?$',  entry_point, name = " entry point")
 ]

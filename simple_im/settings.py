@@ -53,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -168,9 +168,9 @@ from corsheaders.defaults import default_headers
 # ]
 CSRF_COOKIE_NAME = 'x-csrftoken'
 
-CSRF_TRUSTED_ORIGINS = [
-    'localhost:3000',
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'localhost:3000',
+# ]
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'frontend', "build", "static"),  # update the STATICFILES_DIRS
