@@ -15,6 +15,16 @@ function getCookie(name) {
   return cookieValue;
 }
 
+function setCookie(name,value,days) {
+  var expires = "";
+  if (days) {
+      var date = new Date();
+      date.setTime(date.getTime() + (days*24*60*60*1000));
+      expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+
 const getResponse = async response => {
   const contentType = response.headers.get("content-type");
   if (contentType === "application/json") {
@@ -25,18 +35,28 @@ const getResponse = async response => {
 };
 
 const baseRequest = async (url, method, body, signal) => {
+    var cookie = getCookie("x-csrftoken")
+    if (cookie === null) {
+      const response = await fetch(new URL('apiv1/users/verify', serverUrl), {
+        method: 'GET'
+      });
+      const temp = await getResponse(response)
+      setCookie('x-csrftoken', temp.json['x-csrftoken'], 2)
+    }
+    cookie = getCookie("x-csrftoken")
     const response = await fetch(new URL(url, serverUrl), {
         method: method,
         body: body,
         signal: signal,
         credentials: "include",
         headers: {
-        "x-csrftoken": getCookie("x-csrftoken"),
+        "x-csrftoken": cookie,
         "Content-Type": "application/json"
         }
     });
     const myResponse = await getResponse(response);
     return myResponse.json;
 };
+
 
 export { baseRequest };

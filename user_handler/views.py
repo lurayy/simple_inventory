@@ -11,11 +11,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from .forms import UserForm, LoginForm
 from .models import CustomUserBase
 import json
-
 from django.middleware.csrf import get_token
 
+
+
 def csrf(request):
-    return JsonResponse({'csrfToken': get_token(request)})
+    return JsonResponse({'x-csrftoken': get_token(request)})
 
 
 def check(user):

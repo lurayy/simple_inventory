@@ -155,22 +155,23 @@ CORS_ALLOW_METHODS = [
 
 from corsheaders.defaults import default_headers
 
-# CORS_ALLOW_HEADERS = [
-#     'accept',
-#     'accept-encoding',
-#     'authorization',
-#     'content-type',
-#     'dnt',
-#     'origin',
-#     'user-agent',
-#     'x-csrftoken',
-#     'x-requested-with',
-# ]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 CSRF_COOKIE_NAME = 'x-csrftoken'
 
-# CSRF_TRUSTED_ORIGINS = [
-#     'localhost:3000',
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    'localhost:3000','localhost:8s000',
+]
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'frontend', "build", "static"),  # update the STATICFILES_DIRS
