@@ -23,5 +23,6 @@ pip3 install -r requirements.txt
 ## Run
 For running the script, use
 ```
+./seeder.sh
 python manage.py runserver
 ```
