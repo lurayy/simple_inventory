@@ -62,6 +62,7 @@ def user_logout(request):
     return HttpResponseRedirect('/login')
 
 
+@ensure_csrf_cookie
 @require_http_methods(['GET'])
 @login_required
 def dashboard(request):

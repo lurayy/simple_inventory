@@ -17,13 +17,12 @@ class Index extends Component {
     async componentDidMount() { 
         var loading=true;
         console.log(loading)
-        //check redux data first 
+        //check redux data first
         await getCurrentUser().then(data => {
             if (data['status'])
             {
                 this.props.dispatch(loggedIn(data['user_data']))
             }
-            loading = false
         })
     }
 

@@ -1,4 +1,5 @@
-import { baseRequest } from './base';
+import { baseRequest } from '../base';
+// api for vendors
 
 const getVendors = async data => {
   try {
@@ -41,6 +42,5 @@ const getVendor = async data => {
       alert(e)
     }
   };
-  
 
 export { getVendors, createVendor, deleteVendors, updateVendor, getVendor}

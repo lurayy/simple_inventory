@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
 import { setVendors } from '../../../actions';
-import { getVendors, getVendor } from '../../../api/inventory';
+import { getVendors, getVendor } from '../../../api/inventory/vendorApi';
 
 
 class Vendors extends Component {
