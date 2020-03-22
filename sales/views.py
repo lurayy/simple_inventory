@@ -3,11 +3,11 @@ from inventory.utils import str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 import json
-from .utils import invoices_to_json, invoice_items_to_json
+from .utils import invoices_to_json, invoice_items_to_json, discounts_to_json, taxes_to_json
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_http_methods
-
+from user_handler.models import Tax, Discount
 
 @login_required
 @require_http_methods(['POST'])
@@ -107,9 +107,9 @@ def invoices(request):
 
 
 @login_required
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['POST'])
 #edit invoice order 
-def invoice(request,id):
+def invoice(request):
     ''' To get data about single purchase order
     To get info about a single invoice, trigger /apiv1/inventory/porders/<invoice_id>/
     To edit the data, you can POST on the same link: 
@@ -130,7 +130,8 @@ def invoice(request,id):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['edit'] == "edit":
+            response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
+            if data_json['action'] == "edit":
                 invoice = PurchaseOrder.objects.get(id=int(data_json['id']))
                 invoice.total_cost = data_json['total_cost']
                 invoice.added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])) 
@@ -141,18 +142,14 @@ def invoice(request,id):
                 invoice.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
+            if data_json['action'] == 'get':
+                invoice = Invoice.objects.get(id=int(id))
+                response_json['invoice'] = invoices_to_json([invoice])
+                response_json['invoice_items'] = invoice_items_to_json(InvoiceItem.objects.filter(invoice=invoice))        
+                response_json['status'] = True
+                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
-    try:
-        invoice = Invoice.objects.get(id=int(id))
-        response_json['invoice'] = invoices_to_json([invoice])
-        response_json['invoice_items'] = invoice_items_to_json(InvoiceItem.objects.filter(invoice=invoice))        
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except(ObjectDoesNotExist) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
 
 
 @login_required
@@ -269,9 +266,10 @@ def delete_customers(request):
         except (KeyError, json.decoder.JSONDecodeError) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
+
 @login_required
-@require_http_methods(['POST', 'GET'])
-def customer(request, id):
+@require_http_methods(['POST'])
+def customer(request):
     '''
     TO get data [GET] to the url : /apiv1/sales/customers/<customer id>
     To edit [POST] 
@@ -313,15 +311,14 @@ def customer(request, id):
                 customer.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
+            if data_json['action'] == "get":
+                customer = customer.objects.get(id=int(id))
+                response_json['customers'] = customers_to_json([customer])
+                response_json['status'] = True
+                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    try:
-        customer = customer.objects.get(id=int(id))
-        response_json['customers'] = customers_to_json([customer])
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except (KeyError, ObjectDoesNotExist) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
 
 ######################################## InvoieItems ########################################
 @login_required
@@ -371,8 +368,8 @@ def invoice_items(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
-@require_http_methods(['POST', 'GET'])
-def invoice_item(request, id):
+@require_http_methods(['POST'])
+def invoice_item(request):
     '''
     function to edit purchase item 
     {
@@ -400,6 +397,7 @@ def invoice_item(request, id):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            response_json = {}
             if data_json['action'] == "edit":
                 invoice_item = InvoiceItem.objects.get(id=id)
                 invoice_item.item = Item.objects.get(id=int(data_json['item'])),
@@ -417,16 +415,13 @@ def invoice_item(request, id):
                 invoice_item.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
+            if data_json['action'] == "get":
+                invoice_item = InvoiceItem.objects.get(id=int(id))
+                response_json['invoice_items'] = invoice_items_to_json([invoice_item])
+                response_json['status'] = True
+                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    try:
-        invoice_item = InvoiceItem.objects.get(id=int(id))
-        response_json['invoice_items'] = invoice_items_to_json([invoice_item])
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except (KeyError, ObjectDoesNotExist) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
 
 
 @login_required
@@ -451,5 +446,153 @@ def delete_invoice_items(request):
                 invoice_item.save()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+
+
+@login_required
+@require_http_methods(['POST'])
+def discounts(request):
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "add":
+                discount = Discount.objects.create(
+                    name = data_json['name'],
+                    code = data_json['code'],
+                    discount_type = data_json['discount_type'],
+                    rate = data_json['rate']
+                )
+                discount.save()
+                response_json['discounts'] = discounts_to_json([discount])
+                response_json = {'status':True}
+                return JsonResponse(response_json)
+            if data_json['action'] == "get":
+                if data_json['filter'] == 'none':
+                    discounts = Discount.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['discounts'] = discounts_to_json(discounts)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+@login_required
+@require_http_methods(['POST'])
+def discount(request):
+    response_json =  {}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                discounts = Discount.objects.filter(is_active=True, id = data_json['discount_id'])
+                response_json['discounts'] = discounts_to_json(discounts)
+                response_json['status'] = True
+                return JsonResponse(response_json)
+            if data_json['action'] == "edit":
+                discount = Discount.objects.filter(is_active=True, id = data_json['discount_id'])
+                discount.name = data_json['name']
+                discount.code = data_json['code']
+                discount.discount_type = data_json['discount_type']
+                discount.rate = data_json['rate']
+                discount.is_active = data_json['is_active']
+                discount.save()
+                response_json['status'] = True
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+@login_required
+@require_http_methods(['POST'])
+def delete_discount(request):
+    response_json = {}
+    try:
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        ids = data_json['discounts_id']
+        for id in ids:
+            discount = Discount.objects.get(id=int(id))
+            discount.is_active = False
+            discount.save()
+        response_json['status'] = True
+        return JsonResponse(response_json)
+    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+@login_required
+@require_http_methods(['POST'])
+def taxes(request):
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "add":
+                tax = Tax.objects.create(
+                    name = data_json['name'],
+                    code = data_json['code'],
+                    tax_type = data_json['tax_type'],
+                    rate = data_json['rate']
+                )
+                tax.save()
+                response_json['taxes'] = taxes_to_json([tax])
+                response_json = {'status':True}
+                return JsonResponse(response_json)
+            if data_json['action'] == "get":
+                if data_json['filter'] == 'none':
+                    taxes = Tax.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['taxes'] = taxs_to_json(taxes)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+@login_required
+@require_http_methods(['POST'])
+def tax(request):
+    response_json =  {}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                taxs = Tax.objects.filter(is_active=True, id = data_json['tax_id'])
+                response_json['taxes'] = taxs_to_json(taxes)
+                response_json['status'] = True
+                return JsonResponse(response_json)
+            if data_json['action'] == "edit":
+                tax = Tax.objects.filter(is_active=True, id = data_json['tax_id'])
+                tax.name = data_json['name']
+                tax.code = data_json['code']
+                tax.tax_type = data_json['tax_type']
+                tax.rate = data_json['rate']
+                tax.is_active = data_json['is_active']
+                tax.save()
+                response_json['status'] = True
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+@login_required
+@require_http_methods(['POST'])
+def delete_taxes(request):
+    response_json = {}
+    try:
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        ids = data_json['taxes_id']
+        for id in ids:
+            tax = Tax.objects.get(id=int(id))
+            tax.is_active = False
+            tax.save()
+        response_json['status'] = True
+        return JsonResponse(response_json)
+    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

@@ -66,6 +66,7 @@ class Tax(models.Model):
         ('normal', "Normal")
     )
     tax_type = models.CharField(max_length=30, choices=tax_types, default='normal')
+    code = models.CharField(max_length=255, null=True, blank=True, default=" ")
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

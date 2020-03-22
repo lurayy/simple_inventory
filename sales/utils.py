@@ -27,4 +27,17 @@ def invoice_items_to_json(items):
             temp['applied_discount'].append(DiscountSerializer(discount).data)
         data.append(temp)
     return data
+    
+def discounts_to_json(discounts):
+    data = []
+    for discount in discounts:
+        temp = DiscountSerializer(discount).data
+        data.append(temp)
+    return data
 
+def taxes_to_json(taxes):
+    data = []
+    for tax in taxes:
+        temp = TaxSerializer(tax).data
+        data.append(temp)
+    return data
