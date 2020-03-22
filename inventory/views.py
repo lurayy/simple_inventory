@@ -126,7 +126,7 @@ def purchase_orders(request):
 
 
 
-@require_http_methods(['POST', 'GET'])
+@require_http_methods(['POST'])
 def purchase_order(request,id):
     ''' To get data about single purchase order
     To get info about a single purchase_order, trigger /apiv1/inventory/porders/<purchase_order_id>/
@@ -145,6 +145,7 @@ def purchase_order(request,id):
         'status':'paid',
     }
     '''
+    response_json = {'status':'', 'p_order':{}, 'p_items':[]}
     if request.method == "POST":
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -161,18 +162,15 @@ def purchase_order(request,id):
                 purchase_order.status = str(data_json['status']).lower()
                 purchase_order.save()
                 response_json = {'status':True}
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+                return JsonResponse(response_json)
+            if data_json['action'] == 'get':    
+                order = PurchaseOrder.objects.get(id=int(id))
+                response_json['p_order'] = purchase_orders_to_json([order])
+                response_json['p_items'] = purchase_items_to_json(PurchaseItem.objects.filter(purchase_order=order))        
+                response_json['status'] = True
+                return JsonResponse(response_json)
+        except(ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-        return JsonResponse(response_json)
-    response_json = {'status':'', 'p_order':{}, 'p_items':[]}
-    try:
-        order = PurchaseOrder.objects.get(id=int(id))
-        response_json['p_order'] = purchase_orders_to_json([order])
-        response_json['p_items'] = purchase_items_to_json(PurchaseItem.objects.filter(purchase_order=order))        
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except(ObjectDoesNotExist) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
 @login_required
@@ -395,7 +393,6 @@ def items(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
-
 @require_http_methods(['POST', 'GET'])
 def item(request, id):
     '''
@@ -838,11 +835,14 @@ def delete_purchase_items(request):
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
+
 @login_required
+@require_http_methods(['POST'])
 def purchase_order_statuss(request):
-    statuss = PurchaseOrderStatus.objects.all()
-    data = []
-    for status in statuss:
-        temp =  StatusSerializer(status).data
-        data.append(temp)
-    return JsonResponse({'status':True, 'data':data})
+    if request.method == "POST":
+        statuss = PurchaseOrderStatus.objects.all()
+        data = []
+        for status in statuss:
+            temp =  StatusSerializer(status).data
+            data.append(temp)
+        return JsonResponse({'status':True, 'data':data})

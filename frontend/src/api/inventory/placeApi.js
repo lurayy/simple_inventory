@@ -1,7 +1,7 @@
 import { baseRequest } from '../base';
 // api for items 
 
-const getplaces = async data => {
+const getPlaces = async data => {
     try {
       return await baseRequest('apiv1/inventory/places','POST', data);
     } catch(e){
@@ -10,7 +10,7 @@ const getplaces = async data => {
   };
   
   
-  const deleteplaces = async data => {
+  const deletePlaces = async data => {
     try {
       return await baseRequest('apiv1/inventory/places/delete','POST', data);
     } catch(e){
@@ -18,7 +18,7 @@ const getplaces = async data => {
     }
   };
   
-  const createplace = async data => {
+  const createPlace = async data => {
       try {
         return await baseRequest('apiv1/inventory/places','POST', data);
       } catch(e){
@@ -27,7 +27,7 @@ const getplaces = async data => {
   };
   
   
-  const getplace = async data => {
+  const getPlace = async data => {
     try {
       return await baseRequest('apiv1/inventory/place','POST', data);
     } catch(e){
@@ -35,13 +35,21 @@ const getplaces = async data => {
     }
   };
   
-  const updateplace= async data => {
+  const updatePlace = async data => {
     try {
       return await baseRequest('apiv1/inventory/place','POST', data);
     } catch(e){
       alert(e)
     }
   };
+
+  const assignPlace = async data => {
+    try { 
+      return await  baseRequest('apiv1/inventory/places/assign','POST', data);
+    } catch (e){
+      alert(e)
+    }
+  }
   
-export {getplaces, createplace, deleteplaces, updateplace, getplace}
+export {getPlaces, createPlace, deletePlaces, updatePlace, getPlace, assignPlace}
   
