@@ -151,7 +151,7 @@ def users(request):
 def s_user(request):
     '''POST json format: 
     {
-        'action':'delete'/'revive','modify'
+        'action':'delete'/'revive'
         'user_id':'4',
         'uuid':'c4971e44-a4d8-4675-ad27-e7b3fd24332a',
     }
