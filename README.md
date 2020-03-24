@@ -59,7 +59,8 @@ python3 manage.py createsuperuser
 
 # [Documentation](docs/documentation.md)
 
-# API documentation for Frontend Development
+## [Reactjs Documentation](frontend/README.md)
+## API documentation for Frontend Development
 - All the js files defining the API calls are located in 'src/api/'.
 - All the calls are of POST nature.
 - Since we will be using SSH connection, there won't be need to encrypt the POST data.
@@ -87,7 +88,6 @@ python3 manage.py createsuperuser
         status: true
     } 
 ```
-
 
 ## User_handler 
 - Location: '/api/user.js'
