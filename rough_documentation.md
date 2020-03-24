@@ -31,7 +31,7 @@ loginUser(JSON.stringify(data)).then(data => {
 # User_handler 
 - Location : '/api/user.js'
 
-### loginUser(data)
+1. loginUser(data)
 - call url : apiv1/users/login
 - POST data format : 
 ``` 
@@ -55,13 +55,12 @@ If login failed:
 }
 ```
 
-### logOut()
+2. logOut()
 - call url: 'apiv1/users/logout'
 - No data needed
 - Response : redirection to login
 
-
-### createUser(data)
+3. createUser(data)
 - call url: 'apiv1/users/create'
 - only manager can all this url
 - POST Format: 
@@ -75,7 +74,7 @@ If login failed:
 }
 ```
 
-### getUsers(data)
+4. getUsers(data)
 - call url: 'apiv1/users/get'
 - POST format:
 ```
@@ -109,7 +108,7 @@ If login failed:
 }
 ```
 
-### getUser(data)
+5. getUser(data)
 - call url: 'apiv1/users/get/0'
 - POST format for getting info:
 ```
@@ -128,7 +127,7 @@ If login failed:
 }
 ```
 
-### updateUser(data)
+6. updateUser(data)
 - call url: 'apiv1/users/get/0'
 - POST format for modifying/updating user's data:
 ```
@@ -144,7 +143,7 @@ If login failed:
 }
 ```
 
-### getCurrentUser()
+7. getCurrentUser()
 - call url: 'apiv1/users/current'
 - No post data is needed
 - give data related to the loggedin user 
