@@ -1,10 +1,10 @@
 # API documentation for Frontend Development
-All the js files defining the API calls are located in 'src/api/'.
-All the calls are of POST nature.
-Since we will be using SSH connection, there won't be need to encrypt the POST data.
+- All the js files defining the API calls are located in 'src/api/'.
+- All the calls are of POST nature.
+- Since we will be using SSH connection, there won't be need to encrypt the POST data.
 
 ### API call example : 
-Import API call function form './frontend/src/api/'+name_of_js_file_needed
+- Import API call function form './frontend/src/api/'+name_of_js_file_needed
 ``` 
 import { loginUser } from '../../api/user';
 
@@ -31,7 +31,7 @@ loginUser(JSON.stringify(data)).then(data => {
 # User_handler 
 - Location : '/api/user.js'
 
-##### 1. loginUser(data)
+#### 1. loginUser(data)
 - call url : apiv1/users/login
 - POST data format : 
 ``` 
@@ -55,12 +55,12 @@ If login failed:
 }
 ```
 
-##### 2. logOut()
+#### 2. logOut()
 - call url: 'apiv1/users/logout'
 - No data needed
 - Response : redirection to login
 
-##### 3. createUser(data)
+#### 3. createUser(data)
 - call url: 'apiv1/users/create'
 - only manager can all this url
 - POST Format: 
@@ -74,7 +74,7 @@ If login failed:
 }
 ```
 
-##### 4. getUsers(data)
+#### 4. getUsers(data)
 - call url: 'apiv1/users/get'
 - POST format:
 ```
@@ -108,7 +108,7 @@ If login failed:
 }
 ```
 
-##### 5. getUser(data)
+#### 5. getUser(data)
 - call url: 'apiv1/users/get/0'
 - POST format for getting info:
 ```
@@ -127,7 +127,7 @@ If login failed:
 }
 ```
 
-##### 6. updateUser(data)
+#### 6. updateUser(data)
 - call url: 'apiv1/users/get/0'
 - POST format for modifying/updating user's data:
 ```
@@ -143,7 +143,7 @@ If login failed:
 }
 ```
 
-##### 7. getCurrentUser()
+#### 7. getCurrentUser()
 - call url: 'apiv1/users/current'
 - No post data is needed
 - give data related to the loggedin user 
