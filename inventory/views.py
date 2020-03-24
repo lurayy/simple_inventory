@@ -114,7 +114,7 @@ def purchase_orders(request):
                     vendor = Vendor.objects.get(id=int(data_json['vendor'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     completed_on = str_to_datetime(data_json['completed_on']),
-                    status = str(data_json['status']).lower()                    
+                    status = PurchaseOrderStatus.objects.get(data_json['status'])                    
                 )
                 purchase_order.save()
                 response_json['status'] = True
@@ -127,7 +127,7 @@ def purchase_orders(request):
 
 
 @require_http_methods(['POST'])
-def purchase_order(request,id):
+def purchase_order(request):
     ''' To get data about single purchase order
     To get info about a single purchase_order, trigger /apiv1/inventory/porders/<purchase_order_id>/
     To edit the data, you can POST on the same link: 
@@ -151,7 +151,7 @@ def purchase_order(request,id):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "edit":
-                purchase_order = PurchaseOrder.objects.get(id=int(data_json['id']))
+                purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
                 purchase_order.total_cost = data_json['total_cost']
                 purchase_order.discount_type = data_json['discount_type']
                 purchase_order.discount = data_json['discount']
@@ -159,17 +159,17 @@ def purchase_order(request,id):
                 purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
                 purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
                 purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
-                purchase_order.status = str(data_json['status']).lower()
+                purchase_order.status = PurchaseOrderStatus.objects.get(data_json['status'])
                 purchase_order.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
             if data_json['action'] == 'get':    
-                order = PurchaseOrder.objects.get(id=int(id))
+                order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
                 response_json['p_order'] = purchase_orders_to_json([order])
                 response_json['p_items'] = purchase_items_to_json(PurchaseItem.objects.filter(purchase_order=order))        
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except(ObjectDoesNotExist) as exp:
+        except(ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -393,8 +393,8 @@ def items(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
-@require_http_methods(['POST', 'GET'])
-def item(request, id):
+@require_http_methods(['POST'])
+def item(request):
     '''
     use only get to get data 
 
@@ -412,7 +412,7 @@ def item(request, id):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            item = Item.objects.get(id=int(data_json['id']))
+            item = Item.objects.get(id=int(data_json['item_id']))
             response_json = {'status':False}
             if data_json['action'] == "edit":
                 item.name = str(data_json['name'])
@@ -420,16 +420,13 @@ def item(request, id):
                 item.is_active = data_json['is_active']
                 item.save()
                 response_json = {'status':True}
+            if data_json['action'] == "get":
+                response_json['items'] = items_to_json([item])
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    try:
-        item = Item.objects.get(id=int(id))
-        response_json['items'] = items_to_json([item])
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except (KeyError, ObjectDoesNotExist) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
 
 @login_required
 @require_http_methods(['POST'])
@@ -498,14 +495,14 @@ def item_catagories(request):
 
 
 @login_required
-@require_http_methods(['POST', 'GET'])
-def item_catagory(request, id):
+@require_http_methods(['POST'])
+def item_catagory(request):
     '''
     POST For editing
     {
         'action':'edit',
         is_active :True
-        id: 1
+        item_catagory_id: 1
         name: "klj"
     }
     '''
@@ -514,26 +511,22 @@ def item_catagory(request, id):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            item_catagory = ItemCatagory.objects.get(id=int(data_json['id']))
+            item_catagory = ItemCatagory.objects.get(id=int(data_json['item_catagory_id']))
             response_json = {'status':False}
             if data_json['action'] == "edit":
                 item_catagory.name = str(data_json['name'])
                 item_catagory.is_active = data_json['is_active']
                 item.save()
                 response_json = {'status':True}
+            if data_json['action'] == "get":
+                response_json['item_catagories'] = item_catagories_to_json([item_catagory])
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    try:
-        item_catagory = ItemCatagory.objects.get(id=int(id))
-        response_json['item_catagories'] = item_catagories_to_json([item_catagory])
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except (KeyError, ObjectDoesNotExist) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
-@require_http_methods(['POST', 'GET'])
+@require_http_methods(['POST'])
 def delete_item_catagories(request):
     '''
     {
@@ -598,12 +591,12 @@ def places(request):
 
 @login_required
 @require_http_methods(['POST', 'GET'])
-def place(request, id):
+def place(request):
     '''
     POST For editing
     {
         'action':'edit',
-        id: 1
+        place_id: 1
         name: "klj"
     }
     '''
@@ -612,22 +605,18 @@ def place(request, id):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            place = Place.objects.get(id=int(data_json['id']))
+            place = Place.objects.get(id=int(data_json['place_id']))
             response_json = {'status':False}
             if data_json['action'] == "edit":
                 place.name = str(data_json['name'])
                 place.save()
                 response_json = {'status':True}
+            if data_json['action'] == "get":
+                response_json['places'] = places_to_json([place])
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    try:
-        place = Place.objects.get(id=int(id))
-        response_json['places'] = places_to_json([place])
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except (KeyError, ObjectDoesNotExist) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
 @require_http_methods(['POST'])
@@ -770,8 +759,8 @@ def purchase_items(request):
 
 
 @login_required
-@require_http_methods(['POST', 'GET'])
-def purchase_item(request, id):
+@require_http_methods(['POST'])
+def purchase_item(request):
     '''
     function to edit purchase item 
     {

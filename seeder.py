@@ -186,57 +186,57 @@ for order in PurchaseOrder.objects.all():
     print(f'{order} changed to {order.status}')
 
 
-print("--------------------------- Invoice -------------------------")
-global_temp = Customer.objects.all()
-STATUS_S = ['sent', 'due', 'paid', 'completed', 'shiped']
-for _ in range(INVOICE_COUNT):
-    temp = Invoice.objects.create(
-        added_by = users[random.randint(0,len(users)-1)],
-        customer = global_temp[random.randint(0, len(global_temp)-1)],
-        invoiced_on = fake.date_time(tzinfo=None, end_datetime=None),
-        due_on = fake.date_time(tzinfo=None, end_datetime=None),
-        paid_amount = 0,
-        tax_total = 0,
-        order_number = fake.ean8(),
-        status = STATUS_S[random.randint(0,4)]
-    )
-    temp.save()
-    print (f'{temp} created.')
+# print("--------------------------- Invoice -------------------------")
+# global_temp = Customer.objects.all()
+# STATUS_S = ['sent', 'due', 'paid', 'completed', 'shiped']
+# for _ in range(INVOICE_COUNT):
+#     temp = Invoice.objects.create(
+#         added_by = users[random.randint(0,len(users)-1)],
+#         customer = global_temp[random.randint(0, len(global_temp)-1)],
+#         invoiced_on = fake.date_time(tzinfo=None, end_datetime=None),
+#         due_on = fake.date_time(tzinfo=None, end_datetime=None),
+#         paid_amount = 0,
+#         tax_total = 0,
+#         order_number = fake.ean8(),
+#         status = STATUS_S[random.randint(0,4)]
+#     )
+#     temp.save()
+#     print (f'{temp} created.')
 
 
 
-print("--------------------------- Invoice Items -------------------------")
-invoices = Invoice.objects.all()
-purchase_items = PurchaseItem.objects.all()
-discounts = Discount.objects.all()
-taxes = Tax.objects.all()
-STATUS_S = ['sent', 'due', 'paid', 'completed', 'shiped']
-for x in range(INVOICE_COUNT-1):
-    invoice = invoices[x]
-    purchase_item = purchase_items[random.randint(0, len(purchase_items)-1)]
-    print(purchase_item.stock)
-    sold_from = Placement.objects.get(purchase_item=purchase_item).placed_on
-    temp = InvoiceItem.objects.create(
-        purchase_item = purchase_item,
-        item = purchase_item.item,
-        sold_from = sold_from,
-        invoice = invoice,
-        quantity = random.randint(5,10),
-        price = random.randint(0,25000),
-        tax_total = 0,
-        sub_total = 0,
-        discount_amount = 0,
-        total_without_discount = 0,
-        total = 0,
-    )
-    for dis in discounts:
-        if bool(random.getrandbits(1)):
-            temp.discount.add(dis)
-    for tax in taxes:
-        if bool(random.getrandbits(1)):
-            temp.taxes.add(tax)
-    temp.save()
-    temp.save()
-    print("added  ",x)
-    invoice.status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
-    invoice.save()
+# print("--------------------------- Invoice Items -------------------------")
+# invoices = Invoice.objects.all()
+# purchase_items = PurchaseItem.objects.all()
+# discounts = Discount.objects.all()
+# taxes = Tax.objects.all()
+# STATUS_S = ['sent', 'due', 'paid', 'completed', 'shiped']
+# for x in range(INVOICE_COUNT-1):
+#     invoice = invoices[x]
+#     purchase_item = purchase_items[random.randint(0, len(purchase_items)-1)]
+#     print(purchase_item.stock)
+#     sold_from = Placement.objects.get(purchase_item=purchase_item).placed_on
+#     temp = InvoiceItem.objects.create(
+#         purchase_item = purchase_item,
+#         item = purchase_item.item,
+#         sold_from = sold_from,
+#         invoice = invoice,
+#         quantity = random.randint(5,10),
+#         price = random.randint(0,25000),
+#         tax_total = 0,
+#         sub_total = 0,
+#         discount_amount = 0,
+#         total_without_discount = 0,
+#         total = 0,
+#     )
+#     for dis in discounts:
+#         if bool(random.getrandbits(1)):
+#             temp.discount.add(dis)
+#     for tax in taxes:
+#         if bool(random.getrandbits(1)):
+#             temp.taxes.add(tax)
+#     temp.save()
+#     temp.save()
+#     print("added  ",x)
+#     invoice.status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
+#     invoice.save()

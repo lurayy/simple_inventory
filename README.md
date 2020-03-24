@@ -1,28 +1,60 @@
-## Requirements
+# Mandala IMS
+
+### Requirements
 - python 3
 - libpq-dev python3-dev
-
-
+- npm
 ```
-sudo apt install libpq-dev python3-dev
+sudo apt install libpq-dev python3-dev npm
 ```
 
-Configure the postgres with the user id, password and database that is on accounting.settings.database 
+### Installation
+- clone the project
 
+- Create a virutalenv
+```
+ virtualenv -p python3 venv
+```
 
-## Installation
-Create a virutalenv
+- Activate the virutalenv
 ```
-virtualenv -p python3 venv
+source venv/bin/activate
 ```
-Activate the virutalenv and install the dependencies using
+
+-Install the dependencies using
 ```
 pip3 install -r requirements.txt
 ```
 
-## Run
-For running the script, use
+- Instal dependencies for reactjs
+```
+cd frontend
+npm install
+```
+- Initiate database (on project root folder, cd ..)
 ```
 ./seeder.sh
-python manage.py runserver
 ```
+
+### Run the project
+
+- To run reactjs:
+```
+npm start
+```
+
+- To build frontend 
+```
+npm run build
+```
+- Run the backend Django server
+```
+python3 manage.py runserver
+```
+
+- To create super user
+```
+python3 manage.py createsuperuser
+```
+
+# [Documentation](docs/documentation.md)
