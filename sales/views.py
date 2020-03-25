@@ -132,7 +132,7 @@ def invoice(request):
             data_json = json.loads(json_str)
             response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
             if data_json['action'] == "edit":
-                invoice = PurchaseOrder.objects.get(id=int(data_json['id']))
+                invoice = PurchaseOrder.objects.get(id=int(data_json['invoice_id']))
                 invoice.total_cost = data_json['total_cost']
                 invoice.added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])) 
                 invoice.customer = Customer.objects.get(id=int(data_json['customer']))
@@ -143,7 +143,7 @@ def invoice(request):
                 response_json = {'status':True}
                 return JsonResponse(response_json)
             if data_json['action'] == 'get':
-                invoice = Invoice.objects.get(id=int(id))
+                invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
                 response_json['invoice'] = invoices_to_json([invoice])
                 response_json['invoice_items'] = invoice_items_to_json(InvoiceItem.objects.filter(invoice=invoice))        
                 response_json['status'] = True
@@ -386,11 +386,6 @@ def invoice_item(request):
         'sub_total':54,
         'total':234
     }
-    delete
-    {
-        action:delete,
-        'id':3
-    }
     '''
     response_json = {'status':''}
     if request.method == "POST":
@@ -399,7 +394,7 @@ def invoice_item(request):
             data_json = json.loads(json_str)
             response_json = {}
             if data_json['action'] == "edit":
-                invoice_item = InvoiceItem.objects.get(id=id)
+                invoice_item = InvoiceItem.objects.get(id=data_json["invoice_item_id"])
                 invoice_item.item = Item.objects.get(id=int(data_json['item'])),
                 invoice_item.purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item'])),
                 invoice_item.sold_from = Place.objects.get(id=int(data_json['sold_from'])),
@@ -416,7 +411,7 @@ def invoice_item(request):
                 response_json = {'status':True}
                 return JsonResponse(response_json)
             if data_json['action'] == "get":
-                invoice_item = InvoiceItem.objects.get(id=int(id))
+                invoice_item = InvoiceItem.objects.get(id=data_json['invoice_item_id'])
                 response_json['invoice_items'] = invoice_items_to_json([invoice_item])
                 response_json['status'] = True
                 return JsonResponse(response_json)
