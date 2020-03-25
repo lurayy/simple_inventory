@@ -15,12 +15,12 @@ import swal from 'sweetalert';
 
 
 class Index extends Component {
-    
-    constructor(props){
+    constructor (props){
         super(props)
-        this.loading = true
+        this.state = {
+            'loading':true
+        }
     }
-
 
     async componentDidMount() { 
         await getCurrentUser().then(data => {
@@ -29,6 +29,7 @@ class Index extends Component {
                 {
                     this.props.dispatch(loggedIn(data['user_data']))
                 }
+                this.state.loading=false
             }
             else{
                 swal('Cannot connet to the server, make sure you have a stable internet connection.')
@@ -57,24 +58,33 @@ class Index extends Component {
                 
                 )
           }
+          var render_x
+        // if(this.state.loading === false){
+            render_x = <div>
+            <h1>Index page with nav bar and dashbaord</h1>
+            <Router>
+                <Link to='/'>
+                    Home
+                </Link><br></br>
+                {log}
+                    <Switch>
+                    <Route path='/login' component={Login}></Route>
+                    <Route path='/logout' component={Logout}></Route>
+                    <Route path='/create' component = {UserCreation}></Route>
+                    <Route path='/users' component = {Users}></Route>
+                    <Route path='/vendors' component = {Vendors}></Route>
+                    </Switch>
+            </Router>
+        </div>
+        // }
+        // else{
+        //     render_x = <h1>Loading</h1>
+        // }
       
         return (
-            <div>
-                <h1>Index page with nav bar and dashbaord</h1>
-                <Router>
-                    <Link to='/'>
-                        Home
-                    </Link><br></br>
-                    {log}
-                        <Switch>
-                        <Route path='/login' component={Login}></Route>
-                        <Route path='/logout' component={Logout}></Route>
-                        <Route path='/create' component = {UserCreation}></Route>
-                        <Route path='/users' component = {Users}></Route>
-                        <Route path='/vendors' component = {Vendors}></Route>
-                        </Switch>
-                </Router>
-            </div>
+         <div>
+             {render_x}
+         </div>   
         )
     }
 }
