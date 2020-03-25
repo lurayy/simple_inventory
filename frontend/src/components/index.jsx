@@ -16,9 +16,13 @@ import swal from 'sweetalert';
 
 class Index extends Component {
     
+    constructor(props){
+        super(props)
+        this.loading = true
+    }
+
+
     async componentDidMount() { 
-        var loading=true;
-        console.log(loading)
         await getCurrentUser().then(data => {
             if (data){
                 if (data['status'])
@@ -33,13 +37,6 @@ class Index extends Component {
     }
 
     render() {
-        if(loading)
-        {
-            // <CircularProgress variant="determinate" value={progress} />
-        }
-        else{
-
-        }
         var log;
         if (this.props.user.isLoggedIn){
             log = (
