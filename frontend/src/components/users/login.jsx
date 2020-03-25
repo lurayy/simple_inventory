@@ -49,8 +49,6 @@ class Login extends Component {
             }
         })       
     }
-
-
     render() {
         return (
             <div>
@@ -65,7 +63,7 @@ class Login extends Component {
                         <label> Password : </label>
                         <input type='password' name='password' onChange={this.onChange} value={this.state.password}></input>
                     </div><br></br>
-                    <button type='submit'>Submit</button>
+                    <button className="primary" type='submit'>Submit</button>
                 </form>
             </div>
         )
