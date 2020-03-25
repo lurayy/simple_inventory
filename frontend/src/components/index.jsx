@@ -21,7 +21,6 @@ class Index extends Component {
             'loading':true
         }
     }
-
     async componentDidMount() { 
         await getCurrentUser().then(data => {
             if (data){
@@ -36,7 +35,6 @@ class Index extends Component {
             }
         })
     }
-
     render() {
         var log;
         if (this.props.user.isLoggedIn){
@@ -55,13 +53,12 @@ class Index extends Component {
                 <div>
                     <Link to='/login'>Login</Link>
                 </div>
-                
                 )
           }
           var render_x
         // if(this.state.loading === false){
             render_x = <div>
-            <h1>Index page with nav bar and dashbaord</h1>
+            {/* <h1>Index page with nav bar and dashbaord</h1> */}
             <Router>
                 <Link to='/'>
                     Home
