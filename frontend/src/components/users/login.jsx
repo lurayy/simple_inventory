@@ -3,6 +3,8 @@ import { loginUser, getCurrentUser } from '../../api/user';
 import {  connect } from 'react-redux';
 import { loggedIn } from '../../actions';
 
+//material-ui import button
+import Button from '@material-ui/core/Button';
 
 class Login extends Component {
     constructor(props){
@@ -63,7 +65,7 @@ class Login extends Component {
                         <label> Password : </label>
                         <input type='password' name='password' onChange={this.onChange} value={this.state.password}></input>
                     </div><br></br>
-                    <button className="primary" type='submit'>Submit</button>
+                    <Button variant="contained" color="primary" type='submit'>Submit</Button>
                 </form>
             </div>
         )
