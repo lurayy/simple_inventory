@@ -10,6 +10,8 @@ import UserCreation from './users/userCreation';
 import { BrowserRouter as Router, Switch , Route, Link} from 'react-router-dom';
 import Users from './users/users';
 import Vendors from './inventory/vendors/vendors';
+import swal from 'sweetalert';
+
 
 
 class Index extends Component {
@@ -17,16 +19,27 @@ class Index extends Component {
     async componentDidMount() { 
         var loading=true;
         console.log(loading)
-        //check redux data first
         await getCurrentUser().then(data => {
-            if (data['status'])
-            {
-                this.props.dispatch(loggedIn(data['user_data']))
+            if (data){
+                if (data['status'])
+                {
+                    this.props.dispatch(loggedIn(data['user_data']))
+                }
+            }
+            else{
+                swal('Cannot connet to the server, make sure you have a stable internet connection.')
             }
         })
     }
 
     render() {
+        if(loading)
+        {
+            // <CircularProgress variant="determinate" value={progress} />
+        }
+        else{
+
+        }
         var log;
         if (this.props.user.isLoggedIn){
             log = (
