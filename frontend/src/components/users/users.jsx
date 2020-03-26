@@ -10,7 +10,9 @@ class Users extends Component {
         super(props)
         this.state = {
             'users':[],
-            'loaded':false
+            'loaded':false,
+            'start':0,
+            'end':5
         }
         this.update_table = this.update_table.bind(this)
     }
@@ -57,27 +59,46 @@ class Users extends Component {
     ]
     
 
-    update_table () {
-        this.setState({
-            'loaded':false
-        })
-        console.log("updating")
+    update_table (by) {
+        if (this.state.start+by>0){
+            this.setState({
+                'loaded':false,
+                start: this.state.start+by,
+                end: this.state.end+by
+            })
+        }
+        else{
+            alert("Cannot move futher from here.")
+            return
+        }
+        
+        console.log("updating ",this.state.start, this.state.end)
         var  request_json = {
             'action':'get',
             'filter':'none',
-            'start':0,
-            'end':5
+            'start':this.state.start,
+            'end':this.state.end
         }
         this.getUsersData(request_json)
     }
+
     render() {
-        return(
+        
+        const render_after_load = (
             <div>
-                <button onClick={this.update_table}>Update table</button>
-                {this.state.loaded ? <List data={this.state.users} header={this.columns} /> : "Loading..."}
+                <h1>Table</h1>
+                {console.log("state",this.state.users)}
+                <List data={this.state.users} header={this.columns} />
+                <button onClick={() => {this.update_table(-5)}}>Pervious</button><button onClick={() => {this.update_table(5)}}>Next</button>
             </div>
         )
-}
+        return(
+            <div>
+                <button onClick={() => {this.update_table(5)}}>Refresh table</button>
+                {this.state.loaded ? render_after_load : "Loading..."}
+            </div>
+        )
+    }
 }
 
 
