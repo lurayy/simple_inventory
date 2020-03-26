@@ -17,6 +17,9 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+import Alert from '@material-ui/lab/Alert';
 
 class Login extends Component {
     constructor(props){
@@ -24,6 +27,7 @@ class Login extends Component {
         this.state = {
             username:'',
             password:'',
+            status:'',
         };
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -46,13 +50,22 @@ class Login extends Component {
         loginUser(JSON.stringify(data)).then(data => {
             try{
                 if (data['status']){
+                    
                     getCurrentUser().then(data => {
                         this.props.dispatch(loggedIn(data['user_data']))
                     })
                     this.props.history.push('/')
+                }else if ((this.state.username==="" && this.state.password==="")|
+                (this.state.username==="" || this.state.password==="")){
+                        this.setState((state) => {
+                            return {status: "Username and password empty"};
+                          });
                 }
                 else if (data['status']=== false){
-                    alert(data['msg'])
+                    
+                    this.setState((state) => {
+                        return {status: data['msg']};
+                      });
                 }
             }catch(e){
                 alert(e)
@@ -82,6 +95,7 @@ class Login extends Component {
           }));
         return (
             <Container component="main" maxWidth="xs">
+                
                 <CssBaseline />
                 <div>
                   <Avatar style={{padding:30,margin:'auto',backgroundColor:'#1a237e'}} >
@@ -129,6 +143,11 @@ class Login extends Component {
                     >
                       Login
                     </Button>
+                    <br/><br/>
+                    <Alert severity="error" style={{display: this.state.status ? "":'none'}}>
+                        {this.state.status}
+                    </Alert>
+
                     <Grid container>
                       {/* <Grid item xs>
                         <Link href="#" variant="body2">
