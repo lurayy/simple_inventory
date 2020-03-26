@@ -6,6 +6,14 @@ import { getVendors, getVendor } from '../../../api/inventory/vendorApi';
 
 class Vendors extends Component {
 
+    constructor(props){
+        super(props)
+        this.state ={
+            'vendors':[]
+        }
+
+    }
+
     async componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
@@ -19,21 +27,10 @@ class Vendors extends Component {
         await getVendors(JSON.stringify(dummy)).then(data => {
             console.log(data)
             if (data['status']){
-                this.props.dispatch(setVendors(data['vendors']))
+                this.state.vendors = data['vendors']
             }  
         })
 
-        
-        //get single user
-        dummy = {
-            'action':'get',
-            'vendor_id':2,
-        }
-        await getVendor(JSON.stringify(dummy)).then(data => {
-            console.log(data)
-        })
-        // access props with this 
-        // console.log(this.props.users)
 }
 
     render() {
