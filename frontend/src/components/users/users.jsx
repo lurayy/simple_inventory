@@ -31,7 +31,6 @@ class Users extends Component {
     async getUsersData (request_json) {
         await getUsers(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                console.log(data)
                 this.setState({
                     'users':data['users'],
                     'loaded':true
@@ -59,9 +58,9 @@ class Users extends Component {
     ]
     
 
-    update_table (by) {
+    async update_table (by) {
         if (this.state.start+by>0){
-            this.setState({
+            await this.setState({
                 'loaded':false,
                 start: this.state.start+by,
                 end: this.state.end+by
@@ -87,7 +86,6 @@ class Users extends Component {
         const render_after_load = (
             <div>
                 <h1>Table</h1>
-                {console.log("state",this.state.users)}
                 <List data={this.state.users} header={this.columns} />
                 <button onClick={() => {this.update_table(-5)}}>Pervious</button><button onClick={() => {this.update_table(5)}}>Next</button>
             </div>

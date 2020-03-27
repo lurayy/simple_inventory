@@ -19,7 +19,6 @@ const List = (props) => {
   const classes = useStyles();
   const headers = props.header
     const rows = props.data
-    console.log("headers",headers)
     var temp;
 
   return (
