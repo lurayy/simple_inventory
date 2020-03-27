@@ -14,7 +14,6 @@ const useStyles = makeStyles({
   },
 });
 
-
 const List = (props) => {
   const classes = useStyles();
   const headers = props.header
@@ -22,34 +21,36 @@ const List = (props) => {
     var temp;
 
   return (
-    <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-              {headers.map(
-                  header =>(
-                  <TableCell key={header.id}>{header.name}</TableCell>
-                  )
-              )}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-         {rows.map(
-            row =>(
-                <TableRow key={row.id}>
-                    {headers.map(
-                        header =>
-                            (
-                                temp = header.prop,
-                            <TableCell key={header.id}>{row[temp]}</TableCell>
-                            )
-                    )}
-                </TableRow>
-            )
-         )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div>
+      <TableContainer component={Paper}>
+        <Table className={classes.table} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+                {headers.map(
+                    header =>(
+                    <TableCell key={header.id}>{header.name}</TableCell>
+                    )
+                )}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+          {rows.map(
+              row =>(
+                  <TableRow key={row.id} onClick={() => {props.popUp(row.id, row.uuid)}}>
+                      {headers.map(
+                          header =>
+                              (
+                                  temp = header.prop,
+                              <TableCell key={header.id}>{row[temp]}</TableCell>
+                              )
+                      )}
+                  </TableRow>
+              )
+          )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 }
 

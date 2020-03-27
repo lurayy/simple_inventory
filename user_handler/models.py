@@ -9,8 +9,8 @@ class CustomUserBase(AbstractUser):
     is_destroyed = models.BooleanField(default=False)
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     USER_TYPES = (
-    ('STAFF', "staff"),
-    ('MANAGER', "manager")
+    ('STAFF', "Staff"),
+    ('MANAGER', "Manager")
     )
     user_type = models.CharField(max_length=10, choices=USER_TYPES, default='STAFF')
 

@@ -184,6 +184,7 @@ def s_user(request):
                 user_json['is_active'] = user.is_active
                 user_json['email'] = str(user.email)
                 user_json['uuid'] = str(user.uuid)
+                user_json['user_type'] = user.user_type
                 user_json['status'] = True
                 return JsonResponse(user_json)
             else:
@@ -223,4 +224,3 @@ def get_current_user(request):
             return JsonResponse(response_json)
     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-

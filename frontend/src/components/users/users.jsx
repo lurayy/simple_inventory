@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { getUsers } from '../../api/user'
 import {  connect } from 'react-redux';
-import List from '../list';
+import UserList from './userList';
 
 
 class Users extends Component {
@@ -17,7 +17,6 @@ class Users extends Component {
         this.update_table = this.update_table.bind(this)
     }
 
-
     componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
@@ -25,7 +24,6 @@ class Users extends Component {
         if (this.props.user.data.user_type !== "MANAGER"){
             this.props.history.push('/')
         }
-            
     }
 
     async getUsersData (request_json) {
@@ -39,25 +37,6 @@ class Users extends Component {
         })
     }
 
-    columns = [
-        {
-            id:1,
-            name:"Name",
-            prop: 'name'
-        },
-        {
-            id:2,
-            name:"Status",
-            prop: 'status'
-        },
-        {
-            id:3,
-            name:"Username",
-            prop: 'username'
-        }            
-    ]
-    
-
     async update_table (by) {
         if (this.state.start+by>0){
             await this.setState({
@@ -70,8 +49,6 @@ class Users extends Component {
             alert("Cannot move futher from here.")
             return
         }
-        
-        console.log("updating ",this.state.start, this.state.end)
         var  request_json = {
             'action':'get',
             'filter':'none',
@@ -79,14 +56,14 @@ class Users extends Component {
             'end':this.state.end
         }
         this.getUsersData(request_json)
+        console.log(this.state.users)
     }
+    
 
     render() {
-        
         const render_after_load = (
             <div>
-                <h1>Table</h1>
-                <List data={this.state.users} header={this.columns} />
+                <UserList data={this.state.users} header={this.columns} />
                 <button onClick={() => {this.update_table(-5)}}>Pervious</button><button onClick={() => {this.update_table(5)}}>Next</button>
             </div>
         )
