@@ -12,7 +12,7 @@ class Users extends Component {
             'users':[],
             'loaded':false,
             'start':0,
-            'end':5
+            'end':10
         }
         this.update_table = this.update_table.bind(this)
     }
@@ -38,16 +38,26 @@ class Users extends Component {
     }
 
     async update_table (by) {
-        if (this.state.start+by>0){
+        if (by===0){
             await this.setState({
                 'loaded':false,
-                start: this.state.start+by,
-                end: this.state.end+by
+                start: 0,
+                end: 10
             })
         }
         else{
-            alert("Cannot move futher from here.")
-            return
+            console.log(by, "asdf ", this.state.start+by)
+            if (this.state.start+by>-1){
+                await this.setState({
+                    'loaded':false,
+                    start: this.state.start+by,
+                    end: this.state.end+by
+                })
+            }
+            else{
+                alert("Cannot move futher from here.")
+                return
+            }
         }
         var  request_json = {
             'action':'get',
@@ -56,20 +66,19 @@ class Users extends Component {
             'end':this.state.end
         }
         this.getUsersData(request_json)
-        console.log(this.state.users)
     }
     
 
     render() {
         const render_after_load = (
             <div>
-                <UserList data={this.state.users} header={this.columns} />
-                <button onClick={() => {this.update_table(-5)}}>Pervious</button><button onClick={() => {this.update_table(5)}}>Next</button>
+                <UserList data={this.state.users} header={this.columns} update={this.update_table}/>
+                <button onClick={() => {this.update_table(-10)}}>Pervious</button><button onClick={() => {this.update_table(10)}}>Next</button>
             </div>
         )
         return(
             <div>
-                <button onClick={() => {this.update_table(5)}}>Refresh table</button>
+                <button onClick={() => {this.update_table(0)}}>Refresh table</button>
                 {this.state.loaded ? render_after_load : "Loading..."}
             </div>
         )

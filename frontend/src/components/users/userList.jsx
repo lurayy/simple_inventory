@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import List from '../list';
-import { getUser } from '../../api/user';
-import {Select , Button, TextField, MenuItem } from '@material-ui/core';
+import { getUser, updateUser } from '../../api/user';
+import {Button, TextField } from '@material-ui/core';
+import {swal} from 'sweetalert';
+
 class UserList extends Component {
     constructor(props){
         super(props)
@@ -15,11 +17,13 @@ class UserList extends Component {
         this.onSubmit = this.onSubmit.bind(this);
     }
     
+    
     onChange(e)
     {
         this.setState({
             'update': {
-                [e.target.name]: [e.target.value]
+                ...this.state.update,
+                [e.target.name] : [e.target.value]
             }
         })
         console.log(this.state)
@@ -27,17 +31,24 @@ class UserList extends Component {
 
     onSubmit(e){
         e.preventDefault();
-        const data = {
-            'action':'edit',
-            'user_id': this.state.user_data.id,
-            'uuid':  this.state.user_data.uuid,
-            'first_name': this.state.update.first_name[0],
-            'last_name': this.state.update.last_name[0],
-            'username': this.state.update.username[0],
-            'email': this.state.update.email[0],
-            'user_type':this.state.update.user_type[0]
+        var data = this.state.user_data;
+        var ele;
+        for (ele in data){
+            if (this.state.update[ele]){
+                data[ele] = this.state.update[ele][0]
+            }
         }
-        console.log(data)
+        data = {
+            ...data,
+            'action':'edit',
+            'user_id':data.id
+        }
+        updateUser(JSON.stringify(data)).then(data =>{
+            if (data['status']){
+                alert('You Details has been updated.')
+                this.props.update(0)
+            }
+        })
     }
 
 
@@ -58,7 +69,6 @@ class UserList extends Component {
             'popUp':true,
             'user_data':data_main
         })
-        // console.log("main",data_main)
     }
 
     columns = [
@@ -129,7 +139,10 @@ class UserList extends Component {
                             />
                             <br></br>
                             User Post:
-                            
+                            <select name='user_type' onChange={this.onChange} defaultValue={this.state.user_data.user_type}>
+                                <option value="MANAGER">Manager</option>
+                                <option value="STAFF">Staff</option>
+                            </select>
                             <br></br>
                             <Button
                                 type='submit'
