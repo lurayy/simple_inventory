@@ -81,6 +81,7 @@ def dashboard(request):
 def user_creation(request):
     '''Creates new  non-super user'''
     response_json = {}
+    new_user = None
     try:
         if request.method == 'POST':
             json_str = request.body.decode(encoding='UTF-8')
@@ -98,6 +99,8 @@ def user_creation(request):
                 response_json = {'status':False, 'error': 'Permission Denied'}
                 return JsonResponse(response_json)
     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
+        if (new_user):
+            new_user.delete()
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 

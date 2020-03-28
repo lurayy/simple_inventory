@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import List from '../list';
 import { getUser, updateUser } from '../../api/user';
 import {Button, TextField } from '@material-ui/core';
-import {swal} from 'sweetalert';
 
 class UserList extends Component {
     constructor(props){

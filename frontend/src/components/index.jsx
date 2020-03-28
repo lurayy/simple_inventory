@@ -41,8 +41,9 @@ class Index extends Component {
             log = (
                     <div>
                         <Link to='/logout'>Logout</Link><br></br>
-                        <Link to='/create'>Create New User</Link><br></br>
+                        <h3>Users</h3>
                         <Link to='/users'>Users</Link><br></br>
+                        <Link to='users/create'>Create New User</Link><br></br>
                         <h4>Inventory</h4>
                         <Link to='/vendors'>Vendors</Link><br></br>
                     </div>                    
@@ -67,7 +68,7 @@ class Index extends Component {
                     <Switch>
                     <Route path='/login' component={Login}></Route>
                     <Route path='/logout' component={Logout}></Route>
-                    <Route path='/create' component = {UserCreation}></Route>
+                    <Route path='/users/create' component = {UserCreation}></Route>
                     <Route path='/users' component = {Users}></Route>
                     <Route path='/vendors' component = {Vendors}></Route>
                     </Switch>

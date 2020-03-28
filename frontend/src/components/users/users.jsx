@@ -3,7 +3,6 @@ import { getUsers } from '../../api/user'
 import {  connect } from 'react-redux';
 import UserList from './userList';
 
-
 class Users extends Component {
 
     constructor(props){
@@ -76,10 +75,13 @@ class Users extends Component {
                 <button onClick={() => {this.update_table(-10)}}>Pervious</button><button onClick={() => {this.update_table(10)}}>Next</button>
             </div>
         )
+
         return(
             <div>
                 <button onClick={() => {this.update_table(0)}}>Refresh table</button>
+                
                 {this.state.loaded ? render_after_load : "Loading..."}
+
             </div>
         )
     }
