@@ -50,6 +50,34 @@ class UserList extends Component {
         })
     }
 
+    userDelete(id,uuid){
+        var data = {
+            'action':'delete',
+            'user_id':id,
+            'uuid':uuid
+        }
+        updateUser(JSON.stringify(data)).then(data =>{
+            if (data['status']){
+                alert('User has been deleted. They cannot login now')
+                this.props.update(0)
+            }
+        })
+    }
+
+    
+    userRevive(id,uuid){
+        var data = {
+            'action':'revive',
+            'user_id':id,
+            'uuid':uuid
+        }
+        updateUser(JSON.stringify(data)).then(data =>{
+            if (data['status']){
+                alert('User has been made active. They login now')
+                this.props.update(0)
+            }
+        })
+    }
 
     async popUp(id, uuid=0){
         console.log(id, uuid)
@@ -78,14 +106,19 @@ class UserList extends Component {
         },
         {
             id:2,
-            name:"Status",
+            name:"Post",
             prop: 'status'
         },
         {
             id:3,
             name:"Username",
             prop: 'username'
-        }            
+        },
+        {
+            id:4,
+            name:"Status",
+            prop: 'is_active_str'
+        }      
     ]
     
 
@@ -153,9 +186,12 @@ class UserList extends Component {
                         </form>
                         <br>
                         </br>
-                        <Button variant="contained" color="secondary" onClick={() => {this.userDelete(this.state.user_data.id, this.state.user_data.uuid)}}>
-                            Delete This User
-                        </Button>
+                        {this.state.user_data.is_active ? <Button variant="contained" color="secondary" onClick={() => {this.userDelete(this.state.user_data.id, this.state.user_data.uuid)}}>
+                            Deactivate User
+                        </Button> : <Button variant="contained" color="secondary" onClick={() => {this.userRevive(this.state.user_data.id, this.state.user_data.uuid)}}>
+                            Activate User
+                        </Button> }
+                        
                         <br>
                         </br>
                     </div>

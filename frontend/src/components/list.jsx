@@ -19,7 +19,7 @@ const List = (props) => {
   const headers = props.header
     const rows = props.data
     var temp;
-
+  console.log(props)
   return (
     <div>
       <TableContainer component={Paper}>

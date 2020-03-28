@@ -114,6 +114,7 @@ def get_users_data(start, end):
         user_json['status'] = str(user.user_type)
         user_json['username'] = str(user.username)
         user_json['is_active'] = user.is_active
+        user_json['is_active_str'] = "Active" if user.is_active else "Deactivated"
         user_json['uuid'] = str(user.uuid)
         users_json.append(user_json)
     return users_json
