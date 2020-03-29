@@ -3,6 +3,7 @@ import List from '../list';
 import {Button, TextField } from '@material-ui/core';
 import { getPurchaseOrder, deletePurchaseOrder, updatePurchaseOrder } from '../../api/inventory/purchaseOrder';
 import popUpEdit from './popUpEdit';
+import PopUpEdit from './popUpEdit';
 
 class PurchaseOrderList extends Component {
     
@@ -11,7 +12,6 @@ class PurchaseOrderList extends Component {
         this.popUp = this.popUp.bind(this)
         this.state = {
             'popUp':false,
-            'purchaseOrders':{},
             'purchase_order':{},
             'purchase_items':[],
             'update':{}
@@ -83,7 +83,6 @@ class PurchaseOrderList extends Component {
         var data_main;
         await getPurchaseOrder(JSON.stringify(data)).then(data => {
             if (data['status']){
-                console.log(data)
                 data_main=data
             }
         })
@@ -126,7 +125,7 @@ class PurchaseOrderList extends Component {
 
     render() {
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
-        const popUpRender = popUpEdit({'purchase_order':this.props.purchase_order, 'purchase_items':this.state.purchase_items, 'popUp':this.state.popUp })
+        const popUpRender = <PopUpEdit purchase_order={this.state.purchase_order} purchase_items={this.state.purchase_items} ></PopUpEdit>
         return (
             <div>
                 {this.state.popUp ? popUpRender : list}

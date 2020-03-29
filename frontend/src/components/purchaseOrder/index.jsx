@@ -59,7 +59,6 @@ class PurchaseOrders extends Component {
     async getPurchaseOrdersData (request_json) {
         await getPurchaseOrders(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                console.log("data: ",data)
                 this.setState({
                     'purchaseOrders':data['p_orders'],
                     'loaded':true

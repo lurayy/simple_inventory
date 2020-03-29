@@ -15,13 +15,22 @@ const useStyles = makeStyles({
 });
 
 const List = (props) => {
+  var page = true;
+  if (!props.page){
+    page=props.page
+  }
   const classes = useStyles();
   const headers = props.header
-    const rows = props.data
-    var temp;
-    console.log("list props: ",props)
+  const rows = props.data
+  var temp;
+  console.log("list props: ",props)
+  const pagination = <div>
+    <h4>Page: {props.page}</h4>
+    <button onClick={() => {props.update(-10)}}>Pervious</button><button onClick={() => {props.update(10)}}>Next</button>
+  </div>
+
   return (
-    <div>
+      <div>
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
@@ -51,9 +60,7 @@ const List = (props) => {
         </Table>
       </TableContainer>
     <br></br>
-    <h4>Page: {props.page}</h4>
-    <button onClick={() => {props.update(-10)}}>Pervious</button><button onClick={() => {props.update(10)}}>Next</button>
-
+    {page ? pagination : <span></span>}
     </div>
   );
 }
