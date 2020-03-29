@@ -19,7 +19,6 @@ class UserCreation extends Component {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
         }
-        console.log(this.props.user.data.user_type)
         if (this.props.user.data.user_type !== "MANAGER"){
             this.props.history.push('/')
         }
@@ -45,7 +44,6 @@ class UserCreation extends Component {
             for (ele in this.state.update){
                 data[ele] = this.state.update[ele][0]
             }
-            console.log(data)
             createUser(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){

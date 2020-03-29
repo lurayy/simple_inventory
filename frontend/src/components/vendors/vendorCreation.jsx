@@ -46,7 +46,6 @@ class VendorCreation extends Component {
                 data[ele] = this.state.update[ele][0]
             }
             data = {...data, 'action':'add'}
-            console.log(data)
             createVendor(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import List from '../list';
-import { getVendor } from '../../api/inventory/vendorApi';
+import { getVendor, updateVendor,  deleteVendors } from '../../api/inventory/vendorApi';
+import {Button, TextField } from '@material-ui/core';
 
 class VendorList extends Component {
     
@@ -12,8 +13,9 @@ class VendorList extends Component {
             'vendor':{},
             'update':{}
         }
-        // this.onChange = this.onChange.bind(this);
-        // this.onSubmit = this.onSubmit.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
+        this.vendorDelete = this.vendorDelete.bind(this)
     }
     
     onChange(e)
@@ -26,6 +28,49 @@ class VendorList extends Component {
         })
     }
 
+    
+    async onSubmit(e){
+        e.preventDefault();
+            var data = this.state.vendor
+            var ele;
+            for (ele in this.state.update){
+                data[ele] = this.state.update[ele][0]
+            }
+            data = {...data, 'action':'edit'}
+            updateVendor(JSON.stringify(data)).then(data=> {
+                try { 
+                    if (data['status']){
+                        alert("Vendor Data updated.")
+                        this.props.update(0)
+                    }
+                    else{
+                        alert(data['error'])
+                    }
+                }catch(e){
+                    console.log(e)
+                }
+            })
+    }
+
+    vendorDelete(id){
+        var data = {
+            'vendors_id':[
+                id
+            ]
+        }
+        deleteVendors(JSON.stringify(data)).then(data=>{
+            try {
+                if (data['status']){
+                    alert('Vendor data deleted.')
+                    this.props.update(0)
+                }   else{
+                    alert(data['error'])
+                }
+            }catch(e){
+                console.log(e)
+            }
+        })
+    }
     
     async popUp(id, uuid=0){
         const data = {
@@ -40,7 +85,7 @@ class VendorList extends Component {
         })
         await this.setState({
             'popUp':true,
-            'vendor_data':data_main
+            'vendor':data_main['vendors'][0]
         })
     }
 
@@ -71,9 +116,102 @@ class VendorList extends Component {
 
     render() {
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        const popUpRender = <div>
+                        <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
+                        <h1>{this.state.vendor.name}</h1>
+                        <form onSubmit={this.onSubmit}>
+                            First Name: <TextField
+                                id ='first_name'
+                                name="first_name"
+                                type='text'
+                                onChange={this.onChange}  
+                                placeholder={this.state.vendor.first_name}          
+                            />
+                            Middle Name : <TextField
+                                id ='middle_name'
+                                name="middle_name"
+                                type='text'
+                                onChange={this.onChange}
+                                placeholder={this.state.vendor.middle_name} 
+                            />
+                            Last Name  : <TextField
+                                id ='last_name'
+                                name="last_name"
+                                type='text'
+                                onChange={this.onChange}
+                                placeholder={this.state.vendor.last_name}
+                                  
+                            />
+                            <br></br>
+                            Email : <TextField
+                                id ='email'
+                                name="email"
+                                type='email'
+                                onChange={this.onChange}                                
+                                placeholder={this.state.vendor.email}
+                                  
+                            />
+                            <br></br>
+                            Website : <TextField
+                                id ='website'
+                                name="website"
+                                type='text'
+                                onChange={this.onChange}                                
+                                placeholder={this.state.vendor.website}
+                            />
+                            <br></br>
+                            Tax Number : <TextField
+                                id ='tax_number'
+                                name="tax_number"
+                                type='number'
+                                onChange={this.onChange}                                
+                                placeholder={this.state.vendor.tax_number}
+                                  
+                            />
+                            <br></br>
+                            Contact Number: <TextField
+                                id ='phone1'
+                                name="phone1"
+                                type='number'
+                                onChange={this.onChange}                                  
+                                placeholder={this.state.vendor.phone1}
+                            />
+                            <br></br>
+                            Contact Number 2 : <TextField
+                                id ='phone2'
+                                name="phone2"
+                                type='number'
+                                onChange={this.onChange}                                
+                                placeholder={this.state.vendor.phone2}
+                            />
+                            <br></br>
+                            
+                            Addresss : <TextField
+                                id ='address'
+                                name="address"
+                                type='text'
+                                onChange={this.onChange}
+                                placeholder={this.state.vendor.address}
+                            />
+                            <br></br>
+                            <Button
+                                type='submit'
+                                variant="contained"
+                                color="primary"
+                                >
+                                Update
+                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.vendorDelete(this.state.vendor.id)}}>
+                            Delete Vendor
+                        </Button> 
+                        
+                </form>
+            
+                        <br>
+                        </br>
+                    </div>
         return (
             <div>
-                {list}
+                {this.state.popUp ? popUpRender : list}
             </div>
         )
     }

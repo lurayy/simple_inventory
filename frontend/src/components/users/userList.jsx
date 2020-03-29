@@ -79,7 +79,6 @@ class UserList extends Component {
     }
 
     async popUp(id, uuid=0){
-        console.log(id, uuid)
         const data = {
             'action':'get',
             'user_id':id,
