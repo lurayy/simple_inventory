@@ -5,7 +5,7 @@ import { getCurrentUser } from '../api/user';
 import { loggedIn } from '../actions';
 import Login from './users/login';
 import Logout from './users/logout';
-
+import VendorCreation from './vendors/vendorCreation';
 import UserCreation from './users/userCreation';
 import { BrowserRouter as Router, Switch , Route, Link} from 'react-router-dom';
 import Users from './users';
@@ -41,11 +41,8 @@ class Index extends Component {
             log = (
                     <div>
                         <Link to='/logout'>Logout</Link><br></br>
-                        <h3>Users</h3>
                         <Link to='/users'>Users</Link><br></br>
-                        <Link to='users/create'>Create New User</Link><br></br>
-                        <h4>Inventory</h4>
-                        <Link to='/vendors'>Vendors</Link><br></br>
+                        <Link to='/vendors'>Vendors</Link><br></br><br></br>
                     </div>                    
                     )
           }
@@ -71,6 +68,7 @@ class Index extends Component {
                     <Route path='/users/create' component = {UserCreation}></Route>
                     <Route path='/users' component = {Users}></Route>
                     <Route path='/vendors' component = {Vendors}></Route>
+                    <Route path='/vendors/create' component = {VendorCreation}></Route>
                     </Switch>
             </Router>
         </div>

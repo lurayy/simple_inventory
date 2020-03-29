@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import {getVendors} from '../../api/inventory/vendorApi';
 import {  connect } from 'react-redux';
 import  VendorList  from './vendorList';
+import { Link} from 'react-router-dom';
 
 class Vendors extends Component {
     constructor(props){
@@ -77,7 +78,9 @@ render() {
 
     return(
         <div>
-            <button onClick={() => {this.update_table(0)}}>Refresh table</button>
+            <br></br>
+            <Link to='/vendors/create'>Add New Vendor</Link><br></br>
+            <button onClick={() => {this.update_table(0)}}>Refresh table</button><br></br>
             {this.state.loaded ? render_after_load : "Loading..."}
 
         </div>

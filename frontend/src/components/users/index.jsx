@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { getUsers } from '../../api/user'
 import {  connect } from 'react-redux';
 import UserList from './userList';
+import { Link} from 'react-router-dom';
 
 class Users extends Component {
 
@@ -80,6 +81,7 @@ class Users extends Component {
 
         return(
             <div>
+                <Link to='users/create'>Create New User</Link><br></br>
                 <button onClick={() => {this.update_table(0)}}>Refresh table</button>
                 {this.state.loaded ? render_after_load : "Loading..."}
 
