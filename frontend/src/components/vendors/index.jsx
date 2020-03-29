@@ -78,7 +78,6 @@ render() {
 
     return(
         <div>
-            <br></br>
             <Link to='/vendors/create'>Add New Vendor</Link><br></br>
             <button onClick={() => {this.update_table(0)}}>Refresh table</button><br></br>
             {this.state.loaded ? render_after_load : "Loading..."}

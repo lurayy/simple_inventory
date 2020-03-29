@@ -67,8 +67,8 @@ class Index extends Component {
                     <Route path='/logout' component={Logout}></Route>
                     <Route path='/users/create' component = {UserCreation}></Route>
                     <Route path='/users' component = {Users}></Route>
-                    <Route path='/vendors' component = {Vendors}></Route>
                     <Route path='/vendors/create' component = {VendorCreation}></Route>
+                    <Route path='/vendors' component = {Vendors}></Route>
                     </Switch>
             </Router>
         </div>

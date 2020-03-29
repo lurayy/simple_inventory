@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
-import { createUser } from '../../api/user';
 import {Button, TextField } from '@material-ui/core';
+import { createVendor } from '../../api/inventory/vendorApi';
 
 
 class VendorCreation extends Component {
@@ -11,7 +11,12 @@ class VendorCreation extends Component {
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.state = {
-            'udpate':{}
+            'update':{
+                'middle_name':[''],
+                'website':[''],
+                'phone2':[''],
+                'address':['']
+            }
         }
     }
 
@@ -35,17 +40,17 @@ class VendorCreation extends Component {
 
     async onSubmit(e){
         e.preventDefault();
-        if (this.state.update.password[0] === this.state.update.password2[0]){
             var data = {...this.state.update}
             var ele;
             for (ele in this.state.update){
                 data[ele] = this.state.update[ele][0]
             }
+            data = {...data, 'action':'add'}
             console.log(data)
-            createUser(JSON.stringify(data)).then(data=> {
+            createVendor(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New User Created")
+                        alert("New Vendor Added")
                     }
                     else{
                         alert(data['error'])
@@ -54,16 +59,12 @@ class VendorCreation extends Component {
                     console.log(e)
                 }
             })
-        }
-        else {
-            alert("Password didn't match")
-        }
     }
 
     render() {
         return (
             <div>
-                <h1>Create New User</h1>
+                <h1>Add New Vendor</h1>
                 <form onSubmit={this.onSubmit}>
                             First Name: <TextField
                                 id ='first_name'
@@ -72,41 +73,20 @@ class VendorCreation extends Component {
                                 onChange={this.onChange}  
                                 required                  
                             />
-                            Last Name<TextField
+                            Middle Name : <TextField
+                                id ='middle_name'
+                                name="middle_name"
+                                type='text'
+                                onChange={this.onChange} 
+                            />
+                            Last Name  : <TextField
                                 id ='last_name'
                                 name="last_name"
                                 type='text'
                                 onChange={this.onChange}
                                 required 
                             />
-                            
                             <br></br>
-                             Username :<TextField
-                             
-                                id ='username'
-                                name="username"
-                                type='text'
-                                onChange={this.onChange}
-                                required 
-                            />
-                            <br></br>
-                            Password <TextField
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="current-password"
-                                onChange={this.onChange}
-                                required 
-                                />
-                               Confirm Password <TextField
-                                id="password2"
-                                type="password"
-                                name="password2"
-                                autoComplete="current-password"
-                                onChange={this.onChange}
-                                required 
-                                />
-                                <br></br>
                             Email : <TextField
                                 id ='email'
                                 name="email"
@@ -115,11 +95,43 @@ class VendorCreation extends Component {
                                 required 
                             />
                             <br></br>
-                            User Post:
-                            <select name='user_type' id="user_type" onChange={this.onChange} defaultValue="STAFF">
-                                <option value="MANAGER">Manager</option>
-                                <option value="STAFF">Staff</option>
-                            </select>
+                            Website : <TextField
+                                id ='website'
+                                name="website"
+                                type='text'
+                                onChange={this.onChange}
+                            />
+                            <br></br>
+                            Tax Number : <TextField
+                                id ='tax_number'
+                                name="tax_number"
+                                type='number'
+                                onChange={this.onChange}
+                                required 
+                            />
+                            <br></br>
+                            Contact Number: <TextField
+                                id ='phone1'
+                                name="phone1"
+                                type='number'
+                                onChange={this.onChange}
+                                required 
+                            />
+                            <br></br>
+                            Contact Number 2 : <TextField
+                                id ='phone2'
+                                name="phone2"
+                                type='number'
+                                onChange={this.onChange}
+                            />
+                            <br></br>
+                            
+                            Addresss : <TextField
+                                id ='address'
+                                name="address"
+                                type='text'
+                                onChange={this.onChange}
+                            />
                             <br></br>
                             <Button
                                 type='submit'
