@@ -11,7 +11,8 @@ class Users extends Component {
             'users':[],
             'loaded':false,
             'start':0,
-            'end':10
+            'end':10,
+            'page':1
         }
         this.update_table = this.update_table.bind(this)
     }
@@ -37,20 +38,22 @@ class Users extends Component {
     }
 
     async update_table (by) {
+        var x = by<0?-1:1
         if (by===0){
             await this.setState({
                 'loaded':false,
                 start: 0,
-                end: 10
+                end: 10,
+                page:1
             })
         }
         else{
-            console.log(by, "asdf ", this.state.start+by)
             if (this.state.start+by>-1){
                 await this.setState({
                     'loaded':false,
                     start: this.state.start+by,
-                    end: this.state.end+by
+                    end: this.state.end+by,
+                    page:this.state.page+x
                 })
             }
             else{
@@ -71,15 +74,13 @@ class Users extends Component {
     render() {
         const render_after_load = (
             <div>
-                <UserList data={this.state.users} header={this.columns} update={this.update_table}/>
-                <button onClick={() => {this.update_table(-10)}}>Pervious</button><button onClick={() => {this.update_table(10)}}>Next</button>
+                <UserList data={this.state.users} update={this.update_table} page={this.state.page} />
             </div>
         )
 
         return(
             <div>
                 <button onClick={() => {this.update_table(0)}}>Refresh table</button>
-                
                 {this.state.loaded ? render_after_load : "Loading..."}
 
             </div>

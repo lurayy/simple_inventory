@@ -8,8 +8,8 @@ import Logout from './users/logout';
 
 import UserCreation from './users/userCreation';
 import { BrowserRouter as Router, Switch , Route, Link} from 'react-router-dom';
-import Users from './users/users';
-import Vendors from './inventory/vendors/vendors';
+import Users from './users';
+import Vendors from './vendors/index';
 import swal from 'sweetalert';
 
 

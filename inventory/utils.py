@@ -34,6 +34,7 @@ def vendors_to_json(vendors):
     data = []
     for vendor in vendors:
         temp = VendorSerializer(vendor).data
+        temp['name'] = str(temp['first_name']) + " " + str(temp['middle_name'] )+ str(temp['last_name'])
         data.append(temp)
     return data
 

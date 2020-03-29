@@ -50,6 +50,10 @@ const List = (props) => {
           </TableBody>
         </Table>
       </TableContainer>
+    <br></br>
+    <h4>Page: {props.page}</h4>
+    <button onClick={() => {props.update(-10)}}>Pervious</button><button onClick={() => {props.update(10)}}>Next</button>
+
     </div>
   );
 }

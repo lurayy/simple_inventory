@@ -25,7 +25,6 @@ class UserList extends Component {
                 [e.target.name] : [e.target.value]
             }
         })
-        console.log(this.state)
     }
 
     onSubmit(e){
@@ -123,7 +122,7 @@ class UserList extends Component {
     
 
     render() {
-        const list = <List data={this.props.data} header={this.columns} popUp={this.popUp} />
+        const list = <List data={this.props.data} header={this.columns} popUp={this.popUp} update={this.props.update} page={this.props.page}/>
         const popUpRender = <div>
                         <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
                         <h1>{this.state.user_data.name}</h1>
