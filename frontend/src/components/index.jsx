@@ -11,6 +11,7 @@ import { BrowserRouter as Router, Switch , Route, Link} from 'react-router-dom';
 import Users from './users';
 import Vendors from './vendors/index';
 import swal from 'sweetalert';
+import PurchaseOrders from './purchaseOrder/index'
 
 
 
@@ -42,7 +43,9 @@ class Index extends Component {
                     <div>
                         <Link to='/logout'>Logout</Link><br></br>
                         <Link to='/users'>Users</Link><br></br>
-                        <Link to='/vendors'>Vendors</Link><br></br><br></br>
+                        <Link to='/vendors'>Vendors</Link><br></br>
+                        <Link to='/purchaseorders'>Purchase Orders</Link><br></br>
+                        <br></br>
                     </div>                    
                     )
           }
@@ -54,9 +57,7 @@ class Index extends Component {
                 )
           }
           var render_x
-        // if(this.state.loading === false){
             render_x = <div>
-            {/* <h1>Index page with nav bar and dashbaord</h1> */}
             <Router>
                 <Link to='/'>
                     Home
@@ -69,14 +70,12 @@ class Index extends Component {
                     <Route path='/users' component = {Users}></Route>
                     <Route path='/vendors/create' component = {VendorCreation}></Route>
                     <Route path='/vendors' component = {Vendors}></Route>
+                    <Route path='/purchaseorders/create' component = {PurchaseOrders}></Route>
+                    <Route path='/purchaseorders' component = {PurchaseOrders}></Route>
+                    
                     </Switch>
             </Router>
         </div>
-        // }
-        // else{
-        //     render_x = <h1>Loading</h1>
-        // }
-      
         return (
          <div>
              {render_x}
