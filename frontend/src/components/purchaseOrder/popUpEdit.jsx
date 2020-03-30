@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import swal from 'sweetalert';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import List from '../list';
-
+import Popup from "reactjs-popup";
+import style from './css/popUp.module.css';
 class PopUpEdit extends Component {
     constructor(props){
         super(props)
@@ -29,6 +29,11 @@ class PopUpEdit extends Component {
 
     popUp(id){
         console.log(id)
+    }
+
+    selectVendor(){
+
+
     }
 
     
@@ -76,14 +81,28 @@ class PopUpEdit extends Component {
     ]
     
 
+
     render() {
         console.log(this.state)
+        const vendorPopup = <Popup trigger={<button>Change Vendor</button>}>
+            <div>
+                <div>
+                    <input placeholder="Vendor's first name"></input>
+                    <div className={style.dropdown_content} id='vendor_dropdown'>
+                        <div class={style.loader} id='loader-id'>
+
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </Popup>
         return (
             <div>
                 <h1>Purchase Order</h1>
                 <h1>{this.props.purchase_order.vendor_name}</h1>
                 Vendor : {this.state.update.purchase_order.vendor_name}
-                <button>Change Vendor</button><br></br>
+                {vendorPopup}<br></br>
                 Invoiced On : 
                 <DatePicker
                 selected={this.converter(this.state.update.purchase_order.invoiced_on)}
