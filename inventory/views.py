@@ -774,7 +774,7 @@ def purchase_item(request):
         'discount_type':'fixed',
         'discount':1351,
         'status':'addedtocirculation',
-
+        'id':1,
     }
     '''
     response_json = {'status':''}
@@ -782,21 +782,24 @@ def purchase_item(request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "add":
-                purchase_item = PurchaseItem.objects.get(id=id)
-                purchase_item.item = Item.objects.get(id=int(data_json['item'])),
-                purchase_item.purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order'])),
-                purchase_item.quantity = int(data_json['quantity']),
-                purchase_item.non_discount_price = data_json['non_discount_price'],
-                purchase_item.purchase_price = data_json['purchase_price'],
-                purchase_item.defective = data_json['defective'],
-                purchase_item.discount_type = data_json['discount_type'],
-                purchase_item.discount = data_json['discount'],
-                purchase_item.status = data_json['status']              
+            if data_json['action'] == "edit":
+                purchase_item = PurchaseItem.objects.get(id=data_json['id'])
+                purchase_item.status = 'incomplete'
+                print("here")
+                purchase_item.save()
+                print("there")
+                purchase_item.quantity = int(data_json['quantity'])
+                purchase_item.purchase_price = float(data_json['purchase_price'])
+                purchase_item.defective = int(data_json['defective'])
+                purchase_item.discount_type = data_json['discount_type']
+                purchase_item.discount = float(data_json['discount'])
+                print (purchase_item.discount)
+
+                purchase_item.status = data_json['status']    
                 purchase_item.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required

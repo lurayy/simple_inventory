@@ -7,6 +7,7 @@ import style from './css/popUp.module.css';
 import {getVendors} from '../../api/inventory/vendorApi';
 
 import {updatePurchaseOrder} from '../../api/inventory/purchaseOrder';
+import {updatePurchaseItem} from '../../api/inventory/purchaseItem'
 import {getPurchaseOrderStatus} from '../../api/misc';
 
 class PopUpEdit extends Component {
@@ -40,6 +41,8 @@ class PopUpEdit extends Component {
         this.selectVendor = this.selectVendor.bind(this)
         this.onChange = this.onChange.bind(this)
         this.updatePurchaseOrder = this.updatePurchaseOrder.bind(this)
+        this.onChangePI = this.onChangePI.bind(this)
+        this.postPurchaseItem = this.postPurchaseItem.bind(this)
     }
 
 
@@ -167,6 +170,49 @@ class PopUpEdit extends Component {
         })
     }
 
+
+    onChangePI(e){
+        this.setState({
+            'update': {
+                ...this.state.update,
+                'purchase_items':{
+                    ...this.state.update.purchase_items,
+                    [this.state.current] : {
+                        ...this.state.update.purchase_items[this.state.current],
+                        [e.target.name] : [e.target.value][0]
+                    },
+                }
+            }
+        })
+    }
+
+    postPurchaseItem(){
+        console.log(this.state.update.purchase_items[this.state.current])
+        var request_json = {
+            'action':'edit',
+            ...this.state.update.purchase_items[this.state.current]
+        }
+        console.log(request_json)
+        updatePurchaseItem(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                alert("Purchase Item Details Has Been Updated.")
+                this.setState({
+                    'popUp':false
+                })
+            }
+            else{
+                console.log(data)
+                alert(data['error'])
+            }
+        })
+        
+    }
+
+    deletePurchaseItem(){
+        console.log("delte")
+    }
+
+
     columns = [
         {
             id:1,
@@ -214,22 +260,22 @@ class PopUpEdit extends Component {
         const popUpItem = <div>
             <button onClick={() => {this.setState({'popUp':false})}} >Back</button><br></br><br></br>
             Item : {this.state.update.purchase_items[this.state.current].item_name} <br></br>
-            Quantity : <input placeholder={this.state.update.purchase_items[this.state.current].quantity} type="number" ></input><br></br>
-            Defective : <input placeholder={this.state.update.purchase_items[this.state.current].defective} type="number"></input><br></br>
+            Quantity : <input name="quantity" placeholder={this.state.update.purchase_items[this.state.current].quantity} type="number" onChange={this.onChangePI}></input><br></br>
+            Defective : <input name="defective" placeholder={this.state.update.purchase_items[this.state.current].defective} type="number"  onChange={this.onChangePI}></input><br></br>
             
-            Discount Type :<select name='discount_type' id="discount_type" defaultValue={this.state.update.purchase_items[this.state.current].discount_type}>
+            Discount Type :<select name='discount_type' id="discount_type" defaultValue={this.state.update.purchase_items[this.state.current].discount_type}  onChange={this.onChangePI}>
                                 <option value="percent">Percentage</option>
                                 <option value="fixed">Fixed</option>
                             </select> <br></br>
-            Discount : <input placeholder={this.state.update.purchase_items[this.state.current].discount} name="discount" ></input><br></br>
-            Purchase Price : <input placeholder={this.state.update.purchase_items[this.state.current].purchase_price}></input> <br></br>
-            Status : <select defaultValue= {this.state.update.purchase_items[this.state.current].status}>
+            Discount : <input placeholder={this.state.update.purchase_items[this.state.current].discount} name="discount" onChange={this.onChangePI} ></input><br></br>
+            Purchase Price : <input placeholder={this.state.update.purchase_items[this.state.current].purchase_price} name="purchase_price" onChange={this.onChangePI}></input> <br></br>
+            Status : <select defaultValue= {this.state.update.purchase_items[this.state.current].status} name="status" onChange={this.onChangePI}>
                 <option value="delivered">Delivered</option>
                 <option value="incomplete">Incomplete</option>
                 <option value="addedtocirculation">Added To Circulation</option>
             </select><br></br>
-            <button>Update</button><br></br><br></br>
-            <button>Delete</button>
+            <button onClick={() => {this.postPurchaseItem()}} >Update</button><br></br><br></br>
+            <button onClick={() => {this.deletePurchaseItem()}} >Delete</button>
 
 
         </div>

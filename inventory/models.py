@@ -54,9 +54,6 @@ class Item(models.Model):
     sales_price = models.FloatField()
     sold = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        unique_together = ['sales_price', 'name']
-
     def __str__(self):
         return f'{self.name}'
     
@@ -67,7 +64,7 @@ class Item(models.Model):
             return False
     
     class Meta:
-        unique_together = ('name', 'catagory', 'sales_price')
+        unique_together = ['name', 'catagory', 'sales_price']
 
 
 class PurchaseItem(models.Model):
@@ -157,6 +154,7 @@ def placement_pre_save_handler(sender, instance, *args, **kwargs):
 def pre_save_handler(sender, instance, *args, **kwargs):
     if (instance.quantity < instance.defective):
         raise Exception("Number of defective items are greater than the quntity of the purchase item ")
+    print(instance.stock, instance.quantity, instance.defective, instance.sold)
     instance.stock = instance.quantity - instance.defective - instance.sold
     if instance.id is not None:
         p_item = PurchaseItem.objects.get(id=instance.id)
