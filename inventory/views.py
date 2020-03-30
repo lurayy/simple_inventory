@@ -151,7 +151,6 @@ def purchase_order(request):
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)
         if data_json['action'] == "edit":
-            print(data_json)
             purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
             purchase_order.total_cost = data_json['total_cost']
             purchase_order.discount_type = data_json['discount_type']
@@ -785,16 +784,12 @@ def purchase_item(request):
             if data_json['action'] == "edit":
                 purchase_item = PurchaseItem.objects.get(id=data_json['id'])
                 purchase_item.status = 'incomplete'
-                print("here")
                 purchase_item.save()
-                print("there")
                 purchase_item.quantity = int(data_json['quantity'])
                 purchase_item.purchase_price = float(data_json['purchase_price'])
                 purchase_item.defective = int(data_json['defective'])
                 purchase_item.discount_type = data_json['discount_type']
                 purchase_item.discount = float(data_json['discount'])
-                print (purchase_item.discount)
-
                 purchase_item.status = data_json['status']    
                 purchase_item.save()
                 response_json = {'status':True}

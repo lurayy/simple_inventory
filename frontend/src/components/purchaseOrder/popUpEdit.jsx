@@ -92,16 +92,13 @@ class PopUpEdit extends Component {
                     ...this.state.update.purchase_order,
                     [e.target.name] : [e.target.value][0]
                 }
-                
             }
         })
     }
 
-
     converter(date){
         return ( new Date(Date.parse(date)))
     }
-
     popUp(id){
         var key
         for (key in this.state.update.purchase_items){
@@ -297,6 +294,7 @@ class PopUpEdit extends Component {
                 </div>
             </Popup>
             const status = this.state.status
+            console.log(this.state.update.purchase_order.status)
         return (
             <div>
                 <h1>Purchase Order</h1>
@@ -322,10 +320,10 @@ class PopUpEdit extends Component {
                                 <option value="fixed">Fixed</option>
                             </select> <br></br>
                 Discount : <input placeholder={this.state.update.purchase_order.discount} name="discount" onChange={this.onChange}></input><br></br>
-                Status :  <select name='status' id="status" onChange={this.onChange} defaultValue={this.state.update.purchase_order.status}>
+                Status : <select name='status' id="status" onChange={this.onChange} value={this.state.update.purchase_order.status}  >
                                 {status.map(
                                     x => (
-                                    <option key={x.id} value={x.id}>{x.name}</option>
+                                    <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
                                     )
                                 )
                                 }
