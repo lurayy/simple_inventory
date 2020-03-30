@@ -6,11 +6,14 @@ import Popup from "reactjs-popup";
 import style from './css/popUp.module.css';
 import {getVendors} from '../../api/inventory/vendorApi';
 
+import {updatePurchaseOrder} from '../../api/inventory/purchaseOrder';
+import {getPurchaseOrderStatus} from '../../api/misc';
 
 class PopUpEdit extends Component {
     constructor(props){
         super(props)
         this.state = {
+            'status':[],
             'vendor_selection':[
                 {
                     'id':0,
@@ -34,10 +37,23 @@ class PopUpEdit extends Component {
         this.searchVendor = this.searchVendor.bind(this)
         this.selectVendor = this.selectVendor.bind(this)
         this.onChange = this.onChange.bind(this)
+        this.updatePurchaseOrder = this.updatePurchaseOrder.bind(this)
     }
 
 
-
+    async componentDidMount(){
+        var request_json = {
+            'action':'get',
+        }
+        await getPurchaseOrderStatus(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                this.setState({
+                    ...this.state,
+                    'status':data.data
+                })
+            }  
+        })
+    }
     async getVendorsData (request_json) {
         await getVendors(JSON.stringify(request_json)).then(data => {
             if (data['status']){
@@ -78,17 +94,14 @@ class PopUpEdit extends Component {
 
 
     converter(date){
-        console.log(Date.parse(date))
-        return (Date.parse(date))
+        return ( new Date(Date.parse(date)))
     }
 
     popUp(id){
-        console.log(id)
         console.log(this.state)
     }
 
     searchVendor(e){
-        console.log(e.target.value)
         if ((e.target.value).length > 2 ){
             var request_json = {
                 'action':'get',
@@ -124,6 +137,23 @@ class PopUpEdit extends Component {
             }
         })
     }
+
+    updatePurchaseOrder(){
+        var request_json = {
+            ...this.state.update.purchase_order,
+            'action':'edit',
+            'purchase_order_id':this.state.update.purchase_order.id
+        }
+        updatePurchaseOrder(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                alert("Purchase Order Details Has Been Updated.")
+            }
+            else{
+                alert("Error : ",data.error)
+            }
+        })
+    }
+
     columns = [
         {
             id:1,
@@ -168,7 +198,6 @@ class PopUpEdit extends Component {
     ]
 
     render() {
-        console.log(this.state)
         const vendor_selection = this.state.vendor_selection
         const vendorPopup = <Popup trigger={<button>Change Vendor</button>} closeOnDocumentClick>
                 <div>
@@ -185,6 +214,7 @@ class PopUpEdit extends Component {
                     </div>
                 </div>
             </Popup>
+            const status = this.state.status
         return (
             <div>
                 <h1>Purchase Order</h1>
@@ -205,10 +235,20 @@ class PopUpEdit extends Component {
                 /><br></br>
                 Added By : {this.state.update.purchase_order.added_by_name}<br></br>
                 Total Cost : <input placeholder={this.state.update.purchase_order.total_cost} name="total_cost" onChange={this.onChange}/><br></br>
-                Discount Type : {this.state.update.purchase_order.discount_type} <button>Change Discount Type</button><br></br>
+                Discount Type :<select name='discount_type' id="discount_type" onChange={this.onChange} defaultValue={this.state.update.purchase_order.discount_type}>
+                                <option value="percent">Percentage</option>
+                                <option value="fixed">Fixed</option>
+                            </select> <br></br>
                 Discount : <input placeholder={this.state.update.purchase_order.discount} name="discount" onChange={this.onChange}></input><br></br>
-                Status : {this.state.update.purchase_order.status_name} <button>Change Status</button><br></br>
-
+                Status :  <select name='status' id="status" onChange={this.onChange} defaultValue={this.state.update.purchase_order.status}>
+                                {status.map(
+                                    x => (
+                                    <option key={x.id} value={x.id}>{x.name}</option>
+                                    )
+                                )
+                                }
+                            </select> <br></br><br></br>
+                <button onClick={() => {this.updatePurchaseOrder()}}>Update Purchase Order</button>
                 <h3>Items</h3>
                 <List data={this.props.purchase_items} header={this.columns} page={false} popUp={this.popUp} />
             </div>

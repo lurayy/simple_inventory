@@ -147,30 +147,30 @@ def purchase_order(request):
     '''
     response_json = {'status':'', 'p_order':{}, 'p_items':[]}
     if request.method == "POST":
-        try:
-            json_str = request.body.decode(encoding='UTF-8')
-            data_json = json.loads(json_str)
-            if data_json['action'] == "edit":
-                purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
-                purchase_order.total_cost = data_json['total_cost']
-                purchase_order.discount_type = data_json['discount_type']
-                purchase_order.discount = data_json['discount']
-                purchase_order.added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])) 
-                purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
-                purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
-                purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
-                purchase_order.status = PurchaseOrderStatus.objects.get(data_json['status'])
-                purchase_order.save()
-                response_json = {'status':True}
-                return JsonResponse(response_json)
-            if data_json['action'] == 'get':    
-                order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
-                response_json['p_order'] = purchase_orders_to_json([order])
-                response_json['p_items'] = purchase_items_to_json(PurchaseItem.objects.filter(purchase_order=order))        
-                response_json['status'] = True
-                return JsonResponse(response_json)
-        except(ObjectDoesNotExist, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+        # try:
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        if data_json['action'] == "edit":
+            print(data_json)
+            purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
+            purchase_order.total_cost = data_json['total_cost']
+            purchase_order.discount_type = data_json['discount_type']
+            purchase_order.discount = data_json['discount']
+            purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
+            purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
+            purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
+            purchase_order.status = PurchaseOrderStatus.objects.get(id=int(data_json['status']))
+            purchase_order.save()
+            response_json = {'status':True}
+            return JsonResponse(response_json)
+        if data_json['action'] == 'get':    
+            order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
+            response_json['p_order'] = purchase_orders_to_json([order])
+            response_json['p_items'] = purchase_items_to_json(PurchaseItem.objects.filter(purchase_order=order))        
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        # except(ObjectDoesNotExist, Exception) as exp:
+        #     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
 @login_required

@@ -1,4 +1,4 @@
-import { baseRequest } from '../base';
+import { baseRequest } from './base';
  
 
 const getDiscounts = async data => {
@@ -87,6 +87,14 @@ const getTaxes = async data => {
     }
   };
 
+  const getPurchaseOrderStatus= async data => {
+    try {
+      return await baseRequest('apiv1/inventory/status/porders','POST', data);
+    } catch(e){
+      alert(e)
+    }
+  };
+
   
-export {getDiscounts, createDiscount, deleteDiscounts, updateDiscount, getDiscount, getTaxes, createTax, deleteTaxes, updateTax, getTax}
+export {getPurchaseOrderStatus, getDiscounts, createDiscount, deleteDiscounts, updateDiscount, getDiscount, getTaxes, createTax, deleteTaxes, updateTax, getTax}
   
