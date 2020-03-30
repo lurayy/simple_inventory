@@ -7,7 +7,7 @@ import style from './css/popUp.module.css';
 import {getVendors} from '../../api/inventory/vendorApi';
 
 import {updatePurchaseOrder} from '../../api/inventory/purchaseOrder';
-import {updatePurchaseItem} from '../../api/inventory/purchaseItem'
+import {updatePurchaseItem, deletePurchaseItems} from '../../api/inventory/purchaseItem'
 import {getPurchaseOrderStatus} from '../../api/misc';
 
 class PopUpEdit extends Component {
@@ -43,6 +43,7 @@ class PopUpEdit extends Component {
         this.updatePurchaseOrder = this.updatePurchaseOrder.bind(this)
         this.onChangePI = this.onChangePI.bind(this)
         this.postPurchaseItem = this.postPurchaseItem.bind(this)
+        this.deletePurchaseItem = this.deletePurchaseItem.bind(this)
     }
 
 
@@ -206,7 +207,22 @@ class PopUpEdit extends Component {
     }
 
     deletePurchaseItem(){
-        console.log("delte")
+        var request_json = {
+            purchase_items_id : [this.state.update.purchase_items[this.state.current].id]
+        }
+        deletePurchaseItems(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                alert("Purchase Item Has Beed Deleted.")
+                this.setState({
+                    'popUp':false
+                })
+            }
+            else{
+                console.log(data)
+                alert(data['error'])
+            }
+        })
+        
     }
 
 

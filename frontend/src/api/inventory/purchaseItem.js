@@ -2,7 +2,7 @@ import { baseRequest } from '../base';
 // api for items 
 
   
-  const deletePurchaseItem = async data => {
+  const deletePurchaseItems = async data => {
     try {
       return await baseRequest('apiv1/inventory/pitems/delete','POST', data);
     } catch(e){
@@ -26,5 +26,5 @@ import { baseRequest } from '../base';
     }
   };
   
-export { deletePurchaseItem, createPurchaseItem, updatePurchaseItem}
+export { deletePurchaseItems, createPurchaseItem, updatePurchaseItem}
   

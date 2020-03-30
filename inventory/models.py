@@ -20,7 +20,6 @@ class PurchaseOrder(models.Model):
     invoiced_on = models.DateTimeField()
     completed_on = models.DateTimeField(null=True, blank=True) 
     total_cost = models.FloatField()
-
     DISCOUNT = (
         ('percent', "percent"),
         ('fixed', "fixed")
@@ -88,7 +87,6 @@ class PurchaseItem(models.Model):
         ('addedtocirculation', 'Added To Circulation')
     )
     status = models.CharField(max_length=25, choices=STATUS_S, default='incomplete')
-
     is_active = models.BooleanField(default=True)    
     def __str__(self):
         return f'{self.item} of {self.purchase_order}'

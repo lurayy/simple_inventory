@@ -191,9 +191,12 @@ def delete_purchase_orders(request):
             for id in ids:
                 purchase_order = PurchaseOrder.objects.get(id=int(id))
                 purchase_order.is_active = False
+                purchase_order.status = PurchaseOrderStatus.objects.filter(is_end=False)[0]
                 purchase_order.save()
                 for p_item in PurchaseItem.objects.filter(purchase_order = purchase_order):
                     p_item.is_active = False
+                    p_item.status = "incomplete"
+                    print(p_item)
                     p_item.save()
             response_json['status'] = True
             return JsonResponse(response_json)
@@ -813,10 +816,14 @@ def delete_purchase_items(request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             ids = data_json['purchase_items_id']
+            print(ids)
             for id in ids:
-                purhcase_item = PurchaseItem.objects.get(id=int(id))
-                purchase_item.is_active = False
-                purchase_item.save()
+                print(id)
+                z = PurchaseItem.objects.get(id=int(id))
+                z.is_active = False
+                z.status = 'incomplete'
+                z.save()
+                z.delete()
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
