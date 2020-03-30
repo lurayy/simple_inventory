@@ -4,18 +4,57 @@ import "react-datepicker/dist/react-datepicker.css";
 import List from '../list';
 import Popup from "reactjs-popup";
 import style from './css/popUp.module.css';
+import {getVendors} from '../../api/inventory/vendorApi';
+
+
 class PopUpEdit extends Component {
     constructor(props){
         super(props)
         this.state = {
+            'vendor_selection':[
+                {
+                    'id':0,
+                    'name':'Type Name To Search'
+                }
+            ],
             update : {
                 'purchase_order':this.props.purchase_order,
                 'purchase_items':this.props.purchase_items
             }
         }
+        this.getVendorsData = this.getVendorsData.bind(this)
         this.converter = this.converter.bind(this)
         this.popUp = this.popUp.bind(this)
+        this.searchVendor = this.searchVendor.bind(this)
+        this.selectVendor = this.selectVendor.bind(this)
     }
+
+    async getVendorsData (request_json) {
+        await getVendors(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                this.setState({
+                    'vendor_selection':data['vendors'],
+                })
+            }  
+        })
+    }
+
+
+    selectVendor(id,name){
+        this.setState({
+            'update': {
+                ...this.state.update,
+                'purchase_order':{
+                    ...this.state.update.purchase_order,
+                    'vendor':id,
+                    'vendor_name':name
+                }
+            }
+        })
+    }
+
+
+ 
 
     handleChange = date => {
         console.log(typeof(date))
@@ -31,11 +70,19 @@ class PopUpEdit extends Component {
         console.log(id)
     }
 
-    selectVendor(){
-
-
+    searchVendor(e){
+        console.log(e.target.value)
+        if ((e.target.value).length > 2 ){
+            var request_json = {
+                'action':'get',
+                'start':0,
+                'end':10,
+                'filter':'name',
+                'first_name':(e.target.value)
+            }
+            this.getVendorsData(request_json)
+        }
     }
-
     
     columns = [
         {
@@ -79,24 +126,24 @@ class PopUpEdit extends Component {
             prop: 'status'
         }
     ]
-    
-
 
     render() {
         console.log(this.state)
-        const vendorPopup = <Popup trigger={<button>Change Vendor</button>}>
-            <div>
+        const vendor_selection = this.state.vendor_selection
+        const vendorPopup = <Popup trigger={<button>Change Vendor</button>} closeOnDocumentClick>
                 <div>
-                    <input placeholder="Vendor's first name"></input>
+                    <input placeholder="Vendor's first name" id='vendor_serach_box' name='vendor_serach_box' onChange={this.searchVendor}></input>
                     <div className={style.dropdown_content} id='vendor_dropdown'>
-                        <div class={style.loader} id='loader-id'>
-
-                        </div>
+                            {vendor_selection.map(
+                                vendor => (
+                                    <a key={vendor.id} onClick={() => {this.selectVendor(vendor.id, vendor.name)}} >{vendor.name}</a>
+                                )
+                            )
+                            }
+                        
                     </div>
                 </div>
-                
-            </div>
-        </Popup>
+            </Popup>
         return (
             <div>
                 <h1>Purchase Order</h1>

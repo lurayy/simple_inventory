@@ -259,7 +259,7 @@ def vendors(request):
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'name':
-                    vendors = Vendor.objects.filter(is_active=True, first_name=data_json['first_name'])
+                    vendors = Vendor.objects.filter(is_active=True, first_name__contains=data_json['first_name'])
                     response_json['vendors'] = vendors_to_json(vendors)
                     if response_json['vendors']:
                         response_json['status'] = True
