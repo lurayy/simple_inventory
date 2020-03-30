@@ -69,7 +69,7 @@ class PopUpEdit extends Component {
                 ...this.state.update,
                 'purchase_order':{
                     ...this.state.update.purchase_order,
-                    [e.target.name] : [e.target.value]
+                    [e.target.name] : [e.target.value][0]
                 }
                 
             }
@@ -204,9 +204,9 @@ class PopUpEdit extends Component {
                 onChange={this.completeHandler}
                 /><br></br>
                 Added By : {this.state.update.purchase_order.added_by_name}<br></br>
-                Total Cost : <input placeholder={this.state.update.purchase_order.total_cost} /><br></br>
+                Total Cost : <input placeholder={this.state.update.purchase_order.total_cost} name="total_cost" onChange={this.onChange}/><br></br>
                 Discount Type : {this.state.update.purchase_order.discount_type} <button>Change Discount Type</button><br></br>
-                Discount : <input placeholder={this.state.update.purchase_order.discount}></input><br></br>
+                Discount : <input placeholder={this.state.update.purchase_order.discount} name="discount" onChange={this.onChange}></input><br></br>
                 Status : {this.state.update.purchase_order.status_name} <button>Change Status</button><br></br>
 
                 <h3>Items</h3>
