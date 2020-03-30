@@ -13,6 +13,8 @@ class PopUpEdit extends Component {
     constructor(props){
         super(props)
         this.state = {
+            'popUp':false,
+            'current':0,
             'status':[],
             'vendor_selection':[
                 {
@@ -98,7 +100,18 @@ class PopUpEdit extends Component {
     }
 
     popUp(id){
-        console.log(this.state)
+        var key
+        for (key in this.state.update.purchase_items){
+            if (this.state.update.purchase_items[key].id === id){
+                this.setState({
+                    ...this.state,
+                    'current':key,
+                    'popUp':true
+                })        
+                return
+            }
+        }
+        
     }
 
     searchVendor(e){
@@ -198,6 +211,29 @@ class PopUpEdit extends Component {
     ]
 
     render() {
+        const popUpItem = <div>
+            <button onClick={() => {this.setState({'popUp':false})}} >Back</button><br></br><br></br>
+            Item : {this.state.update.purchase_items[this.state.current].item_name} <br></br>
+            Quantity : <input placeholder={this.state.update.purchase_items[this.state.current].quantity} type="number" ></input><br></br>
+            Defective : <input placeholder={this.state.update.purchase_items[this.state.current].defective} type="number"></input><br></br>
+            
+            Discount Type :<select name='discount_type' id="discount_type" defaultValue={this.state.update.purchase_items[this.state.current].discount_type}>
+                                <option value="percent">Percentage</option>
+                                <option value="fixed">Fixed</option>
+                            </select> <br></br>
+            Discount : <input placeholder={this.state.update.purchase_items[this.state.current].discount} name="discount" ></input><br></br>
+            Purchase Price : <input placeholder={this.state.update.purchase_items[this.state.current].purchase_price}></input> <br></br>
+            Status : <select defaultValue= {this.state.update.purchase_items[this.state.current].status}>
+                <option value="delivered">Delivered</option>
+                <option value="incomplete">Incomplete</option>
+                <option value="addedtocirculation">Added To Circulation</option>
+            </select><br></br>
+            <button>Update</button><br></br><br></br>
+            <button>Delete</button>
+
+
+        </div>
+
         const vendor_selection = this.state.vendor_selection
         const vendorPopup = <Popup trigger={<button>Change Vendor</button>} closeOnDocumentClick>
                 <div>
@@ -250,7 +286,7 @@ class PopUpEdit extends Component {
                             </select> <br></br><br></br>
                 <button onClick={() => {this.updatePurchaseOrder()}}>Update Purchase Order</button>
                 <h3>Items</h3>
-                <List data={this.props.purchase_items} header={this.columns} page={false} popUp={this.popUp} />
+                {this.state.popUp ? popUpItem :<List data={this.props.purchase_items} header={this.columns} page={false} popUp={this.popUp} /> }  
             </div>
         )
     }
