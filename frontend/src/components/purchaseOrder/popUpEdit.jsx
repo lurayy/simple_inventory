@@ -161,6 +161,7 @@ class PopUpEdit extends Component {
         updatePurchaseOrder(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 alert("Purchase Order Details Has Been Updated.")
+                this.props.update(0)
             }
             else{
                 alert("Error : ",data.error)
@@ -197,6 +198,7 @@ class PopUpEdit extends Component {
                     ...this.state,
                     'popUp':false
                 })
+                this.props.update(0)
             }
             else{
                 console.log(data)
@@ -216,6 +218,7 @@ class PopUpEdit extends Component {
                     ...this.state,
                     'popUp':false,
                 })
+                this.props.update(0)
             }
             else{
                 alert(data['error'])
@@ -335,7 +338,9 @@ class PopUpEdit extends Component {
                                     )
                                 )}
                             </select> <br></br><br></br>
-                <button onClick={() => {this.updatePurchaseOrder()}}>Update Purchase Order</button>
+                <button onClick={() => {this.updatePurchaseOrder()}}>Update Purchase Order</button><br></br><br></br>
+                <button onClick={() => {this.props.delete(this.props.purchase_order.id)}}>Delete</button>
+                <hr></hr>
                 <h3>Items</h3>
                 {this.state.popUp ? popUpItem :<List data={this.props.purchase_items} header={this.columns} page={false} popUp={this.popUp} />}
             </div>

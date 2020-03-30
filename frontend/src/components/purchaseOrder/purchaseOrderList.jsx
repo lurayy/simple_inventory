@@ -16,7 +16,7 @@ class PurchaseOrderList extends Component {
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.vendorDelete = this.vendorDelete.bind(this)
+        this.purchaseOrderDelete = this.purchaseOrderDelete.bind(this)
     }
     
     onChange(e)
@@ -53,16 +53,16 @@ class PurchaseOrderList extends Component {
             })
     }
 
-    vendorDelete(id){
+    purchaseOrderDelete(id){
         var data = {
-            'vendors_id':[
+            'purchase_orders_id':[
                 id
             ]
         }
         deletePurchaseOrder(JSON.stringify(data)).then(data=>{
             try {
                 if (data['status']){
-                    alert('Vendor data deleted.')
+                    alert('Purchase Order Deleted.')
                     this.props.update(0)
                 }   else{
                     alert(data['error'])
@@ -123,7 +123,7 @@ class PurchaseOrderList extends Component {
 
     render() {
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
-        const popUpRender = <PopUpEdit purchase_order={this.state.purchase_order} purchase_items={this.state.purchase_items} ></PopUpEdit>
+        const popUpRender = <PopUpEdit purchase_order={this.state.purchase_order} purchase_items={this.state.purchase_items} update={this.props.update} delete={this.purchaseOrderDelete} ></PopUpEdit>
         return (
             <div>
                 {this.state.popUp ? popUpRender : list}
