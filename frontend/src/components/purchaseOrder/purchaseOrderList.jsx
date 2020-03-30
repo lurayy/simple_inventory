@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import List from '../list';
-import {Button, TextField } from '@material-ui/core';
 import { getPurchaseOrder, deletePurchaseOrder, updatePurchaseOrder } from '../../api/inventory/purchaseOrder';
-import popUpEdit from './popUpEdit';
 import PopUpEdit from './popUpEdit';
 
 class PurchaseOrderList extends Component {

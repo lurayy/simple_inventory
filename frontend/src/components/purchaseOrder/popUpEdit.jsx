@@ -18,16 +18,25 @@ class PopUpEdit extends Component {
                 }
             ],
             update : {
-                'purchase_order':this.props.purchase_order,
+                'purchase_order':{
+                    ...this.props.purchase_order,
+                    'invoiced_on': this.converter(this.props.purchase_order.invoiced_on),
+                    'completed_on': this.converter(this.props.purchase_order.completed_on)
+                },
                 'purchase_items':this.props.purchase_items
             }
         }
+        this.invoiceHandler = this.invoiceHandler.bind(this)
+        this.completeHandler = this.completeHandler.bind(this)
         this.getVendorsData = this.getVendorsData.bind(this)
         this.converter = this.converter.bind(this)
         this.popUp = this.popUp.bind(this)
         this.searchVendor = this.searchVendor.bind(this)
         this.selectVendor = this.selectVendor.bind(this)
+        this.onChange = this.onChange.bind(this)
     }
+
+
 
     async getVendorsData (request_json) {
         await getVendors(JSON.stringify(request_json)).then(data => {
@@ -53,14 +62,21 @@ class PopUpEdit extends Component {
         })
     }
 
+    onChange(e)
+    {
+        this.setState({
+            'update': {
+                ...this.state.update,
+                'purchase_order':{
+                    ...this.state.update.purchase_order,
+                    [e.target.name] : [e.target.value]
+                }
+                
+            }
+        })
+    }
 
- 
 
-    handleChange = date => {
-        console.log(typeof(date))
-        var data = {'date':date}
-        console.log(JSON.stringify(data))
-    };
     converter(date){
         console.log(Date.parse(date))
         return (Date.parse(date))
@@ -68,6 +84,7 @@ class PopUpEdit extends Component {
 
     popUp(id){
         console.log(id)
+        console.log(this.state)
     }
 
     searchVendor(e){
@@ -84,6 +101,29 @@ class PopUpEdit extends Component {
         }
     }
     
+    invoiceHandler(date){
+        this.setState({
+            'update': {
+                ...this.state.update,
+                'purchase_order':{
+                    ...this.state.update.purchase_order,
+                    'invoiced_on' : date
+                }
+            }
+        })
+    }
+    
+    completeHandler(date){
+        this.setState({
+            'update': {
+                ...this.state.update,
+                'purchase_order':{
+                    ...this.state.update.purchase_order,
+                    'completed_on' : date
+                }
+            }
+        })
+    }
     columns = [
         {
             id:1,
@@ -136,6 +176,7 @@ class PopUpEdit extends Component {
                     <div className={style.dropdown_content} id='vendor_dropdown'>
                             {vendor_selection.map(
                                 vendor => (
+                                    // use css to get rid of <a>
                                     <a key={vendor.id} onClick={() => {this.selectVendor(vendor.id, vendor.name)}} >{vendor.name}</a>
                                 )
                             )
@@ -152,13 +193,15 @@ class PopUpEdit extends Component {
                 {vendorPopup}<br></br>
                 Invoiced On : 
                 <DatePicker
-                selected={this.converter(this.state.update.purchase_order.invoiced_on)}
-                onChange={this.handleChange}
+                name='invoiced_on'
+                selected={this.state.update.purchase_order.invoiced_on}
+                onChange={this.invoiceHandler}
                 />
                 Completed On : 
                 <DatePicker
-                selected={this.converter(this.state.update.purchase_order.completed_on)}
-                onChange={this.handleChange}
+                name='completed_on'
+                selected={this.state.update.purchase_order.completed_on}
+                onChange={this.completeHandler}
                 /><br></br>
                 Added By : {this.state.update.purchase_order.added_by_name}<br></br>
                 Total Cost : <input placeholder={this.state.update.purchase_order.total_cost} /><br></br>
