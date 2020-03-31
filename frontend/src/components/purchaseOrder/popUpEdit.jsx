@@ -395,7 +395,7 @@ class PopUpEdit extends Component {
                     {item_selection.map(
                         item => (
                             // use css to get rid of <a>
-                            <a key={item.id} onClick={() => {this.selectItem(item.id, item.name)}} >{item.name}</a>
+                            <a href="#" key={item.id} onClick={() => {this.selectItem(item.id, item.name)}} >{item.name}</a>
                         )
                     )}
             </div>
@@ -429,7 +429,7 @@ class PopUpEdit extends Component {
                     {vendor_selection.map(
                         vendor => (
                             // use css to get rid of <a>
-                            <a key={vendor.id} onClick={() => {this.selectVendor(vendor.id, vendor.name)}} >{vendor.name}</a>
+                            <a href="#" key={vendor.id} onClick={() => {this.selectVendor(vendor.id, vendor.name)}} >{vendor.name}</a>
                         )
                     )}
             </div>

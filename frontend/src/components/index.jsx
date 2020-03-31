@@ -13,7 +13,8 @@ import Vendors from './vendors/index';
 import swal from 'sweetalert';
 import PurchaseOrders from './purchaseOrder/index'
 import PurchaseOrderCreation from './purchaseOrder/purchaseOrderCreation'
-
+import Invoices from './invoices/index';
+import InvoiceCreation from './invoices/invoiceCreation';
 
 class Index extends Component {
     constructor (props){
@@ -45,6 +46,7 @@ class Index extends Component {
                         <Link to='/users'>Users</Link><br></br>
                         <Link to='/vendors'>Vendors</Link><br></br>
                         <Link to='/purchaseorders'>Purchase Orders</Link><br></br>
+                        <Link to='/invoices'>Invoices</Link><br></br>
                         <br></br>
                     </div>                    
                     )
@@ -72,6 +74,9 @@ class Index extends Component {
                     <Route path='/vendors' component = {Vendors}></Route>
                     <Route path='/purchaseorders/create' component = {PurchaseOrderCreation}></Route>
                     <Route path='/purchaseorders' component = {PurchaseOrders}></Route>
+                    
+                    <Route path='/invoices/create' component = {InvoiceCreation}></Route>
+                    <Route path='/invoices' component = {Invoices}></Route>
                     
                     </Switch>
             </Router>

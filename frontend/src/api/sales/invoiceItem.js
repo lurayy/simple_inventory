@@ -3,7 +3,7 @@ import { baseRequest } from '../base';
 
 const getInvoiceItems = async data => {
     try {
-      return await baseRequest('apiv1/inventory/invoiceitems','POST', data);
+      return await baseRequest('apiv1/sales/invoiceitems','POST', data);
     } catch(e){
       alert(e)
     }
@@ -12,7 +12,7 @@ const getInvoiceItems = async data => {
   
   const deleteInvoiceItems = async data => {
     try {
-      return await baseRequest('apiv1/inventory/invoiceitems/delete','POST', data);
+      return await baseRequest('apiv1/sales/invoiceitems/delete','POST', data);
     } catch(e){
       alert(e)
     }
@@ -20,7 +20,7 @@ const getInvoiceItems = async data => {
   
   const createInvoiceItem = async data => {
       try {
-        return await baseRequest('apiv1/inventory/invoiceitems','POST', data);
+        return await baseRequest('apiv1/sales/invoiceitems','POST', data);
       } catch(e){
         alert(e)
       }
@@ -29,7 +29,7 @@ const getInvoiceItems = async data => {
   
   const getInvoiceItem = async data => {
     try {
-      return await baseRequest('apiv1/inventory/invoiceitem','POST', data);
+      return await baseRequest('apiv1/sales/invoiceitem','POST', data);
     } catch(e){
       alert(e)
     }
@@ -37,7 +37,7 @@ const getInvoiceItems = async data => {
   
   const updateInvoiceItem= async data => {
     try {
-      return await baseRequest('apiv1/inventory/invoiceitem','POST', data);
+      return await baseRequest('apiv1/sales/invoiceitem','POST', data);
     } catch(e){
       alert(e)
     }
