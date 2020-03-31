@@ -197,8 +197,6 @@ class PopUpEdit extends Component {
     }
 
     postPurchaseItem(is_new=false){
-        console.log(this.state.update.purchase_items[this.state.current])
-        console.log(is_new)
         var request_json
         if (is_new){
             request_json = {
@@ -212,7 +210,6 @@ class PopUpEdit extends Component {
                     this.refreshTable()
                 }
                 else{
-                    console.log(data)
                     alert(data['error'])
                 }
             })
@@ -228,7 +225,6 @@ class PopUpEdit extends Component {
                 this.refreshTable()
             }
             else{
-                console.log(data)
                 alert(data['error'])
             }
         })
@@ -258,7 +254,6 @@ class PopUpEdit extends Component {
                 if (item.id !== "Fake Key"){
                     current = current + 1
                     p_list.push(item)
-                    console.log('not fake')
                 }
             }
         }
@@ -342,7 +337,6 @@ class PopUpEdit extends Component {
                     ...this.state,
                     'item_selection':data['items'],
                 })
-            console.log(data)
             }  
         })
     }
@@ -371,10 +365,8 @@ class PopUpEdit extends Component {
             'purchase_order_id':id
         }
         await getPurchaseOrder(JSON.stringify(request_json)).then(data => {
-            console.log("data",data)
             if (data['status']){
                 items = data['p_items']
-                console.log("ran",items)
             }
         })
         if (items.length === 0){
@@ -383,7 +375,6 @@ class PopUpEdit extends Component {
                 'item_name': ''
             }]
         }
-        console.log("before",this.state)
         await this.setState({
             ...this.state,
             'popUp':false,
@@ -392,7 +383,6 @@ class PopUpEdit extends Component {
                 'purchase_items':items
             }
         })
-        console.log("after",this.state)
     }
 
 

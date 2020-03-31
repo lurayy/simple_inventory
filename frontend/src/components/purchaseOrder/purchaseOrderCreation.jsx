@@ -42,7 +42,6 @@ class PurchaseOrderCreation extends Component {
                 }]
             }
         }
-        this.getPurchaseOrderData = this.getPurchaseOrderData.bind(this)
         this.converter = this.converter.bind(this)
         this.addPurchaseOrder = this.addPurchaseOrder.bind(this)
         this.getItemData = this.getItemData.bind(this)
@@ -60,14 +59,13 @@ class PurchaseOrderCreation extends Component {
         this.onChangePI = this.onChangePI.bind(this)
         this.postPurchaseItem = this.postPurchaseItem.bind(this)
         this.deletePurchaseItem = this.deletePurchaseItem.bind(this)
-        this.back = this.back.bind(this)
+        this.refreshTable = this.refreshTable.bind(this)
     }
 
     async componentDidMount(){
         var request_json = {
             'action':'get',
         }
-        console.log(this.state)
         await getPurchaseOrderStatus(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 this.setState({
@@ -189,7 +187,6 @@ class PurchaseOrderCreation extends Component {
             ...this.state.update.purchase_order,
             'action':'add',
         }
-        console.log(request_json)
         createPurchaseOrder(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 alert("Purchase Order Has Been Added.")
@@ -225,8 +222,6 @@ class PurchaseOrderCreation extends Component {
     }
 
     postPurchaseItem(is_new=false){
-        console.log(this.state.update.purchase_items[this.state.current])
-        console.log(is_new)
         var request_json;
         if (is_new){
             request_json = {
@@ -240,7 +235,6 @@ class PurchaseOrderCreation extends Component {
                     this.refreshTable()
                 }
                 else{
-                    console.log(data)
                     alert(data['error'])
                 }
             })
@@ -256,12 +250,12 @@ class PurchaseOrderCreation extends Component {
                 this.refreshTable()
             }
             else{
-                console.log(data)
                 alert(data['error'])
             }
         })
     }
 
+  
     deletePurchaseItem(){
         var request_json = {
             purchase_items_id : [this.state.update.purchase_items[this.state.current].id]
@@ -269,10 +263,7 @@ class PurchaseOrderCreation extends Component {
         deletePurchaseItems(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 alert("Purchase Item Has Beed Deleted.")
-                this.setState({
-                    ...this.state,
-                    'popUp':false,
-                })
+                this.refreshTable()
             }
             else{
                 alert(data['error'])
@@ -282,7 +273,6 @@ class PurchaseOrderCreation extends Component {
 
 
     addPurchaseItem(){
-        console.log("here")
         var current =0;
         var item,p_list=[];
         for (item in this.state.update.purchase_items){
@@ -290,7 +280,6 @@ class PurchaseOrderCreation extends Component {
                 if (item.id !== "Fake Key"){
                     current = current + 1
                     p_list.push(item)
-                    console.log('not fake')
                 }
             }
         }
@@ -375,7 +364,6 @@ class PurchaseOrderCreation extends Component {
                     ...this.state,
                     'item_selection':data['items'],
                 })
-            console.log(data)
             }  
         })
     }
@@ -396,53 +384,31 @@ class PurchaseOrderCreation extends Component {
 
     }
 
-    back(){
-        var item,p_list=[];
-        for (item in this.state.update.purchase_items){
-            if (item.id){
-                if (item.id !== "Fake Key"){
-                    p_list.push(item)
-                    console.log('not fake')
-                }
-            }
+    async refreshTable(){
+        var id = this.state.update.purchase_order.id;
+        var items= [];
+        const request_json = {
+            'action':'get',
+            'purchase_order_id':id
         }
-        this.setState({
+        await getPurchaseOrder(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                items = data['p_items']
+            }
+        })
+        if (items.length === 0){
+            items = [{
+                'id':"Fake Key",
+                'item_name': ''
+            }]
+        }
+        await this.setState({
+            ...this.state,
             'popUp':false,
             'update':{
                 ...this.state.update,
-                'purchase_items':[
-                    ...p_list,
-                    {
-                        'id':'Fake Key',
-                        'item_name':"None",
-                        'discount_type':'percentage',
-                        'status':'incomplete'
-                    }
-                ]
+                'purchase_items':items
             }
-        })
-    }
-
-    refreshTable(){
-        var request_json = {
-        'action':'get',
-        'purchase_order_id':this.state.update.purchase_order.id,
-        }
-        this.getPurchaseOrderData(request_json)
-    }
-
-    async getPurchaseOrderData(request_json) {
-        await getPurchaseOrder(JSON.stringify(request_json)).then(data => {
-            if (data['status']){
-                this.setState({
-                    ...this.state,
-                    'popUp':false,
-                    'update':{
-                        'purchase_order':data['p_orders'][0],
-                        'purchase_items':data['p_items']
-                    }
-                })
-            }  
         })
     }
 
@@ -463,7 +429,7 @@ class PurchaseOrderCreation extends Component {
         </div>
         </Popup>
         const popUpItem = <div>
-                <button onClick={() => {this.back()}} >Back</button><br></br><br></br>
+                <button onClick={() => {this.refreshTable()}} >Back</button><br></br><br></br>
                 Item : {this.state.update.purchase_items[this.state.current].item_name}  {this.state.new ? itemPopUp: <span></span>}<br></br>
                 Quantity : <input name="quantity" placeholder={this.state.update.purchase_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required></input><br></br>
                 Defective : <input name="defective" placeholder={this.state.update.purchase_items[this.state.current].defective} type="number"  onChange={this.onChangePI} required></input><br></br>
