@@ -84,6 +84,12 @@ class PurchaseOrderList extends Component {
                 data_main=data
             }
         })
+        if (data_main['p_items'].length === 0) {
+            console.log("blank")
+            data_main['p_items'] = [{
+                id:0
+            }]
+        }
         await this.setState({
             'popUp':true,
             'purchase_order':data_main['p_order'][0],
