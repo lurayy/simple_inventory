@@ -5,11 +5,12 @@ import List from '../list';
 import Popup from "reactjs-popup";
 import style from './css/popUp.module.css';
 import {getVendors} from '../../api/inventory/vendorApi';
-import {updatePurchaseOrder, getPurchaseOrder} from '../../api/inventory/purchaseOrder';
+import {getPurchaseOrder , updatePurchaseOrder, createPurchaseOrder} from '../../api/inventory/purchaseOrder';
 import {updatePurchaseItem, deletePurchaseItems, createPurchaseItem} from '../../api/inventory/purchaseItem'
 import {getPurchaseOrderStatus} from '../../api/misc';
 import {getItems} from '../../api/inventory/itemApi';
-class PopUpEdit extends Component {
+
+class PurchaseOrderCreation extends Component {
 
     constructor(props){
         super(props)
@@ -32,14 +33,18 @@ class PopUpEdit extends Component {
             ],
             update : {
                 'purchase_order':{
-                    ...this.props.purchase_order,
-                    'invoiced_on': this.converter(this.props.purchase_order.invoiced_on),
-                    'completed_on': this.converter(this.props.purchase_order.completed_on)
+                    'invoiced_on': this.converter((new Date()).toISOString()),
+                    'completed_on': this.converter((new Date()).toISOString()),
+                    'discount_type':'percent'
                 },
-                'purchase_items':this.props.purchase_items
+                'purchase_items':[{
+                    'id':"Fake Key"
+                }]
             }
         }
-        this.refreshTable = this.refreshTable.bind(this)
+        this.getPurchaseOrderData = this.getPurchaseOrderData.bind(this)
+        this.converter = this.converter.bind(this)
+        this.addPurchaseOrder = this.addPurchaseOrder.bind(this)
         this.getItemData = this.getItemData.bind(this)
         this.selectItem = this.selectItem.bind(this)
         this.searchItem = this.searchItem.bind(this)
@@ -47,7 +52,6 @@ class PopUpEdit extends Component {
         this.invoiceHandler = this.invoiceHandler.bind(this)
         this.completeHandler = this.completeHandler.bind(this)
         this.getVendorsData = this.getVendorsData.bind(this)
-        this.converter = this.converter.bind(this)
         this.popUp = this.popUp.bind(this)
         this.searchVendor = this.searchVendor.bind(this)
         this.selectVendor = this.selectVendor.bind(this)
@@ -56,13 +60,14 @@ class PopUpEdit extends Component {
         this.onChangePI = this.onChangePI.bind(this)
         this.postPurchaseItem = this.postPurchaseItem.bind(this)
         this.deletePurchaseItem = this.deletePurchaseItem.bind(this)
+        this.back = this.back.bind(this)
     }
-
 
     async componentDidMount(){
         var request_json = {
             'action':'get',
         }
+        console.log(this.state)
         await getPurchaseOrderStatus(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 this.setState({
@@ -173,7 +178,30 @@ class PopUpEdit extends Component {
         updatePurchaseOrder(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 alert("Purchase Order Details Has Been Updated.")
-                this.props.update(0)
+            }
+            else{
+                alert("Error : ",data.error)
+            }
+        })
+    }
+    addPurchaseOrder(){
+        var request_json = {
+            ...this.state.update.purchase_order,
+            'action':'add',
+        }
+        console.log(request_json)
+        createPurchaseOrder(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                alert("Purchase Order Has Been Added.")
+                data['p_orders'][0]['invoiced_on'] = this.converter(data['p_orders'][0]['invoiced_on'])
+                data['p_orders'][0]['completed_on'] = this.converter(data['p_orders'][0]['completed_on'])
+                this.setState({
+                    ...this.state,
+                    'update':{
+                        ...this.state.update,
+                        'purchase_order':data['p_orders'][0]
+                    }
+                })
             }
             else{
                 alert("Error : ",data.error)
@@ -199,7 +227,7 @@ class PopUpEdit extends Component {
     postPurchaseItem(is_new=false){
         console.log(this.state.update.purchase_items[this.state.current])
         console.log(is_new)
-        var request_json
+        var request_json;
         if (is_new){
             request_json = {
                 'action':'add',
@@ -241,7 +269,10 @@ class PopUpEdit extends Component {
         deletePurchaseItems(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 alert("Purchase Item Has Beed Deleted.")
-                this.refreshTable()
+                this.setState({
+                    ...this.state,
+                    'popUp':false,
+                })
             }
             else{
                 alert(data['error'])
@@ -251,6 +282,7 @@ class PopUpEdit extends Component {
 
 
     addPurchaseItem(){
+        console.log("here")
         var current =0;
         var item,p_list=[];
         for (item in this.state.update.purchase_items){
@@ -279,6 +311,7 @@ class PopUpEdit extends Component {
             }
         })
     }
+
     columns = [
         {
             id:1,
@@ -363,36 +396,54 @@ class PopUpEdit extends Component {
 
     }
 
-    async refreshTable(){
-        var id = this.state.update.purchase_order.id;
-        var items= [];
-        const request_json = {
-            'action':'get',
-            'purchase_order_id':id
-        }
-        await getPurchaseOrder(JSON.stringify(request_json)).then(data => {
-            console.log("data",data)
-            if (data['status']){
-                items = data['p_items']
-                console.log("ran",items)
+    back(){
+        var item,p_list=[];
+        for (item in this.state.update.purchase_items){
+            if (item.id){
+                if (item.id !== "Fake Key"){
+                    p_list.push(item)
+                    console.log('not fake')
+                }
             }
-        })
-        if (items.length === 0){
-            items = [{
-                'id':"Fake Key",
-                'item_name': ''
-            }]
         }
-        console.log("before",this.state)
-        await this.setState({
-            ...this.state,
+        this.setState({
             'popUp':false,
             'update':{
                 ...this.state.update,
-                'purchase_items':items
+                'purchase_items':[
+                    ...p_list,
+                    {
+                        'id':'Fake Key',
+                        'item_name':"None",
+                        'discount_type':'percentage',
+                        'status':'incomplete'
+                    }
+                ]
             }
         })
-        console.log("after",this.state)
+    }
+
+    refreshTable(){
+        var request_json = {
+        'action':'get',
+        'purchase_order_id':this.state.update.purchase_order.id,
+        }
+        this.getPurchaseOrderData(request_json)
+    }
+
+    async getPurchaseOrderData(request_json) {
+        await getPurchaseOrder(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                this.setState({
+                    ...this.state,
+                    'popUp':false,
+                    'update':{
+                        'purchase_order':data['p_orders'][0],
+                        'purchase_items':data['p_items']
+                    }
+                })
+            }  
+        })
     }
 
 
@@ -412,7 +463,7 @@ class PopUpEdit extends Component {
         </div>
         </Popup>
         const popUpItem = <div>
-                <button onClick={() => {this.refreshTable()}} >Back</button><br></br><br></br>
+                <button onClick={() => {this.back()}} >Back</button><br></br><br></br>
                 Item : {this.state.update.purchase_items[this.state.current].item_name}  {this.state.new ? itemPopUp: <span></span>}<br></br>
                 Quantity : <input name="quantity" placeholder={this.state.update.purchase_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required></input><br></br>
                 Defective : <input name="defective" placeholder={this.state.update.purchase_items[this.state.current].defective} type="number"  onChange={this.onChangePI} required></input><br></br>
@@ -432,7 +483,7 @@ class PopUpEdit extends Component {
                 <button onClick={() => {this.deletePurchaseItem()}} >Delete</button>
             </div>
         const vendor_selection = this.state.vendor_selection
-        const vendorPopup = <Popup trigger={<button>Change Vendor</button>} closeOnDocumentClick>
+        const vendorPopup = <Popup trigger={this.state.update.purchase_order.id ?<button>Change Vendor</button> :<button>Select Vendor</button> } closeOnDocumentClick>
         <div>
             <input placeholder="Vendor's first name" id='vendor_serach_box' name='vendor_serach_box' onChange={this.searchVendor}></input>
             <div className={style.dropdown_content} id='vendor_dropdown'>
@@ -448,8 +499,6 @@ class PopUpEdit extends Component {
         const status = this.state.status
         return (
             <div>
-                <h1>Purchase Order</h1>
-                <h1>{this.props.purchase_order.vendor_name}</h1>
                 Vendor : {this.state.update.purchase_order.vendor_name}
                 {vendorPopup}<br></br>
                 Invoiced On : 
@@ -457,34 +506,36 @@ class PopUpEdit extends Component {
                 name='invoiced_on'
                 selected={this.state.update.purchase_order.invoiced_on}
                 onChange={this.invoiceHandler}
+                required
                 />
                 Completed On : 
                 <DatePicker
                 name='completed_on'
                 selected={this.state.update.purchase_order.completed_on}
                 onChange={this.completeHandler}
+                required
                 /><br></br>
-                Added By : {this.state.update.purchase_order.added_by_name}<br></br>
-                Total Cost : <input placeholder={this.state.update.purchase_order.total_cost} name="total_cost" onChange={this.onChange}/><br></br>
+                Total Cost : <input placeholder={this.state.update.purchase_order.total_cost} name="total_cost" onChange={this.onChange} /><br></br>
                 Discount Type :<select name='discount_type' id="discount_type" onChange={this.onChange} defaultValue={this.state.update.purchase_order.discount_type}>
                                 <option value="percent">Percentage</option>
                                 <option value="fixed">Fixed</option>
                             </select> <br></br>
                 Discount : <input placeholder={this.state.update.purchase_order.discount} name="discount" onChange={this.onChange}></input><br></br>
-                Status : <select name='status' id="status" onChange={this.onChange} value={this.state.update.purchase_order.status}  >
+                Status : <select name='status' id="status" onChange={this.onChange} value={this.state.update.purchase_order.status} required >
                                 {status.map(
                                     x => (
                                     <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
                                     )
                                 )}
                             </select> <br></br><br></br>
-                <button onClick={() => {this.updatePurchaseOrder()}}>Update Purchase Order</button><br></br><br></br>
-                <button onClick={() => {this.props.delete(this.props.purchase_order.id)}}>Delete</button>
+                {this.state.update.purchase_order.id ? <button onClick={() => {this.updatePurchaseOrder()}}>Update Purchase Order</button> : <button onClick={() => {this.addPurchaseOrder()}}>Create Purchase Order</button>}
+                <br></br><br></br>
                 <hr></hr>
-                <h3>Items</h3> <button  onClick={() => {this.addPurchaseItem()}}>Add New Items</button>
-                {this.state.popUp ? popUpItem :<List data={this.state.update.purchase_items} header={this.columns} page={false} popUp={this.popUp} />}
+                <h3>Items</h3> {this.state.update.purchase_order.id ? <button  onClick={() => {this.addPurchaseItem()}}>Add New Items</button> : ''} 
+                {this.state.update.purchase_order.id ?this.state.popUp ? popUpItem :<List data={this.state.update.purchase_items} header={this.columns} page={false} popUp={this.popUp} /> : "Fill in Purchase Order first to add new items." }
+                
             </div>
         )
     }
 }
-export default PopUpEdit
+export default PurchaseOrderCreation

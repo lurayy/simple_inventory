@@ -12,7 +12,7 @@ import Users from './users';
 import Vendors from './vendors/index';
 import swal from 'sweetalert';
 import PurchaseOrders from './purchaseOrder/index'
-
+import PurchaseOrderCreation from './purchaseOrder/purchaseOrderCreation'
 
 
 class Index extends Component {
@@ -70,7 +70,7 @@ class Index extends Component {
                     <Route path='/users' component = {Users}></Route>
                     <Route path='/vendors/create' component = {VendorCreation}></Route>
                     <Route path='/vendors' component = {Vendors}></Route>
-                    <Route path='/purchaseorders/create' component = {PurchaseOrders}></Route>
+                    <Route path='/purchaseorders/create' component = {PurchaseOrderCreation}></Route>
                     <Route path='/purchaseorders' component = {PurchaseOrders}></Route>
                     
                     </Switch>
