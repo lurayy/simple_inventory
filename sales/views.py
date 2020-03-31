@@ -3,11 +3,12 @@ from inventory.utils import str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 import json
-from .utils import invoices_to_json, invoice_items_to_json, discounts_to_json, taxes_to_json
+from .utils import invoices_to_json, invoice_items_to_json, discounts_to_json, taxes_to_json, customers_to_json
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_http_methods
 from user_handler.models import Tax, Discount
+from user_handler.models import Customer, CustomUserBase, Tax, Discount
 
 @login_required
 @require_http_methods(['POST'])
@@ -224,7 +225,6 @@ def customers(request):
                     phone1 = str(data_json['phone1']),
                     phone2 = str(data_json['phone2']),
                     address = str(data_json['address']),
-                    added_by = CustomUserBase.objects.get(id=request.user.id)
                 )
                 customer.save()
                 response_json['customers'] = customers_to_json([customer])
@@ -232,7 +232,7 @@ def customers(request):
                 return JsonResponse(response_json)
             if data_json['action'] == "get":
                 customers = Customer.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                response_json['customers'] = customers_to_json(customer)
+                response_json['customers'] = customers_to_json(customers)
                 response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError) as exp:
@@ -307,12 +307,11 @@ def customer(request):
                 customer.phone2 = str(data_json['phone2'])
                 customer.address = str(data_json['address'])
                 customer.is_active = (data_json['is_active'])
-                customer.added_by = CustomUserBase.objects.get(id=int(data_json['added_by']))
                 customer.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
             if data_json['action'] == "get":
-                customer = customer.objects.get(id=int(id))
+                customer = Customer.objects.get(id=int(data_json['customer_id']))
                 response_json['customers'] = customers_to_json([customer])
                 response_json['status'] = True
                 return JsonResponse(response_json)

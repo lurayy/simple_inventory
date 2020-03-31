@@ -41,3 +41,12 @@ def taxes_to_json(taxes):
         temp = TaxSerializer(tax).data
         data.append(temp)
     return data
+
+
+def customers_to_json(customers):
+    data = []
+    for customer in customers:
+        temp = CustomerSerializer(customer).data
+        temp['name'] = str(temp['first_name']) + " " + str(temp['middle_name'] )+ str(temp['last_name'])
+        data.append(temp)
+    return data

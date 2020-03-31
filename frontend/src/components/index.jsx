@@ -10,6 +10,8 @@ import UserCreation from './users/userCreation';
 import { BrowserRouter as Router, Switch , Route, Link} from 'react-router-dom';
 import Users from './users';
 import Vendors from './vendors/index';
+import Customers from './customer/index';
+import CustomerCreation from './customer/customerCreation'
 import swal from 'sweetalert';
 import PurchaseOrders from './purchaseOrder/index'
 import PurchaseOrderCreation from './purchaseOrder/purchaseOrderCreation'
@@ -44,7 +46,10 @@ class Index extends Component {
                     <div>
                         <Link to='/logout'>Logout</Link><br></br>
                         <Link to='/users'>Users</Link><br></br>
+                        <br></br>
                         <Link to='/vendors'>Vendors</Link><br></br>
+                        <Link to='/customers'>Customers</Link><br></br>
+                        <br></br>
                         <Link to='/purchaseorders'>Purchase Orders</Link><br></br>
                         <Link to='/invoices'>Invoices</Link><br></br>
                         <br></br>
@@ -72,6 +77,9 @@ class Index extends Component {
                     <Route path='/users' component = {Users}></Route>
                     <Route path='/vendors/create' component = {VendorCreation}></Route>
                     <Route path='/vendors' component = {Vendors}></Route>
+                    
+                    <Route path='/customers/create' component = {CustomerCreation}></Route>
+                    <Route path='/customers' component = {Customers}></Route>
                     <Route path='/purchaseorders/create' component = {PurchaseOrderCreation}></Route>
                     <Route path='/purchaseorders' component = {PurchaseOrders}></Route>
                     

@@ -3,7 +3,7 @@ import { baseRequest } from '../base';
 
 const getCustomers = async data => {
     try {
-      return await baseRequest('apiv1/inventory/customers','POST', data);
+      return await baseRequest('apiv1/sales/customers','POST', data);
     } catch(e){
       alert(e)
     }
@@ -12,7 +12,7 @@ const getCustomers = async data => {
   
   const deleteCustomers = async data => {
     try {
-      return await baseRequest('apiv1/inventory/customers/delete','POST', data);
+      return await baseRequest('apiv1/sales/customers/delete','POST', data);
     } catch(e){
       alert(e)
     }
@@ -20,7 +20,7 @@ const getCustomers = async data => {
   
   const createCustomer = async data => {
       try {
-        return await baseRequest('apiv1/inventory/customers','POST', data);
+        return await baseRequest('apiv1/sales/customers','POST', data);
       } catch(e){
         alert(e)
       }
@@ -29,7 +29,7 @@ const getCustomers = async data => {
   
   const getCustomer = async data => {
     try {
-      return await baseRequest('apiv1/inventory/customer','POST', data);
+      return await baseRequest('apiv1/sales/customer','POST', data);
     } catch(e){
       alert(e)
     }
@@ -37,7 +37,7 @@ const getCustomers = async data => {
   
   const updateCustomer= async data => {
     try {
-      return await baseRequest('apiv1/inventorycustomer','POST', data);
+      return await baseRequest('apiv1/sales/customer','POST', data);
     } catch(e){
       alert(e)
     }
