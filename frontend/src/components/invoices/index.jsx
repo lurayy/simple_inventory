@@ -57,9 +57,13 @@ class Invoices extends Component {
     }
     
     async getInvoiceData (request_json) {
+        var invoice
         await getInvoices(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                console.log("data",data)
+                for (invoice in data['invoices']){
+                    data['invoices'][invoice]['invoiced_on_str']=(data['invoices'][invoice]['invoiced_on']).split('T')[0]
+                    data['invoices'][invoice]['due_on_str']=(data['invoices'][invoice]['due_on']).split('T')[0]
+                }
                 this.setState({
                     'invoices':data['invoices'],
                     'loaded':true

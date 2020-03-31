@@ -101,29 +101,34 @@ class InvoiceListing extends Component {
     columns = [
         {
             id:1,
-            name:"Vendor Name",
-            prop: 'vendor_name'
+            name:"Customer's Name",
+            prop: 'customer_name'
         },
         {
             id:2,
-            name:"Items",
-            prop: 'items'
+            name:"Sold By",
+            prop: 'added_by_name'
         },
         {
             id:3,
-            name:"Invoiced On",
-            prop: 'invoiced_on'
+            name:"Paid Amount",
+            prop: 'paid_amount'
         },
         {
             id:4,
-            name:"Total Cost",
-            prop: 'total_cost'
-        },   
+            name:"Order Number",
+            prop: 'order_number'
+        },
         {
             id:5,
-            name:"Status",
-            prop: 'status_name'
-        }      
+            name:'Invoiced On',
+            prop:'invoiced_on_str'
+        },
+        {
+            id:6,
+            name:'Status',
+            prop:'status'
+        }
     ]
     
 
