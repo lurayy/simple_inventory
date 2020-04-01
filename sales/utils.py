@@ -9,9 +9,9 @@ def invoices_to_json(models):
         temp = (InvoiceSerializer(model).data)
         temp['customer_name'] = str(Customer.objects.get(id=temp['customer']))
         temp['added_by_name'] = str(CustomUserBase.objects.get(id=temp['added_by']))
+        temp['status_name'] = str(model.status.name)
         data.append(temp)
     return data
-
 
 def invoice_items_to_json(items):
     data = []

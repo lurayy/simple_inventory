@@ -56,7 +56,7 @@ class Customer(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.first_name} + {self.last_name}'
+        return f'{self.first_name} {self.last_name}'
 
 class Tax(models.Model):
     name = models.CharField(max_length=255)

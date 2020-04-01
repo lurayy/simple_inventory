@@ -1,6 +1,6 @@
 ''' Searializers module for models of api '''
 from rest_framework import serializers
-from .models import Invoice, InvoiceItem
+from .models import Invoice, InvoiceItem, InvoiceStatus
 from user_handler.models import Customer, Tax, Discount
 
 class InvoiceSerializer(serializers.ModelSerializer):
@@ -32,4 +32,11 @@ class DiscountSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Discount
+        fields= '__all__'
+
+
+class InvoiceStatusSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = InvoiceStatus
         fields= '__all__'

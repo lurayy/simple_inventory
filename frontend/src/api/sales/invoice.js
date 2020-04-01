@@ -42,6 +42,13 @@ const getInvoices = async data => {
       alert(e)
     }
   };
+  const getInvoiceStatus= async data => {
+    try {
+      return await baseRequest('apiv1/sales/invoices/status','POST', data);
+    } catch(e){
+      alert(e)
+    }
+  };
   
-export {getInvoices, createInvoice, deleteInvoices, updateInvoice, getInvoice}
+export {getInvoiceStatus, getInvoices, createInvoice, deleteInvoices, updateInvoice, getInvoice}
   

@@ -1,4 +1,4 @@
-from .models import Invoice, InvoiceItem
+from .models import Invoice, InvoiceItem, InvoiceStatus
 from inventory.utils import str_to_datetime 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_http_methods
 from user_handler.models import Tax, Discount
 from user_handler.models import Customer, CustomUserBase, Tax, Discount
-
+from .serializers import InvoiceStatusSerializer
 @login_required
 @require_http_methods(['POST'])
 def invoices(request):
@@ -97,7 +97,7 @@ def invoices(request):
                     customer = Customer.objects.get(id=int(data_json['customer'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     due_on = str_to_datetime(data_json['due_on']),
-                    status = str(data_json['status']).lower()                    
+                    status =InvoiceStatus.objects.get(id=data_json['status'])          
                 )
                 invoice.save()
                 response_json['status'] = True
@@ -131,15 +131,16 @@ def invoice(request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            print(data_json)
             response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
             if data_json['action'] == "edit":
-                invoice = PurchaseOrder.objects.get(id=int(data_json['invoice_id']))
-                invoice.total_cost = data_json['total_cost']
-                invoice.added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])) 
+                print(data_json)
+                invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
                 invoice.customer = Customer.objects.get(id=int(data_json['customer']))
                 invoice.invoiced_on = str_to_datetime(data_json['invoiced_on'])
-                invoice.completed_on = str_to_datetime(data_json['completed_on'])
-                invoice.status = str(data_json['status']).lower()
+                invoice.due_on = str_to_datetime(data_json['due_on'])
+                invoice.status = InvoiceStatus.objects.get(id=data_json['status'])  
+                invoice.additional_discount = float(data_json['additional_discount'])
                 invoice.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
@@ -231,10 +232,16 @@ def customers(request):
                 response_json = {'status':True}
                 return JsonResponse(response_json)
             if data_json['action'] == "get":
-                customers = Customer.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                response_json['customers'] = customers_to_json(customers)
-                response_json['status'] = True
-                return JsonResponse(response_json)
+                if data_json['filter'] == "name":
+                    customers = Customer.objects.filter(is_active=True, first_name__contains=data_json['name']).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['customers'] = customers_to_json(customers)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
+                else:
+                    customers = Customer.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['customers'] = customers_to_json(customers)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
@@ -590,3 +597,16 @@ def delete_taxes(request):
         return JsonResponse(response_json)
     except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+
+@login_required
+@require_http_methods(['POST'])
+def invoice_status(request):
+    if request.method == "POST":
+        statuss = InvoiceStatus.objects.all()
+        data = []
+        for status in statuss:
+            temp =  InvoiceStatusSerializer(status).data
+            data.append(temp)
+        return JsonResponse({'status':True, 'data':data})

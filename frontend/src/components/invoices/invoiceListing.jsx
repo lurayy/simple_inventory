@@ -62,7 +62,7 @@ class InvoiceListing extends Component {
         deleteInvoices(JSON.stringify(data)).then(data=>{
             try {
                 if (data['status']){
-                    alert('Purchase Order Deleted.')
+                    alert('Invoice has been Deleted.')
                     this.props.update(0)
                 }   else{
                     alert(data['error'])
@@ -76,7 +76,7 @@ class InvoiceListing extends Component {
     async popUp(id, uuid=0){
         const data = {
             'action':'get',
-            'purchase_order_id':id,
+            'invoice_id':id,
         }
         var data_main;
         await getInvoice(JSON.stringify(data)).then(data => {
@@ -84,8 +84,10 @@ class InvoiceListing extends Component {
                 console.log(data)
                 data_main=data
             }
+            else{
+                alert(data['error'])
+            }
         })
-        console.log("maind_data",data_main)
         if (data_main['invoice_items'].length === 0) {
             console.log("blank")
             data_main['invoice_items'] = [{
@@ -94,7 +96,7 @@ class InvoiceListing extends Component {
         }
         await this.setState({
             'popUp':true,
-            'invoice':data_main['invoices'][0],
+            'invoice':data_main['invoice'][0],
             'invoice_items':data_main['invoice_items']
         })
     }
@@ -129,7 +131,7 @@ class InvoiceListing extends Component {
         {
             id:6,
             name:'Status',
-            prop:'status'
+            prop:'status_name'
         }
     ]
     

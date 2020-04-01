@@ -4,7 +4,11 @@ from user_handler.models import Customer, CustomUserBase, Tax, Discount
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.db.models import signals
+import uuid 
 
+class InvoiceStatus(models.Model):
+    name = models.CharField(max_length=255)
+    is_sold  = models.BooleanField(default=False)
 
 class Invoice(models.Model):
     ''' schema for invoice'''
@@ -13,24 +17,24 @@ class Invoice(models.Model):
     
     invoiced_on = models.DateTimeField()
     due_on = models.DateTimeField()
-    order_number = models.BigIntegerField()
+    order_number = models.UUIDField(unique=True,default= uuid.uuid4)
     
+    total_amount = models.FloatField()
     paid_amount = models.FloatField()
-    
     tax_total = models.PositiveIntegerField()
+    discount_total = models.PositiveIntegerField(default=0)
+    additional_discount = models.PositiveIntegerField(default=0)
 
-    STATUS_S = (
-        ('sent', "Sent"),
-        ('due', "Due"),
-        ('paid', "Paid"),
-        ('completed', 'Completed'),
-        ('shiped','Shiped')
-    )
-    status = models.CharField(max_length=10, choices=STATUS_S, default='COMPLETED')
+    status = models.ForeignKey(InvoiceStatus, on_delete=models.SET_NULL, null=True,blank=True)
     is_active = models.BooleanField(default=True)
     
     def __str__(self):
-        return str(self.customer)
+        return f'{self.customer} {self.order_number}'
+
+    def save(self, *args, **kwargs):
+        self.total_amount = round(self.total_amount, 2)
+        self.paid_amount = round(self.paid_amount, 2)
+        super(Invoice, self).save(*args, **kwargs)
 
 
 
@@ -88,23 +92,27 @@ def post_save_handler(sender, created, instance, **kwargs):
 @receiver(pre_save, sender=Invoice)
 def tranction_handler(sender, instance, **kwargs):
     if instance.id is None:
-        if instance.status == "completed" or instance.status == "shiped":
+        if instance.status.is_sold==True:
             sales_sub(instance)
     else:
         old_status = Invoice.objects.get(id=instance.id).status
         if instance.status != old_status:
-            if old_status !="shiped" and  old_status != "completed": 
-                if instance.status == "completed" or instance.status == "shiped":
+            if old_status.is_sold !=True: 
+                if instance.status.is_sold == True:
                     print("sales done")
                     sales_sub(instance)
-            if old_status == "completed" or old_status == "shiped":
-                if instance.status != "completed" or instance.status != "shiped":
+            if old_status.is_sold == True:
+                if instance.status != True:
                     print("sales revert back")
                     sales_add(instance)
-    instance.paid_amount = 0
+    instance.total_amount = 0
+    instance.discount_total = 0
+    instance.tax_total = 0
     for invoice_item in instance.invoice_items.all():
-        print("here")
-        instance.paid_amount = instance.paid_amount + invoice_item.total 
+        instance.total_amount = instance.total_amount + invoice_item.total 
+        instance.discount_total = instance.discount_total + invoice_item.discount_amount
+        instance.tax_total = instance.tax_total + invoice_item.tax_total
+    instance.paid_amount = instance.total_amount - instance.additional_discount
 
 
 # @receiver(post_save, sender=InvoiceItem)
