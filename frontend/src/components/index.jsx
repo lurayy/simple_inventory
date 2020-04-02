@@ -17,6 +17,8 @@ import PurchaseOrders from './purchaseOrder/index'
 import PurchaseOrderCreation from './purchaseOrder/purchaseOrderCreation'
 import Invoices from './invoices/index';
 import InvoiceCreation from './invoices/invoiceCreation';
+import Discounts from './discounts/index';
+import DiscountCreation from './discounts/discountCreation'
 
 class Index extends Component {
     constructor (props){
@@ -49,6 +51,8 @@ class Index extends Component {
                         <br></br>
                         <Link to='/vendors'>Vendors</Link><br></br>
                         <Link to='/customers'>Customers</Link><br></br>
+                        <Link to='/taxes'>Taxes</Link><br></br>
+                        <Link to='/discounts'>Discounts</Link><br></br>
                         <br></br>
                         <Link to='/purchaseorders'>Purchase Orders</Link><br></br>
                         <Link to='/invoices'>Invoices</Link><br></br>
@@ -85,6 +89,9 @@ class Index extends Component {
                     
                     <Route path='/invoices/create' component = {InvoiceCreation}></Route>
                     <Route path='/invoices' component = {Invoices}></Route>
+
+                    <Route path='/discounts/create' ></Route>
+                    <Route path='/discounts' component= {Discounts}></Route>
                     
                     </Switch>
             </Router>

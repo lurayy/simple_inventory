@@ -493,7 +493,7 @@ def discount(request):
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if data_json['action'] == "edit":
-                discount = Discount.objects.filter(is_active=True, id = data_json['discount_id'])
+                discount = Discount.objects.get(is_active=True, id = data_json['discount_id'])
                 discount.name = data_json['name']
                 discount.code = data_json['code']
                 discount.discount_type = data_json['discount_type']
