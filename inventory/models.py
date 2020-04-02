@@ -139,7 +139,7 @@ def place_pre_save_handler(sender, instance, *args, **kwargs):
 @receiver(pre_save, sender=Placement)
 def placement_pre_save_handler(sender, instance, *args, **kwargs):
     if instance.id:
-        if str(instance.placed_on) == "unassigned":
+        if (instance.placed_on.is_default):
             print("sad")
             print(instance)
             if instance.stock > instance.purchase_item.stock:
@@ -147,7 +147,7 @@ def placement_pre_save_handler(sender, instance, *args, **kwargs):
                 raise Exception('Total placed stocked of this item is greater than the purchased item stock.')
         else:
             print("triggered")
-            place = Place.objects.get(name = "unassigned")
+            place = Place.objects.get(is_default=True)
             unassigned = Placement.objects.get(purchase_item=instance.purchase_item, placed_on = place)
             if instance.stock > unassigned.stock:
                 raise Exception('More stock is assiged than there is unassigned stock')
@@ -157,7 +157,7 @@ def placement_pre_save_handler(sender, instance, *args, **kwargs):
         
 
     if instance.id is None:
-        if str(instance.placed_on) == 'unassigned':
+        if (instance.placed_on.is_default):
             if instance.stock > instance.purchase_item.stock:
                 raise Exception('Total placed stocked of this item is greater than the purchased item stock.')
         else:
@@ -205,9 +205,9 @@ def pre_save_handler(sender, instance, *args, **kwargs):
 @receiver(post_save, sender=PurchaseItem)
 def post_save_handler(sender, instance, created, **kwargs):
     try:
-        place = Place.objects.get(name='unassigned')
+        place = Place.objects.get(is_default=True)
     except:
-        place = Place.objects.create(name='unassigned')
+        place = Place.objects.create(is_default=True, name='Default')
         place.save()
     if instance.status == "addedtocirculation":
         try:
