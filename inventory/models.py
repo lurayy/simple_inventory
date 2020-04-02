@@ -9,6 +9,7 @@ from django.db.models import Q
 class PurchaseOrderStatus(models.Model):
     name = models.CharField(max_length=255, unique=True)
     is_end = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -41,6 +42,7 @@ def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
 
 class ItemCatagory(models.Model):
     name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
     
     def __str__(self):
         return self.name
@@ -99,6 +101,7 @@ class PurchaseItem(models.Model):
 
 class Place(models.Model):
     name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -109,6 +112,7 @@ class Placement(models.Model):
     placed_on = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, related_name='placements')
     stock = models.PositiveIntegerField(default=0)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_placements', null=True, blank=True)
+    is_active = models.BooleanField(default=True)
     def __str__(self):
         return f'{self.purchase_item} on {self.placed_on}'
     

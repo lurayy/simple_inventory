@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import {  connect } from 'react-redux';
 import {Button, TextField } from '@material-ui/core';
 import { createItem } from '../../api/inventory/itemApi';
+import {getItemCatagories} from '../../api/inventory/itemCatagory'
 
 
 class ItemCreation extends Component {
@@ -11,19 +12,36 @@ class ItemCreation extends Component {
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.state = {
+            'catagories':[],
             'update':{
-                'name':'',
-                'code':'',
-                'discount_type':'percent',
-                'rate':''
             }
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
         }
+        var data = {
+            'action':'get',
+            'start':0,
+            'end':50
+        }
+        await getItemCatagories(JSON.stringify(data)).then(data=> {
+            try { 
+                if (data['status']){
+                    this.setState({
+                        ...this.state,
+                        'catagories':data['item_catagories']
+                    })
+                }
+                else{
+                    alert(data['error'])
+                }
+            }catch(e){
+                console.log(e)
+            }
+        })
     }
 
     
@@ -62,33 +80,32 @@ class ItemCreation extends Component {
     }
 
     render() {
-            const popUpRender = <div>
+        const catagories = this.state.catagories
+        const popUpRender = <div>
                         <form onSubmit={this.onSubmit}>
                             Name: <TextField
                                 id ='name'
                                 name="name"
                                 type='text'
-                                onChange={this.onChange}  
+                                onChange={this.onChange}      
                             />
-                            Code : <TextField
-                                id ='code'
-                                name="code"
-                                type='text'
-                                onChange={this.onChange}
-                            />
-                             Item Type :<select name='discount_type' id="discount_type" value={this.state.update.discont_type}  onChange={this.onChange}>
-                                    <option value="percent">Percentage</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                            Rate : <input  name="rate" id="rate" type='number' onChange={this.onChange} value={this.state.update.rate} ></input><br></br>
+                            Catagory : <select name='catagory' id="catagory" onChange={this.onChange} required >
+                                {catagories.map(
+                                    x => (
+                                    <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
+                                    )
+                                )}
+                            </select> <br></br><br></br>
+                            
+                            Sales Price : <input onChange={this.onChange}></input><br></br>
+
                             <br></br>
                             <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
                                 >
-                                Create
-                            </Button>
+                                Create</Button>
                 </form>
             
                         <br>

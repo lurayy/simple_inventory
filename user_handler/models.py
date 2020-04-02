@@ -12,9 +12,7 @@ class CustomUserBase(AbstractUser):
     ('STAFF', "Staff"),
     ('MANAGER', "Manager")
     )
-    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='STAFF')
-
-   
+    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='STAFF')  
     
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

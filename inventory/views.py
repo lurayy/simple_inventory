@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 import json
 import datetime
 from user_handler.models import Vendor, CustomUserBase
-from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus
+from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus, ItemCatagory
 from .utils import purchase_orders_to_json, purchase_items_to_json, str_to_datetime, vendors_to_json, items_to_json, item_catagories_to_json, places_to_json
 from .exceptions import  EmptyValueException
 from django.core.exceptions import ObjectDoesNotExist
@@ -407,6 +407,7 @@ def items(request):
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
+
 @login_required
 @require_http_methods(['POST'])
 def item(request):
@@ -531,7 +532,7 @@ def item_catagory(request):
             if data_json['action'] == "edit":
                 item_catagory.name = str(data_json['name'])
                 item_catagory.is_active = data_json['is_active']
-                item.save()
+                Item.save()
                 response_json = {'status':True}
             if data_json['action'] == "get":
                 response_json['item_catagories'] = item_catagories_to_json([item_catagory])

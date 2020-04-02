@@ -1,7 +1,7 @@
 from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, ItemCatagory, PurchaseOrderStatus
 from django.forms.models import model_to_dict 
 from user_handler.models import Vendor, CustomUserBase
-from .serializers import PurchaseOrderSerializer, PurchaseItemSerializer, VendorSerializer, ItemSerializer, PlaceSerializer
+from .serializers import PurchaseOrderSerializer, PurchaseItemSerializer, VendorSerializer, ItemSerializer, PlaceSerializer,ItemCatagorySerializer
 import dateutil.parser
 
 def purchase_orders_to_json(models):
@@ -42,7 +42,7 @@ def items_to_json(items):
     data = []
     for item in items:
         temp = ItemSerializer(item).data
-        temp['catagory_name'] = str(ItemCatagory.objects.get(id=temp['catagory']))
+        temp['catagory_str'] = str(ItemCatagory.objects.get(id=temp['catagory']))
         data.append(temp)
     return data
 

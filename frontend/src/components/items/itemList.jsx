@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import List from '../list';
 import { getItem, updateItem,  deleteItems } from '../../api/inventory/itemApi';
+import {getItemCatagories} from '../../api/inventory/itemCatagory'
 import {Button, TextField } from '@material-ui/core';
 
 class ItemList extends Component {
@@ -9,8 +10,11 @@ class ItemList extends Component {
         super(props)
         this.popUp = this.popUp.bind(this)
         this.state = {
+            'catagories':[],
             'popUp':false,
-            'item':{},
+            'item':{
+                'catagory':''
+            },
             'update':{}
         }
         this.onChange = this.onChange.bind(this);
@@ -23,21 +27,20 @@ class ItemList extends Component {
         this.setState({
             'update': {
                 ...this.state.update,
-                [e.target.name] : [e.target.value]
+                [e.target.name] : [e.target.value][0]
             }
         })
     }
 
+    async componentDidMount(){
+
+        
+    }
     
     async onSubmit(e){
         e.preventDefault();
-            var data = this.state.item
-            var ele;
-            for (ele in this.state.update){
-                data[ele] = this.state.update[ele][0]
-            }
+            var data = this.state.update
             data = {...data, 'action':'edit','item_id':data.id}
-            console.log(data)
             updateItem(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
@@ -74,7 +77,7 @@ class ItemList extends Component {
     }
     
     async popUp(id, uuid=0){
-        const data = {
+        var data = {
             'action':'get',
             'item_id':id,
         }
@@ -86,7 +89,27 @@ class ItemList extends Component {
         })
         await this.setState({
             'popUp':true,
-            'item':data_main['items'][0]
+            'update':data_main['items'][0]
+        })
+        data = {
+            'action':'get',
+            'start':0,
+            'end':50
+        }
+        await getItemCatagories(JSON.stringify(data)).then(data=> {
+            try { 
+                if (data['status']){
+                    this.setState({
+                        ...this.state,
+                        'catagories':data['item_catagories']
+                    })
+                }
+                else{
+                    alert(data['error'])
+                }
+            }catch(e){
+                console.log(e)
+            }
         })
     }
 
@@ -122,6 +145,7 @@ class ItemList extends Component {
     
 
     render() {
+        const catagories = this.state.catagories
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
                         <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
@@ -132,20 +156,20 @@ class ItemList extends Component {
                                 name="name"
                                 type='text'
                                 onChange={this.onChange}  
-                                placeholder={this.state.item.name}          
+                                placeholder={this.state.update.name}          
                             />
-                            Code : <TextField
-                                id ='code'
-                                name="code"
-                                type='text'
-                                onChange={this.onChange}
-                                placeholder={this.state.item.code} 
-                            />
-                             Item Type :<select name='item_type' id="item_type" defaultValue={this.state.item.item_type}  onChange={this.onChange}>
-                                    <option value="percent">Percentage</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                            Rate : <input placeholder={this.state.item.rate} name="rate" onChange={this.onChange} ></input><br></br>
+                            Catagory : <select name='catagory' id="catagory" onChange={this.onChange} value={this.state.update.catagory} required >
+                                {catagories.map(
+                                    x => (
+                                    <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
+                                    )
+                                )}
+                            </select> <br></br><br></br>
+                            
+                            Sales Price : <input placeholder={this.state.update.sales_price} onChange={this.onChange}></input><br></br>
+                            Stock : {this.state.update.stock} <br></br>
+                            Sold : {this.state.update.sold} <br></br>
+
                             <br></br>
                             <Button
                                 type='submit'
@@ -153,7 +177,7 @@ class ItemList extends Component {
                                 color="primary"
                                 >
                                 Update
-                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.itemDelete(this.state.item.id)}}>
+                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.itemDelete(this.state.update.id)}}>
                             Delete Item
                         </Button> 
                         

@@ -9,6 +9,7 @@ import uuid
 class InvoiceStatus(models.Model):
     name = models.CharField(max_length=255)
     is_sold  = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
 class Invoice(models.Model):
     ''' schema for invoice'''

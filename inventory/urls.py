@@ -16,7 +16,7 @@ urlpatterns = [
     path('vendors/delete', views.delete_vendors, name="delete vendors"),
 
     path('items', views.items, name="GET and add items "),
-    path('item/', views.item, name='edit data of item'),
+    path('item', views.item, name='edit data of item'),
     path('items/delete', views.delete_items, name="delete items "),
 
     path('places', views.places, name="GET and add places"),
