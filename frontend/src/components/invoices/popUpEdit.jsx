@@ -43,6 +43,7 @@ class PopUpEdit extends Component {
                 'invoice_items':this.props.invoice_items
             }
         }
+        this.stateman = this.stateman.bind(this)
         this.refreshTable = this.refreshTable.bind(this)
         this.getItemData = this.getItemData.bind(this)
         this.selectItem = this.selectItem.bind(this)
@@ -190,7 +191,7 @@ class PopUpEdit extends Component {
                 }
             }
         })
-        var temp=[],p,inv;
+        var temp=[],p;
                 for (p in this.state.sold_from_selection){
                     if ( this.state.update.invoice_items[this.state.current]['sold_from'] === this.state.sold_from_selection[p]['placed_on']){
                         var string  = this.state.sold_from_selection[p]['purchase_item_details']['purchase_price'] + "/-  " + this.state.sold_from_selection[p]['purchase_item_details']['quantity'] + " " + this.state.sold_from_selection[p]['purchase_item_details']['vendor'] 
@@ -204,11 +205,7 @@ class PopUpEdit extends Component {
                 this.setState({
                     ...this.state,
                     'stock_selection': temp
-                })  
-        this.setState({
-            ...this.state,
-            'stock_selection': temp
-        })
+                }) 
     }
 
     searchCustomer(e){
@@ -478,6 +475,10 @@ class PopUpEdit extends Component {
     }
 
 
+    stateman(){
+        console.log(this.state)
+    }
+
     render() {
         const item_selection = this.state.item_selection
         const itemPopUp = <Popup trigger={ <button>Select Item</button>} closeOnDocumentClick>
@@ -587,7 +588,10 @@ class PopUpEdit extends Component {
                 <hr></hr>
                 <h3>Items</h3> <button  onClick={() => {this.addInvoiceItem()}}>Add New Items</button>
                 {this.state.popUp ? popUpItem :<List data={this.state.update.invoice_items} header={this.columns} page={false} popUp={this.popUp} />}
+            
+            <button onClick={() => {this.stateman()}}>State</button>
             </div>
+
         )
     }
 }

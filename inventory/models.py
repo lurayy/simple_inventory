@@ -95,17 +95,15 @@ class PurchaseItem(models.Model):
         return f'{self.item} of {self.purchase_order}'
 
 
-# @receiver(pre_save, sender=Invoice)
-# def tranction_handler(sender, instance, created, **kwargs):
-
-
 
 class Place(models.Model):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
+    is_default = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.name}'
+
 
 
 class Placement(models.Model):
@@ -124,7 +122,19 @@ class Placement(models.Model):
         self.item = self.purchase_item.item
         super(Placement, self).save(*args, **kwargs)
 
-    
+
+
+@receiver(pre_save, sender=Place)
+def place_pre_save_handler(sender, instance, *args, **kwargs):
+    if instance.id:
+        if (instance.is_default) and instance.id != Place.objects.get(is_default=True).id:
+            if len(Place.objects.filter(is_default=True))>=1:
+                raise Exception("Default place for unassigned items already exsists.")
+    else:
+        if (instance.is_default):
+            if len(Place.objects.filter(is_default=True))>=1:
+                raise Exception("Default place for unassigned items already exsists.")
+
 
 @receiver(pre_save, sender=Placement)
 def placement_pre_save_handler(sender, instance, *args, **kwargs):
@@ -151,8 +161,11 @@ def placement_pre_save_handler(sender, instance, *args, **kwargs):
             if instance.stock > instance.purchase_item.stock:
                 raise Exception('Total placed stocked of this item is greater than the purchased item stock.')
         else:
-            place = Place.objects.get(name = "unassigned")
-            unassigned = Placement.objects.get(purchase_item=instance.purchase_item, placed_on = place)
+            place = Place.objects.get(is_default=True)
+            try:
+                unassigned = Placement.objects.get(purchase_item=instance.purchase_item, placed_on = place)
+            except:
+                raise Exception("There are no items(of this particular purchase order) on the default place.")
             if instance.stock > unassigned.stock:
                 raise Exception('You are trying to assign more stock to the place than there is. Error instance.stock < unassigned.stock ')
             unassigned.stock = unassigned.stock - instance.stock
