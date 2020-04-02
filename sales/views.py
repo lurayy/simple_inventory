@@ -1,5 +1,5 @@
 from .models import Invoice, InvoiceItem, InvoiceStatus
-from inventory.models import Place, Placement
+from inventory.models import Place, Placement, Item, PurchaseItem
 from inventory.utils import str_to_datetime 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
@@ -399,18 +399,16 @@ def invoice_item(request):
             response_json = {}
             if data_json['action'] == "edit":
                 invoice_item = InvoiceItem.objects.get(id=data_json["invoice_item_id"])
-                invoice_item.item = Item.objects.get(id=int(data_json['item'])),
-                invoice_item.purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item'])),
-                invoice_item.sold_from = Place.objects.get(id=int(data_json['sold_from'])),
-                invoice_item.invoice = Invoice.objects.get(id=int(data_json['invoice'])),
-                invoice_item.quantity = int(data_json['quantity']),
-                invoice_item.price = data_json['price'],
-                invoice_item.discount_type = data_json['discount_type'],
-                invoice_item.discount = data_json['discount'],
-                invoice_item.tax_total = data_json['tax_total'],
-                invoice_item.sub_total = data_json['sub_total'],
-                invoice_item.total = data_json['total']           
+                invoice_item.item = Item.objects.get(id=int(data_json['item']))
+                invoice_item.purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item']))
+                invoice_item.sold_from = Place.objects.get(id=int(data_json['sold_from']))
+                invoice_item.invoice = Invoice.objects.get(id=int(data_json['invoice']))
+                invoice_item.quantity = int(data_json['quantity'])
+                invoice_item.price = float(data_json['price'])
+                # invoice_item.discount_type = data_json['discount_type']
+                # invoice_item.discount = float(data_json['discount'])
                 invoice_item.save()
+                invoice_item.invoice.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
             if data_json['action'] == "get":

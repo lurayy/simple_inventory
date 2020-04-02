@@ -286,31 +286,33 @@ class PopUpEdit extends Component {
                 ...this.state.update.invoice_items[this.state.current]
             }
             console.log("new",request_json)
-            // createInvoiceItem(JSON.stringify(request_json)).then(data => {
-            //     if (data['status']){
-            //         alert("Invoice Item Has Been Added.")
-            //         this.refreshTable()
-            //     }
-            //     else{
-            //         alert(data['error'])
-            //     }
-            // })
+            createInvoiceItem(JSON.stringify(request_json)).then(data => {
+                if (data['status']){
+                    alert("Invoice Item Has Been Added.")
+                    this.refreshTable()
+                }
+                else{
+                    alert(data['error'])
+                }
+            })
             return
         }
         request_json = {
             'action':'edit',
+            'invoice':this.state.update.invoice.id,
+            'invoice_item_id':this.state.update.invoice_items[this.state.current].id,
             ...this.state.update.invoice_items[this.state.current]
         }
         console.log('odl',request_json)
-        // updateInvoiceItem(JSON.stringify(request_json)).then(data => {
-        //     if (data['status']){
-        //         alert("Invoice Item Details Has Been Updated.")
-        //         this.refreshTable()
-        //     }
-        //     else{
-        //         alert(data['error'])
-        //     }
-        // })
+        updateInvoiceItem(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                alert("Invoice Item Details Has Been Updated.")
+                this.refreshTable()
+            }
+            else{
+                alert(data['error'])
+            }
+        })
     }
 
     deleteInvoiceItem(){
