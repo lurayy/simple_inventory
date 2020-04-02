@@ -134,7 +134,6 @@ def invoice(request):
             data_json = json.loads(json_str)
             response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
             if data_json['action'] == "edit":
-                print(data_json)
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
                 invoice.customer = Customer.objects.get(id=int(data_json['customer']))
                 invoice.invoiced_on = str_to_datetime(data_json['invoiced_on'])

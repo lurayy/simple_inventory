@@ -204,7 +204,6 @@ def delete_purchase_orders(request):
                 for p_item in PurchaseItem.objects.filter(purchase_order = purchase_order):
                     p_item.is_active = False
                     p_item.status = "incomplete"
-                    print(p_item)
                     p_item.save()
             response_json['status'] = True
             return JsonResponse(response_json)
@@ -593,7 +592,6 @@ def places(request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'item':
-                    print("Item",data_json)
                     placements = Placement.objects.filter(item__id = data_json['item_id'])
                     for p in placements:
                         if p.stock>0:
@@ -611,10 +609,8 @@ def places(request):
                             response_json['placements'].append(temp)
                         else:
                             print("empty")
-                    print(response_json)
                     response_json['status'] = True
                 else:
-                    print('all')
                     places = Place.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
                     response_json['places'] = places_to_json(places)
                     response_json['status'] = True
@@ -852,9 +848,7 @@ def delete_purchase_items(request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             ids = data_json['purchase_items_id']
-            print(ids)
             for id in ids:
-                print(id)
                 z = PurchaseItem.objects.get(id=int(id))
                 z.is_active = False
                 z.status = 'incomplete'

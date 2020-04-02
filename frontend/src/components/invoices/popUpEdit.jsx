@@ -69,7 +69,6 @@ class PopUpEdit extends Component {
             'action':'get',
         }
         await getInvoiceStatus(JSON.stringify(request_json)).then(data => {
-            console.log(data)
             if (data['status']){
                 this.setState({
                     ...this.state,
@@ -77,7 +76,6 @@ class PopUpEdit extends Component {
                 })
             }  
         })
-        console.log("State",this.state)
     }
 
     async getCustomerData (request_json) {
@@ -141,10 +139,8 @@ class PopUpEdit extends Component {
         this.getPlacesData(request_json)
     }
 
-    async getPlacesData(request_json) { 
-        console.log(request_json)
+    async getPlacesData(request_json) {
         await getPlaces(JSON.stringify(request_json)).then(data => {
-            console.log("tring",data)
             if (data['status']){
                 this.setState({
                     'sold_from_selection':data['placements'],
@@ -157,7 +153,6 @@ class PopUpEdit extends Component {
                 temp = temp.filter(function (el) {
                     return el != null;
                 });
-                console.log("temo",temp)
                 this.setState({
                     'place_selection':temp
                 })
@@ -173,7 +168,6 @@ class PopUpEdit extends Component {
                     }
                     
                 }
-                console.log("inloop",temp)
                 this.setState({
                     ...this.state,
                     'stock_selection': temp
@@ -207,7 +201,6 @@ class PopUpEdit extends Component {
                     }
                     
                 }
-                console.log("inloop",temp)
                 this.setState({
                     ...this.state,
                     'stock_selection': temp
@@ -448,7 +441,6 @@ class PopUpEdit extends Component {
                 }
             }
         })
-        console.log("selectItem",id,name)
         var request_json = {
             'action':'get',
             'filter':'item',
@@ -514,7 +506,6 @@ class PopUpEdit extends Component {
             
         var stocks  = this.state.stock_selection
         var stockValue = this.state.update.invoice_items[this.state.current].purchase_item ? this.state.update.invoice_items[this.state.current].purchase_item : ''
-        console.log(stockValue)
         const selectStock =<select name='purchase_item' id="purchase_item" onChange={this.onChangePI} value={stockValue} >
                 <option key='Fake Key' value='0'>Select Stock</option>
                 {stocks.map(
@@ -532,7 +523,8 @@ class PopUpEdit extends Component {
                 Place : {this.state.update.invoice_items[this.state.current].item ? selectPlace : "Select An Item First" } <br></br>
                 Stock :   {this.state.update.invoice_items[this.state.current].item ? selectStock : "Select An Item First" } <br></br>
                 <br></br>
-                Quantity : <input name="quantity" placeholder={this.state.update.invoice_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required></input><br></br>
+
+                Quantity : <input name="quantity" placeholder={this.state.update.invoice_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required min='1' ></input><br></br>
                 Price : <input name="price" placeholder={this.state.update.invoice_items[this.state.current].price} type="number" onChange={this.onChangePI} required></input><br></br>
                 
                 {this.state.new ? <button onClick={() => {this.postInvoiceItem(true)}} >Add</button> : <button onClick={() => {this.postInvoiceItem()}} >Update</button>}<br></br><br></br>
