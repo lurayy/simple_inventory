@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import {getItems} from '../../api//inventory/itemApi';
+import {getItemCatagories} from '../../api//inventory/itemCatagory';
 import {  connect } from 'react-redux';
-import  ItemList  from './itemList';
+import  ItemCatagoryList  from './itemCatagoryList';
 import { Link} from 'react-router-dom';
 
-class Items extends Component {
+class ItemCatagories extends Component {
     constructor(props){
         super(props)
         this.state = {
@@ -53,14 +53,14 @@ class Items extends Component {
             'start':this.state.start,
             'end':this.state.end
         }
-        this.getItemsData(request_json)
+        this.getItemCatagoriesData(request_json)
     }
     
-    async getItemsData (request_json) {
-        await getItems(JSON.stringify(request_json)).then(data => {
+    async getItemCatagoriesData (request_json) {
+        await getItemCatagories(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 this.setState({
-                    'items':data['items'],
+                    'item_catagories':data['item_catagories'],
                     'loaded':true
                 })
             }  
@@ -72,13 +72,13 @@ class Items extends Component {
 render() {
     const render_after_load = (
         <div>
-            <ItemList data={this.state.discounts} update={this.update_table} page={this.state.page} />
+            <ItemCatagoryList data={this.state.item_catagories} update={this.update_table} page={this.state.page} />
         </div>
     )
 
     return(
         <div>
-            <Link to='/items/create'>Add New Item</Link><br></br>
+            <Link to='/itemcatagories/create'>Add New Item Catagroy</Link><br></br>
             <button onClick={() => {this.update_table(0)}}>Refresh table</button><br></br>
             {this.state.loaded ? render_after_load : "Loading..."}
         </div>
@@ -93,4 +93,4 @@ const mapStateToProps = state => ({
     user: state.user,
 })
 
-export default connect(mapStateToProps)(Items)
+export default connect(mapStateToProps)(ItemCatagories)

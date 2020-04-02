@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
 import {Button, TextField } from '@material-ui/core';
-import { createDiscount } from '../../api/misc';
+import { createItemCatagory } from '../../api/inventory/itemCatagory';
 
 
 class DiscountCreation extends Component {
@@ -11,12 +11,7 @@ class DiscountCreation extends Component {
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.state = {
-            'update':{
-                'name':'',
-                'code':'',
-                'discount_type':'percent',
-                'rate':''
-            }
+           'itemCatagory':{}
         }
     }
 
@@ -30,8 +25,8 @@ class DiscountCreation extends Component {
     onChange(e)
     {
         this.setState({
-            'update': {
-                ...this.state.update,
+            'itemCatagory': {
+                ...this.state.itemCatagory,
                 [e.target.name] : [e.target.value][0]
             }
         })
@@ -40,17 +35,12 @@ class DiscountCreation extends Component {
 
     async onSubmit(e){
         e.preventDefault();
-            var data = {...this.state.update}
-            var ele;
-            for (ele in this.state.update){
-                data[ele] = this.state.update[ele]
-            }
+            var data = {...this.state.itemCatagory}
             data = {...data, 'action':'add'}
-            console.log(data)
-            createDiscount(JSON.stringify(data)).then(data=> {
+            createItemCatagory(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New DIscount type Added")
+                        alert("New Item Catagory Added")
                     }
                     else{
                         alert(data['error'])
@@ -62,33 +52,22 @@ class DiscountCreation extends Component {
     }
 
     render() {
-            const popUpRender = <div>
+        const popUpRender = <div>
                         <form onSubmit={this.onSubmit}>
                             Name: <TextField
                                 id ='name'
                                 name="name"
                                 type='text'
                                 onChange={this.onChange}  
+                                placeholder={this.state.itemCatagory.name}          
                             />
-                            Code : <TextField
-                                id ='code'
-                                name="code"
-                                type='text'
-                                onChange={this.onChange}
-                            />
-                             Discount Type :<select name='discount_type' id="discount_type" value={this.state.update.discont_type}  onChange={this.onChange}>
-                                    <option value="percent">Percentage</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                            Rate : <input  name="rate" id="rate" type='number' onChange={this.onChange} value={this.state.update.rate} ></input><br></br>
-                            <br></br>
                             <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
                                 >
-                                Create
-                            </Button>
+                                Add
+                                </Button>
                 </form>
             
                         <br>

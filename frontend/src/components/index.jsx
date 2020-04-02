@@ -26,6 +26,9 @@ import TaxCreation from './taxes/taxCreation'
 import Items from './items/index'
 import ItemCreation from './items/itemCreation'
 
+import ItemCatagories from './itemCatagories/index';
+import ItemCatagoryCreation from './itemCatagories/itemCreation';
+
 class Index extends Component {
     constructor (props){
         super(props)
@@ -59,11 +62,13 @@ class Index extends Component {
                         <Link to='/customers'>Customers</Link><br></br>
                         <Link to='/taxes'>Taxes</Link><br></br>
                         <Link to='/discounts'>Discounts</Link><br></br>
-                        <Link to='items'>Item Management</Link><br></br>
+                        <Link to='/items'>Item Management</Link><br></br>
+                        <Link to='/itemcatagories'>Item Catagory</Link><br></br>
                         <br></br>
                         <Link to='/purchaseorders'>Purchase Orders</Link><br></br>
                         <Link to='/invoices'>Invoices</Link><br></br>
                         <br></br>
+                        <hr></hr>
                     </div>                    
                     )
           }
@@ -106,6 +111,11 @@ class Index extends Component {
                     
                     <Route path='/items/create' component= {ItemCreation}></Route>
                     <Route path='/items' component= {Items}></Route>
+
+                    <Route path='/itemcatagories/create' component= {ItemCatagoryCreation}></Route>
+                    <Route path='/itemcatagories' component= {ItemCatagories}></Route>
+
+                    
 
                     
 

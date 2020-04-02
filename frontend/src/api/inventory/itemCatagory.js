@@ -12,7 +12,7 @@ const getItemCatagories = async data => {
   
   const deleteItemCatagory = async data => {
     try {
-      return await baseRequest('apiv1/inventory/items/catagories/delte','POST', data);
+      return await baseRequest('apiv1/inventory/items/catagories/delete','POST', data);
     } catch(e){
       alert(e)
     }
@@ -20,7 +20,7 @@ const getItemCatagories = async data => {
   
   const createItemCatagory = async data => {
       try {
-        return await baseRequest('apiv1/inventoryitems/catagories','POST', data);
+        return await baseRequest('apiv1/inventory/items/catagories','POST', data);
       } catch(e){
         alert(e)
       }

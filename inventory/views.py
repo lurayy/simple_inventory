@@ -532,7 +532,7 @@ def item_catagory(request):
             if data_json['action'] == "edit":
                 item_catagory.name = str(data_json['name'])
                 item_catagory.is_active = data_json['is_active']
-                Item.save()
+                item_catagory.save()
                 response_json = {'status':True}
             if data_json['action'] == "get":
                 response_json['item_catagories'] = item_catagories_to_json([item_catagory])

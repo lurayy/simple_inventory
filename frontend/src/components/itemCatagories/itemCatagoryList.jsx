@@ -1,29 +1,29 @@
 import React, { Component } from 'react'
 import List from '../list';
-import { getDiscount, updateDiscount,  deleteDiscounts } from '../../api/misc';
+import { getItemCatagory, updateItemCatagory,  deleteItemCatagory } from '../../api/inventory/itemCatagory';
 import {Button, TextField } from '@material-ui/core';
 
-class DiscountList extends Component {
+class ItemCatagoryList extends Component {
     
     constructor(props){
         super(props)
         this.popUp = this.popUp.bind(this)
         this.state = {
             'popUp':false,
-            'discount':{},
+            'itemCatagory':{},
             'update':{}
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.discountDelete = this.discountDelete.bind(this)
+        this.itemCatDelete = this.itemCatDelete.bind(this)
     }
     
     onChange(e)
     {
         this.setState({
-            'update': {
-                ...this.state.update,
-                [e.target.name] : [e.target.value]
+            'itemCatagory': {
+                ...this.state.itemCatagory,
+                [e.target.name] : [e.target.value][0]
             }
         })
     }
@@ -31,17 +31,13 @@ class DiscountList extends Component {
     
     async onSubmit(e){
         e.preventDefault();
-            var data = this.state.discount
-            var ele;
-            for (ele in this.state.update){
-                data[ele] = this.state.update[ele][0]
-            }
-            data = {...data, 'action':'edit','discount_id':data.id}
+            var data = this.state.itemCatagory
+            data = {...data, 'action':'edit','item_catagory_id':data.id}
             console.log(data)
-            updateDiscount(JSON.stringify(data)).then(data=> {
+            updateItemCatagory(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("Discount Data updated.")
+                        alert("ItemCatagory Data updated.")
                         this.props.update(0)
                     }
                     else{
@@ -53,16 +49,16 @@ class DiscountList extends Component {
             })
     }
 
-    discountDelete(id){
+    itemCatDelete(id){
         var data = {
-            'discounts_id':[
+            'item_catagories_id':[
                 id
             ]
         }
-        deleteDiscounts(JSON.stringify(data)).then(data=>{
+        deleteItemCatagory(JSON.stringify(data)).then(data=>{
             try {
                 if (data['status']){
-                    alert('Discount data deleted.')
+                    alert('itemCatagory data deleted.')
                     this.props.update(0)
                 }   else{
                     alert(data['error'])
@@ -76,17 +72,18 @@ class DiscountList extends Component {
     async popUp(id, uuid=0){
         const data = {
             'action':'get',
-            'discount_id':id,
+            'item_catagory_id':id,
         }
         var data_main;
-        await getDiscount(JSON.stringify(data)).then(data => {
+        await getItemCatagory(JSON.stringify(data)).then(data => {
+            console.log(data)
             if (data['status']){
                 data_main=data
             }
         })
         await this.setState({
             'popUp':true,
-            'discount':data_main['discounts'][0]
+            'itemCatagory':data_main['item_catagories'][0]
         })
     }
 
@@ -96,22 +93,7 @@ class DiscountList extends Component {
             id:1,
             name:"Name",
             prop: 'name'
-        },
-        {
-            id:2,
-            name:"Code",
-            prop: 'code'
-        },
-        {
-            id:3,
-            name:"Discount Type",
-            prop: 'discount_type'
-        },
-        {
-            id:4,
-            name:"Rate",
-            prop: 'rate'
-        }      
+        }  
     ]
     
 
@@ -119,35 +101,22 @@ class DiscountList extends Component {
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
                         <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
-                        <h1>{this.state.discount.name}</h1>
+                        <h1>{this.state.update.name}</h1>
                         <form onSubmit={this.onSubmit}>
                             Name: <TextField
                                 id ='name'
                                 name="name"
                                 type='text'
                                 onChange={this.onChange}  
-                                placeholder={this.state.discount.name}          
+                                placeholder={this.state.itemCatagory.name}          
                             />
-                            Code : <TextField
-                                id ='code'
-                                name="code"
-                                type='text'
-                                onChange={this.onChange}
-                                placeholder={this.state.discount.code} 
-                            />
-                             Discount Type :<select name='discount_type' id="discount_type" defaultValue={this.state.discount.discount_type}  onChange={this.onChange}>
-                                    <option value="percent">Percentage</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                            Rate : <input placeholder={this.state.discount.rate} name="rate" onChange={this.onChange} ></input><br></br>
-                            <br></br>
                             <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
                                 >
                                 Update
-                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.discountDelete(this.state.discount.id)}}>
+                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.itemCatDelete(this.state.itemCatagory.id)}}>
                             Delete Discount
                         </Button> 
                         
@@ -164,4 +133,4 @@ class DiscountList extends Component {
     }
 }
 
-export default DiscountList
+export default ItemCatagoryList
