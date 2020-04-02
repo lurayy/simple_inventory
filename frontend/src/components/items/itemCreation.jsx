@@ -68,7 +68,7 @@ class ItemCreation extends Component {
             createItem(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New DIscount type Added")
+                        alert("New Item Added")
                     }
                     else{
                         alert(data['error'])
@@ -97,7 +97,7 @@ class ItemCreation extends Component {
                                 )}
                             </select> <br></br><br></br>
                             
-                            Sales Price : <input onChange={this.onChange}></input><br></br>
+                            Sales Price : <input name='sales_price' type='float' onChange={this.onChange}></input><br></br>
 
                             <br></br>
                             <Button

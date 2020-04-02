@@ -399,7 +399,7 @@ def items(request):
                 item = Item.objects.create(
                     name = str(data_json['name']),
                     sales_price = data_json['sales_price'],
-                    catagory = Catagory.objects.get(id=int(data_json['catagory']))
+                    catagory = ItemCatagory.objects.get(id=int(data_json['catagory']))
                 )
                 item.save()
                 response_json['status'] = True
