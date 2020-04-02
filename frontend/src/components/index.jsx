@@ -20,6 +20,10 @@ import InvoiceCreation from './invoices/invoiceCreation';
 import Discounts from './discounts/index';
 import DiscountCreation from './discounts/discountCreation'
 
+import Taxes from './taxes/index';
+import TaxCreation from './taxes/taxCreation'
+
+
 class Index extends Component {
     constructor (props){
         super(props)
@@ -92,6 +96,10 @@ class Index extends Component {
 
                     <Route path='/discounts/create' component= {DiscountCreation}></Route>
                     <Route path='/discounts' component= {Discounts}></Route>
+
+                    
+                    <Route path='/taxes/create' component= {TaxCreation}></Route>
+                    <Route path='/taxes' component= {Taxes}></Route>
                     
                     </Switch>
             </Router>

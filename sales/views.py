@@ -545,7 +545,7 @@ def taxes(request):
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
                     taxes = Tax.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                    response_json['taxes'] = taxs_to_json(taxes)
+                    response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
                     return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
@@ -560,13 +560,14 @@ def tax(request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            print(data_json)
             if data_json['action'] == "get":
-                taxs = Tax.objects.filter(is_active=True, id = data_json['tax_id'])
-                response_json['taxes'] = taxs_to_json(taxes)
+                taxes = Tax.objects.get(is_active=True, id = data_json['tax_id'])
+                response_json['taxes'] = taxes_to_json([taxes])
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if data_json['action'] == "edit":
-                tax = Tax.objects.filter(is_active=True, id = data_json['tax_id'])
+                tax = Tax.objects.get(is_active=True, id = data_json['tax_id'])
                 tax.name = data_json['name']
                 tax.code = data_json['code']
                 tax.tax_type = data_json['tax_type']
