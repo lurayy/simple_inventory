@@ -90,7 +90,7 @@ class Index extends Component {
                     <Route path='/invoices/create' component = {InvoiceCreation}></Route>
                     <Route path='/invoices' component = {Invoices}></Route>
 
-                    <Route path='/discounts/create' ></Route>
+                    <Route path='/discounts/create' component= {DiscountCreation}></Route>
                     <Route path='/discounts' component= {Discounts}></Route>
                     
                     </Switch>

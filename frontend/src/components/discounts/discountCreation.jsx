@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
 import {Button, TextField } from '@material-ui/core';
-import { createVendor } from '../../api/inventory/vendorApi';
+import { createDiscount } from '../../api/misc';
 
 
 class DiscountCreation extends Component {
@@ -12,10 +12,10 @@ class DiscountCreation extends Component {
         this.onSubmit = this.onSubmit.bind(this);
         this.state = {
             'update':{
-                'middle_name':[''],
-                'website':[''],
-                'phone2':[''],
-                'address':['']
+                'name':'',
+                'code':'',
+                'discount_type':'percent',
+                'rate':''
             }
         }
     }
@@ -32,7 +32,7 @@ class DiscountCreation extends Component {
         this.setState({
             'update': {
                 ...this.state.update,
-                [e.target.name] : [e.target.value]
+                [e.target.name] : [e.target.value][0]
             }
         })
     }
@@ -43,13 +43,14 @@ class DiscountCreation extends Component {
             var data = {...this.state.update}
             var ele;
             for (ele in this.state.update){
-                data[ele] = this.state.update[ele][0]
+                data[ele] = this.state.update[ele]
             }
             data = {...data, 'action':'add'}
-            createVendor(JSON.stringify(data)).then(data=> {
+            console.log(data)
+            createDiscount(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New Vendor Added")
+                        alert("New DIscount type Added")
                     }
                     else{
                         alert(data['error'])
@@ -61,87 +62,40 @@ class DiscountCreation extends Component {
     }
 
     render() {
-        return (
-            <div>
-                <h1>Add New Vendor</h1>
-                <form onSubmit={this.onSubmit}>
-                            First Name: <TextField
-                                id ='first_name'
-                                name="first_name"
+            const popUpRender = <div>
+                        <form onSubmit={this.onSubmit}>
+                            Name: <TextField
+                                id ='name'
+                                name="name"
                                 type='text'
                                 onChange={this.onChange}  
-                                required                  
                             />
-                            Middle Name : <TextField
-                                id ='middle_name'
-                                name="middle_name"
-                                type='text'
-                                onChange={this.onChange} 
-                            />
-                            Last Name  : <TextField
-                                id ='last_name'
-                                name="last_name"
-                                type='text'
-                                onChange={this.onChange}
-                                required 
-                            />
-                            <br></br>
-                            Email : <TextField
-                                id ='email'
-                                name="email"
-                                type='email'
-                                onChange={this.onChange}
-                                required 
-                            />
-                            <br></br>
-                            Website : <TextField
-                                id ='website'
-                                name="website"
+                            Code : <TextField
+                                id ='code'
+                                name="code"
                                 type='text'
                                 onChange={this.onChange}
                             />
-                            <br></br>
-                            Tax Number : <TextField
-                                id ='tax_number'
-                                name="tax_number"
-                                type='number'
-                                onChange={this.onChange}
-                                required 
-                            />
-                            <br></br>
-                            Contact Number: <TextField
-                                id ='phone1'
-                                name="phone1"
-                                type='number'
-                                onChange={this.onChange}
-                                required 
-                            />
-                            <br></br>
-                            Contact Number 2 : <TextField
-                                id ='phone2'
-                                name="phone2"
-                                type='number'
-                                onChange={this.onChange}
-                            />
-                            <br></br>
-                            
-                            Addresss : <TextField
-                                id ='address'
-                                name="address"
-                                type='text'
-                                onChange={this.onChange}
-                            />
+                             Discount Type :<select name='discount_type' id="discount_type" value={this.state.update.discont_type}  onChange={this.onChange}>
+                                    <option value="percent">Percentage</option>
+                                    <option value="fixed">Fixed</option>
+                                </select> <br></br>
+                            Rate : <input  name="rate" id="rate" type='number' onChange={this.onChange} value={this.state.update.rate} ></input><br></br>
                             <br></br>
                             <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
                                 >
-                                Update
-                                </Button>
-                        
+                                Create
+                            </Button>
                 </form>
-            </div>
+            
+                        <br>
+                        </br>
+                    </div>
+        return (
+            popUpRender
         )
     }
 }
