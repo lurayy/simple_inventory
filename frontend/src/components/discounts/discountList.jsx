@@ -139,7 +139,7 @@ class DiscountList extends Component {
                                     <option value="percent">Percentage</option>
                                     <option value="fixed">Fixed</option>
                                 </select> <br></br>
-                            Rate : <input placeholder={this.state.discount.rate} name="rate" onChange={this.onChangePI} ></input><br></br>
+                            Rate : <input placeholder={this.state.discount.rate} name="rate" onChange={this.onChange} ></input><br></br>
                             <br></br>
                             <Button
                                 type='submit'

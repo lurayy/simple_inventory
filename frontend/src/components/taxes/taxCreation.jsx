@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
 import {Button, TextField } from '@material-ui/core';
-import { createDiscount } from '../../api/misc';
+import { createTax } from '../../api/misc';
 
 
-class DiscountCreation extends Component {
+class TaxCreation extends Component {
 
     constructor (props){
         super(props)
@@ -14,7 +14,7 @@ class DiscountCreation extends Component {
             'update':{
                 'name':'',
                 'code':'',
-                'discount_type':'percent',
+                'tax_type':'normal',
                 'rate':''
             }
         }
@@ -47,10 +47,10 @@ class DiscountCreation extends Component {
             }
             data = {...data, 'action':'add'}
             console.log(data)
-            createDiscount(JSON.stringify(data)).then(data=> {
+            createTax(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New DIscount type Added")
+                        alert("New Tax type Added")
                     }
                     else{
                         alert(data['error'])
@@ -76,8 +76,8 @@ class DiscountCreation extends Component {
                                 type='text'
                                 onChange={this.onChange}
                             />
-                             Discount Type :<select name='discount_type' id="discount_type" value={this.state.update.discont_type}  onChange={this.onChange}>
-                                    <option value="percent">Percentage</option>
+                             Tax Type :<select name='tax_type' id="tax_type" value={this.state.update.discont_type}  onChange={this.onChange}>
+                                    <option value="normal">Normal</option>
                                     <option value="fixed">Fixed</option>
                                 </select> <br></br>
                             Rate : <input  name="rate" id="rate" type='number' onChange={this.onChange} value={this.state.update.rate} ></input><br></br>
@@ -105,4 +105,4 @@ const mapStateToProps = state => ({
     user: state.user
 })
 
-export default connect(mapStateToProps)(DiscountCreation)
+export default connect(mapStateToProps)(TaxCreation)

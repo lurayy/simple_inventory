@@ -136,10 +136,10 @@ class TaxList extends Component {
                                 placeholder={this.state.tax.code} 
                             />
                              Tax Type :<select name='tax_type' id="tax_type" defaultValue={this.state.tax.tax_type}  onChange={this.onChange}>
-                                    <option value="percent">Percentage</option>
+                                    <option value="normal">Normal</option>
                                     <option value="fixed">Fixed</option>
                                 </select> <br></br>
-                            Rate : <input placeholder={this.state.tax.rate} name="rate" onChange={this.onChangePI} ></input><br></br>
+                            Rate : <input placeholder={this.state.tax.rate} name="rate" onChange={this.onChange} ></input><br></br>
                             <br></br>
                             <Button
                                 type='submit'
