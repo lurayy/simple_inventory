@@ -107,7 +107,6 @@ def purchase_orders(request):
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if str(data_json['action'] == "add"):
-                print(data_json)
                 try:
                     status = PurchaseOrderStatus.objects.get(id = int(data_json['status']))
                 except:
@@ -172,7 +171,6 @@ def purchase_order(request):
                 response_json = {'status':True}
                 return JsonResponse(response_json)
             if data_json['action'] == 'get':    
-                print(data_json)
                 order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
                 response_json['p_order'] = purchase_orders_to_json([order])
                 response_json['p_items'] = purchase_items_to_json(PurchaseItem.objects.filter(purchase_order=order))        
@@ -587,15 +585,39 @@ def places(request):
         name: "klj"             
     }
     '''
-    response_json = {'status':'False'}
+    response_json = {'status':'False','placements':[]}
+
     if request.method == "POST":
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
-                places = Place.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                response_json['places'] = places_to_json(places)
-                response_json['status'] = True
+                if data_json['filter'] == 'item':
+                    print("Item",data_json)
+                    placements = Placement.objects.filter(item__id = data_json['item_id'])
+                    for p in placements:
+                        if p.stock>0:
+                            temp = {}
+                            temp['id'] = p.id
+                            temp['purchase_item'] = p.purchase_item.id
+                            temp['purchase_item_details'] = {
+                                'quantity':p.purchase_item.stock,
+                                'purchase_price': p.purchase_item.purchase_price,
+                                'vendor': p.purchase_item.purchase_order.vendor.first_name +  ' ' + p.purchase_item.purchase_order.vendor.last_name
+                            }
+                            temp['placed_on'] = p.placed_on.id
+                            temp['str_placed_on'] = p.placed_on.name
+                            temp['stock'] = p.stock
+                            response_json['placements'].append(temp)
+                        else:
+                            print("empty")
+                    print(response_json)
+                    response_json['status'] = True
+                else:
+                    print('all')
+                    places = Place.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['places'] = places_to_json(places)
+                    response_json['status'] = True
             if data_json['action'] == "add":
                 place = Place.objects.create(
                     name = data_json['name']
@@ -854,3 +876,19 @@ def purchase_order_statuss(request):
             temp =  StatusSerializer(status).data
             data.append(temp)
         return JsonResponse({'status':True, 'data':data})
+
+
+# @login_required
+# @require_http_methods(['POST'])
+# def item_places(request):
+#     if request.method=="POST":
+#         json_str = request.body.decode(encoding='UTF-8')
+#         data_json = json.loads(json_str)
+#         temp = {}
+#         data = []
+#         if data_json['action']=='get':
+#             for invoice_item in InvoiceItem.objects.filter(invoice=invoice):
+#                     print (invoice_item)
+#                     places = Place.objects.filter(placements__item__id = invoice_item.id)
+#                     for place in places:
+#                         print(place.name)

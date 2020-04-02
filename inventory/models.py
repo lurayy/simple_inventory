@@ -54,7 +54,7 @@ class Item(models.Model):
     sold = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.name} {self.sales_price}'
     
     def is_in_stock(self):
         if self.stock > 0:
@@ -106,14 +106,19 @@ class Place(models.Model):
 
 class Placement(models.Model):
     purchase_item = models.ForeignKey(PurchaseItem, on_delete=models.CASCADE, related_name='items_places')
-    placed_on = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True)
+    placed_on = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, related_name='placements')
     stock = models.PositiveIntegerField(default=0)
-
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_placements', null=True, blank=True)
     def __str__(self):
         return f'{self.purchase_item} on {self.placed_on}'
     
     class Meta:
         unique_together = ('purchase_item', 'placed_on')
+    
+    def save(self, *args, **kwargs):
+        self.item = self.purchase_item.item
+        super(Placement, self).save(*args, **kwargs)
+
     
 
 @receiver(pre_save, sender=Placement)

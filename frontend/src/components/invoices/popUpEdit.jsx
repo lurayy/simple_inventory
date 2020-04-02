@@ -8,12 +8,16 @@ import {getCustomers} from '../../api/sales/customer';
 import {updateInvoice, getInvoice, deleteInvoices, getInvoiceStatus} from '../../api/sales/invoice';
 import {updateInvoiceItem, deleteInvoiceItems, createInvoiceItem} from '../../api/sales/invoiceItem'
 import {getItems} from '../../api/inventory/itemApi';
+import {getPlaces} from '../../api/inventory/placeApi';
 
 class PopUpEdit extends Component {
 
     constructor(props){
         super(props)
         this.state = {
+            'place_selection':[],
+            'stock_selection':[],
+            'sold_from_selection':[],
             'popUp':false,
             'new':false,
             'current':0,
@@ -56,6 +60,7 @@ class PopUpEdit extends Component {
         this.onChangePI = this.onChangePI.bind(this)
         this.postInvoiceItem = this.postInvoiceItem.bind(this)
         this.deleteInvoiceItem = this.deleteInvoiceItem.bind(this)
+        this.onChangePlace = this.onChangePlace.bind(this)
     }
 
 
@@ -116,6 +121,7 @@ class PopUpEdit extends Component {
     }
 
     popUp(id){
+        
         var key
         for (key in this.state.update.invoice_items){
             if (this.state.update.invoice_items[key].id === id){
@@ -123,10 +129,93 @@ class PopUpEdit extends Component {
                     ...this.state,
                     'current':key,
                     'popUp':true
-                })        
-                return
+                }) 
+                break;       
             }
         }
+        var request_json = {
+            'action':'get',
+            'filter':'item',
+            'item_id':this.state.update.invoice_items[key].id  
+        }
+        this.getPlacesData(request_json)
+    }
+
+    async getPlacesData(request_json) { 
+        console.log(request_json)
+        await getPlaces(JSON.stringify(request_json)).then(data => {
+            console.log("tring",data)
+            if (data['status']){
+                this.setState({
+                    'sold_from_selection':data['placements'],
+                })
+                var temp = [], key, x;
+                for(key in data['placements']){
+                    x = {'id': data['placements'][key]['placed_on'], 'str_placed_on':data['placements'][key]['str_placed_on']}
+                    temp[data['placements'][key]['placed_on']] = x
+                    }
+                temp = temp.filter(function (el) {
+                    return el != null;
+                });
+                console.log("temo",temp)
+                this.setState({
+                    'place_selection':temp
+                })
+
+                var temp=[],p,inv;
+                for (p in data['placements']){
+                    if ( this.state.update.invoice_items[this.state.current]['sold_from'] === data['placements'][p]['placed_on']){
+                        var string  = data['placements'][p]['purchase_item_details']['purchase_price'] + "/-  " + data['placements'][p]['purchase_item_details']['quantity'] + " " + data['placements'][p]['purchase_item_details']['vendor'] 
+                        temp.push({
+                            'id': data['placements'][p]['purchase_item'],
+                            'str':string
+                        })
+                    }
+                    
+                }
+                console.log("inloop",temp)
+                this.setState({
+                    ...this.state,
+                    'stock_selection': temp
+                })
+        
+            }  
+        })
+    }
+
+    onChangePlace(e){
+        this.setState({
+            'update': {
+                ...this.state.update,
+                'invoice_items':{
+                    ...this.state.update.invoice_items,
+                    [this.state.current] : {
+                        ...this.state.update.invoice_items[this.state.current],
+                        [e.target.name] : [e.target.value][0]
+                    },
+                }
+            }
+        })
+        var temp=[],p,inv;
+                for (p in this.state.sold_from_selection){
+                    if ( this.state.update.invoice_items[this.state.current]['sold_from'] === this.state.sold_from_selection[p]['placed_on']){
+                        var string  = this.state.sold_from_selection[p]['purchase_item_details']['purchase_price'] + "/-  " + this.state.sold_from_selection[p]['purchase_item_details']['quantity'] + " " + this.state.sold_from_selection[p]['purchase_item_details']['vendor'] 
+                        temp.push({
+                            'id': this.state.sold_from_selection[p]['purchase_item'],
+                            'str':string
+                        })
+                    }
+                    
+                }
+                console.log("inloop",temp)
+                this.setState({
+                    ...this.state,
+                    'stock_selection': temp
+                })  
+        this.setState({
+            ...this.state,
+            'stock_selection': temp
+        })
     }
 
     searchCustomer(e){
@@ -206,30 +295,32 @@ class PopUpEdit extends Component {
                 'invoice':this.state.update.invoice.id,
                 ...this.state.update.invoice_items[this.state.current]
             }
-            createInvoiceItem(JSON.stringify(request_json)).then(data => {
-                if (data['status']){
-                    alert("Invoice Item Has Been Added.")
-                    this.refreshTable()
-                }
-                else{
-                    alert(data['error'])
-                }
-            })
+            console.log("new",request_json)
+            // createInvoiceItem(JSON.stringify(request_json)).then(data => {
+            //     if (data['status']){
+            //         alert("Invoice Item Has Been Added.")
+            //         this.refreshTable()
+            //     }
+            //     else{
+            //         alert(data['error'])
+            //     }
+            // })
             return
         }
         request_json = {
             'action':'edit',
             ...this.state.update.invoice_items[this.state.current]
         }
-        updateInvoiceItem(JSON.stringify(request_json)).then(data => {
-            if (data['status']){
-                alert("Invoice Item Details Has Been Updated.")
-                this.refreshTable()
-            }
-            else{
-                alert(data['error'])
-            }
-        })
+        console.log('odl',request_json)
+        // updateInvoiceItem(JSON.stringify(request_json)).then(data => {
+        //     if (data['status']){
+        //         alert("Invoice Item Details Has Been Updated.")
+        //         this.refreshTable()
+        //     }
+        //     else{
+        //         alert(data['error'])
+        //     }
+        // })
     }
 
     deleteInvoiceItem(){
@@ -357,7 +448,13 @@ class PopUpEdit extends Component {
                 }
             }
         })
-
+        console.log("selectItem",id,name)
+        var request_json = {
+            'action':'get',
+            'filter':'item',
+            'item_id':id
+        }
+        this.getPlacesData(request_json)
     }
 
     async refreshTable(){
@@ -398,29 +495,46 @@ class PopUpEdit extends Component {
                     {item_selection.map(
                         item => (
                             // use css to get rid of <a>
-                            <a key={item.id} onClick={() => {this.selectItem(item.id, item.name)}} >{item.name}</a>
+                        <a key={item.id} onClick={() => {this.selectItem(item.id, item.name)}} >{item.name} {item.sales_price}</a>
                         )
                     )}
             </div>
         </div>
         </Popup>
+
+        var places = this.state.place_selection
+        const selectPlace =<select name='sold_from' id="sold_from" onChange={this.onChangePlace} value={this.state.update.invoice_items[this.state.current].sold_from}  >
+                {places.map(
+                    x => (
+                    <option key={x.id} value={parseInt(x.id)}>{x.str_placed_on}</option>
+                    )
+                )}
+            </select>
+
+            
+        var stocks  = this.state.stock_selection
+        var stockValue = this.state.update.invoice_items[this.state.current].purchase_item ? this.state.update.invoice_items[this.state.current].purchase_item : ''
+        console.log(stockValue)
+        const selectStock =<select name='purchase_item' id="purchase_item" onChange={this.onChangePI} value={stockValue} >
+                <option key='Fake Key' value='0'>Select Stock</option>
+                {stocks.map(
+                    x => (
+                    <option key={x.id} value={parseInt(x.id)}>{x.str}</option>
+                    )
+                )}
+            </select>
+
+
         const popUpItem = <div>
                 <button onClick={() => {this.refreshTable()}} >Back</button><br></br><br></br>
-                Item : {this.state.update.invoice_items[this.state.current].item_name}  {this.state.new ? itemPopUp: <span></span>}<br></br>
+                Item : {this.state.update.invoice_items[this.state.current].item_name}  {itemPopUp}<br></br>
+                Sold From: 
+                Place : {this.state.update.invoice_items[this.state.current].item ? selectPlace : "Select An Item First" } <br></br>
+                Stock :   {this.state.update.invoice_items[this.state.current].item ? selectStock : "Select An Item First" } <br></br>
+                <br></br>
                 Quantity : <input name="quantity" placeholder={this.state.update.invoice_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required></input><br></br>
-                Defective : <input name="defective" placeholder={this.state.update.invoice_items[this.state.current].defective} type="number"  onChange={this.onChangePI} required></input><br></br>
+                Price : <input name="price" placeholder={this.state.update.invoice_items[this.state.current].price} type="number" onChange={this.onChangePI} required></input><br></br>
                 
-                Discount Type :<select name='discount_type' id="discount_type" defaultValue={this.state.update.invoice_items[this.state.current].discount_type}  onChange={this.onChangePI}>
-                                    <option value="percent">Percentage</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                Discount : <input placeholder={this.state.update.invoice_items[this.state.current].discount} name="discount" onChange={this.onChangePI} ></input><br></br>
-                Invoice Price : <input placeholder={this.state.update.invoice_items[this.state.current].purchase_price} name="purchase_price" onChange={this.onChangePI} required></input> <br></br>
-                Status : <select defaultValue= {this.state.update.invoice_items[this.state.current].status} name="status" onChange={this.onChangePI}>
-                    <option value="delivered">Delivered</option>
-                    <option value="incomplete">Incomplete</option>
-                    <option value="addedtocirculation">Added To Circulation</option>
-                </select><br></br>
                 {this.state.new ? <button onClick={() => {this.postInvoiceItem(true)}} >Add</button> : <button onClick={() => {this.postInvoiceItem()}} >Update</button>}<br></br><br></br>
                 <button onClick={() => {this.deleteInvoiceItem()}} >Delete</button>
             </div>
@@ -431,7 +545,6 @@ class PopUpEdit extends Component {
             <div className={style.dropdown_content} id='customer_dropdown'>
                     {customer_selection.map(
                         customer => (
-                            // use css to get rid of <a>
                             <a href="#" key={customer.id} onClick={() => {this.selectCustomer(customer.id, customer.name)}} >{customer.name}</a>
                         )
                     )}
@@ -477,7 +590,6 @@ class PopUpEdit extends Component {
                                     )
                                 )}
                             </select> <br></br><br></br>
-
                 <button onClick={() => {this.updateInvoice()}}>Update Invoice</button><br></br><br></br>
                 <button onClick={() => {this.props.delete(this.props.invoice.id)}}>Delete</button>
                 <hr></hr>

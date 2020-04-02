@@ -9,22 +9,22 @@ from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount
 from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, Item, PurchaseItem, Place, Placement
 from sales.models import Invoice, InvoiceItem
 
-USER_COUNT = 20
-VENDOR_COUNT = 50
-CUSTOMER_COUNT = 100
-TAX_COUNT = 50
-DISCOUNT_COUNT = 50
+USER_COUNT = 2
+VENDOR_COUNT = 5
+CUSTOMER_COUNT = 10
+TAX_COUNT = 5
+DISCOUNT_COUNT = 5
 
-ITEM_CATAGORY_COUNT = 20
-ITEM_COUNT = 30
+ITEM_CATAGORY_COUNT = 4
+ITEM_COUNT = 8
 
-PLACE_COUNT = 50
+PLACE_COUNT = 5
 #calculate placement from place and purchase_order_item
 
 
-PURCHASE_ORDER_STATUS = 30
-PURCHASE_ORDER_COUNT = 80
-PURCHASE_ORDER_ITEM_COUNT = 240
+PURCHASE_ORDER_STATUS = 3
+PURCHASE_ORDER_COUNT = 5
+PURCHASE_ORDER_ITEM_COUNT = 25
 
 INVOICE_COUNT = 50
 INVOICE_ITEM_COUNT = 100

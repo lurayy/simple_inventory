@@ -1,4 +1,5 @@
 from .models import Invoice, InvoiceItem, InvoiceStatus
+from inventory.models import Place, Placement
 from inventory.utils import str_to_datetime 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
@@ -131,7 +132,6 @@ def invoice(request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            print(data_json)
             response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
             if data_json['action'] == "edit":
                 print(data_json)
@@ -147,7 +147,7 @@ def invoice(request):
             if data_json['action'] == 'get':
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
                 response_json['invoice'] = invoices_to_json([invoice])
-                response_json['invoice_items'] = invoice_items_to_json(InvoiceItem.objects.filter(invoice=invoice))        
+                response_json['invoice_items'] = invoice_items_to_json(InvoiceItem.objects.filter(invoice=invoice))
                 response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
@@ -358,7 +358,6 @@ def invoice_items(request):
                     purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item'])),
                     sold_from = Place.objects.get(id=int(data_json['sold_from'])),
                     invoice = Invoice.objects.get(id=int(data_json['invoice'])),
-
                     quantity = int(data_json['quantity']),
                     price = data_json['price'],
                     discount_type = data_json['discount_type'],
@@ -405,7 +404,6 @@ def invoice_item(request):
                 invoice_item.purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item'])),
                 invoice_item.sold_from = Place.objects.get(id=int(data_json['sold_from'])),
                 invoice_item.invoice = Invoice.objects.get(id=int(data_json['invoice'])),
-
                 invoice_item.quantity = int(data_json['quantity']),
                 invoice_item.price = data_json['price'],
                 invoice_item.discount_type = data_json['discount_type'],
@@ -610,3 +608,4 @@ def invoice_status(request):
             temp =  InvoiceStatusSerializer(status).data
             data.append(temp)
         return JsonResponse({'status':True, 'data':data})
+
