@@ -29,6 +29,9 @@ import ItemCreation from './items/itemCreation'
 import ItemCatagories from './itemCatagories/index';
 import ItemCatagoryCreation from './itemCatagories/itemCreation';
 
+import Places from './placement/index'
+import PlaceCreation from './placement/placeCreation'
+
 class Index extends Component {
     constructor (props){
         super(props)
@@ -64,6 +67,7 @@ class Index extends Component {
                         <Link to='/discounts'>Discounts</Link><br></br>
                         <Link to='/items'>Item Management</Link><br></br>
                         <Link to='/itemcatagories'>Item Catagory</Link><br></br>
+                        <Link to='/places'>Places</Link><br></br>
                         <br></br>
                         <Link to='/purchaseorders'>Purchase Orders</Link><br></br>
                         <Link to='/invoices'>Invoices</Link><br></br>
@@ -115,7 +119,10 @@ class Index extends Component {
                     <Route path='/itemcatagories/create' component= {ItemCatagoryCreation}></Route>
                     <Route path='/itemcatagories' component= {ItemCatagories}></Route>
 
-                    
+
+                    <Route path='/places/create' component= {PlaceCreation}></Route>
+                    <Route path='/places' component= {Places}></Route>
+
 
                     
 

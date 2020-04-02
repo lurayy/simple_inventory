@@ -16,6 +16,7 @@ class PurchaseOrderStatus(models.Model):
     
 
 class PurchaseOrder(models.Model):
+    uuid = models.UUIDField(unique=True,default= uuid.uuid4)
     added_by = models.ForeignKey(CustomUserBase, on_delete= models.SET_NULL, null=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True)
     invoiced_on = models.DateTimeField()

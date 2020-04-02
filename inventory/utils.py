@@ -53,10 +53,10 @@ def item_catagories_to_json(catagories):
         data.append(temp)
     return data
 
-def places_to_json(catagories):
+def places_to_json(places):
     data = []
     for place in places:
-        temp = PlaceSerializer(catagory).data
+        temp = PlaceSerializer(place).data
         data.append(temp)
     return data
 

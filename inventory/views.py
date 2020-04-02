@@ -612,8 +612,14 @@ def places(request):
                             print("empty")
                     response_json['status'] = True
                 else:
+                    response_json= {'places':[]}
                     places = Place.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                    response_json['places'] = places_to_json(places)
+                    for place in places:
+                        response_json['places'].append({
+                            'id':place.id,
+                            'name':place.name,
+                            'count_assignment':len(place.placements.filter(is_active=True))
+                        })
                     response_json['status'] = True
             if data_json['action'] == "add":
                 place = Place.objects.create(
@@ -627,7 +633,7 @@ def places(request):
 
 
 @login_required
-@require_http_methods(['POST', 'GET'])
+@require_http_methods(['POST'])
 def place(request):
     '''
     POST For editing
@@ -672,9 +678,9 @@ def delete_places(request):
             data_json = json.loads(json_str)
             ids = data_json['places_id']
             for id in ids:
-                places_id = Place.objects.get(id=int(id))
-                place.is_active = False
-                place.save()
+                place_x = Place.objects.get(id=int(id))
+                place_x.is_active = False
+                place_x.save()
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
