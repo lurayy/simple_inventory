@@ -10,6 +10,7 @@ import {updateInvoiceItem, deleteInvoiceItems, createInvoiceItem} from '../../ap
 import {getItems} from '../../api/inventory/itemApi';
 import {getPlaces} from '../../api/inventory/placeApi';
 
+
 class PopUpEdit extends Component {
 
     constructor(props){
@@ -62,8 +63,51 @@ class PopUpEdit extends Component {
         this.postInvoiceItem = this.postInvoiceItem.bind(this)
         this.deleteInvoiceItem = this.deleteInvoiceItem.bind(this)
         this.onChangePlace = this.onChangePlace.bind(this)
+        this.removeEntry = this.removeEntry.bind(this)
     }
 
+    removeEntry(id, dis){
+        if (dis){
+            var temp = this.state.update.invoice_items[this.state.current].applied_discount
+            temp.pop(dis)
+            var temp2 = this.state.update.invoice_items[this.state.current].discount
+            temp2.pop(temp.id)
+            this.setState({
+                ...this.state,
+                'update':{
+                    ...this.state.update,
+                    invoice_items:{
+                        ...this.state.update.invoice_items,
+                        [dis]:{
+                            'applied_discount':temp,
+                            'discount':temp2
+                        }
+                    }
+                }
+            })
+        }
+        else {
+            {
+                var temp = this.state.update.invoice_items[this.state.current].applied_tax
+                temp.pop(dis)
+                var temp2 = this.state.update.invoice_items[this.state.current].taxes
+                temp2.pop(temp.id)
+                this.setState({
+                    ...this.state,
+                    'update':{
+                        ...this.state.update,
+                        invoice_items:{
+                            ...this.state.update.invoice_items,
+                            [dis]:{
+                                'applied_tax':temp,
+                                'taxes':temp2
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    }
 
     async componentDidMount(){
         var request_json = {
@@ -481,6 +525,54 @@ class PopUpEdit extends Component {
         console.log(this.state)
     }
 
+
+    discount_columns =[
+        {
+            'id':1,
+            'name':'Name',
+            'prop':'name'
+        },{
+            'id':2,
+            'name':'Rate',
+            'prop':'rate'
+        },{
+            'id':3,
+            'name':'Code',
+            'prop':'code'
+        },{
+            'id':4,
+            'name':'Type',
+            'prop':'discount_type'
+        },{
+            'id':5,
+            'name':'Remove',
+            'prop':'removeButton'
+        },
+    ]
+
+    tax_columns =[
+        {
+            'id':1,
+            'name':'Name',
+            'prop':'name'
+        },{
+            'id':2,
+            'name':'Rate',
+            'prop':'rate'
+        },{
+            'id':3,
+            'name':'Code',
+            'prop':'code'
+        },{
+            'id':4,
+            'name':'Type',
+            'prop':'tax_type'
+        },{
+            'id':5,
+            'name':'Remove',
+            'prop':'removeButton'
+        },
+    ]
     render() {
         const item_selection = this.state.item_selection
         const itemPopUp = <Popup trigger={ <button>Select Item</button>} closeOnDocumentClick>
@@ -517,8 +609,22 @@ class PopUpEdit extends Component {
                     )
                 )}
             </select>
-
-
+        var dis;
+        const discounts =this.state.update.invoice_items[this.state.current].applied_discount
+        for (dis in discounts){
+            discounts[dis] = {
+                ...discounts[dis],
+                'removeButton':<button onClick={() => {this.removeEntry(dis,true)}}> Remove </button>
+            }
+        }
+        
+        const taxes = this.state.update.invoice_items[this.state.current].applied_tax
+        for (dis in taxes){
+            taxes[dis] = {
+                ...taxes[dis],
+                'removeButton':<button onClick={()=>{this.removeEntry(dis,false)}}> Remove </button>
+            }
+        }
         const popUpItem = <div>
                 <button onClick={() => {this.refreshTable()}} >Back</button><br></br><br></br>
                 Item : {this.state.update.invoice_items[this.state.current].item_name}  {itemPopUp}<br></br>
@@ -529,7 +635,15 @@ class PopUpEdit extends Component {
 
                 Quantity : <input name="quantity" placeholder={this.state.update.invoice_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required min='1' ></input><br></br>
                 Price : <input name="price" placeholder={this.state.update.invoice_items[this.state.current].price} type="number" onChange={this.onChangePI} required></input><br></br>
+                Tax Total : {this.state.update.invoice_items[this.state.current].tax_total} <br></br>
+                Sub Total : {this.state.update.invoice_items[this.state.current].sub_total} <br></br>
+                Discount Amount : {this.state.update.invoice_items[this.state.current].discount_amount}<br></br>
+                Total without discount : {this.state.update.invoice_items[this.state.current].total_without_discount}<br></br>
+                Total : {this.state.update.invoice_items[this.state.current].total}<br></br>
+                <br></br>
+                Applied Discounts : :<List data={discounts} header={this.discount_columns} page={false} popUp={this.popUp} removeEntry={this.removeEntry} /><button>Apply New Discount</button> <br></br><br></br>
                 
+                Applied Taxes : :<List data={taxes} header={this.tax_columns} page={false} popUp={this.popUp} removeEntry={this.removeEntry} /><br></br><button>Apply New Tax</button><br></br><br></br>
                 {this.state.new ? <button onClick={() => {this.postInvoiceItem(true)}} >Add</button> : <button onClick={() => {this.postInvoiceItem()}} >Update</button>}<br></br><br></br>
                 <button onClick={() => {this.deleteInvoiceItem()}} >Delete</button>
             </div>

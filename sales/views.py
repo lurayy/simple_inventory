@@ -405,6 +405,8 @@ def invoice_item(request):
                 invoice_item.invoice = Invoice.objects.get(id=int(data_json['invoice']))
                 invoice_item.quantity = int(data_json['quantity'])
                 invoice_item.price = float(data_json['price'])
+                for dis_id in data_json['discounts']:
+                    dis = Discount.objects.get(id=int(dis_id))
                 # invoice_item.discount_type = data_json['discount_type']
                 # invoice_item.discount = float(data_json['discount'])
                 invoice_item.save()
