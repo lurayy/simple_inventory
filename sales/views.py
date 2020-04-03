@@ -65,6 +65,7 @@ def invoices(request):
     }
     '''
     if request.method == "POST":
+        response_json = {}
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -93,12 +94,14 @@ def invoices(request):
                 return JsonResponse(response_json)
             if str(data_json['action'] == "add"):
                 invoice = Invoice.objects.create(
-                    paid_amount = data_json['paid_amount'],
-                    added_by = CustomUserBase.objects.get(id=int(data_json["added_by"])),
+                    added_by = CustomUserBase.objects.get(id=int(request.user.id)),
                     customer = Customer.objects.get(id=int(data_json['customer'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     due_on = str_to_datetime(data_json['due_on']),
-                    status =InvoiceStatus.objects.get(id=data_json['status'])          
+                    status = InvoiceStatus.objects.get(id=data_json['status']),
+                    total_amount = 0,
+                    paid_amount=0,
+                    additional_discount=0      
                 )
                 invoice.save()
                 response_json['status'] = True
