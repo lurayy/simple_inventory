@@ -138,7 +138,7 @@ django_heroku.settings(locals())
 
 AUTH_USER_MODEL = 'user_handler.CustomUserBase'
 
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = [
@@ -170,7 +170,7 @@ CORS_ALLOW_HEADERS = [
 CSRF_COOKIE_NAME = 'x-csrftoken'
 
 CSRF_TRUSTED_ORIGINS = [
-    'localhost:3000','localhost:8s000',
+    'localhost:3000','localhost:8000','*'
 ]
 
 STATICFILES_DIRS = (
