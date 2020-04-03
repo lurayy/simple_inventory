@@ -9,13 +9,23 @@ import {updateInvoice, getInvoice, deleteInvoices, getInvoiceStatus} from '../..
 import {updateInvoiceItem, deleteInvoiceItems, createInvoiceItem} from '../../api/sales/invoiceItem'
 import {getItems} from '../../api/inventory/itemApi';
 import {getPlaces} from '../../api/inventory/placeApi';
-
+import { getDiscounts, getTaxes } from '../../api/misc'
 
 class PopUpEdit extends Component {
 
     constructor(props){
         super(props)
         this.state = {
+            'tax_start':0,
+            'tax_end':5,
+            'discount_start':0,
+            'discount_end':5,
+            'tax_loaded':false,
+            'discount_loaded':false,
+            'discount_page':[],
+            'tax_page':[],
+            'discount_selection':[],
+            'tax_selection':[],
             'place_selection':[],
             'stock_selection':[],
             'sold_from_selection':[],
@@ -44,6 +54,7 @@ class PopUpEdit extends Component {
                 'invoice_items':this.props.invoice_items
             }
         }
+        this.update_table = this.update_table.bind(this)
         this.stateman = this.stateman.bind(this)
         this.refreshTable = this.refreshTable.bind(this)
         this.getItemData = this.getItemData.bind(this)
@@ -64,6 +75,8 @@ class PopUpEdit extends Component {
         this.deleteInvoiceItem = this.deleteInvoiceItem.bind(this)
         this.onChangePlace = this.onChangePlace.bind(this)
         this.removeEntry = this.removeEntry.bind(this)
+        this.addEntryDiscount = this.addEntryDiscount.bind(this)
+        this.addEntryTax = this.addEntryTax.bind(this)
     }
 
     removeEntry(id, dis){
@@ -327,8 +340,10 @@ class PopUpEdit extends Component {
             request_json = {
                 'action':'add',
                 'invoice':this.state.update.invoice.id,
-                ...this.state.update.invoice_items[this.state.current]
+                ...this.state.update.invoice_items[this.state.current],
             }
+            request_json['applied_tax'] = []
+            request_json['applied_discount'] = []
             console.log("new",request_json)
             createInvoiceItem(JSON.stringify(request_json)).then(data => {
                 if (data['status']){
@@ -347,6 +362,8 @@ class PopUpEdit extends Component {
             'invoice_item_id':this.state.update.invoice_items[this.state.current].id,
             ...this.state.update.invoice_items[this.state.current]
         }
+        request_json['applied_tax'] = []
+        request_json['applied_discount'] = []
         console.log('odl',request_json)
         updateInvoiceItem(JSON.stringify(request_json)).then(data => {
             if (data['status']){
@@ -573,6 +590,192 @@ class PopUpEdit extends Component {
             'prop':'removeButton'
         },
     ]
+
+    
+    add_discount_columns =[
+        {
+            'id':1,
+            'name':'Name',
+            'prop':'name'
+        },{
+            'id':2,
+            'name':'Rate',
+            'prop':'rate'
+        },{
+            'id':3,
+            'name':'Code',
+            'prop':'code'
+        },{
+            'id':4,
+            'name':'Type',
+            'prop':'discount_type'
+        }
+    ]
+
+    add_tax_columns =[
+        {
+            'id':1,
+            'name':'Name',
+            'prop':'name'
+        },{
+            'id':2,
+            'name':'Rate',
+            'prop':'rate'
+        },{
+            'id':3,
+            'name':'Code',
+            'prop':'code'
+        },{
+            'id':4,
+            'name':'Type',
+            'prop':'tax_type'
+        }
+    ]
+
+    async update_table (by,dis) {
+        var x = by<0?-1:1
+        if (dis){
+            if (by===0){
+                await this.setState({
+                    'discoount_loaded':false,
+                    discount_start: 0,
+                    discount_end: 10,
+                    discount_page:1
+                })
+            }
+            else{
+                if (this.state.discount_start+by>-1){
+                    await this.setState({
+                        'discount_loaded':false,
+                        discount_start: this.state.discount_start+by,
+                        discount_end: this.state.discount_end+by,
+                        discount_page:this.state.discount_page+x
+                    })
+                }
+                else{
+                    alert("Cannot move futher from here.")
+                    return
+                }
+            }
+            var  request_json = {
+                'action':'get',
+                'filter':'none',
+                'start':this.state.discount_start,
+                'end':this.state.discount_end
+            }
+            this.getDiscountsData(request_json)
+        }
+    else { 
+        if (by===0){
+            await this.setState({
+                'tax_loaded':false,
+                tax_start: 0,
+                tax_end: 10,
+                tax_page:1
+            })
+        }
+        else{
+            if (this.state.tax_start+by>-1){
+                await this.setState({
+                    'tax_loaded':false,
+                    tax_start: this.state.tax_start+by,
+                    tax_end: this.state.tax_end+by,
+                    tax_page:this.state.tax_page+x
+                })
+            }
+            else{
+                alert("Cannot move futher from here.")
+                return
+            }
+        }
+        var  request_json = {
+            'action':'get',
+            'filter':'none',
+            'start':this.state.tax_start,
+            'end':this.state.tax_end
+        }
+        this.getTaxesData(request_json)
+
+    }
+    }
+    
+    async getDiscountsData (request_json) {
+        await getDiscounts(JSON.stringify(request_json)).then(data => {
+            console.log(data)
+            if (data['status']){
+                this.setState({
+                    'discount_selection':data['discounts'],
+                    'discount_loaded':true
+                })
+            }  
+        })
+    }
+    async getTaxesData (request_json) {
+        await getTaxes(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                this.setState({
+                    'tax_selection':data['taxes'],
+                    'tax_loaded':true
+                })
+            }  
+        })
+    }
+ 
+    addEntryDiscount(id){
+        var dis;
+        for (dis in this.state.discount_selection){
+            if (this.state.discount_selection[dis].id === id){
+                var temp = this.state.update.invoice_items[this.state.current]['applied_discount']
+                var x = this.state.discount_selection[dis]
+                temp.push(x)
+                var temp2 = this.state.update.invoice_items[this.state.current]['discount']
+                temp2.push(id)
+                this.setState({
+                    ...this.state,
+                    update:{
+                        ...this.state.update,
+                        'invoice_items':{
+                            ...this.state.update.invoice_items,
+                            [this.state.current] : {
+                                ...this.state.update.invoice_items[this.state.current],
+                                'discount':temp2,
+                                'applied_discount': temp
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    addEntryTax(id){
+        var dis;
+        for (dis in this.state.tax_selection){
+            if (this.state.tax_selection[dis].id === id){
+                var temp = this.state.update.invoice_items[this.state.current]['applied_tax']
+                var x = this.state.tax_selection[dis]
+                temp.push(x)
+                var temp2 = this.state.update.invoice_items[this.state.current]['taxes']
+                temp2.push(id)
+                this.setState({
+                    ...this.state,
+                    update:{
+                        ...this.state.update,
+                        'invoice_items':{
+                            ...this.state.update.invoice_items,
+                            [this.state.current] : {
+                                ...this.state.update.invoice_items[this.state.current],
+                                'tax':temp2,
+                                'applied_tax': temp
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+
     render() {
         const item_selection = this.state.item_selection
         const itemPopUp = <Popup trigger={ <button>Select Item</button>} closeOnDocumentClick>
@@ -609,6 +812,19 @@ class PopUpEdit extends Component {
                     )
                 )}
             </select>
+        const addPopupDiscount = <div>
+            <h3> Click To Apply New Discount</h3>
+                            <List data={this.state.discount_selection} header={this.add_discount_columns} page={false} popUp={this.addEntryDiscount} />
+                            <button onClick={()=> {this.update_table(-5,true)}}>Previous</button><span>      {this.state.discount_page}       </span><button  onClick={()=> {this.update_table(5,true)}} >Next</button>
+                        </div>
+        
+        const addPopupTax = <div>
+            <h3>Click To Apply New Tax </h3>
+                            <List data={this.state.tax_selection} header={this.add_tax_columns} page={false} popUp={this.addEntryTax} />
+                            <button onClick={()=> {this.update_table(-5,false)}}>Previous</button><span>      {this.state.tax_page}       </span><button  onClick={()=> {this.update_table(5,false)}} >Next</button>
+                        </div>
+        
+
         var dis;
         const discounts =this.state.update.invoice_items[this.state.current].applied_discount
         for (dis in discounts){
@@ -641,9 +857,10 @@ class PopUpEdit extends Component {
                 Total without discount : {this.state.update.invoice_items[this.state.current].total_without_discount}<br></br>
                 Total : {this.state.update.invoice_items[this.state.current].total}<br></br>
                 <br></br>
-                Applied Discounts : :<List data={discounts} header={this.discount_columns} page={false} popUp={this.popUp} removeEntry={this.removeEntry} /><button>Apply New Discount</button> <br></br><br></br>
-                
-                Applied Taxes : :<List data={taxes} header={this.tax_columns} page={false} popUp={this.popUp} removeEntry={this.removeEntry} /><br></br><button>Apply New Tax</button><br></br><br></br>
+                Applied Discounts : :<List data={discounts} header={this.discount_columns} page={false} popUp={this.popUp} removeEntry={this.removeEntry} /><button onClick={() =>{this.update_table(0, true)}} >Apply New Discount</button> <br></br><br></br>
+                {this.state.discount_loaded ? addPopupDiscount : <span></span>}<br></br>
+                Applied Taxes : :<List data={taxes} header={this.tax_columns} page={false} popUp={this.popUp} removeEntry={this.removeEntry} /><br></br><button onClick={() => {this.update_table(0, false)}}>Apply New Tax</button><br></br><br></br>
+                {this.state.tax_loaded ? addPopupTax : <span></span>}<br></br>
                 {this.state.new ? <button onClick={() => {this.postInvoiceItem(true)}} >Add</button> : <button onClick={() => {this.postInvoiceItem()}} >Update</button>}<br></br><br></br>
                 <button onClick={() => {this.deleteInvoiceItem()}} >Delete</button>
             </div>
