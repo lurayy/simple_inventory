@@ -123,10 +123,6 @@ class Index extends Component {
                     <Route path='/places/create' component= {PlaceCreation}></Route>
                     <Route path='/places' component= {Places}></Route>
 
-
-                    
-
-                    
                     </Switch>
             </Router>
         </div>

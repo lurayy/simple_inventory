@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {getPlaces} from '../../api//inventory/placeApi';
+import {getPlaces} from '../../api/inventory/placeApi';
 import {  connect } from 'react-redux';
 import  PlaceList  from './placeList';
 import { Link} from 'react-router-dom';

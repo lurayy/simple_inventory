@@ -707,12 +707,6 @@ def assign_place(request):
         'place_id':1,
         'purchase_item':3,
     }
-    edit quantity in the placement 
-    {
-        'action':'edit',
-        'id':3,
-        'stock':3        
-    }
     '''    
     response_json = {'status':''}
     if request.method == "POST":
@@ -736,7 +730,6 @@ def assign_place(request):
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if data_json['action'] == 'edit':
-                placement = Placement.objects.get(id= int(data_json['id']))
                 placement.stock = int(data_json['quantity'])
                 placement.save()
                 response_json['status'] = True
