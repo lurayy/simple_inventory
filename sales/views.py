@@ -103,7 +103,7 @@ def invoices(request):
                 invoice.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -134,7 +134,14 @@ def invoice(request):
             data_json = json.loads(json_str)
             response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
             if data_json['action'] == "edit":
+                new_status = InvoiceStatus.objects.get(id=data_json['status']) 
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
+                
+                if (new_status == invoice.status and invoice.status.is_sold ==True):
+                    raise Exception("Cannot Edit Invoice Or Invoice Item if it's already sold.")
+                elif (new_status != invoice.status):
+                    invoice.status = new_status
+                    invoice.save()
                 invoice.customer = Customer.objects.get(id=int(data_json['customer']))
                 invoice.invoiced_on = str_to_datetime(data_json['invoiced_on'])
                 invoice.due_on = str_to_datetime(data_json['due_on'])
@@ -149,7 +156,7 @@ def invoice(request):
                 response_json['invoice_items'] = invoice_items_to_json(InvoiceItem.objects.filter(invoice=invoice))
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -177,7 +184,7 @@ def delete_invoices(request):
                 invoice.save()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -241,7 +248,7 @@ def customers(request):
                     response_json['customers'] = customers_to_json(customers)
                     response_json['status'] = True
                     return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -269,7 +276,7 @@ def delete_customers(request):
                 customer.save()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -321,7 +328,7 @@ def customer(request):
                 response_json['customers'] = customers_to_json([customer])
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -368,7 +375,7 @@ def invoice_items(request):
                 invoice_item.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
@@ -398,7 +405,10 @@ def invoice_item(request):
             data_json = json.loads(json_str)
             response_json = {}
             if data_json['action'] == "edit":
+                
                 invoice_item = InvoiceItem.objects.get(id=data_json["invoice_item_id"])
+                if(invoice_item.invoice.status.is_sold):
+                    raise Exception("Cannot edit item's that are already sold.")
                 invoice_item.item = Item.objects.get(id=int(data_json['item']))
                 invoice_item.purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item']))
                 invoice_item.sold_from = Place.objects.get(id=int(data_json['sold_from']))
@@ -423,7 +433,7 @@ def invoice_item(request):
                 response_json['invoice_items'] = invoice_items_to_json([invoice_item])
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -449,7 +459,7 @@ def delete_invoice_items(request):
                 invoice_item.save()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -480,7 +490,7 @@ def discounts(request):
                     response_json['discounts'] = discounts_to_json(discounts)
                     response_json['status'] = True
                     return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -507,7 +517,7 @@ def discount(request):
                 discount.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
@@ -524,7 +534,7 @@ def delete_discount(request):
             discount.save()
         response_json['status'] = True
         return JsonResponse(response_json)
-    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -553,7 +563,7 @@ def taxes(request):
                     response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
                     return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -565,7 +575,6 @@ def tax(request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            print(data_json)
             if data_json['action'] == "get":
                 taxes = Tax.objects.get(is_active=True, id = data_json['tax_id'])
                 response_json['taxes'] = taxes_to_json([taxes])
@@ -581,7 +590,7 @@ def tax(request):
                 tax.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
@@ -598,7 +607,7 @@ def delete_taxes(request):
             tax.save()
         response_json['status'] = True
         return JsonResponse(response_json)
-    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist) as exp:
+    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 

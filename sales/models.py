@@ -96,14 +96,15 @@ def tranction_handler(sender, instance, **kwargs):
         if instance.status.is_sold==True:
             sales_sub(instance)
     else:
+        print('triggered')
         old_status = Invoice.objects.get(id=instance.id).status
         if instance.status != old_status:
-            if old_status.is_sold !=True: 
+            if old_status.is_sold == False: 
                 if instance.status.is_sold == True:
                     print("sales done")
                     sales_sub(instance)
             if old_status.is_sold == True:
-                if instance.status != True:
+                if instance.status == False:
                     print("sales revert back")
                     sales_add(instance)
     instance.total_amount = 0

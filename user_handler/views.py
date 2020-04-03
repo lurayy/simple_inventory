@@ -56,7 +56,7 @@ def user_login(request):
                 else:
                     response_json = {'status':False, 'msg':'Username or Password is not correct.'}
                     return JsonResponse(response_json)
-    except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+    except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -142,7 +142,7 @@ def users(request):
                 response_json['users'] = get_users_data(int(data_json['start']), int(data_json['end']))
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     response_json = {'status':'', 'users':[]}
     response_json['users'] = get_users_data(0,10)
@@ -205,7 +205,7 @@ def s_user(request):
                     user.user_type = data_json['user_type']
                 user.save()
                 return JsonResponse({'status':True, 'msg':f'Change is made to {user.username}. Change Type: {data_json["action"]}'})
-        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 

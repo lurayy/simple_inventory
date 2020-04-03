@@ -23,7 +23,6 @@ const List = (props) => {
   const headers = props.header
   const rows = props.data
   var temp;
-  console.log("list props: ",props)
   const pagination = <div>
     <h4>Page: {props.page}</h4>
     <button onClick={() => {props.update(-10)}}>Pervious</button><button onClick={() => {props.update(10)}}>Next</button>

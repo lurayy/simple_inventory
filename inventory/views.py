@@ -207,7 +207,7 @@ def delete_purchase_orders(request):
                     p_item.save()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -273,7 +273,7 @@ def vendors(request):
                     if response_json['vendors']:
                         response_json['status'] = True
                     return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -301,7 +301,7 @@ def delete_vendors(request):
                 vendor.save()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
@@ -356,7 +356,7 @@ def vendor(request):
                 response_json['vendors'] = vendors_to_json([vendor])
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 ######################################## Items ########################################
@@ -404,7 +404,7 @@ def items(request):
                 item.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -440,7 +440,7 @@ def item(request):
                 response_json['items'] = items_to_json([item])
                 response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -466,7 +466,7 @@ def delete_items(request):
                 item.save()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -506,7 +506,7 @@ def item_catagories(request):
                 catagory.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -538,7 +538,7 @@ def item_catagory(request):
                 response_json['item_catagories'] = item_catagories_to_json([item_catagory])
                 response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
@@ -628,7 +628,7 @@ def places(request):
                 place.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -658,7 +658,7 @@ def place(request):
                 response_json['places'] = places_to_json([place])
                 response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 @login_required
@@ -741,7 +741,7 @@ def assign_place(request):
                 placement.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
@@ -863,7 +863,7 @@ def delete_purchase_items(request):
                 z.delete()
             response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 

@@ -68,6 +68,9 @@ class Invoices extends Component {
                     'invoices':data['invoices'],
                     'loaded':true
                 })
+            }
+            else{
+                alert(data['error'])
             }  
         })
     }
