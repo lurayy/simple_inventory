@@ -1,36 +1,11 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
-// import { useSelector, useDispatch } from 'react-redux'
 import { getCurrentUser } from '../api/user';
 import { loggedIn } from '../actions';
-import Login from './users/login';
-import Logout from './users/logout';
-import VendorCreation from './vendors/vendorCreation';
-import UserCreation from './users/userCreation';
-import { BrowserRouter as Router, Switch , Route, Link} from 'react-router-dom';
-import Users from './users';
-import Vendors from './vendors/index';
-import Customers from './customer/index';
-import CustomerCreation from './customer/customerCreation'
 import swal from 'sweetalert';
-import PurchaseOrders from './purchaseOrder/index'
-import PurchaseOrderCreation from './purchaseOrder/purchaseOrderCreation'
-import Invoices from './invoices/index';
-import InvoiceCreation from './invoices/invoiceCreation';
-import Discounts from './discounts/index';
-import DiscountCreation from './discounts/discountCreation'
-
-import Taxes from './taxes/index';
-import TaxCreation from './taxes/taxCreation'
-
-import Items from './items/index'
-import ItemCreation from './items/itemCreation'
-
-import ItemCatagories from './itemCatagories/index';
-import ItemCatagoryCreation from './itemCatagories/itemCreation';
-
-import Places from './placement/index'
-import PlaceCreation from './placement/placeCreation'
+import Dashboard from './dashboard'
+import CircularDeterminate from './loading'
+import Login from './users/login'
 
 class Index extends Component {
     constructor (props){
@@ -39,14 +14,21 @@ class Index extends Component {
             'loading':true
         }
     }
+    
+    
+
     async componentDidMount() { 
         await getCurrentUser().then(data => {
             if (data){
+              
+              console.log(data)
                 if (data['status'])
                 {
                     this.props.dispatch(loggedIn(data['user_data']))
                 }
-                this.state.loading=false
+                this.setState({
+                  'loading':false
+                })
             }
             else{
                 swal('Cannot connet to the server, make sure you have a stable internet connection.')
@@ -54,82 +36,24 @@ class Index extends Component {
         })
     }
     render() {
-        var log;
-        if (this.props.user.isLoggedIn){
-            log = (
-                    <div>
-                        <Link to='/logout'>Logout</Link><br></br>
-                        <Link to='/users'>Users</Link><br></br>
-                        <br></br>
-                        <Link to='/vendors'>Vendors</Link><br></br>
-                        <Link to='/customers'>Customers</Link><br></br>
-                        <Link to='/taxes'>Taxes</Link><br></br>
-                        <Link to='/discounts'>Discounts</Link><br></br>
-                        <Link to='/items'>Item Management</Link><br></br>
-                        <Link to='/itemcatagories'>Item Catagory</Link><br></br>
-                        <Link to='/places'>Places</Link><br></br>
-                        <br></br>
-                        <Link to='/purchaseorders'>Purchase Orders</Link><br></br>
-                        <Link to='/invoices'>Invoices</Link><br></br>
-                        <br></br>
-                        <hr></hr>
-                    </div>                    
-                    )
+        var render_x=<CircularDeterminate></CircularDeterminate>;
+        if(this.state.loading){
+          render_x = <CircularDeterminate></CircularDeterminate>
+        }
+        else{
+          if (this.props.user.isLoggedIn){
+            render_x = <Dashboard></Dashboard>
           }
           else{
-            log =  (
-                <div>
-                    <Link to='/login'>Login</Link>
-                </div>
-                )
+            render_x = <Login></Login>
           }
-          var render_x
-            render_x = <div>
-            <Router>
-                <Link to='/'>
-                    Home
-                </Link><br></br>
-                {log}
-                    <Switch>
-                    <Route path='/login' component={Login}></Route>
-                    <Route path='/logout' component={Logout}></Route>
-                    <Route path='/users/create' component = {UserCreation}></Route>
-                    <Route path='/users' component = {Users}></Route>
-                    <Route path='/vendors/create' component = {VendorCreation}></Route>
-                    <Route path='/vendors' component = {Vendors}></Route>
-                    
-                    <Route path='/customers/create' component = {CustomerCreation}></Route>
-                    <Route path='/customers' component = {Customers}></Route>
-                    <Route path='/purchaseorders/create' component = {PurchaseOrderCreation}></Route>
-                    <Route path='/purchaseorders' component = {PurchaseOrders}></Route>
-                    
-                    <Route path='/invoices/create' component = {InvoiceCreation}></Route>
-                    <Route path='/invoices' component = {Invoices}></Route>
-
-                    <Route path='/discounts/create' component= {DiscountCreation}></Route>
-                    <Route path='/discounts' component= {Discounts}></Route>
-
-                    
-                    <Route path='/taxes/create' component= {TaxCreation}></Route>
-                    <Route path='/taxes' component= {Taxes}></Route>
-                    
-                    <Route path='/items/create' component= {ItemCreation}></Route>
-                    <Route path='/items' component= {Items}></Route>
-
-                    <Route path='/itemcatagories/create' component= {ItemCatagoryCreation}></Route>
-                    <Route path='/itemcatagories' component= {ItemCatagories}></Route>
-
-
-                    <Route path='/places/create' component= {PlaceCreation}></Route>
-                    <Route path='/places' component= {Places}></Route>
-
-                    </Switch>
-            </Router>
-        </div>
+        }
+        
         return (
-         <div>
-             {render_x}
-         </div>   
+          <div>
+            {render_x}
+          </div>
+          
         )
     }
 }

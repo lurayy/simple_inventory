@@ -29,7 +29,7 @@ class Login extends Component {
     }
     componentDidMount() {
         if (this.props.current_state.user.isLoggedIn === true){
-            this.props.history.push('/')
+          window.location.href="/"
         }
     }
     onChange(e)
@@ -45,19 +45,17 @@ class Login extends Component {
         loginUser(JSON.stringify(data)).then(data => {
             try{
                 if (data['status']){
-                    
                     getCurrentUser().then(data => {
                         this.props.dispatch(loggedIn(data['user_data']))
                     })
-                    this.props.history.push('/')
-                }else if ((this.state.username==="" && this.state.password==="")|
+                    window.location.href="/"
+                  }else if ((this.state.username==="" && this.state.password==="")|
                 (this.state.username==="" || this.state.password==="")){
                         this.setState((state) => {
                             return {status: "Username and password empty"};
                           });
                 }
                 else if (data['status']=== false){
-                    
                     this.setState((state) => {
                         return {status: data['msg']};
                       });
