@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function CircularDeterminate() {
+export default function LoadingIcon() {
   const classes = useStyles();
   const [progress, setProgress] = React.useState(0);
 
@@ -38,7 +38,7 @@ export default function CircularDeterminate() {
     direction="column"
     alignItems="center"
     justify="center"
-    style={{ minHeight: '100vh', background:'black' }}
+    style={{ minHeight: '100vh' }}
   >
   
     <Grid item xs={3}>

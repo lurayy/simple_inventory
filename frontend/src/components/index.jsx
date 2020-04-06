@@ -4,7 +4,7 @@ import { getCurrentUser } from '../api/user';
 import { loggedIn } from '../actions';
 import swal from 'sweetalert';
 import Dashboard from './dashboard'
-import CircularDeterminate from './loading'
+import LoadingIcon from './loading'
 import Login from './users/login'
 
 class Index extends Component {
@@ -36,9 +36,9 @@ class Index extends Component {
         })
     }
     render() {
-        var render_x=<CircularDeterminate></CircularDeterminate>;
+        var render_x=<LoadingIcon></LoadingIcon>;
         if(this.state.loading){
-          render_x = <CircularDeterminate></CircularDeterminate>
+          render_x = <LoadingIcon></LoadingIcon>
         }
         else{
           if (this.props.user.isLoggedIn){

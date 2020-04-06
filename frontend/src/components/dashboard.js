@@ -53,6 +53,7 @@ import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 import FeaturedPlayListIcon from '@material-ui/icons/FeaturedPlayList';
 import SettingsIcon from '@material-ui/icons/Settings';
 
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -135,7 +136,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Dashboard() {
+function Dashboard() {
+  
+
+
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const handleDrawerOpen = () => {
@@ -143,6 +147,7 @@ export default function Dashboard() {
   };
   const handleDrawerClose = () => {
     setOpen(false);
+
   };
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
@@ -163,7 +168,7 @@ export default function Dashboard() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+          <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title} onClick={()=> {window.location.href="/"}} button>
             Mandala IMS
           </Typography>
           <IconButton color="inherit"  onClick={()=> {window.location.href="/logout"}}>
@@ -190,7 +195,7 @@ export default function Dashboard() {
         <Router>
         <Divider />
         <List>
-    <ListItem button onClick={()=> {window.location.href="/"}} >
+    <ListItem button onClick={()=> {window.location.href="/"}}>
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>
@@ -303,3 +308,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export default Dashboard

@@ -7,6 +7,8 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Pagination from '@material-ui/lab/Pagination';
+import Grid from '@material-ui/core/Grid'
 
 const useStyles = makeStyles({
   table: {
@@ -23,10 +25,12 @@ const List = (props) => {
   const headers = props.header
   const rows = props.data
   var temp;
-  const pagination = <div>
-    <h4>Page: {props.page}</h4>
-    <button onClick={() => {props.update(-10)}}>Pervious</button><button onClick={() => {props.update(10)}}>Next</button>
-  </div>
+
+  // const pagination = <div>
+  //   <h4>Page: {props.page}</h4>
+  //   <button onClick={() => {props.update(-10)}}>Pervious</button><button onClick={() => {props.update(10)}}>Next</button>
+  // </div>
+const pagination =       <Pagination count={10} variant="outlined" color="secondary" />
 
   return (
       <div>
@@ -36,7 +40,7 @@ const List = (props) => {
             <TableRow>
                 {headers.map(
                     header =>(
-                    <TableCell key={header.id}>{header.name}</TableCell>
+                    <TableCell key={header.id}><b>{header.name}</b></TableCell>
                     )
                 )}
             </TableRow>
@@ -59,7 +63,12 @@ const List = (props) => {
         </Table>
       </TableContainer>
     <br></br>
+    <Grid container justify="center" alignItems="center">
+    <Grid item xs={6}>
     {page ? pagination : <span></span>}
+    </Grid>
+    </Grid>
+    <br></br>
     </div>
   );
 }

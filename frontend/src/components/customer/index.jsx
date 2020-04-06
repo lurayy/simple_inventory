@@ -3,6 +3,27 @@ import {getCustomers} from '../../api/sales/customer';
 import {  connect } from 'react-redux';
 import  CustomerList  from './customerList';
 import { Link} from 'react-router-dom';
+import Button from '@material-ui/core/Button';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import LoadingIcon from '../loading';
+
+const styles = makeStyles((theme) => ({
+    root: {
+    flexGrow: 12,
+    },
+    paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    },
+}));
+
 
 class Customers extends Component {
     constructor(props){
@@ -71,6 +92,8 @@ class Customers extends Component {
  
 
 render() {
+    const { classes } = this.props;
+
     const render_after_load = (
         <div>
             <CustomerList data={this.state.customers} update={this.update_table} page={this.state.page} />
@@ -78,12 +101,32 @@ render() {
     )
 
     return(
-        <div>
-            
-            <Link to='/customers/create'>Add New Customer</Link><br></br>
-            <button onClick={() => {this.update_table(0)}}>Refresh table</button><br></br>
-            {this.state.loaded ? render_after_load : "Loading..."}
-        </div>
+        <div className={classes.root}>
+      <Grid container spacing={3} container justify="center" alignItems="center">
+          <Grid item xs={3} >
+          <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
+            <RefreshIcon/>&nbsp;&nbsp;&nbsp;Refresh Table
+            </Button>
+          </Grid>
+          <Grid item xs={5} >
+
+          </Grid>
+            <Grid item justify='right' xs={3}>
+            <Link to='/customers/create' style={{ textDecoration: 'none' }}>
+            <Button variant="contained" color="secondary">
+            <AddCircleIcon/>&nbsp;&nbsp;&nbsp;Add New Customers
+            </Button>
+            </Link>
+            </Grid>
+
+        <Grid item xs={12}>
+          <Paper className={classes.paper}>
+          {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
+          </Paper>
+        </Grid>
+        
+      </Grid>
+    </div>
     )
 }
 }
@@ -91,8 +134,13 @@ render() {
 
 
 
+
+Customers.propTypes = {
+    classes: PropTypes.object.isRequired,
+  };
+
 const mapStateToProps = state => ({
     user: state.user,
 })
 
-export default connect(mapStateToProps)(Customers)
+export default withStyles(styles)(connect(mapStateToProps)(Customers))
