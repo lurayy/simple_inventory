@@ -9,12 +9,10 @@ import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import Login from './users/login';
 import Logout from './users/logout';
 import VendorCreation from './vendors/vendorCreation';
@@ -40,6 +38,7 @@ import ItemCatagoryCreation from './itemCatagories/itemCreation';
 import Places from './placement/index'
 import PlaceCreation from './placement/placeCreation'
 
+import { useSelector } from "react-redux";
 
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -128,6 +127,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     display: 'flex',
     overflow: 'auto',
+    textAlign: 'center',
     flexDirection: 'column',
   },
   fixedHeight: {
@@ -146,6 +146,9 @@ export default function Dashboard() {
   };
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
+  const user = useSelector(state => state.user);
+
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -161,7 +164,7 @@ export default function Dashboard() {
             <MenuIcon />
           </IconButton>
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            Dashboard
+            Mandala IMS
           </Typography>
           <IconButton color="inherit"  onClick={()=> {window.location.href="/logout"}}>
           <ExitToAppIcon/>
@@ -176,6 +179,10 @@ export default function Dashboard() {
         open={open}
       >
         <div className={classes.toolbarIcon}>
+          <Typography>
+            {user.data.first_name} <span>  </span> {user.data.last_name}<br></br>
+            {user.data.user_type}
+          </Typography>
           <IconButton onClick={handleDrawerClose}>
             <ChevronLeftIcon />
           </IconButton>
@@ -253,8 +260,8 @@ export default function Dashboard() {
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
 
-          <Grid container>
-            <div>
+          <Grid container direction="row" justify="center">
+            <Grid item xs={12} >
             <Router>
             <Switch>
                     <Route path='/login' component={Login}></Route>
@@ -289,8 +296,7 @@ export default function Dashboard() {
                     <Route path='/places' component= {Places}></Route>
                     </Switch>
             </Router>
-            </div>
-            
+            </Grid>            
           </Grid>
         </Container>
       </main>

@@ -21,6 +21,7 @@ class Customers extends Component {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
         }
+        this.update_table(0)
     }
 
     async update_table (by) {
@@ -78,6 +79,7 @@ render() {
 
     return(
         <div>
+            
             <Link to='/customers/create'>Add New Customer</Link><br></br>
             <button onClick={() => {this.update_table(0)}}>Refresh table</button><br></br>
             {this.state.loaded ? render_after_load : "Loading..."}
