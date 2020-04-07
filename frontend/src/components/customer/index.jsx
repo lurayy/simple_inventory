@@ -102,13 +102,13 @@ render() {
 
     return(
         <div className={classes.root}>
-      <Grid container spacing={3} container justify="center" alignItems="center">
+      <Grid container spacing={3} justify="center" alignItems="center">
           <Grid item xs={3} >
           <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
             <RefreshIcon/>&nbsp;&nbsp;&nbsp;Refresh Table
             </Button>
           </Grid>
-          <Grid item xs={5} >
+          <Grid item xs={5}>
 
           </Grid>
             <Grid item xs={3}>
