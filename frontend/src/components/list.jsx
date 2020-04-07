@@ -7,8 +7,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Pagination from '@material-ui/lab/Pagination';
 import Grid from '@material-ui/core/Grid'
+import IconButton from '@material-ui/core/IconButton';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 
 const useStyles = makeStyles({
   table: {
@@ -25,12 +27,23 @@ const List = (props) => {
   const headers = props.header
   const rows = props.data
   var temp;
+  var no_data=false
+  if (rows.length === 0){
+    no_data=true
+  } 
 
-  // const pagination = <div>
-  //   <h4>Page: {props.page}</h4>
-  //   <button onClick={() => {props.update(-10)}}>Pervious</button><button onClick={() => {props.update(10)}}>Next</button>
-  // </div>
-const pagination =       <Pagination count={10} variant="outlined" color="secondary" />
+
+  const pagination = <div>
+    <IconButton color="secondary" onClick={() => {props.update(-10)}} aria-label="pervious-button">
+      <NavigateBeforeIcon />
+    </IconButton><b>
+    Page: {props.page}</b>
+    {no_data? <IconButton color="secondary" onClick={() => {props.update(10)}} aria-label="pervious-button" disabled>
+      <NavigateNextIcon />
+    </IconButton> : <IconButton color="secondary" onClick={() => {props.update(10)}} aria-label="pervious-button">
+      <NavigateNextIcon />
+    </IconButton>}
+  </div>
 
   return (
       <div>
@@ -62,11 +75,17 @@ const pagination =       <Pagination count={10} variant="outlined" color="second
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Grid container justify="center" alignItems="center">
+    <Grid item xs={"auto"}>
+    {no_data ? <h2>No More Data Available</h2> : <span></span>}
+    </Grid>
+    </Grid>
     <br></br>
     <Grid container justify="center" alignItems="center">
-    <Grid item xs={6}>
+    <Grid item xs={"auto"}>
     {page ? pagination : <span></span>}
-    </Grid>
+    </Grid>    
     </Grid>
     <br></br>
     </div>

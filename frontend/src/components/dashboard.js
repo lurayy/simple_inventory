@@ -37,6 +37,7 @@ import ItemCatagories from './itemCatagories/index';
 import ItemCatagoryCreation from './itemCatagories/itemCreation';
 import Places from './placement/index'
 import PlaceCreation from './placement/placeCreation'
+import Button from '@material-ui/core/Button';
 
 import { useSelector } from "react-redux";
 
@@ -168,7 +169,7 @@ function Dashboard() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title} onClick={()=> {window.location.href="/"}} button>
+          <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             Mandala IMS
           </Typography>
           <IconButton color="inherit"  onClick={()=> {window.location.href="/logout"}}>
