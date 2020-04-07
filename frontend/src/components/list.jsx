@@ -28,15 +28,22 @@ const List = (props) => {
   const rows = props.data
   var temp;
   var no_data=false
+  var back=true
   if (rows.length === 0){
     no_data=true
   } 
+  if (props.page === 1){
+    back = false
+  }
 
 
   const pagination = <div>
-    <IconButton color="secondary" onClick={() => {props.update(-10)}} aria-label="pervious-button">
+    {back? <IconButton color="secondary" onClick={() => {props.update(-10)}} aria-label="pervious-button">
       <NavigateBeforeIcon />
-    </IconButton><b>
+    </IconButton> : <IconButton color="secondary" onClick={() => {props.update(-10)}} aria-label="pervious-button" disabled>
+      <NavigateBeforeIcon />
+    </IconButton>}
+    <b>
     Page: {props.page}</b>
     {no_data? <IconButton color="secondary" onClick={() => {props.update(10)}} aria-label="pervious-button" disabled>
       <NavigateNextIcon />

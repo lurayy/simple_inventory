@@ -1,154 +1,228 @@
 import React, { Component } from 'react'
+
+import { createCustomer} from '../../api/sales/customer';
+import {Button, TextField, Grid, Paper, withStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
 import {  connect } from 'react-redux';
-import {Button, TextField } from '@material-ui/core';
-import { createCustomer } from '../../api/sales/customer';
+
+import {FormControl, InputLabel, Input, FormHelperText} from '@material-ui/core'
+import Swal from 'sweetalert2'
+
+const styles = makeStyles((theme) => ({
+    root: {
+    flexGrow: 12,
+    },
+    paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    },
+}));
 
 
 class CustomerCreation extends Component {
-
-    constructor (props){
+    
+    constructor(props){
         super(props)
-        this.onChange = this.onChange.bind(this);
-        this.onSubmit = this.onSubmit.bind(this);
         this.state = {
+            'customer':{},
             'update':{
-                'middle_name':[''],
-                'website':[''],
-                'phone2':[''],
-                'address':['']
+                'first_name':'',
+                'middle_name':'',
+                'last_name':'',
+                'email':'',
+                'phone1':'',
+                'website':'',
+                'phone2':'',
+                'address':'',
+                'tax_number':''
             }
         }
+        this.onChange = this.onChange.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
     }
-
+    
+    
     componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
         }
     }
-
-    
     onChange(e)
     {
         this.setState({
             'update': {
                 ...this.state.update,
-                [e.target.name] : [e.target.value]
+                [e.target.name] : [e.target.value][0]
             }
         })
     }
 
-
-    async onSubmit(e){
-        e.preventDefault();
-            var data = {...this.state.update}
-            var ele;
-            for (ele in this.state.update){
-                data[ele] = this.state.update[ele][0]
-            }
+    
+    async onSubmit(){
+            var data = this.state.update
             data = {...data, 'action':'add'}
             createCustomer(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New Customer Added")
+                        Swal.fire(
+                            'Updated!',
+                            'New Customer Has Been Added.',
+                            'success'
+                          )
                     }
                     else{
-                        alert(data['error'])
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })
                     }
                 }catch(e){
                     console.log(e)
                 }
             })
     }
-
     render() {
-        return (
-            <div>
-                <h1>Add New Vendor</h1>
-                <form onSubmit={this.onSubmit}>
-                            First Name: <TextField
-                                id ='first_name'
-                                name="first_name"
-                                type='text'
-                                onChange={this.onChange}  
-                                required                  
-                            />
-                            Middle Name : <TextField
-                                id ='middle_name'
-                                name="middle_name"
-                                type='text'
-                                onChange={this.onChange} 
-                            />
-                            Last Name  : <TextField
-                                id ='last_name'
-                                name="last_name"
-                                type='text'
-                                onChange={this.onChange}
-                                required 
-                            />
-                            <br></br>
-                            Email : <TextField
-                                id ='email'
-                                name="email"
-                                type='email'
-                                onChange={this.onChange}
-                                required 
-                            />
-                            <br></br>
-                            Website : <TextField
+         const popUpRender =
+         <div>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp; 
+        <Grid  container spacing={3} justify="center" alignContent='center' alignItems="center">
+            <Grid item xm={4}>
+            
+            </Grid>
+            <Grid item xs={4}>
+            <h1>Add New Customer</h1>
+            </Grid>
+            <Grid item xm={4}>
+            </Grid>
+        </Grid>
+
+        <Grid container  justify="center" alignContent='center' alignItems="center">
+        <Grid item xm={6}>
+            <Grid container spacing={3} justify="center" alignItems="center">
+                <Grid item xm={2} > 
+                <TextField required id="first_name" label="First Name" name='first_name' autoFocus/>
+                </Grid>
+                <Grid item xm={2}>
+                <TextField id="middle_name" label="Middle Name" name='middle_name'  onChange={this.onChange} />
+                </Grid>
+                <Grid item xm={2}>
+                <TextField required id="last_name" label="Last Name" name='last_name'  onChange={this.onChange} />
+                </Grid>
+            </Grid>
+            
+            <Grid container spacing={3}>
+                <Grid item xm={6} md={6}> 
+                <FormControl fullWidth required>
+                <InputLabel htmlFor="email">Email address</InputLabel>
+                <Input id="email" required name='email' fullWidth onChange={this.onChange}   />
+                </FormControl>
+                </Grid>
+                <Grid item xm={6} md={6}> 
+                 <TextField
                                 id ='website'
                                 name="website"
+                                label='Website'
                                 type='text'
-                                onChange={this.onChange}
+                                fullWidth
+                                onChange={this.onChange}                                
                             />
-                            <br></br>
-                            Tax Number : <TextField
-                                id ='tax_number'
-                                name="tax_number"
-                                type='number'
-                                onChange={this.onChange}
-                                required 
-                            />
-                            <br></br>
-                            Contact Number: <TextField
+
+               </Grid>
+            </Grid>
+
+
+            <Grid container spacing={3} >
+                
+                <Grid item xm={6} md={6}> 
+                <TextField
+                label="Primary Phone Number"
                                 id ='phone1'
                                 name="phone1"
-                                type='number'
-                                onChange={this.onChange}
-                                required 
+                                fullWidth
+                                required
+                                onChange={this.onChange}                                  
                             />
-                            <br></br>
-                            Contact Number 2 : <TextField
+                </Grid>
+                <Grid item xm={6} md={6}> 
+                 
+                <TextField
+                    label='Second Phone Number'
                                 id ='phone2'
                                 name="phone2"
-                                type='number'
-                                onChange={this.onChange}
+                                fullWidth
+                                onChange={this.onChange}                                
                             />
-                            <br></br>
-                            
-                            Addresss : <TextField
+
+               </Grid>
+            </Grid>
+
+
+            <Grid container spacing={3}>
+
+                <Grid item xm={6} md={6}> 
+                <TextField
                                 id ='address'
                                 name="address"
                                 type='text'
+                                label='Address'
+                                fullWidth
                                 onChange={this.onChange}
+                                required
                             />
-                            <br></br>
-                            <Button
+                </Grid>
+                <Grid item xm={6} md={6} > 
+                <TextField
+                                id ='tax_number'
+                                name="tax_number"
+                                type='number'
+                                fullWidth
+                                label='Tax Number'
+                                onChange={this.onChange}  
+                                required                              
+                            />
+               </Grid>
+            </Grid>
+            <Grid container spacing={3}  alignItems='flex-end'>
+
+                <Grid item xm={3} md={6}> 
+                <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
+                                onClick={()=>{this.onSubmit()}}
                                 >
-                                Update
+                                Add
                                 </Button>
-                        
-                </form>
+                </Grid>
+                <Grid item xm={3} md={6}> 
+                
+               </Grid>
+            </Grid>
+        </Grid>
+        </Grid><br></br>
+        </div>
+        return (
+            <div>
+                {popUpRender}
             </div>
         )
     }
 }
+
+CustomerCreation.propTypes = {
+    classes: PropTypes.object.isRequired,
+  };
 
 
 const mapStateToProps = state => ({
     user: state.user
 })
 
-export default connect(mapStateToProps)(CustomerCreation)
+export default withStyles(styles)(connect(mapStateToProps)(CustomerCreation))
