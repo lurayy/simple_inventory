@@ -4,6 +4,29 @@ import {  connect } from 'react-redux';
 import  DiscountList  from './discountList';
 import { Link} from 'react-router-dom';
 
+import Button from '@material-ui/core/Button';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import LoadingIcon from '../loading';
+
+
+const styles = makeStyles((theme) => ({
+    root: {
+    flexGrow: 12,
+    },
+    paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    },
+}));
+
+
 class Discounts extends Component {
     constructor(props){
         super(props)
@@ -21,7 +44,9 @@ class Discounts extends Component {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
         }
+        this.update_table(0)
     }
+
 
     async update_table (by) {
         var x = by<0?-1:1
@@ -70,6 +95,8 @@ class Discounts extends Component {
  
 
 render() {
+    const { classes } = this.props;
+
     const render_after_load = (
         <div>
             <DiscountList data={this.state.discounts} update={this.update_table} page={this.state.page} />
@@ -77,21 +104,44 @@ render() {
     )
 
     return(
-        <div>
-            <Link to='/discounts/create'>Add New Discount</Link><br></br>
-            <button onClick={() => {this.update_table(0)}}>Refresh table</button><br></br>
-            {this.state.loaded ? render_after_load : "Loading..."}
-
-        </div>
+        <div className={classes.root}>
+        <Grid container spacing={3} justify="center" alignItems="center">
+            <Grid item xs={3} >
+            <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
+              <RefreshIcon/>&nbsp;&nbsp;&nbsp;Refresh Table
+              </Button>
+            </Grid>
+            <Grid item xs={5}>
+  
+            </Grid>
+              <Grid item xs={3}>
+              <Link to='/discounts/create' style={{ textDecoration: 'none' }}>
+              <Button variant="contained" color="secondary">
+              <AddCircleIcon/>&nbsp;&nbsp;&nbsp;Add New Discount
+              </Button>
+              </Link>
+              </Grid>
+  
+          <Grid item xs={12}>
+            <Paper className={classes.paper}>
+            {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
+            </Paper>
+          </Grid>
+          
+        </Grid>
+      </div>
     )
 }
 }
 
 
 
+Discounts.propTypes = {
+    classes: PropTypes.object.isRequired,
+  };
 
 const mapStateToProps = state => ({
     user: state.user,
 })
 
-export default connect(mapStateToProps)(Discounts)
+export default withStyles(styles)(connect(mapStateToProps)(Discounts))

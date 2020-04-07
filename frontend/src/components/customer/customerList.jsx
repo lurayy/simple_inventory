@@ -158,8 +158,6 @@ class CustomerList extends Component {
 
 
     render() {
-        const { classes } = this.props;
-
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
          const popUpRender =
          <div>

@@ -114,7 +114,7 @@ render() {
             <Grid item xs={3}>
             <Link to='/customers/create' style={{ textDecoration: 'none' }}>
             <Button variant="contained" color="secondary">
-            <AddCircleIcon/>&nbsp;&nbsp;&nbsp;Add New Customers
+            <AddCircleIcon/>&nbsp;&nbsp;&nbsp;Add New Customer
             </Button>
             </Link>
             </Grid>

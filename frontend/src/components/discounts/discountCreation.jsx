@@ -1,7 +1,33 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
-import {Button, TextField } from '@material-ui/core';
 import { createDiscount } from '../../api/misc';
+
+import {Button, TextField, Grid } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import Swal from 'sweetalert2'
+
+import { withStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
+
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
+
+
+const styles = makeStyles((theme) => ({
+    root: {
+    flexGrow: 12,
+    },
+    paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    },
+}));
+
 
 
 class DiscountCreation extends Component {
@@ -39,7 +65,6 @@ class DiscountCreation extends Component {
 
 
     async onSubmit(e){
-        e.preventDefault();
             var data = {...this.state.update}
             var ele;
             for (ele in this.state.update){
@@ -50,10 +75,17 @@ class DiscountCreation extends Component {
             createDiscount(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New DIscount type Added")
+                        Swal.fire(
+                            'Updated!',
+                            'Discounts details has been added.',
+                            'success'
+                          )
                     }
                     else{
-                        alert(data['error'])
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })
                     }
                 }catch(e){
                     console.log(e)
@@ -62,38 +94,71 @@ class DiscountCreation extends Component {
     }
 
     render() {
-            const popUpRender = <div>
-                        <form onSubmit={this.onSubmit}>
-                            Name: <TextField
-                                id ='name'
-                                name="name"
-                                type='text'
-                                onChange={this.onChange}  
-                            />
-                            Code : <TextField
-                                id ='code'
-                                name="code"
-                                type='text'
-                                onChange={this.onChange}
-                            />
-                             Discount Type :<select name='discount_type' id="discount_type" value={this.state.update.discont_type}  onChange={this.onChange}>
-                                    <option value="percent">Percentage</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                            Rate : <input  name="rate" id="rate" type='number' onChange={this.onChange} value={this.state.update.rate} ></input><br></br>
-                            <br></br>
-                            <Button
-                                type='submit'
-                                variant="contained"
-                                color="primary"
-                                >
-                                Create
-                            </Button>
-                </form>
-            
-                        <br>
-                        </br>
-                    </div>
+        const { classes } = this.props;
+
+        const popUpRender = <div>
+           &nbsp;
+           &nbsp;
+           &nbsp;
+           &nbsp;
+           &nbsp;
+           &nbsp; 
+       <Grid  container justify="center" alignContent='center' alignItems="center" spacing={3}>
+           <Grid item xm={4}>
+           
+           </Grid>
+           <Grid item xs={4}>
+           <h1>Add New Discounts</h1>
+           </Grid>
+           <Grid item xm={4}>
+           </Grid>
+       </Grid>
+
+       <Grid container  justify="center" alignContent='center' alignItems="center"   direction={'column'} spacing={10}>
+       <Grid item xm={6}>
+           <Grid container spacing={3} justify="center" alignItems="center">
+               <Grid item xm={2} > 
+               <TextField required id="name" label="Name" name='name' defaultValue={this.state.update.name} onChange={this.onChange} autoFocus/>
+               </Grid>
+               <Grid item xm={2}>
+               <TextField required id="code" label="code" name='code' defaultValue={this.state.update.code} onChange={this.onChange} />
+               </Grid>
+           </Grid>
+           
+           <Grid container spacing={3}>
+               <Grid item xm={6} md={6}>
+                   Discount Type :  
+                <FormControl className={classes.formControl}>
+                               <Select onChange={this.onChange}   value={this.state.update.discount_type}  name='discount_type' id="discount_type">
+                               <MenuItem value="percent">Percentage</MenuItem>
+                               <MenuItem value="fixed">Fixed</MenuItem>
+                               </Select>
+                           </FormControl>
+               </Grid>
+               <Grid item xm={6} md={6} > 
+               <TextField required id="rate"  name="rate" onChange={this.onChange} label="rate" name='rate' defaultValue={this.state.update.rate} onChange={this.onChange} />
+
+              </Grid>
+           </Grid>
+           <Grid container spacing={3}  alignItems='flex-end'>
+
+               <Grid item xm={3} md={6}> 
+               <Button
+                               type='submit'
+                               variant="contained"
+                               color="primary"
+                               onClick={()=>{this.onSubmit()}}
+                               >
+                               Add
+                               </Button>
+               </Grid>
+               <Grid item xm={3} md={6}> 
+              </Grid>
+           </Grid>
+       </Grid>
+       </Grid><br></br>
+       </div>
+
         return (
             popUpRender
         )
@@ -101,8 +166,15 @@ class DiscountCreation extends Component {
 }
 
 
-const mapStateToProps = state => ({
+DiscountCreation.propTypes = {
+    classes: PropTypes.object.isRequired,
+  };
+
+
+  const mapStateToProps = state => ({
     user: state.user
 })
 
-export default connect(mapStateToProps)(DiscountCreation)
+
+export default withStyles(styles)(connect(mapStateToProps)(DiscountCreation))
+

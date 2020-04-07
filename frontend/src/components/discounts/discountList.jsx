@@ -1,7 +1,30 @@
 import React, { Component } from 'react'
 import List from '../list';
 import { getDiscount, updateDiscount,  deleteDiscounts } from '../../api/misc';
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField, Grid } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import Swal from 'sweetalert2'
+
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
+import { withStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
+
+const styles = makeStyles((theme) => ({
+    root: {
+    flexGrow: 12,
+    },
+    paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    },
+}));
+
 
 class DiscountList extends Component {
     
@@ -23,29 +46,31 @@ class DiscountList extends Component {
         this.setState({
             'update': {
                 ...this.state.update,
-                [e.target.name] : [e.target.value]
+                [e.target.name] : [e.target.value][0]
             }
         })
     }
 
     
-    async onSubmit(e){
-        e.preventDefault();
-            var data = this.state.discount
-            var ele;
-            for (ele in this.state.update){
-                data[ele] = this.state.update[ele][0]
-            }
+    async onSubmit(){
+            var data = this.state.update
             data = {...data, 'action':'edit','discount_id':data.id}
             console.log(data)
             updateDiscount(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("Discount Data updated.")
+                        Swal.fire(
+                            'Updated!',
+                            'Discounts details has been updated.',
+                            'success'
+                          )
                         this.props.update(0)
                     }
                     else{
-                        alert(data['error'])
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })
                     }
                 }catch(e){
                     console.log(e)
@@ -59,18 +84,39 @@ class DiscountList extends Component {
                 id
             ]
         }
-        deleteDiscounts(JSON.stringify(data)).then(data=>{
-            try {
-                if (data['status']){
-                    alert('Discount data deleted.')
-                    this.props.update(0)
-                }   else{
-                    alert(data['error'])
-                }
-            }catch(e){
-                console.log(e)
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+            if (result.value) {
+                deleteDiscounts(JSON.stringify(data)).then(data=>{
+                    try {
+                        if (data['status']){
+                            Swal.fire({
+                                icon:'success',
+                                title:'Discount entry has been deleted.',
+                                showConfirmButton: false,
+                                timer:1000
+                            })
+                            this.props.update(0)
+                        }   else{
+                            Swal.fire({
+                                icon:'error',
+                                title:data['error']
+                            })
+                        }
+                    }catch(e){
+                        console.log(e)
+                    }
+                })
+              
             }
-        })
+          })
     }
     
     async popUp(id, uuid=0){
@@ -86,7 +132,8 @@ class DiscountList extends Component {
         })
         await this.setState({
             'popUp':true,
-            'discount':data_main['discounts'][0]
+            'discount':data_main['discounts'][0],
+            'update':data_main['discounts'][0]
         })
     }
 
@@ -116,46 +163,83 @@ class DiscountList extends Component {
     
 
     render() {
+        const { classes } = this.props;
+
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
-        const popUpRender = <div>
-                        <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
-                        <h1>{this.state.discount.name}</h1>
-                        <form onSubmit={this.onSubmit}>
-                            Name: <TextField
-                                id ='name'
-                                name="name"
-                                type='text'
-                                onChange={this.onChange}  
-                                placeholder={this.state.discount.name}          
-                            />
-                            Code : <TextField
-                                id ='code'
-                                name="code"
-                                type='text'
-                                onChange={this.onChange}
-                                placeholder={this.state.discount.code} 
-                            />
-                             Discount Type :<select name='discount_type' id="discount_type" defaultValue={this.state.discount.discount_type}  onChange={this.onChange}>
-                                    <option value="percent">Percentage</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                            Rate : <input placeholder={this.state.discount.rate} name="rate" onChange={this.onChange} ></input><br></br>
-                            <br></br>
-                            <Button
+        
+        const popUpRender =
+         <div>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp; <Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+                <ArrowLeftIcon></ArrowLeftIcon>
+         Back
+     </Button>
+        <Grid  container justify="center" alignContent='center' alignItems="center" spacing={3}>
+            <Grid item xm={4}>
+            
+            </Grid>
+            <Grid item xs={4}>
+            <h1>{this.state.discount.name}</h1>
+            </Grid>
+            <Grid item xm={4}>
+            </Grid>
+        </Grid>
+
+        <Grid container  justify="center" alignContent='center' alignItems="center"   direction={'column'} spacing={10}>
+        <Grid item xm={6}>
+            <Grid container spacing={3} justify="center" alignItems="center">
+                <Grid item xm={2} > 
+                <TextField required id="name" label="Name" name='name' defaultValue={this.state.discount.name} onChange={this.onChange} autoFocus/>
+                </Grid>
+                <Grid item xm={2}>
+                <TextField required id="code" label="code" name='code' defaultValue={this.state.discount.code} onChange={this.onChange} />
+                </Grid>
+            </Grid>
+            
+            <Grid container spacing={3}>
+                <Grid item xm={6} md={6}>
+                    Discount Type :  
+                 <FormControl className={classes.formControl}>
+                                <Select onChange={this.onChange}   value={this.state.update.discount_type}  name='discount_type' id="discount_type">
+                                <MenuItem value="percent">Percentage</MenuItem>
+                                <MenuItem value="fixed">Fixed</MenuItem>
+                                </Select>
+                            </FormControl>
+                </Grid>
+                <Grid item xm={6} md={6} > 
+                <TextField required id="rate"  name="rate" onChange={this.onChange} label="rate" name='rate' defaultValue={this.state.discount.rate} onChange={this.onChange} />
+
+               </Grid>
+            </Grid>
+            <Grid container spacing={3}  alignItems='flex-end'>
+
+                <Grid item xm={3} md={6}> 
+                <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
+                                onClick={()=>{this.onSubmit()}}
                                 >
                                 Update
-                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.discountDelete(this.state.discount.id)}}>
-                            Delete Discount
-                        </Button> 
-                        
-                </form>
-            
-                        <br>
-                        </br>
-                    </div>
+                                </Button>
+                </Grid>
+                <Grid item xm={3} md={6}> 
+                <Button variant="contained" color="secondary" onClick={() => {this.discountDelete(this.state.discount.id)}}>
+                    Delete Customer
+                </Button> 
+               </Grid>
+            </Grid>
+        </Grid>
+        </Grid><br></br>
+        </div>
+
+
+
+
         return (
             <div>
                 {this.state.popUp ? popUpRender : list}
@@ -164,4 +248,10 @@ class DiscountList extends Component {
     }
 }
 
-export default DiscountList
+DiscountList.propTypes = {
+    classes: PropTypes.object.isRequired,
+  };
+
+
+export default withStyles(styles)(DiscountList)
+
