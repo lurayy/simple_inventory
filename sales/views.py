@@ -93,12 +93,13 @@ def invoices(request):
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if str(data_json['action'] == "add"):
+                stat = InvoiceStatus.objects.filter(is_active=True, is_sold=False)
                 invoice = Invoice.objects.create(
                     added_by = CustomUserBase.objects.get(id=int(request.user.id)),
                     customer = Customer.objects.get(id=int(data_json['customer'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     due_on = str_to_datetime(data_json['due_on']),
-                    status = InvoiceStatus.objects.get(id=data_json['status']),
+                    status = stat[0],
                     total_amount = 0,
                     paid_amount=0,
                     additional_discount=0      
@@ -368,14 +369,18 @@ def invoice_items(request):
                     sold_from = Place.objects.get(id=int(data_json['sold_from'])),
                     invoice = Invoice.objects.get(id=int(data_json['invoice'])),
                     quantity = int(data_json['quantity']),
-                    price = data_json['price'],
-                    discount_type = data_json['discount_type'],
-                    discount = data_json['discount'],
-                    tax_total = data_json['tax_total'],
-                    sub_total = data_json['sub_total'],
-                    total = data_json['total']
+                    price = float(data_json['price']),
                     )                
                 invoice_item.save()
+                for dis_id in data_json['discount']:
+                    dis = Discount.objects.get(id=int(dis_id))
+                    invoice_item.discount.add(dis)
+                for tax_id in data_json['taxes']:
+                    tax = Tax.objects.get(id=int(tax_id))
+                    invoice_item.taxes.add(tax)
+                invoice_item.save()
+                invoice_item.invoice.save()
+                invoice_item.invoice.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -458,8 +463,9 @@ def delete_invoice_items(request):
             ids = data_json['invoice_items_id']
             for id in ids:
                 invoice_item = InvoiceItem.objects.get(id=int(id))
-                invoice_item.is_active = False
-                invoice_item.save()
+                if (invoice_item.invoice.status.is_sold == True):
+                    raise Exception("Cannot Delete items if the invoice's items are already sold.")
+                invoice_item.delete()
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:

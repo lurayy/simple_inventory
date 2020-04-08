@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import List from '../list';
 import { getInvoice, deleteInvoices, updateInvoice } from '../../api/sales/invoice';
 import PopUpEdit from './popUpEdit';
+import Swal from 'sweetalert2'
 
 class InvoiceListing extends Component {
     
@@ -41,11 +42,14 @@ class InvoiceListing extends Component {
             updateInvoice(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("Vendor Data updated.")
+                        Swal.fire("Vendor Data updated.")
                         this.props.update(0)
                     }
                     else{
-                        alert(data['error'])
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })
                     }
                 }catch(e){
                     console.log(e)
@@ -62,10 +66,13 @@ class InvoiceListing extends Component {
         deleteInvoices(JSON.stringify(data)).then(data=>{
             try {
                 if (data['status']){
-                    alert('Invoice has been Deleted.')
+                    Swal.fire('Invoice has been Deleted.')
                     this.props.update(0)
                 }   else{
-                    alert(data['error'])
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })
                 }
             }catch(e){
                 console.log(e)
@@ -85,7 +92,10 @@ class InvoiceListing extends Component {
                 data_main=data
             }
             else{
-                alert(data['error'])
+                Swal.fire({
+                    icon:'error',
+                    title:data['error']
+                })
             }
         })
         if (data_main['invoice_items'].length === 0) {

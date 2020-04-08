@@ -10,6 +10,9 @@ import {updateInvoiceItem, deleteInvoiceItems, createInvoiceItem} from '../../ap
 import {getItems} from '../../api/inventory/itemApi';
 import {getPlaces} from '../../api/inventory/placeApi';
 import { getDiscounts, getTaxes } from '../../api/misc'
+import { Grid, Button } from '@material-ui/core';
+import Swal from 'sweetalert2';
+
 
 class InvoiceCreation extends Component {
 
@@ -85,10 +88,11 @@ class InvoiceCreation extends Component {
     }
 
     removeEntry(id, dis){
+        var temp,temp2
         if (dis){
-            var temp = this.state.update.invoice_items[this.state.current].applied_discount
+             temp = this.state.update.invoice_items[this.state.current].applied_discount
             temp.pop(dis)
-            var temp2 = this.state.update.invoice_items[this.state.current].discount
+             temp2 = this.state.update.invoice_items[this.state.current].discount
             temp2.pop(temp.id)
             this.setState({
                 ...this.state,
@@ -105,10 +109,10 @@ class InvoiceCreation extends Component {
             })
         }
         else {
-            {
-                var temp = this.state.update.invoice_items[this.state.current].applied_tax
+            
+                 temp = this.state.update.invoice_items[this.state.current].applied_tax
                 temp.pop(dis)
-                var temp2 = this.state.update.invoice_items[this.state.current].taxes
+                 temp2 = this.state.update.invoice_items[this.state.current].taxes
                 temp2.pop(temp.id)
                 this.setState({
                     ...this.state,
@@ -123,7 +127,7 @@ class InvoiceCreation extends Component {
                         }
                     }
                 })
-            }
+            
         }
     }
 
@@ -139,7 +143,7 @@ class InvoiceCreation extends Component {
                 })
             }
             else{
-                alert(data)
+                Swal.fire(data['error'])
             }
         })
     }
@@ -153,12 +157,13 @@ class InvoiceCreation extends Component {
             } 
             
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             } 
         })
     }
 
     selectCustomer(id,name){
+        console.log(id,name)
         this.setState({
             'update': {
                 ...this.state.update,
@@ -339,15 +344,17 @@ class InvoiceCreation extends Component {
         var request_json = {
             ...this.state.update.invoice,
             'action':'add',
-            'invoice_id':this.state.update.invoice.id
+            'invoice_id':this.state.update.invoice.id,
+            'status':'',
         }
+        console.log(this.state)
         createInvoice(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                alert("Invoice Details Has Been Updated.")
+                Swal.fire("Invoice Details Has Been Updated.")
                 window.location.pathname = '/invoices'
             }
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
     }
@@ -379,11 +386,11 @@ class InvoiceCreation extends Component {
             request_json['applied_discount'] = []
             createInvoiceItem(JSON.stringify(request_json)).then(data => {
                 if (data['status']){
-                    alert("Invoice Item Has Been Added.")
+                    Swal.fire("Invoice Item Has Been Added.")
                     this.refreshTable()
                 }
                 else{
-                    alert(data['error'])
+                    Swal.fire(data['error'])
                 }
             })
             return
@@ -398,11 +405,11 @@ class InvoiceCreation extends Component {
         request_json['applied_discount'] = []
         updateInvoiceItem(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                alert("Invoice Item Details Has Been Updated.")
+                Swal.fire("Invoice Item Details Has Been Updated.")
                 this.refreshTable()
             }
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
     }
@@ -413,11 +420,11 @@ class InvoiceCreation extends Component {
         }
         deleteInvoiceItems(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                alert("Invoice Item Has Beed Deleted.")
+                Swal.fire("Invoice Item Has Beed Deleted.")
                 this.refreshTable()
             }
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
     }
@@ -523,7 +530,7 @@ class InvoiceCreation extends Component {
             }  
             
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
     }
@@ -562,7 +569,7 @@ class InvoiceCreation extends Component {
             }
             
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
         if (items.length === 0){
@@ -678,6 +685,7 @@ class InvoiceCreation extends Component {
 
     async update_table (by,dis) {
         var x = by<0?-1:1
+        var request_json
         if (dis){
             if (by===0){
                 await this.setState({
@@ -697,11 +705,11 @@ class InvoiceCreation extends Component {
                     })
                 }
                 else{
-                    alert("Cannot move futher from here.")
+                    Swal.fire("Cannot move futher from here.")
                     return
                 }
             }
-            var  request_json = {
+            request_json = {
                 'action':'get',
                 'filter':'none',
                 'start':this.state.discount_start,
@@ -728,11 +736,11 @@ class InvoiceCreation extends Component {
                 })
             }
             else{
-                alert("Cannot move futher from here.")
+                Swal.fire("Cannot move futher from here.")
                 return
             }
         }
-        var  request_json = {
+        request_json = {
             'action':'get',
             'filter':'none',
             'start':this.state.tax_start,
@@ -752,7 +760,7 @@ class InvoiceCreation extends Component {
                 })
             }
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
     }
@@ -870,11 +878,8 @@ class InvoiceCreation extends Component {
                             <List data={this.state.tax_selection} header={this.add_tax_columns} page={false} popUp={this.addEntryTax} />
                             <button onClick={()=> {this.update_table(-5,false)}}>Previous</button><span>      {this.state.tax_page}       </span><button  onClick={()=> {this.update_table(5,false)}} >Next</button>
                         </div>
-        
-
-        var dis;
         const discounts =this.state.update.invoice_items[this.state.current].applied_discount
-        for (dis in discounts){
+        for (var dis in discounts){
             discounts[dis] = {
                 ...discounts[dis],
                 'removeButton':<button onClick={() => {this.removeEntry(dis,true)}}> Remove </button>
@@ -882,7 +887,7 @@ class InvoiceCreation extends Component {
         }
         
         const taxes = this.state.update.invoice_items[this.state.current].applied_tax
-        for (dis in taxes){
+        for (var dis in taxes){
             taxes[dis] = {
                 ...taxes[dis],
                 'removeButton':<button onClick={()=>{this.removeEntry(dis,false)}}> Remove </button>
@@ -927,46 +932,100 @@ class InvoiceCreation extends Component {
         const status = this.state.status
         return (
             <div>
-                <h1>Invoice</h1>
-        <h3>{this.state.update.invoice.customer_name} </h3>
-                Added By : {this.state.update.invoice.added_by_name}<br></br>
-                Customer : {this.state.update.invoice.customer_name} {customerPopup}<br></br>
-                Order Number : {this.state.update.invoice.order_number}<br></br>
-                <br></br><br></br>
-                Invoiced On : 
-                <DatePicker
-                name='invoiced_on'
-                selected={this.state.update.invoice.invoiced_on}
-                onChange={this.invoiceHandler}
-                />
-                Due On : 
-                <DatePicker
-                name='completed_on'
-                selected={this.state.update.invoice.due_on}
-                onChange={this.dueOnHandler}
-                /><br></br><br></br>
+            <Grid container justify='center' >
                 
-                Total Amount : {this.state.update.invoice.total_amount}<br></br>
-                Total Tax : {this.state.update.invoice.tax_total}<br></br>
-                Total Discount: {this.state.update.invoice.discount_total}<br></br>
-                Paid Amount : {this.state.update.invoice.paid_amount}<br></br>
+                <Grid item xm={8}>
+                    <table  cellPadding='10' cellSpacing='10' >
+                        <tbody>
+                            <tr>
+                                <th colSpan={3}>
+                                    <h1>New Invoice Order</h1>
+                                    <h4>Select customer and Date only</h4>
+                                </th>
+                            </tr>
+                        <tr>
+                        <td><b>Customer :</b> <input
+                                defaultValue={this.state.update.invoice.customer_name}
+                                label='Customer'
+                                variant="outlined"
+                                />
+                         </td>
+                        
+                        <td>{customerPopup}</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                            <b>Invoiced On : </b><br></br>
+                                <DatePicker
+                                name='invoiced_on'
+                                selected={this.state.update.invoice.invoiced_on}
+                                onChange={this.invoiceHandler}
+                                />
+                            </td>
+                            <td>
+                            <b>Due On : </b> <br></br>
+                            <DatePicker
+                            name='completed_on'
+                            selected={this.state.update.invoice.due_on}
+                            onChange={this.dueOnHandler}
+                            />
+                            </td>
+                        </tr>
+                            <tr>
+                                <td>
+                                <Button variant="contained" color="primary" onClick={() => {this.updateInvoice()}}>Update Invoice</Button>
+                                </td>
+                                <td>
+                                <Button variant="contained" color="secondary"  onClick={() => {this.props.delete(this.props.invoice.id)}}>Delete</Button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </Grid>
+                </Grid>
+                </div>
+        //     <div>
+        //         <h1>Invoice</h1>
+        // <h3>{this.state.update.invoice.customer_name} </h3>
+        //         Added By : {this.state.update.invoice.added_by_name}<br></br>
+        //         Customer : {this.state.update.invoice.customer_name} {customerPopup}<br></br>
+        //         Order Number : {this.state.update.invoice.order_number}<br></br>
+        //         <br></br><br></br>
+        //         Invoiced On : 
+        //         <DatePicker
+        //         name='invoiced_on'
+        //         selected={this.state.update.invoice.invoiced_on}
+        //         onChange={this.invoiceHandler}
+        //         />
+        //         Due On : 
+        //         <DatePicker
+        //         name='completed_on'
+        //         selected={this.state.update.invoice.due_on}
+        //         onChange={this.dueOnHandler}
+        //         /><br></br><br></br>
+                
+        //         Total Amount : {this.state.update.invoice.total_amount}<br></br>
+        //         Total Tax : {this.state.update.invoice.tax_total}<br></br>
+        //         Total Discount: {this.state.update.invoice.discount_total}<br></br>
+        //         Paid Amount : {this.state.update.invoice.paid_amount}<br></br>
 
-                <br></br>
-                Additional Discount : <input placeholder={this.state.update.invoice.additional_discount} name='additional_discount' onChange={this.onChange} ></input>
-                <br></br><br></br>
+        //         <br></br>
+        //         Additional Discount : <input placeholder={this.state.update.invoice.additional_discount} name='additional_discount' onChange={this.onChange} ></input>
+        //         <br></br><br></br>
 
                 
-                Status : <select name='status' id="status" onChange={this.onChange} value={this.state.update.invoice.status}  >
-                                {status.map(
-                                    x => (
-                                    <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
-                                    )
-                                )}
-                            </select> <br></br><br></br>
-                <button onClick={() => {this.updateInvoice()}}>Add Invoice</button><br></br><br></br>
-                <hr></hr>
-            <button onClick={() => {this.stateman()}}>State</button>
-            </div>
+        //         Status : <select name='status' id="status" onChange={this.onChange} value={this.state.update.invoice.status}  >
+        //                         {status.map(
+        //                             x => (
+        //                             <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
+        //                             )
+        //                         )}
+        //                     </select> <br></br><br></br>
+        //         <button onClick={() => {this.updateInvoice()}}>Add Invoice</button><br></br><br></br>
+        //         <hr></hr>
+        //     <button onClick={() => {this.stateman()}}>State</button>
+        //     </div>
 
         )
     }

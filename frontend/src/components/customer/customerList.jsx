@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import List from '../list';
 import { getCustomer, updateCustomer,  deleteCustomers } from '../../api/sales/customer';
-import {Button, TextField, Grid, Paper, withStyles } from '@material-ui/core';
+import {Button, TextField, Grid, withStyles } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 
-import {FormControl, InputLabel, Input, FormHelperText} from '@material-ui/core'
+import {FormControl, InputLabel, Input} from '@material-ui/core'
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 import Swal from 'sweetalert2'
 

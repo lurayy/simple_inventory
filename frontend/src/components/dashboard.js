@@ -17,12 +17,11 @@ import Login from './users/login';
 import Logout from './users/logout';
 import VendorCreation from './vendors/vendorCreation';
 import UserCreation from './users/userCreation';
-import { BrowserRouter as Router, Switch , Route, Link} from 'react-router-dom';
+import { BrowserRouter as Router, Switch , Route} from 'react-router-dom';
 import Users from './users';
 import Vendors from './vendors/index';
 import Customers from './customer/index';
 import CustomerCreation from './customer/customerCreation'
-import swal from 'sweetalert';
 import PurchaseOrders from './purchaseOrder/index'
 import PurchaseOrderCreation from './purchaseOrder/purchaseOrderCreation'
 import Invoices from './invoices/index';
@@ -37,7 +36,6 @@ import ItemCatagories from './itemCatagories/index';
 import ItemCatagoryCreation from './itemCatagories/itemCreation';
 import Places from './placement/index'
 import PlaceCreation from './placement/placeCreation'
-import Button from '@material-ui/core/Button';
 
 import { useSelector } from "react-redux";
 
@@ -150,7 +148,6 @@ function Dashboard() {
     setOpen(false);
 
   };
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   const user = useSelector(state => state.user);
 
@@ -264,9 +261,8 @@ function Dashboard() {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
-
-          <Grid container direction="row" justify="center">
+        <Container className={classes.container}>
+          <Grid container justify="center">
             <Grid item xs={12} >
             <Router>
             <Switch>

@@ -211,7 +211,7 @@ class DiscountList extends Component {
                             </FormControl>
                 </Grid>
                 <Grid item xm={6} md={6} > 
-                <TextField required id="rate"  name="rate" onChange={this.onChange} label="rate" name='rate' defaultValue={this.state.discount.rate} onChange={this.onChange} />
+                <TextField required id="rate"  name="rate"  label="rate" defaultValue={this.state.discount.rate} onChange={this.onChange} />
 
                </Grid>
             </Grid>

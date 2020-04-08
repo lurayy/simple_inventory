@@ -16,7 +16,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function LoadingIcon() {
-  const classes = useStyles();
   const [progress, setProgress] = React.useState(0);
 
   React.useEffect(() => {

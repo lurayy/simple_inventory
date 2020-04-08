@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 
 import { createCustomer} from '../../api/sales/customer';
-import {Button, TextField, Grid, Paper, withStyles } from '@material-ui/core';
+import {Button, TextField, Grid, withStyles } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import {  connect } from 'react-redux';
 
-import {FormControl, InputLabel, Input, FormHelperText} from '@material-ui/core'
+import {FormControl, InputLabel, Input} from '@material-ui/core'
 import Swal from 'sweetalert2'
 
 const styles = makeStyles((theme) => ({
