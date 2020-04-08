@@ -1,9 +1,12 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField,Grid } from '@material-ui/core';
 import { createItem } from '../../api/inventory/itemApi';
 import {getItemCatagories} from '../../api/inventory/itemCatagory'
 
+import Swal from 'sweetalert2'
+
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 
 class ItemCreation extends Component {
 
@@ -36,8 +39,10 @@ class ItemCreation extends Component {
                     })
                 }
                 else{
-                    alert(data['error'])
-                }
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })                   }
             }catch(e){
                 console.log(e)
             }
@@ -68,11 +73,17 @@ class ItemCreation extends Component {
             createItem(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New Item Added")
+                        Swal.fire(
+                            'Updated!',
+                            'Item has been added.',
+                            'success'
+                          ) 
                     }
                     else{
-                        alert(data['error'])
-                    }
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })                       }
                 }catch(e){
                     console.log(e)
                 }
@@ -81,7 +92,11 @@ class ItemCreation extends Component {
 
     render() {
         const catagories = this.state.catagories
-        const popUpRender = <div>
+        const popUpRender = 
+            <div>
+            <Grid container justify='center'>
+<Grid item xm={6}>
+            
                         <form onSubmit={this.onSubmit}>
                             Name: <TextField
                                 id ='name'
@@ -110,6 +125,8 @@ class ItemCreation extends Component {
             
                         <br>
                         </br>
+                    </Grid>
+                    </Grid>
                     </div>
         return (
             popUpRender

@@ -2,7 +2,13 @@ import React, { Component } from 'react'
 import List from '../list';
 import { getItem, updateItem,  deleteItems } from '../../api/inventory/itemApi';
 import {getItemCatagories} from '../../api/inventory/itemCatagory'
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField,Grid } from '@material-ui/core';
+
+
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import Swal from 'sweetalert2'
+
+
 
 class ItemList extends Component {
     
@@ -32,10 +38,6 @@ class ItemList extends Component {
         })
     }
 
-    async componentDidMount(){
-
-        
-    }
     
     async onSubmit(e){
         e.preventDefault();
@@ -44,12 +46,18 @@ class ItemList extends Component {
             updateItem(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("Item Data updated.")
+                        Swal.fire(
+                            'Updated!',
+                            'ItemData updated.',
+                            'success'
+                          )
                         this.props.update(0)
                     }
                     else{
-                        alert(data['error'])
-                    }
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })                    }
                 }catch(e){
                     console.log(e)
                 }
@@ -62,20 +70,39 @@ class ItemList extends Component {
                 id
             ]
         }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+            if (result.value) {
         deleteItems(JSON.stringify(data)).then(data=>{
             try {
                 if (data['status']){
-                    alert('Item data deleted.')
+                    Swal.fire({
+                        icon:'success',
+                        title:'Item entry has been deleted.',
+                        showConfirmButton: false,
+                        timer:1000
+                    })                    
                     this.props.update(0)
                 }   else{
-                    alert(data['error'])
-                }
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })                }
             }catch(e){
                 console.log(e)
             }
         })
     }
-    
+})
+    }
+
     async popUp(id, uuid=0){
         var data = {
             'action':'get',
@@ -105,8 +132,10 @@ class ItemList extends Component {
                     })
                 }
                 else{
-                    alert(data['error'])
-                }
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })                   }
             }catch(e){
                 console.log(e)
             }
@@ -148,23 +177,47 @@ class ItemList extends Component {
         const catagories = this.state.catagories
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
-                        <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
-                        <h1>{this.state.item.name}</h1>
+            <Grid container justify='center'>
+<Grid item xm={6}>
+<Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+                <ArrowLeftIcon></ArrowLeftIcon>
+         Back
+     </Button>          <h1>{this.state.item.name}</h1>
                         <form onSubmit={this.onSubmit}>
-                            Name: <TextField
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                    Name:
+                                    </td>
+                                    <td>
+                                    <TextField
                                 id ='name'
                                 name="name"
                                 type='text'
                                 onChange={this.onChange}  
                                 placeholder={this.state.update.name}          
                             />
-                            Catagory : <select name='catagory' id="catagory" onChange={this.onChange} value={this.state.update.catagory} required >
+                                    </td>
+                                </tr>
+                                <tr>
+<td>
+Catagory :
+</td>
+<td>
+<select name='catagory' id="catagory" onChange={this.onChange} value={this.state.update.catagory} required >
                                 {catagories.map(
                                     x => (
                                     <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
                                     )
                                 )}
-                            </select> <br></br><br></br>
+                            </select>
+</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                             
+                              <br></br><br></br>
                             
                             Sales Price : <input placeholder={this.state.update.sales_price} onChange={this.onChange}></input><br></br>
                             Stock : {this.state.update.stock} <br></br>
@@ -185,6 +238,8 @@ class ItemList extends Component {
             
                         <br>
                         </br>
+                        </Grid>
+                        </Grid>
                     </div>
         return (
             <div>
