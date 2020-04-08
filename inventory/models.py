@@ -51,7 +51,7 @@ class ItemCatagory(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    catagory = models.ForeignKey(ItemCatagory, on_delete=models.SET_NULL, null=True, blank=True)
+    catagory = models.ForeignKey(ItemCatagory, on_delete=models.SET_NULL, null=True, blank=True, related_name='items')
     stock = models.PositiveIntegerField(default=0)
     sales_price = models.FloatField()
     sold = models.PositiveIntegerField(default=0)

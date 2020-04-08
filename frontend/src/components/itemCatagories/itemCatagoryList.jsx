@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
 import List from '../list';
 import { getItemCatagory, updateItemCatagory,  deleteItemCatagory } from '../../api/inventory/itemCatagory';
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField, Grid } from '@material-ui/core';
+
+
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import Swal from 'sweetalert2'
+
 
 class ItemCatagoryList extends Component {
     
@@ -16,8 +21,15 @@ class ItemCatagoryList extends Component {
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.itemCatDelete = this.itemCatDelete.bind(this)
+        this.popUptemp = this.popUptemp.bind(this)
+        this.updatetemp = this.updatetemp.bind(this)
     }
-    
+    popUptemp(id,uuid){
+
+    }
+    updatetemp(){
+
+    }
     onChange(e)
     {
         this.setState({
@@ -37,11 +49,18 @@ class ItemCatagoryList extends Component {
             updateItemCatagory(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("ItemCatagory Data updated.")
+                        Swal.fire(
+                            'Updated!',
+                            'ItemCatagory Data updated.',
+                            'success'
+                          )
                         this.props.update(0)
                     }
                     else{
-                        alert(data['error'])
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })
                     }
                 }catch(e){
                     console.log(e)
@@ -55,18 +74,39 @@ class ItemCatagoryList extends Component {
                 id
             ]
         }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+            if (result.value) {
+                
         deleteItemCatagory(JSON.stringify(data)).then(data=>{
             try {
                 if (data['status']){
-                    alert('itemCatagory data deleted.')
+                    Swal.fire({
+                        icon:'success',
+                        title:'Item Catagory entry has been deleted.',
+                        showConfirmButton: false,
+                        timer:1000
+                    })
                     this.props.update(0)
                 }   else{
-                    alert(data['error'])
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })
                 }
             }catch(e){
                 console.log(e)
             }
         })
+    }
+})
     }
     
     async popUp(id, uuid=0){
@@ -81,6 +121,7 @@ class ItemCatagoryList extends Component {
                 data_main=data
             }
         })
+
         await this.setState({
             'popUp':true,
             'itemCatagory':data_main['item_catagories'][0]
@@ -93,37 +134,104 @@ class ItemCatagoryList extends Component {
             id:1,
             name:"Name",
             prop: 'name'
-        }  
+        },
+        {
+            id:2,
+            name:'Items Under This Catagory',
+            prop:'count'
+        }
+    ]
+
+    items_c = [
+        {
+            id:1,
+            name:"Item's Name",
+            prop:'name'
+        },{
+            id:2,
+            name: 'Price',
+            prop: 'sales_price',
+        },
+        {
+            id:3,
+            name:'Sales Price',
+            prop:'sales_price'
+        },
+        {
+            id:4,
+            name: 'Stock',
+            prop:'stock',
+        },
+        {
+            id:5,
+            name:'Sold',
+            prop:'sold'
+        }
+
+
     ]
     
 
     render() {
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
-                        <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
-                        <h1>{this.state.update.name}</h1>
+            <Grid container justify='center'>
+<Grid item xm={6}>
+<Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+                <ArrowLeftIcon></ArrowLeftIcon>
+         Back
+     </Button>
+     <h1>{this.state.update.name}</h1>
                         <form onSubmit={this.onSubmit}>
-                            Name: <TextField
+                            <table cellSpacing={10} cellPadding={10}>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                    Name: 
+                                    </td>
+                                    <td>
+                                    <TextField
                                 id ='name'
                                 name="name"
                                 type='text'
                                 onChange={this.onChange}  
-                                placeholder={this.state.itemCatagory.name}          
+                                defaultValue={this.state.itemCatagory.name}          
                             />
-                            <Button
+                                    </td>
+                                </tr>
+                                <tr>
+<td>
+<Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
                                 >
                                 Update
-                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.itemCatDelete(this.state.itemCatagory.id)}}>
+                                </Button>
+</td>
+<td>
+<Button variant="contained" color="secondary" onClick={() => {this.itemCatDelete(this.state.itemCatagory.id)}}>
                             Delete Discount
                         </Button> 
+</td>
+                                </tr>
+                                <tr>
+                                   <td colSpan={3}>
+                                       <h1> Related Items</h1>
+                                   <List data={this.state.itemCatagory.items} header={this.items_c} popUp={this.popUptemp} update={this.updatetemp} page={false} />
+                                   </td> 
+                                </tr>
+                                </tbody>
+                            </table>
+                           
+                           
                         
                 </form>
             
-                        <br>
-                        </br>
+</Grid>
+            </Grid>
+                        
+                        
                     </div>
         return (
             <div>

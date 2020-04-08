@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField, Grid } from '@material-ui/core';
 import { createItemCatagory } from '../../api/inventory/itemCatagory';
 
+import Swal from 'sweetalert2'
 
 class DiscountCreation extends Component {
 
@@ -40,11 +41,16 @@ class DiscountCreation extends Component {
             createItemCatagory(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New Item Catagory Added")
-                    }
+                        Swal.fire(
+                            'Updated!',
+                            'ItemCatagory Data has been added.',
+                            'success'
+                          )                    }
                     else{
-                        alert(data['error'])
-                    }
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })                    }
                 }catch(e){
                     console.log(e)
                 }
@@ -52,26 +58,51 @@ class DiscountCreation extends Component {
     }
 
     render() {
-        const popUpRender = <div>
-                        <form onSubmit={this.onSubmit}>
-                            Name: <TextField
-                                id ='name'
-                                name="name"
-                                type='text'
-                                onChange={this.onChange}  
-                                placeholder={this.state.itemCatagory.name}          
-                            />
-                            <Button
-                                type='submit'
-                                variant="contained"
-                                color="primary"
-                                >
-                                Add
-                                </Button>
-                </form>
-            
-                        <br>
-                        </br>
+        const popUpRender =
+        <div>
+        <Grid container justify='center'>
+        <Grid item xm={6}>
+                                <form onSubmit={this.onSubmit}>
+                                    <table>
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                            Name: 
+                                            </td>
+                                            <td>
+                                            <TextField
+                                        id ='name'
+                                        name="name"
+                                        type='text'
+                                        onChange={this.onChange}  
+                                        defaultValue={this.state.itemCatagory.name}          
+                                    />
+                                            </td>
+                                        </tr>
+                                        <tr>
+        <td>
+        <Button
+                                        type='submit'
+                                        variant="contained"
+                                        color="primary"
+                                        >
+                                        Add
+                                        </Button>
+        </td>
+        <td>
+
+        </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                   
+                                   
+                                
+                        </form>
+                    
+        </Grid>
+                    </Grid>
+                    
                     </div>
         return (
             popUpRender

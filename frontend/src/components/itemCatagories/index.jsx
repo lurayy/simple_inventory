@@ -4,6 +4,31 @@ import {  connect } from 'react-redux';
 import  ItemCatagoryList  from './itemCatagoryList';
 import { Link} from 'react-router-dom';
 
+
+import Button from '@material-ui/core/Button';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import LoadingIcon from '../loading';
+
+
+const styles = makeStyles((theme) => ({
+    root: {
+    flexGrow: 12,
+    },
+    paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    },
+}));
+
+
+
 class ItemCatagories extends Component {
     constructor(props){
         super(props)
@@ -21,6 +46,7 @@ class ItemCatagories extends Component {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
         }
+        this.update_table(0)
     }
 
     async update_table (by) {
@@ -75,13 +101,35 @@ render() {
             <ItemCatagoryList data={this.state.item_catagories} update={this.update_table} page={this.state.page} />
         </div>
     )
+    const { classes } = this.props;
 
     return(
-        <div>
-            <Link to='/itemcatagories/create'>Add New Item Catagroy</Link><br></br>
-            <button onClick={() => {this.update_table(0)}}>Refresh table</button><br></br>
-            {this.state.loaded ? render_after_load : "Loading..."}
-        </div>
+        <div className={classes.root}>
+        <Grid container spacing={3} justify="center" alignItems="center">
+            <Grid item xs={3} >
+            <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
+              <RefreshIcon/>&nbsp;&nbsp;&nbsp;Refresh Table
+              </Button>
+            </Grid>
+            <Grid item xs={5}>
+  
+            </Grid>
+              <Grid item xs={3}>
+              <Link to='/itemcatagories/create' style={{ textDecoration: 'none' }}>
+              <Button variant="contained" color="secondary">
+              <AddCircleIcon/>&nbsp;&nbsp;&nbsp;Add New Item Catagories
+              </Button>
+              </Link>
+              </Grid>
+  
+          <Grid item xs={12}>
+            <Paper className={classes.paper}>
+            {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
+            </Paper>
+          </Grid>
+          
+        </Grid>
+      </div>
     )
 }
 }
@@ -89,8 +137,12 @@ render() {
 
 
 
+
+ItemCatagories.propTypes = {
+    classes: PropTypes.object.isRequired,
+  };
 const mapStateToProps = state => ({
     user: state.user,
 })
 
-export default connect(mapStateToProps)(ItemCatagories)
+export default withStyles(styles)(connect(mapStateToProps)(ItemCatagories))
