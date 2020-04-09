@@ -344,10 +344,9 @@ class InvoiceCreation extends Component {
         var request_json = {
             ...this.state.update.invoice,
             'action':'add',
-            'invoice_id':this.state.update.invoice.id,
             'status':'',
         }
-        console.log(this.state)
+        console.log(request_json)
         createInvoice(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 Swal.fire("Invoice Details Has Been Updated.")
@@ -945,7 +944,7 @@ class InvoiceCreation extends Component {
                             </tr>
                         <tr>
                         <td><b>Customer :</b> <input
-                                defaultValue={this.state.update.invoice.customer_name}
+                                value={this.state.update.invoice.customer_name}
                                 label='Customer'
                                 variant="outlined"
                                 />

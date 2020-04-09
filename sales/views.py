@@ -94,6 +94,8 @@ def invoices(request):
                 return JsonResponse(response_json)
             if str(data_json['action'] == "add"):
                 stat = InvoiceStatus.objects.filter(is_active=True, is_sold=False)
+                if (len(stat) == 0):
+                    raise Exception("Create a invoice status first. Contact Admin.")
                 invoice = Invoice.objects.create(
                     added_by = CustomUserBase.objects.get(id=int(request.user.id)),
                     customer = Customer.objects.get(id=int(data_json['customer'])),

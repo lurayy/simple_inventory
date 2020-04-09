@@ -94,21 +94,13 @@ class PopUpEdit extends Component {
         this.removeEntry = this.removeEntry.bind(this)
         this.addEntryDiscount = this.addEntryDiscount.bind(this)
         this.addEntryTax = this.addEntryTax.bind(this)
+        this.popUpTemp = this.popUpTemp.bind(this)
     }
+    popUpTemp(){
 
+    }
     removeEntry(id, dis){
         if (dis){
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-              }).then((result) => {
-                if (result.value) {
-
             var temp = this.state.update.invoice_items[this.state.current].applied_discount
             temp.pop(dis)
             var temp2 = this.state.update.invoice_items[this.state.current].discount
@@ -127,19 +119,7 @@ class PopUpEdit extends Component {
                     }
                 })
             }
-        })
-    }
         else {
-            
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-      }).then((result) => {
                 var temp = this.state.update.invoice_items[this.state.current].applied_tax
                 temp.pop(dis)
                 var temp2 = this.state.update.invoice_items[this.state.current].taxes
@@ -157,9 +137,8 @@ class PopUpEdit extends Component {
                         }
                     }
                 })
-            })
-        }
     }
+}
 
     async componentDidMount(){
         var request_json = {
@@ -170,12 +149,6 @@ class PopUpEdit extends Component {
                 this.setState({
                     ...this.state,
                     'status':data.data
-                })
-            }
-            else{
-                Swal.fire({
-                    icon:'error',
-                    title:data['error']
                 })
             }
         })
@@ -279,7 +252,6 @@ class PopUpEdit extends Component {
 
     // data = sold_From_selection
     update_stock(data){
-        console.log("data",data)
         var sold_from;
         if (this.state.update.invoice_items[this.state.current]['sold_from']){
             sold_from = this.state.update.invoice_items[this.state.current]['sold_from']
@@ -641,7 +613,6 @@ class PopUpEdit extends Component {
 
 
     stateman(){
-        console.log(this.state)
     }
 
 
@@ -830,7 +801,6 @@ class PopUpEdit extends Component {
     addEntryDiscount(id){
         var dis;
         var temp,temp2;
-        console.log("dis",this.state.update.invoice_items[this.state.current])
         for (dis in this.state.discount_selection){
             if (this.state.discount_selection[dis].id === id){
                 temp = this.state.update.invoice_items[this.state.current]['applied_discount']
@@ -965,6 +935,9 @@ class PopUpEdit extends Component {
             }
         }
         const popUpItem = <div>
+            <Grid container justify='center'>
+                <Grid item md={'auto'}>
+
             <table cellSpacing={10} cellPadding={10}>
                 <tbody>
 
@@ -1046,7 +1019,7 @@ class PopUpEdit extends Component {
                 </tr>
                 <tr>
                     <td colSpan={3} >
-                    <List data={discounts} header={this.discount_columns} page={false} popUp={this.popUp} removeEntry={this.removeEntry} />
+                    <List data={discounts} header={this.discount_columns} page={false} popUp={this.popUpTemp} removeEntry={this.removeEntry} />
                     </td>
                 </tr>
                 <tr>
@@ -1064,7 +1037,7 @@ class PopUpEdit extends Component {
             </tr>
                 <tr>
                     <td colSpan={3}>
-                    <List data={taxes} header={this.tax_columns} page={false} popUp={this.popUp} removeEntry={this.removeEntry} />
+                    <List data={taxes} header={this.tax_columns} page={false} popUp={this.popUpTemp} removeEntry={this.removeEntry} />
                     </td>
                 </tr>
                 <tr>
@@ -1082,6 +1055,9 @@ class PopUpEdit extends Component {
                 </tr>
                 </tbody>
             </table>
+            
+            </Grid>
+            </Grid>
             </div>
 
         const customer_selection = this.state.customer_selection
@@ -1252,7 +1228,6 @@ class PopUpEdit extends Component {
                     <Grid item xs={8} >
                     <h3>Items</h3> <Button variant="contained" color="secondary"  onClick={() => {this.addInvoiceItem()}}>Add New Items</Button>
                     {this.state.popUp ? popUpItem :<List data={this.state.update.invoice_items} header={this.columns} page={false} popUp={this.popUp} />}
-                
                     </Grid>
                 </Grid>
             </div>
