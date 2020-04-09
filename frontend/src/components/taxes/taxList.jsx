@@ -1,7 +1,29 @@
 import React, { Component } from 'react'
 import List from '../list';
 import { getTax, updateTax,  deleteTaxes } from '../../api/misc';
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField, Grid } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import Swal from 'sweetalert2'
+
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
+import { withStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
+
+const styles = makeStyles((theme) => ({
+    root: {
+    flexGrow: 12,
+    },
+    paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    },
+}));
 
 class TaxList extends Component {
     
@@ -23,29 +45,30 @@ class TaxList extends Component {
         this.setState({
             'update': {
                 ...this.state.update,
-                [e.target.name] : [e.target.value]
+                [e.target.name] : [e.target.value][0]
             }
         })
     }
 
     
     async onSubmit(e){
-        e.preventDefault();
-            var data = this.state.tax
-            var ele;
-            for (ele in this.state.update){
-                data[ele] = this.state.update[ele][0]
-            }
+            var data = this.state.update
             data = {...data, 'action':'edit','tax_id':data.id}
-            console.log(data)
             updateTax(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("Tax Data updated.")
-                        this.props.update(0)
+                        Swal.fire(
+                            'Updated!',
+                            'Tax details has been updated.',
+                            'success'
+                          )                        
+                          this.props.update(0)
                     }
                     else{
-                        alert(data['error'])
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })
                     }
                 }catch(e){
                     console.log(e)
@@ -59,19 +82,37 @@ class TaxList extends Component {
                 id
             ]
         }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
         deleteTaxes(JSON.stringify(data)).then(data=>{
             try {
                 if (data['status']){
-                    alert('Tax data deleted.')
+                    Swal.fire({
+                        icon:'success',
+                        title:'Tax entry has been deleted.',
+                        showConfirmButton: false,
+                        timer:1000
+                    })                   
                     this.props.update(0)
                 }   else{
-                    alert(data['error'])
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })                
                 }
             }catch(e){
                 console.log(e)
             }
         })
-    }
+    })
+}
     
     async popUp(id, uuid=0){
         const data = {
@@ -86,7 +127,8 @@ class TaxList extends Component {
         })
         await this.setState({
             'popUp':true,
-            'tax':data_main['taxes'][0]
+            'tax':data_main['taxes'][0],
+            'update':data_main['taxes'][0]
         })
     }
 
@@ -116,45 +158,75 @@ class TaxList extends Component {
     
 
     render() {
+        const { classes } = this.props;
+
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
-                        <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
-                        <h1>{this.state.tax.name}</h1>
-                        <form onSubmit={this.onSubmit}>
-                            Name: <TextField
-                                id ='name'
-                                name="name"
-                                type='text'
-                                onChange={this.onChange}  
-                                placeholder={this.state.tax.name}          
-                            />
-                            Code : <TextField
-                                id ='code'
-                                name="code"
-                                type='text'
-                                onChange={this.onChange}
-                                placeholder={this.state.tax.code} 
-                            />
-                             Tax Type :<select name='tax_type' id="tax_type" defaultValue={this.state.tax.tax_type}  onChange={this.onChange}>
-                                    <option value="normal">Normal</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                            Rate : <input placeholder={this.state.tax.rate} name="rate" onChange={this.onChange} ></input><br></br>
-                            <br></br>
-                            <Button
-                                type='submit'
-                                variant="contained"
-                                color="primary"
-                                >
-                                Update
-                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.taxDelete(this.state.tax.id)}}>
-                            Delete Tax
-                        </Button> 
-                        
-                </form>
-            
-                        <br>
-                        </br>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp; <Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+            <ArrowLeftIcon></ArrowLeftIcon>
+     Back
+ </Button>
+    <Grid  container justify="center" alignContent='center' alignItems="center" spacing={3}>
+        <Grid item xm={4}>
+        
+        </Grid>
+        <Grid item xs={4}>
+        <h1>{this.state.tax.name}</h1>
+        </Grid>
+        <Grid item xm={4}>
+        </Grid>
+    </Grid>
+
+    <Grid container  justify="center" alignContent='center' alignItems="center"   direction={'column'} spacing={10}>
+    <Grid item xm={6}>
+        <Grid container spacing={3} justify="center" alignItems="center">
+            <Grid item xm={2} > 
+            <TextField required id="name" label="Name" name='name' defaultValue={this.state.tax.name} onChange={this.onChange} autoFocus/>
+            </Grid>
+            <Grid item xm={2}>
+            <TextField required id="code" label="code" name='code' defaultValue={this.state.tax.code} onChange={this.onChange} />
+            </Grid>
+        </Grid>
+        
+        <Grid container spacing={3}>
+            <Grid item xm={6} md={6}>
+                Tax Type :  
+                <FormControl className={classes.formControl}>
+                                <Select onChange={this.onChange}   value={this.state.update.tax_type}  name='tax_type' id="tax_type">
+                                <MenuItem value="normal">Normal (Percentage)</MenuItem>
+                                <MenuItem value="fixed">Fixed</MenuItem>
+                                </Select>
+                            </FormControl>
+            </Grid>
+            <Grid item xm={6} md={6} > 
+            <TextField required id="rate"  name="rate"  label="rate" defaultValue={this.state.tax.rate} onChange={this.onChange} />
+           </Grid>
+        </Grid>
+        <Grid container spacing={3}  alignItems='flex-end'>
+
+            <Grid item xm={3} md={6}> 
+            <Button
+                            type='submit'
+                            variant="contained"
+                            color="primary"
+                            onClick={()=>{this.onSubmit()}}
+                            >
+                            Update
+                            </Button>
+            </Grid>
+            <Grid item xm={3} md={6}> 
+            <Button variant="contained" color="secondary" onClick={() => {this.taxDelete(this.state.tax.id)}}>
+                Delete Tax
+            </Button> 
+           </Grid>
+        </Grid>
+    </Grid>
+    </Grid>
                     </div>
         return (
             <div>
@@ -164,4 +236,9 @@ class TaxList extends Component {
     }
 }
 
-export default TaxList
+TaxList.propTypes = {
+    classes: PropTypes.object.isRequired,
+  };
+
+export default withStyles(styles)(TaxList)
+

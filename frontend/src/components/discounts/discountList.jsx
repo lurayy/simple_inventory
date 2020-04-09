@@ -229,7 +229,7 @@ class DiscountList extends Component {
                 </Grid>
                 <Grid item xm={3} md={6}> 
                 <Button variant="contained" color="secondary" onClick={() => {this.discountDelete(this.state.discount.id)}}>
-                    Delete Customer
+                    Delete Discount
                 </Button> 
                </Grid>
             </Grid>
