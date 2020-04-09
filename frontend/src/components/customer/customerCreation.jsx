@@ -107,7 +107,7 @@ class CustomerCreation extends Component {
         <Grid item xm={6}>
             <Grid container spacing={3} justify="center" alignItems="center">
                 <Grid item xm={2} > 
-                <TextField required id="first_name" label="First Name" name='first_name' autoFocus/>
+                <TextField required id="first_name" label="First Name" name='first_name' autoFocus onChange={this.onChange} />
                 </Grid>
                 <Grid item xm={2}>
                 <TextField id="middle_name" label="Middle Name" name='middle_name'  onChange={this.onChange} />

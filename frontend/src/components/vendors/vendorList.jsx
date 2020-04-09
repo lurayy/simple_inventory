@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
 import List from '../list';
 import { getVendor, updateVendor,  deleteVendors } from '../../api/inventory/vendorApi';
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField, Grid } from '@material-ui/core';
+
+import {FormControl, InputLabel, Input} from '@material-ui/core'
+import Swal from 'sweetalert2'
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 
 class VendorList extends Component {
     
@@ -23,29 +27,31 @@ class VendorList extends Component {
         this.setState({
             'update': {
                 ...this.state.update,
-                [e.target.name] : [e.target.value]
+                [e.target.name] : [e.target.value][0]
             }
         })
     }
 
     
-    async onSubmit(e){
-        e.preventDefault();
-            var data = this.state.vendor
-            var ele;
-            for (ele in this.state.update){
-                data[ele] = this.state.update[ele][0]
-            }
+    async onSubmit(){
+            var data = this.state.update
             data = {...data, 'action':'edit'}
+            console.log(data)
             updateVendor(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("Vendor Data updated.")
+                        Swal.fire(
+                            'Updated!',
+                            'Vendor Details has been updated.',
+                            'success'
+                          )
                         this.props.update(0)
                     }
                     else{
-                        alert(data['error'])
-                    }
+                        Swal.fire({
+                            icon:'error',
+                            title:data['error']
+                        })                    }
                 }catch(e){
                     console.log(e)
                 }
@@ -58,19 +64,36 @@ class VendorList extends Component {
                 id
             ]
         }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
         deleteVendors(JSON.stringify(data)).then(data=>{
             try {
                 if (data['status']){
-                    alert('Vendor data deleted.')
+                    Swal.fire({
+                        icon:'success',
+                        title:'Vendor entry has been deleted.',
+                        showConfirmButton: false,
+                        timer:1000
+                    })  
                     this.props.update(0)
                 }   else{
-                    alert(data['error'])
-                }
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })                }
             }catch(e){
                 console.log(e)
             }
         })
-    }
+    })
+}
     
     async popUp(id, uuid=0){
         const data = {
@@ -85,7 +108,8 @@ class VendorList extends Component {
         })
         await this.setState({
             'popUp':true,
-            'vendor':data_main['vendors'][0]
+            'vendor':data_main['vendors'][0],
+            'update':data_main['vendors'][0]
         })
     }
 
@@ -117,94 +141,137 @@ class VendorList extends Component {
     render() {
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
-                        <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
-                        <h1>{this.state.vendor.name}</h1>
-                        <form onSubmit={this.onSubmit}>
-                            First Name: <TextField
-                                id ='first_name'
-                                name="first_name"
-                                type='text'
-                                onChange={this.onChange}  
-                                placeholder={this.state.vendor.first_name}          
-                            />
-                            Middle Name : <TextField
-                                id ='middle_name'
-                                name="middle_name"
-                                type='text'
-                                onChange={this.onChange}
-                                placeholder={this.state.vendor.middle_name} 
-                            />
-                            Last Name  : <TextField
-                                id ='last_name'
-                                name="last_name"
-                                type='text'
-                                onChange={this.onChange}
-                                placeholder={this.state.vendor.last_name}
-                                  
-                            />
-                            <br></br>
-                            Email : <TextField
-                                id ='email'
-                                name="email"
-                                type='email'
-                                onChange={this.onChange}                                
-                                placeholder={this.state.vendor.email}
-                                  
-                            />
-                            <br></br>
-                            Website : <TextField
+             
+             
+        <Grid  container spacing={3} justify="center" alignContent='center' alignItems="center">
+        
+            <Grid item xm={4}>
+            <Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+                <ArrowLeftIcon></ArrowLeftIcon>
+         Back
+     </Button>          <h1>{this.state.update.name}</h1>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp; 
+            
+            </Grid>
+            <Grid item xm={4}>
+            </Grid>
+        </Grid>
+
+        <Grid container  justify="center" alignContent='center' alignItems="center">
+        <Grid item xm={6}>
+            <Grid container spacing={3} justify="center" alignItems="center">
+                <Grid item xm={2} > 
+                <TextField required value={this.state.update.first_name} id="first_name" label="First Name" name='first_name' autoFocus onChange={this.onChange} />
+                </Grid>
+                <Grid item xm={2}>
+                <TextField id="middle_name"  value={this.state.update.middle_name} label="Middle Name" name='middle_name'  onChange={this.onChange} />
+                </Grid>
+                <Grid item xm={2}>
+                <TextField required id="last_name" value={this.state.update.last_name} label="Last Name" name='last_name'  onChange={this.onChange} />
+                </Grid>
+            </Grid>
+            
+            <Grid container spacing={3}>
+                <Grid item xm={6} md={6}> 
+                <FormControl fullWidth required>
+                <InputLabel htmlFor="email">Email address</InputLabel>
+                <Input id="email" required name='email' value={this.state.update.email} fullWidth onChange={this.onChange}   />
+                </FormControl>
+                </Grid>
+                <Grid item xm={6} md={6}> 
+                 <TextField
                                 id ='website'
                                 name="website"
+                                label='Website'
+                                value={this.state.update.website}
                                 type='text'
+                                fullWidth
                                 onChange={this.onChange}                                
-                                placeholder={this.state.vendor.website}
                             />
-                            <br></br>
-                            Tax Number : <TextField
-                                id ='tax_number'
-                                name="tax_number"
-                                type='number'
-                                onChange={this.onChange}                                
-                                placeholder={this.state.vendor.tax_number}
-                                  
-                            />
-                            <br></br>
-                            Contact Number: <TextField
+
+               </Grid>
+            </Grid>
+
+
+            <Grid container spacing={3} >
+                
+                <Grid item xm={6} md={6}> 
+                <TextField
+                label="Primary Phone Number"
                                 id ='phone1'
+                                value={this.state.update.phone1}
                                 name="phone1"
-                                type='number'
+                                fullWidth
+                                required
                                 onChange={this.onChange}                                  
-                                placeholder={this.state.vendor.phone1}
                             />
-                            <br></br>
-                            Contact Number 2 : <TextField
+                </Grid>
+                <Grid item xm={6} md={6}> 
+                 
+                <TextField
+                    label='Second Phone Number'
                                 id ='phone2'
                                 name="phone2"
-                                type='number'
+                                value={this.state.update.phone2}
+                                fullWidth
                                 onChange={this.onChange}                                
-                                placeholder={this.state.vendor.phone2}
                             />
-                            <br></br>
-                            
-                            Addresss : <TextField
+
+               </Grid>
+            </Grid>
+
+
+            <Grid container spacing={3}>
+
+                <Grid item xm={6} md={6}> 
+                <TextField
                                 id ='address'
                                 name="address"
                                 type='text'
+                                label='Address'
+                                value={this.state.update.address}
+                                fullWidth
                                 onChange={this.onChange}
-                                placeholder={this.state.vendor.address}
+                                required
                             />
-                            <br></br>
-                            <Button
+                </Grid>
+                <Grid item xm={6} md={6} > 
+                <TextField
+                                id ='tax_number'
+                                name="tax_number"
+                                type='number'
+                                fullWidth
+                                label='Tax Number'
+                                value={this.state.update.tax_number}
+                                onChange={this.onChange}  
+                                required                              
+                            />
+               </Grid>
+            </Grid>
+            <Grid container spacing={3}  alignItems='flex-end'>
+
+                <Grid item xm={3} md={6}> 
+                <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
+                                onClick={()=>{this.onSubmit()}}
                                 >
                                 Update
-                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.vendorDelete(this.state.vendor.id)}}>
-                            Delete Vendor
-                        </Button> 
-                        
-                </form>
+                                </Button>
+                </Grid><Grid item xm={3} md={6}> 
+                <Button variant="contained" color="secondary" onClick={() => {this.vendorDelete(this.state.update.id)}}>
+                    Delete Vendor
+                </Button> 
+               </Grid>
+            </Grid>
+        </Grid>
+        </Grid>
             
                         <br>
                         </br>
