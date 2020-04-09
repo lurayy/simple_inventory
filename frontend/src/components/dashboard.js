@@ -137,8 +137,6 @@ const useStyles = makeStyles((theme) => ({
 
 function Dashboard() {
   
-
-
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const handleDrawerOpen = () => {
@@ -255,6 +253,12 @@ function Dashboard() {
       <SettingsIcon />
       </ListItemIcon>
       <ListItemText primary="Item Catagories" />
+    </ListItem>
+    <ListItem button onClick={()=> {window.location.href="/users"}}>
+      <ListItemIcon>
+      <SettingsIcon />
+      </ListItemIcon>
+      <ListItemText primary="Staff Management" />
     </ListItem>
         </List>
         </Router>

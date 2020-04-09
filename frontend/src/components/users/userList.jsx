@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
 import List from '../list';
 import { getUser, updateUser } from '../../api/user';
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField, Grid } from '@material-ui/core';
+
+import Swal from 'sweetalert2'
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+
 
 class UserList extends Component {
     constructor(props){
@@ -22,20 +26,13 @@ class UserList extends Component {
         this.setState({
             'update': {
                 ...this.state.update,
-                [e.target.name] : [e.target.value]
+                [e.target.name] : [e.target.value][0]
             }
         })
     }
 
-    onSubmit(e){
-        e.preventDefault();
-        var data = this.state.user_data;
-        var ele;
-        for (ele in data){
-            if (this.state.update[ele]){
-                data[ele] = this.state.update[ele][0]
-            }
-        }
+    onSubmit(){
+        var data = this.state.update;
         data = {
             ...data,
             'action':'edit',
@@ -43,8 +40,12 @@ class UserList extends Component {
         }
         updateUser(JSON.stringify(data)).then(data =>{
             if (data['status']){
-                alert('You Details has been updated.')
-                this.props.update(0)
+                Swal.fire(
+                    'Updated!',
+                    'Details has been updated.',
+                    'success'
+                  )                
+                  this.props.update(0)
             }
         })
     }
@@ -57,7 +58,7 @@ class UserList extends Component {
         }
         updateUser(JSON.stringify(data)).then(data =>{
             if (data['status']){
-                alert('User has been deleted. They cannot login now')
+                Swal.fire('User has been deleted. They cannot login now')
                 this.props.update(0)
             }
         })
@@ -72,7 +73,7 @@ class UserList extends Component {
         }
         updateUser(JSON.stringify(data)).then(data =>{
             if (data['status']){
-                alert('User has been made active. They login now')
+                Swal.fire('User has been made active. They login now')
                 this.props.update(0)
             }
         })
@@ -92,7 +93,8 @@ class UserList extends Component {
         })
         await this.setState({
             'popUp':true,
-            'user_data':data_main
+            'user_data':data_main,
+            'update':data_main
         })
     }
 
@@ -122,76 +124,126 @@ class UserList extends Component {
 
     render() {
         const list = <List data={this.props.data} header={this.columns} popUp={this.popUp} update={this.props.update} page={this.props.page}/>
-        const popUpRender = <div>
-                        <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
-                        <h1>{this.state.user_data.name}</h1>
+        const popUpRender = 
+        
+        
+        <div>
+             <Grid  container spacing={3} justify="center" alignContent='center' alignItems="center">
+        
+        <Grid item xm={4}>
+        <Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+            <ArrowLeftIcon></ArrowLeftIcon>
+     Back
+ </Button>          <h1>{this.state.user_data.name}</h1>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp; 
+        
+        </Grid>
+        <Grid item xm={4}>
+        </Grid>
+    </Grid>
 
-                        <form onSubmit={this.onSubmit}>
-                            First Name : <TextField
+            
+    <Grid container  justify="center" alignContent='center' alignItems="center">
+        <Grid item xm={6}>
+        <table cellPadding={10} cellSpacing={10}>
+            <tbody>
+                <tr>
+                    <td>
+                        
+                First Name : <TextField
                                 id ='first_name'
                                 name="first_name"
-                                placeholder = {this.state.user_data.first_name}   
                                 type='text'
                                 onChange={this.onChange}
-                                // value={this.state.update.first_name}                       
+                                value={this.state.update.first_name}                       
                             />
                             
-                            Last Name : <TextField
-                            
-                                id ='last_name'
-                                name="last_name"
+                    </td>
+                    <td>
 
-                                placeholder = {this.state.user_data.last_name}   
-                                type='text'
-                                onChange={this.onChange}
-                                // value={this.state.update.last_name}                       
-                            />
                             
-                            <br></br>
-                             Username :<TextField
+                    Last Name : <TextField
+                            
+                            id ='last_name'
+                            name="last_name"
+
+                            // placeholder = {this.state.user_data.last_name}   
+                            type='text'
+                            onChange={this.onChange}
+                            value={this.state.update.last_name}                       
+                        />
+                       
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    Username :<TextField
                              
-                                id ='username'
+                             id ='username'
 
-                                name="username"
-                                placeholder = {this.state.user_data.username}   
-                                type='text'
-                                onChange={this.onChange}
-                                // value={this.state.update.username}                       
-                            />
-                            <br></br>
-                            Email : <TextField
+                             name="username"
+                            //  placeholder = {this.state.user_data.username}   
+                             type='text'
+                             onChange={this.onChange}
+                             value={this.state.update.username}                       
+                         />
+                    </td>
+                <td>
+                Email : <TextField
                                 id ='email'
                                 name="email"
-                                placeholder = {this.state.user_data.email}   
+                                // placeholder = {this.state.user_data.email}   
                                 type='email'
                                 onChange={this.onChange}
-                                // value={this.state.update.email}                       
+                                value={this.state.update.email}                       
                             />
-                            <br></br>
-                            User Post:
+                </td>
+
+                </tr>
+                <tr>
+                    <td>
+                    User Post:
                             <select name='user_type' onChange={this.onChange} defaultValue={this.state.user_data.user_type}>
                                 <option value="MANAGER">Manager</option>
                                 <option value="STAFF">Staff</option>
                             </select>
-                            <br></br>
-                            <Button
+                    </td>
+                </tr>
+<tr>
+    <td>
+    <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
+                                onClick={this.onSubmit}
                                 >
                                 Update
                                 </Button>
-                        </form>
-                        <br>
-                        </br>
-                        {this.state.user_data.is_active ? <Button variant="contained" color="secondary" onClick={() => {this.userDelete(this.state.user_data.id, this.state.user_data.uuid)}}>
+    </td>
+    <td>
+    {this.state.user_data.is_active ? <Button variant="contained" color="secondary" onClick={() => {this.userDelete(this.state.user_data.id, this.state.user_data.uuid)}}>
                             Deactivate User
                         </Button> : <Button variant="contained" color="secondary" onClick={() => {this.userRevive(this.state.user_data.id, this.state.user_data.uuid)}}>
                             Activate User
                         </Button> }
                         
+    </td>
+</tr>
+
+            </tbody>
+        </table>
+                            
+                            
+                       
                         <br>
                         </br>
+                        </Grid>
+                        </Grid>
                     </div>
         return (
             <div>
