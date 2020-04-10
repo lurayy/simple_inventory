@@ -9,7 +9,7 @@ import {updatePurchaseOrder, getPurchaseOrder} from '../../api/inventory/purchas
 import {updatePurchaseItem, deletePurchaseItems, createPurchaseItem} from '../../api/inventory/purchaseItem'
 import {getPurchaseOrderStatus} from '../../api/misc';
 import {getItems} from '../../api/inventory/itemApi';
-import { Grid, TextField, Button, Menu } from '@material-ui/core';
+import { Grid, TextField, Button } from '@material-ui/core';
 
 import Swal from 'sweetalert2'
 
@@ -186,11 +186,11 @@ class PopUpEdit extends Component {
         }
         updatePurchaseOrder(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                alert("Purchase Order Details Has Been Updated.")
+                Swal.fire("Purchase Order Details Has Been Updated.")
                 this.props.update(0)
             }
             else{
-                alert("Error : ",data.error)
+                Swal.fire("Error : ",data.error)
             }
         })
     }
@@ -220,11 +220,11 @@ class PopUpEdit extends Component {
             }
             createPurchaseItem(JSON.stringify(request_json)).then(data => {
                 if (data['status']){
-                    alert("Purchase Item Has Been Added.")
+                    Swal.fire("Purchase Item Has Been Added.")
                     this.refreshTable()
                 }
                 else{
-                    alert(data['error'])
+                    Swal.fire(data['error'])
                 }
             })
             return
@@ -235,11 +235,11 @@ class PopUpEdit extends Component {
         }
         updatePurchaseItem(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                alert("Purchase Item Details Has Been Updated.")
+                Swal.fire("Purchase Item Details Has Been Updated.")
                 this.refreshTable()
             }
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
     }
@@ -250,11 +250,11 @@ class PopUpEdit extends Component {
         }
         deletePurchaseItems(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                alert("Purchase Item Has Beed Deleted.")
+                Swal.fire("Purchase Item Has Beed Deleted.")
                 this.refreshTable()
             }
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
     }
@@ -402,7 +402,7 @@ class PopUpEdit extends Component {
 
     render() {
         const item_selection = this.state.item_selection
-        const itemPopUp = <Popup trigger={ <button>Select Item</button>} closeOnDocumentClick>
+        const itemPopUp = <Popup trigger={ <Button variant="contained" color="secondary" >Select Item</Button>} closeOnDocumentClick>
         <div>
             <input placeholder="Item Name" id='item_search_box' name='item_serach_box' onChange={this.searchItem}></input>
             <div className={style.dropdown_content} id='vendor_dropdown'>
@@ -515,7 +515,7 @@ class PopUpEdit extends Component {
                 </tbody>
             </table>
         const vendor_selection = this.state.vendor_selection
-        const vendorPopup = <Popup trigger={<button>Change Vendor</button>} closeOnDocumentClick>
+        const vendorPopup = <Popup trigger={<Button variant="contained" color="secondary">Change Vendor</Button>} closeOnDocumentClick>
         <div>
             <input placeholder="Vendor's first name" id='vendor_serach_box' name='vendor_serach_box' onChange={this.searchVendor}></input>
             <div className={style.dropdown_content} id='vendor_dropdown'>
@@ -617,6 +617,17 @@ class PopUpEdit extends Component {
                                             <MenuItem value="fixed">Fixed</MenuItem>
                                         </Select>
                                     </td>
+                                </tr>
+                                <tr >
+                                    <td colSpan={2}>
+                                    Status : <Select name='status' id="status" fullWidth onChange={this.onChange} value={this.state.update.purchase_order.status} required >
+                                    {status.map(
+                                        x => (
+                                        <MenuItem key={x.id} value={parseInt(x.id)}>{x.name}</MenuItem>
+                                        )
+                                    )}
+                                    </Select> 
+                            </td>
                                 </tr>
                                 <tr>
                                     <td>

@@ -10,11 +10,23 @@ import {updatePurchaseItem, deletePurchaseItems, createPurchaseItem} from '../..
 import {getPurchaseOrderStatus} from '../../api/misc';
 import {getItems} from '../../api/inventory/itemApi';
 
+import { Grid, TextField, Button } from '@material-ui/core';
+
+import IconButton from '@material-ui/core/IconButton';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+import Swal from 'sweetalert2'
+
+
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+
+
 class PurchaseOrderCreation extends Component {
 
     constructor(props){
         super(props)
         this.state = {
+            'registered':false,
             'popUp':false,
             'new':false,
             'current':0,
@@ -33,6 +45,9 @@ class PurchaseOrderCreation extends Component {
             ],
             update : {
                 'purchase_order':{
+                    'vendor_name':'',
+                    'total_cost':0,
+                    'discount':0,
                     'invoiced_on': this.converter((new Date()).toISOString()),
                     'completed_on': this.converter((new Date()).toISOString()),
                     'discount_type':'percent'
@@ -168,19 +183,51 @@ class PurchaseOrderCreation extends Component {
     }
 
     updatePurchaseOrder(){
-        var request_json = {
-            ...this.state.update.purchase_order,
-            'action':'edit',
-            'purchase_order_id':this.state.update.purchase_order.id
+        if (this.state.registered){
+            console.log(this.state)
+            var request_json = {
+                ...this.state.update.purchase_order,
+                'action':'edit',
+                'purchase_order_id':this.state.update.purchase_order.id
+            }
+            updatePurchaseOrder(JSON.stringify(request_json)).then(data => {
+                if (data['status']){
+                    Swal.fire("Purchase Order Details Has Been Updated.")
+                }
+                else{
+                    Swal.fire(data['error'])
+                }
+            })
         }
-        updatePurchaseOrder(JSON.stringify(request_json)).then(data => {
-            if (data['status']){
-                alert("Purchase Order Details Has Been Updated.")
+        else{
+            var request_json = {
+                ...this.state.update.purchase_order,
+                'action':'add',
+                'purchase_order_id':this.state.update.purchase_order.id
             }
-            else{
-                alert("Error : ",data.error)
-            }
-        })
+            createPurchaseOrder(JSON.stringify(request_json)).then(data => {
+                if (data['status']){
+                    console.log(data)
+                    Swal.fire("Purchase Order Has Been Added.")
+                    this.setState({
+                        ...this.state,
+                        'registered':true,
+                        'update':{
+                            ...this.state.update,
+                            'purchase_order':{
+                                ...this.state.update.purchase_order,
+                                'id':data['p_orders'][0]['id'],
+                                'added_by':data['p_orders'][0]['added_by_name']
+                            }
+                        }
+                    })
+                }
+                else{
+                    Swal.fire(data['error'])
+                }
+            })
+        }
+        
     }
     addPurchaseOrder(){
         var request_json = {
@@ -415,7 +462,7 @@ class PurchaseOrderCreation extends Component {
 
     render() {
         const item_selection = this.state.item_selection
-        const itemPopUp = <Popup trigger={ <button>Select Item</button>} closeOnDocumentClick>
+        const itemPopUp = <Popup trigger={ <Button variant="contained" color="secondary">Select Item</Button>} closeOnDocumentClick>
         <div>
             <input placeholder="Item Name" id='item_search_box' name='item_serach_box' onChange={this.searchItem}></input>
             <div className={style.dropdown_content} id='vendor_dropdown'>
@@ -428,28 +475,107 @@ class PurchaseOrderCreation extends Component {
             </div>
         </div>
         </Popup>
-        const popUpItem = <div>
-                <button onClick={() => {this.refreshTable()}} >Back</button><br></br><br></br>
-                Item : {this.state.update.purchase_items[this.state.current].item_name}  {this.state.new ? itemPopUp: <span></span>}<br></br>
-                Quantity : <input name="quantity" placeholder={this.state.update.purchase_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required></input><br></br>
-                Defective : <input name="defective" placeholder={this.state.update.purchase_items[this.state.current].defective} type="number"  onChange={this.onChangePI} required></input><br></br>
+        const popUpItem = <table cellPadding={10} cellSpacing={10}>
+        <tbody><tr>
+                <td colSpan={2}>
+                <IconButton color='secondary' onClick={()=> {this.refreshTable()}}><NavigateBeforeIcon /></IconButton>
+                </td>
+            </tr>
+        <tr>
+            <td>
+            <TextField
+                value= {this.state.update.purchase_items[this.state.current].item_name}
+                InputProps={{
+                    readOnly: true,
+                }}
                 
-                Discount Type :<select name='discount_type' id="discount_type" defaultValue={this.state.update.purchase_items[this.state.current].discount_type}  onChange={this.onChangePI}>
-                                    <option value="percent">Percentage</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                Discount : <input placeholder={this.state.update.purchase_items[this.state.current].discount} name="discount" onChange={this.onChangePI} ></input><br></br>
-                Purchase Price : <input placeholder={this.state.update.purchase_items[this.state.current].purchase_price} name="purchase_price" onChange={this.onChangePI} required></input> <br></br>
-                Status : <select defaultValue= {this.state.update.purchase_items[this.state.current].status} name="status" onChange={this.onChangePI}>
-                    <option value="delivered">Delivered</option>
-                    <option value="incomplete">Incomplete</option>
-                    <option value="addedtocirculation">Added To Circulation</option>
-                </select><br></br>
-                {this.state.new ? <button onClick={() => {this.postPurchaseItem(true)}} >Add</button> : <button onClick={() => {this.postPurchaseItem()}} >Update</button>}<br></br><br></br>
-                <button onClick={() => {this.deletePurchaseItem()}} >Delete</button>
-            </div>
+                label='Item'
+                variant="outlined"
+                />
+            </td>
+            <td>
+            {this.state.new ? itemPopUp: <span></span>}
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <TextField
+                value={this.state.update.purchase_items[this.state.current].quantity} 
+                type="number" 
+                required 
+                name="quantity" 
+                onChange={this.onChangePI}
+                label='Quantity'
+                variant="outlined"
+                />
+            </td>
+            <td>
+            <TextField
+                name="defective" 
+                value={this.state.update.purchase_items[this.state.current].defective} 
+                type="number"  
+                onChange={this.onChangePI}
+                required
+                label='Defective'
+                variant="outlined"
+                />
+            </td>
+        </tr>
+        <tr>
+                <td colSpan={2}>
+                    Discount Type  :  <Select lable='Discount Type' fullWidth name='discount_type' id="discount_type"value={this.state.update.purchase_items[this.state.current].discount_type}  onChange={this.onChangePI}>
+                        <MenuItem value="percent">Percentage</MenuItem>
+                        <MenuItem value="fixed">Fixed</MenuItem>
+                    </Select>
+                </td>
+        </tr>
+        <tr>
+            <td>
+            <TextField
+                name="discount" 
+                value={this.state.update.purchase_items[this.state.current].discount} 
+                type="number"  
+                onChange={this.onChangePI}
+                required
+                label='Discount'
+                variant="outlined"
+                />
+            </td>
+            <td>
+            <TextField
+                name="purchase_price" 
+                value={this.state.update.purchase_items[this.state.current].purchase_price} 
+                type="number"  
+                onChange={this.onChangePI}
+                required
+                label='Purchase Price'
+                variant="outlined"
+                />
+            </td>
+        </tr>
+        <tr>
+            <td colSpan={2}>
+            <Select value= {this.state.update.purchase_items[this.state.current].status} name="status" onChange={this.onChangePI}>
+                <MenuItem value="delivered">Delivered</MenuItem>
+                <MenuItem value="incomplete">Incomplete</MenuItem>
+                <MenuItem value="addedtocirculation">Added To Circulation</MenuItem>
+            </Select>
+            </td>
+        </tr>
+            <tr>
+                <td>
+                {this.state.new ? <Button variant="contained" color="primary" onClick={() => {this.postPurchaseItem(true)}} >Add</Button> : <Button variant="contained" color="primary" onClick={() => {this.postPurchaseItem()}} >Update</Button>}
+                </td>
+                <td>
+                {this.state.new ? <span></span>:<Button variant="contained" color="secondary" onClick={() => {this.deletePurchaseItem()}} >Delete</Button>}
+        
+                </td>
+            </tr>
+            
+            </tbody>
+        </table>
         const vendor_selection = this.state.vendor_selection
-        const vendorPopup = <Popup trigger={this.state.update.purchase_order.id ?<button>Change Vendor</button> :<button>Select Vendor</button> } closeOnDocumentClick>
+        const vendorPopup = <Popup trigger={this.state.update.purchase_order.id ?<Button variant="contained" color="secondary">Change Vendor</Button> :<Button variant="contained" color="secondary">Select Vendor</Button> } closeOnDocumentClick>
         <div>
             <input placeholder="Vendor's first name" id='vendor_serach_box' name='vendor_serach_box' onChange={this.searchVendor}></input>
             <div className={style.dropdown_content} id='vendor_dropdown'>
@@ -465,42 +591,141 @@ class PurchaseOrderCreation extends Component {
         const status = this.state.status
         return (
             <div>
-                Vendor : {this.state.update.purchase_order.vendor_name}
-                {vendorPopup}<br></br>
-                Invoiced On : 
-                <DatePicker
-                name='invoiced_on'
-                selected={this.state.update.purchase_order.invoiced_on}
-                onChange={this.invoiceHandler}
-                required
-                />
-                Completed On : 
-                <DatePicker
-                name='completed_on'
-                selected={this.state.update.purchase_order.completed_on}
-                onChange={this.completeHandler}
-                required
-                /><br></br>
-                Total Cost : <input placeholder={this.state.update.purchase_order.total_cost} name="total_cost" onChange={this.onChange} /><br></br>
-                Discount Type :<select name='discount_type' id="discount_type" onChange={this.onChange} defaultValue={this.state.update.purchase_order.discount_type}>
-                                <option value="percent">Percentage</option>
-                                <option value="fixed">Fixed</option>
-                            </select> <br></br>
-                Discount : <input placeholder={this.state.update.purchase_order.discount} name="discount" onChange={this.onChange}></input><br></br>
-                Status : <select name='status' id="status" onChange={this.onChange} value={this.state.update.purchase_order.status} required >
-                                {status.map(
-                                    x => (
-                                    <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
-                                    )
-                                )}
-                            </select> <br></br><br></br>
-                {this.state.update.purchase_order.id ? <button onClick={() => {this.updatePurchaseOrder()}}>Update Purchase Order</button> : <button onClick={() => {this.addPurchaseOrder()}}>Create Purchase Order</button>}
-                <br></br><br></br>
+                <Grid container justify='center'>
+                    <Grid  item xm={6}>
+                    <h1>Create New Purchase Order</h1>
+                    </Grid>
+                </Grid>
+                <Grid container justify='center'>
+                    <Grid item xm={6}>
+                        <table cellPadding='10' cellSpacing='10'>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <TextField
+                                        value={this.state.update.purchase_order.vendor_name}
+                                        InputProps={{
+                                            readOnly: true,
+                                        }}
+                                        label='Vendor'
+                                        variant="outlined"
+                                        />
+                                    </td>
+                                    <td>
+                                    {vendorPopup}
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>
+                                    Invoiced On:<br></br>
+                                    <DatePicker
+                                    name='invoiced_on'
+                                    selected={this.state.update.purchase_order.invoiced_on}
+                                    onChange={this.invoiceHandler}
+                                    />
+                                    </td>
+                                    <td>
+                                    Completed On : <br></br>
+                                    <DatePicker
+                                    name='completed_on'
+                                    selected={this.state.update.purchase_order.completed_on}
+                                    onChange={this.completeHandler}
+                                    />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    <TextField
+                                        value={this.state.update.purchase_order.total_cost} 
+                                        name="total_cost" 
+                                        onChange={this.onChange}
+                                        label='Total Cost'
+                                        variant="outlined"
+                                        fullWidth
+                                        />
+                                    </td>
+                                    <td>
+                                    <TextField
+                                        value= {this.state.update.purchase_order.discount} 
+                                        name="discount"
+                                        onChange={this.onChange}
+                                        label='Discount'
+                                        variant="outlined"
+                                        fullWidth
+                                        />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colSpan={2}>
+                                        Discount Type  :  <Select lable='Discount Type' fullWidth name='discount_type' id="discount_type" onChange={this.onChange} value={this.state.update.purchase_order.discount_type}>
+                                            <MenuItem value="percent">Percentage</MenuItem>
+                                            <MenuItem value="fixed">Fixed</MenuItem>
+                                        </Select>
+                                    </td>
+                                </tr>
+                                <tr >
+                                    <td colSpan={2}>
+                                    Status : <Select name='status' id="status" fullWidth onChange={this.onChange} value={this.state.update.purchase_order.status} required >
+                                    {status.map(
+                                        x => (
+                                        <MenuItem key={x.id} value={parseInt(x.id)}>{x.name}</MenuItem>
+                                        )
+                                    )}
+                                    </Select> 
+                            </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <Button  variant="contained" color="primary"  onClick={() => {this.updatePurchaseOrder()}}>
+                                        {this.state.registered? 'Update': 'Add'} 
+                                        </Button>
+                                       
+                                    </td>
+                                    <td>
+                                    
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table><br></br>
+                       </Grid>
+                </Grid>
                 <hr></hr>
-                <h3>Items</h3> {this.state.update.purchase_order.id ? <button  onClick={() => {this.addPurchaseItem()}}>Add New Items</button> : ''} 
-                {this.state.update.purchase_order.id ?this.state.popUp ? popUpItem :<List data={this.state.update.purchase_items} header={this.columns} page={false} popUp={this.popUp} /> : "Fill in Purchase Order first to add new items." }
+                <Grid container>
+                    <Grid item md={1}>
+
+                    </Grid>
+                    <Grid item md={3}>             
+                        <h1>Items</h1>   
+                    </Grid>
+
+                </Grid>
+                <Grid container justify='center'>
+                    <Grid item xm={8}>
+                    <table cellSpacing={10} cellPadding={10}>
+                    <tbody>
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colSpan={3}>
+                            {this.state.popUp ? popUpItem :<div> <Button  variant="contained" color="primary" onClick={() => {this.addPurchaseItem()}}>Add New Items</Button><br></br>
+                            <List data={this.state.update.purchase_items} header={this.columns} page={false} popUp={this.popUp} /></div>}
+                            </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                 
                 
-            </div>
+                </Grid>
+
+                </Grid>
+                </div>
         )
     }
 }
