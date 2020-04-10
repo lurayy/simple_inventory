@@ -31,14 +31,20 @@ class PurchaseOrder(models.Model):
     status = models.ForeignKey(PurchaseOrderStatus, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+        self.total_cost = 0
+        for item in self.items.filter(is_active=True):
+            self.total_cost = self.total_cost + item.purchase_price*(item.quantity)
+        super(PurchaseOrder, self).save(*args, **kwargs)
+
 
 @receiver(models.signals.post_save, sender=PurchaseOrder)
 def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
+    instance.total_cost = 0
     if instance.status.is_end == True:
         for item in instance.items.filter(is_active=True):
             item.status = "addedtocirculation"
             item.save()
-        
 
 
 class ItemCatagory(models.Model):
