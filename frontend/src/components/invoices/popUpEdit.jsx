@@ -14,7 +14,7 @@ import { Grid } from '@material-ui/core';
 import "react-datepicker/dist/react-datepicker.css";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-
+import Table from 'react-bootstrap/Table'
 
 import IconButton from '@material-ui/core/IconButton';
 
@@ -938,7 +938,7 @@ class PopUpEdit extends Component {
             <Grid container justify='center'>
                 <Grid item md={'auto'}>
 
-            <table cellSpacing={10} cellPadding={10}>
+            <Table cellSpacing={10} cellPadding={10} responsive="sm" >
                 <tbody>
 
                
@@ -1054,7 +1054,7 @@ class PopUpEdit extends Component {
                     </td>
                 </tr>
                 </tbody>
-            </table>
+            </Table>
             
             </Grid>
             </Grid>
@@ -1085,7 +1085,7 @@ class PopUpEdit extends Component {
 
             <Grid container justify='center' >
                 <Grid item xm={8}>
-                    <table  cellPadding='10' cellSpacing='10' >
+                    <Table  cellPadding='10' cellSpacing='10' >
                         <tbody>
                         <tr>
                         <td>
@@ -1221,7 +1221,7 @@ class PopUpEdit extends Component {
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
+                    </Table>
                 </Grid>
                 </Grid>
                 <Grid container justify='center'>

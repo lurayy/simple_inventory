@@ -9,6 +9,20 @@ import {updatePurchaseOrder, getPurchaseOrder} from '../../api/inventory/purchas
 import {updatePurchaseItem, deletePurchaseItems, createPurchaseItem} from '../../api/inventory/purchaseItem'
 import {getPurchaseOrderStatus} from '../../api/misc';
 import {getItems} from '../../api/inventory/itemApi';
+import { Grid, TextField, Button, Menu } from '@material-ui/core';
+
+import Swal from 'sweetalert2'
+
+import IconButton from '@material-ui/core/IconButton';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+
+
+
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+
+
+
 class PopUpEdit extends Component {
 
     constructor(props){
@@ -401,26 +415,105 @@ class PopUpEdit extends Component {
             </div>
         </div>
         </Popup>
-        const popUpItem = <div>
-                <button onClick={() => {this.refreshTable()}} >Back</button><br></br><br></br>
-                Item : {this.state.update.purchase_items[this.state.current].item_name}  {this.state.new ? itemPopUp: <span></span>}<br></br>
-                Quantity : <input name="quantity" placeholder={this.state.update.purchase_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required></input><br></br>
-                Defective : <input name="defective" placeholder={this.state.update.purchase_items[this.state.current].defective} type="number"  onChange={this.onChangePI} required></input><br></br>
+        const popUpItem = <table cellPadding={10} cellSpacing={10}>
+            <tbody><tr>
+                    <td colSpan={2}>
+                    <IconButton color='secondary' onClick={()=> {this.refreshTable()}}><NavigateBeforeIcon /></IconButton>
+                    </td>
+                </tr>
+            <tr>
+                <td>
+                <TextField
+                    value= {this.state.update.purchase_items[this.state.current].item_name}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                    
+                    label='Item'
+                    variant="outlined"
+                    />
+                </td>
+                <td>
+                {this.state.new ? itemPopUp: <span></span>}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                <TextField
+                    value={this.state.update.purchase_items[this.state.current].quantity} 
+                    type="number" 
+                    required 
+                    name="quantity" 
+                    onChange={this.onChangePI}
+                    label='Quantity'
+                    variant="outlined"
+                    />
+                </td>
+                <td>
+                <TextField
+                    name="defective" 
+                    value={this.state.update.purchase_items[this.state.current].defective} 
+                    type="number"  
+                    onChange={this.onChangePI}
+                    required
+                    label='Defective'
+                    variant="outlined"
+                    />
+                </td>
+            </tr>
+            <tr>
+                    <td colSpan={2}>
+                        Discount Type  :  <Select lable='Discount Type' fullWidth name='discount_type' id="discount_type"value={this.state.update.purchase_items[this.state.current].discount_type}  onChange={this.onChangePI}>
+                            <MenuItem value="percent">Percentage</MenuItem>
+                            <MenuItem value="fixed">Fixed</MenuItem>
+                        </Select>
+                    </td>
+            </tr>
+            <tr>
+                <td>
+                <TextField
+                    name="discount" 
+                    value={this.state.update.purchase_items[this.state.current].discount} 
+                    type="number"  
+                    onChange={this.onChangePI}
+                    required
+                    label='Discount'
+                    variant="outlined"
+                    />
+                </td>
+                <td>
+                <TextField
+                    name="purchase_price" 
+                    value={this.state.update.purchase_items[this.state.current].purchase_price} 
+                    type="number"  
+                    onChange={this.onChangePI}
+                    required
+                    label='Purchase Price'
+                    variant="outlined"
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td colSpan={2}>
+                <Select value= {this.state.update.purchase_items[this.state.current].status} name="status" onChange={this.onChangePI}>
+                    <MenuItem value="delivered">Delivered</MenuItem>
+                    <MenuItem value="incomplete">Incomplete</MenuItem>
+                    <MenuItem value="addedtocirculation">Added To Circulation</MenuItem>
+                </Select>
+                </td>
+            </tr>
+                <tr>
+                    <td>
+                    {this.state.new ? <Button variant="contained" color="primary" onClick={() => {this.postPurchaseItem(true)}} >Add</Button> : <Button variant="contained" color="primary" onClick={() => {this.postPurchaseItem()}} >Update</Button>}
+                    </td>
+                    <td>
+                    {this.state.new ? <span></span>:<Button variant="contained" color="secondary" onClick={() => {this.deletePurchaseItem()}} >Delete</Button>}
+            
+                    </td>
+                </tr>
                 
-                Discount Type :<select name='discount_type' id="discount_type" defaultValue={this.state.update.purchase_items[this.state.current].discount_type}  onChange={this.onChangePI}>
-                                    <option value="percent">Percentage</option>
-                                    <option value="fixed">Fixed</option>
-                                </select> <br></br>
-                Discount : <input placeholder={this.state.update.purchase_items[this.state.current].discount} name="discount" onChange={this.onChangePI} ></input><br></br>
-                Purchase Price : <input placeholder={this.state.update.purchase_items[this.state.current].purchase_price} name="purchase_price" onChange={this.onChangePI} required></input> <br></br>
-                Status : <select defaultValue= {this.state.update.purchase_items[this.state.current].status} name="status" onChange={this.onChangePI}>
-                    <option value="delivered">Delivered</option>
-                    <option value="incomplete">Incomplete</option>
-                    <option value="addedtocirculation">Added To Circulation</option>
-                </select><br></br>
-                {this.state.new ? <button onClick={() => {this.postPurchaseItem(true)}} >Add</button> : <button onClick={() => {this.postPurchaseItem()}} >Update</button>}<br></br><br></br>
-                <button onClick={() => {this.deletePurchaseItem()}} >Delete</button>
-            </div>
+                </tbody>
+            </table>
         const vendor_selection = this.state.vendor_selection
         const vendorPopup = <Popup trigger={<button>Change Vendor</button>} closeOnDocumentClick>
         <div>
@@ -436,44 +529,147 @@ class PopUpEdit extends Component {
         </div>
         </Popup>
         const status = this.state.status
+                
         return (
             <div>
-                <h1>Purchase Order</h1>
-                <h1>{this.props.purchase_order.vendor_name}</h1>
-                Vendor : {this.state.update.purchase_order.vendor_name}
-                {vendorPopup}<br></br>
-                Invoiced On : 
-                <DatePicker
-                name='invoiced_on'
-                selected={this.state.update.purchase_order.invoiced_on}
-                onChange={this.invoiceHandler}
-                />
-                Completed On : 
-                <DatePicker
-                name='completed_on'
-                selected={this.state.update.purchase_order.completed_on}
-                onChange={this.completeHandler}
-                /><br></br>
-                Added By : {this.state.update.purchase_order.added_by_name}<br></br>
-                Total Cost : <input placeholder={this.state.update.purchase_order.total_cost} name="total_cost" onChange={this.onChange}/><br></br>
-                Discount Type :<select name='discount_type' id="discount_type" onChange={this.onChange} defaultValue={this.state.update.purchase_order.discount_type}>
-                                <option value="percent">Percentage</option>
-                                <option value="fixed">Fixed</option>
-                            </select> <br></br>
-                Discount : <input placeholder={this.state.update.purchase_order.discount} name="discount" onChange={this.onChange}></input><br></br>
-                Status : <select name='status' id="status" onChange={this.onChange} value={this.state.update.purchase_order.status}  >
-                                {status.map(
-                                    x => (
-                                    <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
-                                    )
-                                )}
-                            </select> <br></br><br></br>
-                <button onClick={() => {this.updatePurchaseOrder()}}>Update Purchase Order</button><br></br><br></br>
-                <button onClick={() => {this.props.delete(this.props.purchase_order.id)}}>Delete</button>
+                <Grid container justify='center'>
+                    <Grid  item xm={6}>
+                    <h1>{this.props.purchase_order.vendor_name}</h1>
+                    </Grid>
+                </Grid>
+                <Grid container justify='center'>
+                    <Grid item xm={6}>
+                        <table cellPadding='10' cellSpacing='10'>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <TextField
+                                        value={this.state.update.purchase_order.vendor_name}
+                                        InputProps={{
+                                            readOnly: true,
+                                        }}
+                                        label='Vendor'
+                                        variant="outlined"
+                                        />
+                                    </td>
+                                    <td>
+                                    {vendorPopup}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colSpan={2}>
+                                    <TextField
+                                        value={this.state.update.purchase_order.added_by_name}
+                                        InputProps={{
+                                            readOnly: true,
+                                        }}
+                                        label='Added By'
+                                        variant="outlined"
+                                        fullWidth
+                                        />
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>
+                                    Invoiced On:<br></br>
+                                    <DatePicker
+                                    name='invoiced_on'
+                                    selected={this.state.update.purchase_order.invoiced_on}
+                                    onChange={this.invoiceHandler}
+                                    />
+                                    </td>
+                                    <td>
+                                    Completed On : <br></br>
+                                    <DatePicker
+                                    name='completed_on'
+                                    selected={this.state.update.purchase_order.completed_on}
+                                    onChange={this.completeHandler}
+                                    />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    <TextField
+                                        value={this.state.update.purchase_order.total_cost} 
+                                        name="total_cost" 
+                                        onChange={this.onChange}
+                                        label='Total Cost'
+                                        variant="outlined"
+                                        fullWidth
+                                        />
+                                    </td>
+                                    <td>
+                                    <TextField
+                                        value= {this.state.update.purchase_order.discount} 
+                                        name="discount"
+                                        onChange={this.onChange}
+                                        label='Discount'
+                                        variant="outlined"
+                                        fullWidth
+                                        />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colSpan={2}>
+                                        Discount Type  :  <Select lable='Discount Type' fullWidth name='discount_type' id="discount_type" onChange={this.onChange} value={this.state.update.purchase_order.discount_type}>
+                                            <MenuItem value="percent">Percentage</MenuItem>
+                                            <MenuItem value="fixed">Fixed</MenuItem>
+                                        </Select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <Button  variant="contained" color="primary"  onClick={() => {this.updatePurchaseOrder()}}>
+                                        Update
+                                        </Button>
+                                       
+                                    </td>
+                                    <td>
+                                    <Button  variant="contained" color="secondary"  onClick={() => {this.props.delete(this.props.purchase_order.id)}}>
+                                        Delete
+                                        </Button>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table><br></br>
+                       </Grid>
+                </Grid>
                 <hr></hr>
-                <h3>Items</h3> <button  onClick={() => {this.addPurchaseItem()}}>Add New Items</button>
-                {this.state.popUp ? popUpItem :<List data={this.state.update.purchase_items} header={this.columns} page={false} popUp={this.popUp} />}
-            </div>
+                <Grid container>
+                    <Grid item md={1}>
+
+                    </Grid>
+                    <Grid item md={3}>             
+                        <h1>Items</h1>   
+                    </Grid>
+
+                </Grid>
+                <Grid container justify='center'>
+                    <Grid item xm={8}>
+                    <table cellSpacing={10} cellPadding={10}>
+                    <tbody>
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colSpan={3}>
+                            {this.state.popUp ? popUpItem :<div> <Button  variant="contained" color="primary" onClick={() => {this.addPurchaseItem()}}>Add New Items</Button><br></br>
+                            <List data={this.state.update.purchase_items} header={this.columns} page={false} popUp={this.popUp} /></div>}
+                            </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                 
+                
+                </Grid>
+
+                </Grid>
+                </div>
         )
     }
 }

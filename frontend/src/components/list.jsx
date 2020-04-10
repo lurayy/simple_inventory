@@ -85,7 +85,7 @@ const List = (props) => {
 
       <Grid container justify="center" alignItems="center">
     <Grid item xs={"auto"}>
-    {no_data ? <h2>No More Data Available</h2> : <span></span>}
+    {no_data ? <h2>No Data Available</h2> : <span></span>}
     </Grid>
     </Grid>
     <br></br>

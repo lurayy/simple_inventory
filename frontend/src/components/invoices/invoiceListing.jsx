@@ -63,6 +63,16 @@ class InvoiceListing extends Component {
                 id
             ]
         }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+              if (result['value'] == true){
         deleteInvoices(JSON.stringify(data)).then(data=>{
             try {
                 if (data['status']){
@@ -79,6 +89,8 @@ class InvoiceListing extends Component {
             }
         })
     }
+    })
+}
     
     async popUp(id, uuid=0){
         const data = {

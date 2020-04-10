@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import List from '../list';
 import { getPurchaseOrder, deletePurchaseOrder, updatePurchaseOrder } from '../../api/inventory/purchaseOrder';
 import PopUpEdit from './popUpEdit';
+import Swal from 'sweetalert2'
 
 class PurchaseOrderList extends Component {
     
@@ -41,11 +42,15 @@ class PurchaseOrderList extends Component {
             updatePurchaseOrder(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("Vendor Data updated.")
+                        Swal.fire({
+                            title:'Updated',
+                            icon:'success',
+                            text:"Purchase Order Details updated."
+                        })
                         this.props.update(0)
                     }
                     else{
-                        alert(data['error'])
+                        Swal.fire(data['error'])
                     }
                 }catch(e){
                     console.log(e)
@@ -59,18 +64,30 @@ class PurchaseOrderList extends Component {
                 id
             ]
         }
-        deletePurchaseOrder(JSON.stringify(data)).then(data=>{
-            try {
-                if (data['status']){
-                    alert('Purchase Order Deleted.')
-                    this.props.update(0)
-                }   else{
-                    alert(data['error'])
-                }
-            }catch(e){
-                console.log(e)
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+              if(result['value']==true){
+                deletePurchaseOrder(JSON.stringify(data)).then(data=>{
+                    try {
+                        if (data['status']){
+                            Swal.fire('Purchase Order Deleted.')
+                            this.props.update(0)
+                        }   else{
+                            Swal.fire(data['error'])
+                        }
+                    }catch(e){
+                        console.log(e)
+                    }
+                })
             }
-        })
+         })
     }
     
     async popUp(id, uuid=0){
