@@ -45,9 +45,6 @@ class Login extends Component {
         loginUser(JSON.stringify(data)).then(data => {
             try{
                 if (data['status']){
-                    getCurrentUser().then(data => {
-                        this.props.dispatch(loggedIn(data['user_data']))
-                    })
                     window.location.href="/"
                   }else if ((this.state.username==="" && this.state.password==="")|
                 (this.state.username==="" || this.state.password==="")){

@@ -236,7 +236,7 @@ class PurchaseOrderCreation extends Component {
         }
         createPurchaseOrder(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                alert("Purchase Order Has Been Added.")
+                Swal.fire("Purchase Order Has Been Added.")
                 data['p_orders'][0]['invoiced_on'] = this.converter(data['p_orders'][0]['invoiced_on'])
                 data['p_orders'][0]['completed_on'] = this.converter(data['p_orders'][0]['completed_on'])
                 this.setState({
@@ -248,7 +248,7 @@ class PurchaseOrderCreation extends Component {
                 })
             }
             else{
-                alert("Error : ",data.error)
+                Swal.fire("Error : ",data.error)
             }
         })
     }
@@ -278,11 +278,11 @@ class PurchaseOrderCreation extends Component {
             }
             createPurchaseItem(JSON.stringify(request_json)).then(data => {
                 if (data['status']){
-                    alert("Purchase Item Has Been Added.")
+                    Swal.fire("Purchase Item Has Been Added.")
                     this.refreshTable()
                 }
                 else{
-                    alert(data['error'])
+                    Swal.fire(data['error'])
                 }
             })
             return
@@ -293,11 +293,11 @@ class PurchaseOrderCreation extends Component {
         }
         updatePurchaseItem(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                alert("Purchase Item Details Has Been Updated.")
+                Swal.fire("Purchase Item Details Has Been Updated.")
                 this.refreshTable()
             }
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
     }
@@ -309,11 +309,11 @@ class PurchaseOrderCreation extends Component {
         }
         deletePurchaseItems(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                alert("Purchase Item Has Beed Deleted.")
+                Swal.fire("Purchase Item Has Beed Deleted.")
                 this.refreshTable()
             }
             else{
-                alert(data['error'])
+                Swal.fire(data['error'])
             }
         })
     }
