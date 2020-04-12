@@ -51,6 +51,7 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 import FeaturedPlayListIcon from '@material-ui/icons/FeaturedPlayList';
 import SettingsIcon from '@material-ui/icons/Settings';
+import Hello from './dashboard/hello';
 
 
 const drawerWidth = 240;
@@ -148,7 +149,10 @@ function Dashboard() {
   };
 
   const user = useSelector(state => state.user);
-
+  var isDashboard = false
+  if( (window.location.pathname) ==='/'){
+    isDashboard = true
+  }
 
   return (
     <div className={classes.root}>
@@ -268,6 +272,7 @@ function Dashboard() {
         <Container className={classes.container}>
           <Grid container justify="center">
             <Grid item xs={12} >
+              {isDashboard ? <Hello></Hello>: <span></span>}
             <Router>
             <Switch>
                     <Route path='/login' component={Login}></Route>

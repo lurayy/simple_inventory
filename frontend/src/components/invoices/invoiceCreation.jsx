@@ -10,7 +10,7 @@ import {updateInvoiceItem, deleteInvoiceItems, createInvoiceItem} from '../../ap
 import {getItems} from '../../api/inventory/itemApi';
 import {getPlaces} from '../../api/inventory/placeApi';
 import { getDiscounts, getTaxes } from '../../api/misc'
-import { Grid, Button } from '@material-ui/core';
+import { Grid, Button, TextField } from '@material-ui/core';
 import Swal from 'sweetalert2';
 
 
@@ -50,6 +50,7 @@ class InvoiceCreation extends Component {
             ],
             update : {
                 'invoice':{
+                    'customer_name':'',
                     'invoiced_on': new Date(),
                     'due_on': new Date()
                 },
@@ -916,7 +917,7 @@ class InvoiceCreation extends Component {
                 <button onClick={() => {this.deleteInvoiceItem()}} >Delete</button>
             </div>
         const customer_selection = this.state.customer_selection
-        const customerPopup = <Popup trigger={<button>Select Customer</button>} closeOnDocumentClick>
+        const customerPopup = <Popup trigger={<Button variant="contained" color="secondary">Select Customer</Button>} closeOnDocumentClick>
         <div>
             <input placeholder="Customer's first name" id='customer_serach_box' name='customer_serach_box' onChange={this.searchCustomer}></input>
             <div className={style.dropdown_content} id='customer_dropdown'>
@@ -943,7 +944,7 @@ class InvoiceCreation extends Component {
                                 </th>
                             </tr>
                         <tr>
-                        <td><b>Customer :</b> <input
+                        <td><b></b> <TextField
                                 value={this.state.update.invoice.customer_name}
                                 label='Customer'
                                 variant="outlined"
@@ -973,10 +974,7 @@ class InvoiceCreation extends Component {
                         </tr>
                             <tr>
                                 <td>
-                                <Button variant="contained" color="primary" onClick={() => {this.updateInvoice()}}>Update Invoice</Button>
-                                </td>
-                                <td>
-                                <Button variant="contained" color="secondary"  onClick={() => {this.props.delete(this.props.invoice.id)}}>Delete</Button>
+                                <Button variant="contained" color="primary" onClick={() => {this.updateInvoice()}}>Create Invoice</Button>
                                 </td>
                             </tr>
                         </tbody>
