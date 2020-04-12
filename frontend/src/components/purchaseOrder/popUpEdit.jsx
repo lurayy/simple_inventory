@@ -88,8 +88,11 @@ class PopUpEdit extends Component {
     }
 
     async getVendorsData (request_json) {
+        console.log("getging vendor data")
         await getVendors(JSON.stringify(request_json)).then(data => {
+            console.log("got", data)
             if (data['status']){
+                console.log("setting")
                 this.setState({
                     'vendor_selection':data['vendors'],
                 })
@@ -142,6 +145,7 @@ class PopUpEdit extends Component {
     }
 
     searchVendor(e){
+        console.log("serch")
         if ((e.target.value).length > 2 ){
             var request_json = {
                 'action':'get',
