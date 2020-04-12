@@ -268,7 +268,7 @@ def vendors(request):
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'name':
-                    vendors = Vendor.objects.filter(is_active=True, first_name__contains=str(data_json['first_name']).lower())
+                    vendors = Vendor.objects.filter(is_active=True, first_name__icontains=str(data_json['first_name']).lower())
                     response_json['vendors'] = vendors_to_json(vendors)
                     if response_json['vendors']:
                         response_json['status'] = True
@@ -391,7 +391,7 @@ def items(request):
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == "name":
-                    items = Item.objects.filter(is_active=True, name__contains = str(data_json['name']).lower() ).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    items = Item.objects.filter(is_active=True, name__icontains = str(data_json['name']).lower() ).order_by('id')[int(data_json['start']):int(data_json['end'])]
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)

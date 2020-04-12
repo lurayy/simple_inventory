@@ -245,7 +245,7 @@ def customers(request):
                 return JsonResponse(response_json)
             if data_json['action'] == "get":
                 if data_json['filter'] == "name":
-                    customers = Customer.objects.filter(is_active=True, first_name__contains=str(data_json['name']).lower() ).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    customers = Customer.objects.filter(is_active=True, first_name__icontains=str(data_json['name']).lower() ).order_by('id')[int(data_json['start']):int(data_json['end'])]
                     response_json['customers'] = customers_to_json(customers)
                     response_json['status'] = True
                     return JsonResponse(response_json)
