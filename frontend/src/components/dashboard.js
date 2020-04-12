@@ -272,7 +272,7 @@ function Dashboard() {
         <Container className={classes.container}>
           <Grid container justify="center">
             <Grid item xs={12} >
-              {isDashboard ? <Hello></Hello>: <span></span>}
+              {/* {isDashboard ? <Hello></Hello>: <span></span>} */}
             <Router>
             <Switch>
                     <Route path='/login' component={Login}></Route>
