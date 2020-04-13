@@ -234,7 +234,7 @@ function Dashboard() {
         </List>
         <Divider />
         <List>
-    <ListItem button onClick={()=> {window.location.href="/items"}}>
+    <ListItem button onClick={()=> {window.location.href="/places"}}>
       <ListItemIcon>
       <SettingsIcon />
       </ListItemIcon>

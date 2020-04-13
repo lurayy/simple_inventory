@@ -47,3 +47,12 @@ class StatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrderStatus
         fields= '__all__'
+
+
+
+
+class PlacementSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Placement
+        fields= '__all__'

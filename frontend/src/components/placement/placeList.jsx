@@ -1,7 +1,17 @@
 import React, { Component } from 'react'
 import List from '../list';
 import { getPlace, updatePlace,  deletePlaces } from '../../api/inventory/placeApi';
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField, Grid } from '@material-ui/core';
+import {getPlacements, deletePlacement } from '../../api/misc'
+
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import Swal from 'sweetalert2'
+
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
 
 class PlaceList extends Component {
     
@@ -9,13 +19,23 @@ class PlaceList extends Component {
         super(props)
         this.popUp = this.popUp.bind(this)
         this.state = {
+            'page':1,
+            'start':0,
+            'end':10,
+            'popUpPlacement':false,
             'popUp':false,
             'place':{},
-            'update':{}
+            'update':{
+                'name':''
+            },
+            'placements':[]
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.placeDelete = this.placeDelete.bind(this)
+        this.update = this.update.bind(this)
+        this.popUpPlacement = this.popUpPlacement.bind(this)
+        this.deletePlacement = this.deletePlacement.bind(this)
     }
     
     onChange(e)
@@ -23,19 +43,96 @@ class PlaceList extends Component {
         this.setState({
             'update': {
                 ...this.state.update,
-                [e.target.name] : [e.target.value]
+                [e.target.name] : [e.target.value][0]
             }
         })
     }
 
     
-    async onSubmit(e){
-        e.preventDefault();
-            var data = this.state.place
-            var ele;
-            for (ele in this.state.update){
-                data[ele] = this.state.update[ele][0]
+    async update (by) {
+        var x = by<0?-1:1
+        if (by===0){
+            await this.setState({
+                start: 0,
+                end: 10,
+                page:1
+            })
+        }
+        else{
+            if (this.state.start+by>-1){
+                await this.setState({
+                    start: this.state.start+by,
+                    end: this.state.end+by,
+                    page:this.state.page+x
+                })
             }
+            else{
+                alert("Cannot move futher from here.")
+                return
+            }
+        }
+        var  request_json = {
+            'action':'get',
+            'place':this.state.update.id,
+            'filter':'place',
+            'start':this.state.start,
+            'end':this.state.end
+        }
+        console.log(request_json)
+        this.getPlacementsData(request_json)
+    }
+
+    async getPlacementsData(request_json){
+        var data_main;
+        await getPlacements(JSON.stringify(request_json)).then(data => {
+            console.log(data)
+            if (data['status']){
+                data_main=data['placements']
+            }
+        })
+        console.log(data_main)
+        await this.setState({
+            ...this.state,
+            'popUpPlacement':true,
+            'placements':data_main
+        })
+    }
+
+    async deletePlacement(id){
+        const request = {
+            'action':'delete',
+            'id':id
+        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "The remaining stock will be added to the default storage place.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) =>  {
+            if (result.value) {
+        deletePlacement(JSON.stringify(request)).then(data=>{
+            if(data['status']){
+                Swal.fire('Placement is deleted and the remaining stock is added to the default storing place.')
+                this.popUp(this.state.place.id)
+            }
+            else {
+                Swal.fire(data['error'])
+            }
+        })
+    }
+})
+}
+    
+
+    popUpPlacement(){
+
+    }
+    
+    async onSubmit(){
+            var data = this.state.update
             data = {...data, 'action':'edit','place_id':data.id}
             console.log(data)
             updatePlace(JSON.stringify(data)).then(data=> {
@@ -78,7 +175,7 @@ class PlaceList extends Component {
             'action':'get',
             'place_id':id,
         }
-        var data_main;
+        var data_main, data_main2;
         await getPlace(JSON.stringify(data)).then(data => {
             if (data['status']){
                 data_main=data
@@ -86,8 +183,17 @@ class PlaceList extends Component {
         })
         await this.setState({
             'popUp':true,
-            'place':data_main['places'][0]
+            'place':data_main['places'][0],
+            'update':data_main['places'][0],
         })
+        const req = {
+            'action':'get',
+            'place':id,
+            'filter':'place',
+            'start':0,
+            'end':10
+        }
+        this.getPlacementsData(req)
     }
 
 
@@ -104,52 +210,92 @@ class PlaceList extends Component {
         }     
     ]
 
-    second_columns =[
+    placementColumn = [
         {
             id:1,
-            name:"Item Name",
-            prop:'item_name'
+            name:"Item",
+            prop:'item_name',
         },
         {
             id:2,
-            name:"Stock",
-            prop:'stock'
+            name:'Purchase Order ID',
+            prop:'purchase_order_uuid'
         },
         {
             id:3,
-            name:'Purchase Order',
-            prop:'purchase_order_uuid'
+            name:'Stock',
+            prop:'stock'
         }
     ]
     
 
     render() {
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        
         const popUpRender = <div>
-                        <button onClick={()=> {this.setState({'popUp':false})}}>Back</button><br></br>
-                        <h1>{this.state.place.name}</h1>
-                        <form onSubmit={this.onSubmit}>
-                            Name: <TextField
-                                id ='name'
-                                name="name"
-                                type='text'
-                                onChange={this.onChange}  
-                                placeholder={this.state.place.name}          
-                            />
-                            <Button
-                                type='submit'
-                                variant="contained"
-                                color="primary"
-                                >
-                                Update
-                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.placeDelete(this.state.place.id)}}>
-                            Delete Discount
-                        </Button> 
+                         &nbsp;
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;<Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+                            <ArrowLeftIcon></ArrowLeftIcon>
+                            Back
+                        </Button>
+                        <Grid container>
+                            <Grid item xs={3}>
+                            <span> </span>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <table cellSpacing={10}>
+                                    <tbody>
+                                        <tr>
+                                            <td colSpan={2}>
+                                            <h1>{this.state.place.name}</h1>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colSpan={2}>
+                                            <TextField
+                                            id ='name'
+                                            name="name"
+                                            label='Place Name'
+                                            autoFocus
+                                            fullWidth
+                                            required
+                                            type='text'
+                                            onChange={this.onChange}  
+                                            value={this.state.update.name}          
+                                        />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                            <Button
+                                                type='submit'
+                                                variant="contained"
+                                                color="primary"
+                                                >
+                                                Update
+                                                </Button>
+                                            </td>
+                                            <td>
+                                            <Button variant="contained" color="secondary" onClick={() => {this.placeDelete(this.state.place.id)}}>
+                                                Delete Discount
+                                            </Button> 
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </Grid>
+                        </Grid>
+                        <Grid container justify={'center'}>
+                            <Grid item xm={8}>
+                            <h1>Items Located On {this.state.update.name}</h1>
+                            <List data={this.state.placements} header={this.placementColumn} delete={this.deletePlacement} popUp={this.popUpPlacement} update={this.update} page={this.state.page} />
+                            </Grid>
+                        </Grid>
                         
-                </form>
-            
-                        <br>
-                        </br>
                     </div>
         return (
             <div>

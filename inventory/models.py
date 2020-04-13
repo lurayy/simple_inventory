@@ -127,7 +127,15 @@ class Placement(models.Model):
     def save(self, *args, **kwargs):
         self.item = self.purchase_item.item
         super(Placement, self).save(*args, **kwargs)
-
+    
+    def delete(self, *args, **kwargs):
+        p_i = self.purchase_item
+        place =Place.objects.get(is_default=True)
+        stock = self.stock
+        super(Placement, self).delete(*args, **kwargs)
+        new_placement = Placement.objects.create(purchase_item=p_i, stock=stock, placed_on=place)
+        new_placement.save()
+        
 
 
 @receiver(pre_save, sender=Place)

@@ -11,6 +11,8 @@ import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import {Button } from '@material-ui/core';
 
 const useStyles = makeStyles({
   table: {
@@ -26,6 +28,7 @@ const List = (props) => {
   const classes = useStyles();
   const headers = props.header
   const rows = props.data
+  var delete_button;
   var temp;
   var no_data=false
   var back=true
@@ -36,6 +39,9 @@ const List = (props) => {
     back = false
   }
 
+  if (props.delete){
+    delete_button = true
+  }
 
   const pagination = <div>
     {back? <IconButton color="secondary" onClick={() => {props.update(-10)}} aria-label="pervious-button">
@@ -76,6 +82,7 @@ const List = (props) => {
                               <TableCell key={header.id}>{row[temp]}</TableCell>
                               )
                       )}
+                      <TableCell>{delete_button ? <Button  variant="contained" size='small' color="secondary" onClick={()=> {props.delete(row.id)}}><DeleteForeverIcon></DeleteForeverIcon></Button>:null }</TableCell>
                   </TableRow>
               )
           )}

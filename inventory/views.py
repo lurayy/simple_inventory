@@ -5,7 +5,7 @@ import json
 import datetime
 from user_handler.models import Vendor, CustomUserBase
 from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus, ItemCatagory
-from .utils import purchase_orders_to_json, purchase_items_to_json, str_to_datetime, vendors_to_json, items_to_json, item_catagories_to_json, places_to_json
+from .utils import purchase_orders_to_json, purchase_items_to_json, str_to_datetime, vendors_to_json, items_to_json, item_catagories_to_json, places_to_json, placements_to_json
 from .exceptions import  EmptyValueException
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
@@ -738,6 +738,30 @@ def assign_place(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
+@login_required
+@require_http_methods(['POST'])
+def placements(request):
+    request_json =  {}
+    if request.method == "POST":
+            try:
+                json_str = request.body.decode(encoding='UTF-8')
+                data_json = json.loads(json_str)
+                if data_json['action'] == "get":
+                    start = data_json['start']
+                    end = data_json['end']
+                    if data_json['filter'] == 'none':
+                        placements = Placement.objects.filter(is_active=True).order_by('-id')[start:end]
+                        request_json['placements'] = placements_to_json(placements)
+                    if data_json['filter'] == 'item':
+                        placements = Placement.objects.filter(is_active=True, item=data_json['item'])[start:end]
+                        request_json['placements'] = placements_to_json(placements)
+                    if data_json['filter'] == 'place':
+                        placements = Placement.objects.filter(is_active=True, placed_on=data_json['place'])[start:end]
+                        request_json['placements'] = placements_to_json(placements)    
+                request_json['status'] = True
+                return JsonResponse(request_json)
+            except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+                return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
 @login_required

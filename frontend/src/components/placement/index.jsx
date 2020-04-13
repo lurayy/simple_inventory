@@ -4,6 +4,17 @@ import {  connect } from 'react-redux';
 import  PlaceList  from './placeList';
 import { Link} from 'react-router-dom';
 
+
+import Button from '@material-ui/core/Button';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import LoadingIcon from '../loading';
+
 class Placements extends Component {
     constructor(props){
         super(props)
@@ -21,6 +32,7 @@ class Placements extends Component {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
         }
+        this.update_table(0)
     }
 
     async update_table (by) {
@@ -79,11 +91,31 @@ render() {
 
     return(
         <div>
-            <Link to='/places/create'>Add New Place</Link><br></br>
-            <button onClick={() => {this.update_table(0)}}>Refresh table</button><br></br>
-            {this.state.loaded ? render_after_load : "Loading..."}
-        </div>
-    )
+        <Grid container spacing={3} justify="center" alignItems="center">
+            <Grid item xs={3} >
+            <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
+              <RefreshIcon/>&nbsp;&nbsp;&nbsp;Refresh Table
+              </Button>
+            </Grid>
+            <Grid item xs={5}>
+  
+            </Grid>
+              <Grid item xs={3}>
+              <Link to='/places/create' style={{ textDecoration: 'none' }}>
+              <Button variant="contained" color="secondary">
+              <AddCircleIcon/>&nbsp;&nbsp;&nbsp;Add New Place
+              </Button>
+              </Link>
+              </Grid>
+  
+          <Grid item xs={12}>
+            <Paper>
+            {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
+            </Paper>
+          </Grid>
+          
+        </Grid>
+      </div>    )
 }
 }
 

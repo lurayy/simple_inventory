@@ -96,5 +96,22 @@ const getTaxes = async data => {
   };
 
   
-export {getPurchaseOrderStatus, getDiscounts, createDiscount, deleteDiscounts, updateDiscount, getDiscount, getTaxes, createTax, deleteTaxes, updateTax, getTax}
+  const getPlacements= async data => {
+    try {
+      return await baseRequest('apiv1/inventory/placements','POST', data);
+    } catch(e){
+      alert(e)
+    }
+  };
+
+  const deletePlacement = async data => {
+    try {
+      return await baseRequest('apiv1/inventory/places/assign','POST', data);
+    } catch(e){
+      alert(e)
+    }
+  }
+
+  
+export {deletePlacement,  getPlacements, getPurchaseOrderStatus, getDiscounts, createDiscount, deleteDiscounts, updateDiscount, getDiscount, getTaxes, createTax, deleteTaxes, updateTax, getTax}
   

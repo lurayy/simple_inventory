@@ -28,6 +28,8 @@ urlpatterns = [
     path('items/catagories', views.item_catagories, name = "get/add "),
     path('items/catagory', views.item_catagory, name = "get/edit "),
     path('items/catagories/delete', views.delete_item_catagories, name = "delete"),
+
+    path('placements', views.placements, name = 'placements')
     
     
 ]
