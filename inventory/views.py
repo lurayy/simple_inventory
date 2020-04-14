@@ -783,7 +783,7 @@ def purchase_items(request):
 
     }
     '''
-    response_json = {'status':''}
+    response_json = {'status':'', 'purchase_items':[]}
     if request.method == "POST":
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -802,17 +802,31 @@ def purchase_items(request):
                 purchase_item.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
+            if data_json['action'] == 'get':
+                if data_json['filter'] == 'itemForPlace':
+                    default = Place.objects.get(is_default=True)
+                    purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id']))
+                    for purchase_item in purchase_items:
+                        temp = {}
+                        try:
+                            x = Placement.objects.get(placed_on=default, purchase_item=purchase_item)
+                            print(x.stock)
+                            if (x.stock>0):
+                                temp = {
+                                    'purchase_order_id': purchase_item.purchase_order.uuid,
+                                    'id':purchase_item.id,
+                                    'price':purchase_item.purchase_price,
+                                    'vendor':str(purchase_item.purchase_order.vendor),
+                                    'stock':purchase_item.stock,
+                                    'on_default':x.stock
+                                }
+                                response_json['purchase_items'].append(temp)
+                        except:
+                            pass
+                    response_json['status'] = True
+                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-        response_json = {'status':'', 'p_items':[]}
-        # try:
-
-        #     purchase_item = PurchaseOrder.objects.get(id=int(id))
-        #     response_json['p_items'] = purchase_items_to_json([purchase_item])        
-        #     response_json['status'] = True
-        #     return JsonResponse(response_json)
-        # except(ObjectDoesNotExist) as exp:
-        #     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
 

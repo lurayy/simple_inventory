@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import List from '../list';
 import { getPlace, updatePlace,  deletePlaces } from '../../api/inventory/placeApi';
-import {Button, TextField, Grid } from '@material-ui/core';
+import {Button, TextField, Grid, Input } from '@material-ui/core';
 import {getPlacements, deletePlacement } from '../../api/misc'
-
+import {getItems} from '../../api/inventory/itemApi'
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 import Swal from 'sweetalert2'
-
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import {getPurchaseItems}  from '../../api/inventory/purchaseItem'
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -19,6 +20,12 @@ class PlaceList extends Component {
         super(props)
         this.popUp = this.popUp.bind(this)
         this.state = {
+            'itemsPage':1,
+            'itemsStart':0,
+            'itemsEnd':10,
+            'newPlacementPopUpSelectItem': false,
+            'purchaseItemSelectPopUp':false,
+            'addPlacementFinal':false,
             'page':1,
             'start':0,
             'end':10,
@@ -28,7 +35,13 @@ class PlaceList extends Component {
             'update':{
                 'name':''
             },
-            'placements':[]
+            'placementUpdate':{},
+            'placements':[],
+            'items':[],
+            'purchaseItems':[],
+            'selectedPurchaseItem':{
+
+            }
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -36,6 +49,10 @@ class PlaceList extends Component {
         this.update = this.update.bind(this)
         this.popUpPlacement = this.popUpPlacement.bind(this)
         this.deletePlacement = this.deletePlacement.bind(this)
+        this.addNewItem = this.addNewItem.bind(this)
+        this.updateItemsTable = this.updateItemsTable.bind(this)
+        this.selectItem = this.selectItem.bind(this)
+        this.selectPurchaseItem = this.selectPurchaseItem.bind(this)
     }
     
     onChange(e)
@@ -78,19 +95,16 @@ class PlaceList extends Component {
             'start':this.state.start,
             'end':this.state.end
         }
-        console.log(request_json)
         this.getPlacementsData(request_json)
     }
 
     async getPlacementsData(request_json){
         var data_main;
         await getPlacements(JSON.stringify(request_json)).then(data => {
-            console.log(data)
             if (data['status']){
                 data_main=data['placements']
             }
         })
-        console.log(data_main)
         await this.setState({
             ...this.state,
             'popUpPlacement':true,
@@ -134,7 +148,6 @@ class PlaceList extends Component {
     async onSubmit(){
             var data = this.state.update
             data = {...data, 'action':'edit','place_id':data.id}
-            console.log(data)
             updatePlace(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
@@ -196,6 +209,26 @@ class PlaceList extends Component {
         this.getPlacementsData(req)
     }
 
+    async addNewItem(id){
+        var request = {
+            action:'get',
+            filter:'none',
+            start:0,
+            end:10          
+        }    
+        await getItems(JSON.stringify(request)).then(data => {
+            if (data['status']){
+                this.setState({
+                    ...this.state,
+                    newPlacementPopUpSelectItem: true,
+                    items:data['items']                                        
+                })
+            }
+            else{
+                Swal.fire(data['error'])
+            }
+        })
+    }
 
     columns = [
         {
@@ -227,11 +260,180 @@ class PlaceList extends Component {
             prop:'stock'
         }
     ]
-    
 
+    itemsColumn = [
+        {
+            id:1,
+            name:'Item',
+            prop:'name',
+        },{
+            id:2,
+            name:'Defined Sales Price',
+            prop:'sales_price',
+        },{
+            id:3,
+            name:'Stock',
+            prop:'stock'
+        },{
+            id:4,
+            name:'catagory',
+            prop:'catagory_str'
+        }
+    ]
+
+    purchaseItemsColumn = [
+        {
+            id:1,
+            name:'Vendor',
+            prop:'vendor'
+        },{
+            id:2,
+            name:'Purchase Order ID',
+            prop:'purchase_order_id',
+        },{
+            id:3,
+            name:'Purchase Price',
+            prop:'price'
+        },{
+            id:4,
+            name:'Total Stock',
+            prop:'stock'
+        },{
+            id:5,
+            name:'Unassigned Stock (On Default Place)',
+            prop:'on_default'
+        }
+    ]
+
+    async updateItemsTable (by) {
+        var x = by<0?-1:1
+        if (by===0){
+            await this.setState({
+                'itemsStart': 0,
+                'itemsEnd': 10,
+                'itemsPage':1
+            })
+        }
+        else{
+            await this.setState({
+                'itemsStart': this.state.itemsStart+by,
+                'itemsEnd': this.state.itemsEnd+by,
+                'itemsPage':this.state.itemsPage+x
+            })
+        
+        }
+        var  request = {
+            'action':'get',
+            'filter':'none',
+            'start':this.state.itemsStart,
+            'end':this.state.itemsEnd
+        }
+        await getItems(JSON.stringify(request)).then(data => {
+            if (data['status']){
+                this.setState({
+                    ...this.state,
+                    items:data['items']                                        
+                })
+            }
+            else{
+                Swal.fire(data['error'])
+            }
+        })
+    }
+    
+    async selectItem(id){
+        var request = {
+            'action':'get',
+            'filter':'itemForPlace',
+            'item_id':id,
+        }
+        var item;
+        for (var x in this.state.items){
+            if (this.state.items[x].id===id){
+                item = this.state.items[x]
+            } 
+        }
+        await getPurchaseItems(JSON.stringify(request)).then(data => {
+            console.log(data)
+            if (data['status']){
+                this.setState({
+                    ...this.state,
+                    selectedItem:item,
+                    purchaseItemSelectPopUp:true,
+                    purchaseItems:data['purchase_items']                                
+                })
+            }
+            else{
+                Swal.fire(data['error'])
+            }
+        })
+    }
+
+    async selectPurchaseItem(id){
+        var purchase_item;
+        for (var x in this.state.purchaseItems){
+            if (this.state.purchaseItems[x].id===id){
+                purchase_item = this.state.purchaseItems[x]
+            } 
+        }
+        await this.setState({
+            ...this.state,
+            addPlacementFinal: false,
+            placementUpdate:{
+                ...this.state.placementUpdate,
+                placementUpdate:{
+                    'purchase_item_id':id,
+                    'placed_on':this.state.place.id
+                },
+                'selectedPurchaseItem':purchase_item,
+            }
+        })
+        console.log(this.state)
+    }
     render() {
         const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
-        
+        const fianlForm = <div>
+            <table cellSpacing={10}  cellPadding={10} >
+                <tbody>
+                    <tr>
+                        <td>
+                            <List data={this.state.selectedItem} header={this.itemsColumn}/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <List data={this.state.selectedPurchaseItem} header={this.purchaseItemsColumn}/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Number of Items : 
+                            <TextField required id="stock"  name="stock" onChange={this.onChange} label="stock" defaultValue={1}  type='number' autoFocus min={1} max={this.state.selectedPurchaseItem.on_default} />
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+        const newPlacementForm = <div>
+            <hr></hr>
+            <table cellSpacing={10} cellPadding={10}>
+                <tbody>
+                    <tr>
+                        <th colSpan={2}>
+                            <h1>Place new item to {this.state.place.name}</h1>
+                            {this.state.purchaseItemSelectPopUp ? <h4>Select a Purchase Order</h4> : <h4>Select an Item</h4>}
+                        </th>
+                    </tr>
+                    <tr>
+                        <td colSpan={2}>
+                        {this.state.purchaseItemSelectPopUp ? this.state.addPlacementFinal ? fianlForm : <List data={this.state.purchaseItems} header={this.purchaseItemsColumn} popUp={this.selectPurchaseItem}></List> : <List data={this.state.items} header={this.itemsColumn}  popUp={this.selectItem} update={this.updateItemsTable} page={this.state.itemsPage}/> }   
+                           </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
         const popUpRender = <div>
                          &nbsp;
                         &nbsp;
@@ -281,7 +483,7 @@ class PlaceList extends Component {
                                             </td>
                                             <td>
                                             <Button variant="contained" color="secondary" onClick={() => {this.placeDelete(this.state.place.id)}}>
-                                                Delete Discount
+                                                Delete Place
                                             </Button> 
                                             </td>
                                         </tr>
@@ -291,8 +493,25 @@ class PlaceList extends Component {
                         </Grid>
                         <Grid container justify={'center'}>
                             <Grid item xm={8}>
-                            <h1>Items Located On {this.state.update.name}</h1>
-                            <List data={this.state.placements} header={this.placementColumn} delete={this.deletePlacement} popUp={this.popUpPlacement} update={this.update} page={this.state.page} />
+                                <table>
+                                    <tbody>
+                                    <tr>
+                                        <td>
+                                        <h1>Items Located On {this.state.update.name}</h1>
+                                        </td>
+                                        <td>
+                                            <Button variant="contained" color="primary" onClick={() => {this.addNewItem(this.state.place.id)}}><AddCircleIcon></AddCircleIcon></Button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colSpan={2}>
+                                            {this.state.newPlacementPopUpSelectItem  ? newPlacementForm : <List data={this.state.placements} header={this.placementColumn} delete={this.deletePlacement} popUp={this.popUpPlacement} update={this.update} page={this.state.page} />}
+                                            
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            
                             </Grid>
                         </Grid>
                         

@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import {  connect } from 'react-redux';
-import {Button, TextField } from '@material-ui/core';
+import {Button, TextField, Grid } from '@material-ui/core';
 import { createPlace } from '../../api/inventory/placeApi';
+import Swal from 'sweetalert2';
 
 
 class PlaceCreation extends Component {
@@ -42,10 +43,10 @@ class PlaceCreation extends Component {
             createPlace(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        alert("New Place Added")
+                        Swal.fire("New Place Added")
                     }
                     else{
-                        alert(data['error'])
+                        Swal.fire(data['error'])
                     }
                 }catch(e){
                     console.log(e)
@@ -55,24 +56,41 @@ class PlaceCreation extends Component {
 
     render() {
         const popUpRender = <div>
-                        <form onSubmit={this.onSubmit}>
+            <Grid container justify='center'>
+                <Grid item>
+                    
+<form onSubmit={this.onSubmit}>
+                    <table cellPadding={10} cellSpacing={10}>
+                        <tbody >
+                            <tr>
+<td>
                             Name: <TextField
                                 id ='name'
                                 name="name"
                                 type='text'
                                 onChange={this.onChange}      
                             />
-                            <br></br>
-                            <Button
+</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
                                 >
                                 Create</Button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+               
+                            
+                           
                 </form>
-            
-                        <br>
-                        </br>
+                </Grid>
+
+            </Grid>
                     </div>
         return (
             popUpRender
