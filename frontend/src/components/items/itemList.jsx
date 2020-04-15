@@ -3,7 +3,7 @@ import List from '../list';
 import { getItem, updateItem,  deleteItems } from '../../api/inventory/itemApi';
 import {getItemCatagories} from '../../api/inventory/itemCatagory'
 import {Button, TextField,Grid } from '@material-ui/core';
-
+import {getPlacements} from '../../api/misc'
 
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 import Swal from 'sweetalert2'
@@ -21,11 +21,13 @@ class ItemList extends Component {
             'item':{
                 'catagory':''
             },
-            'update':{}
+            'update':{},
+            'placements':[]
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.itemDelete = this.itemDelete.bind(this)
+        this.getPlacementsData = this.getPlacementsData.bind(this);
     }
     
     onChange(e)
@@ -140,8 +142,70 @@ class ItemList extends Component {
                 console.log(e)
             }
         })
+        data ={
+            'action':'get',
+            'start':0,
+            'end':10,
+            'filter':'item',
+            'item':id
+        }
+        this.getPlacementsData(data)
     }
 
+    async getPlacementsData(request){
+        await getPlacements(JSON.stringify(request)).then(data=> {
+            try { 
+                console.log(data)
+                if (data['status']){
+                    this.setState({
+                       ...this.state,
+                       placements : data['placements']
+                    })
+                }
+                else{
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })                   }
+            }catch(e){
+                console.log(e)
+            }
+        })
+    }
+
+    async update_placement_table (by) {
+        var x = by<0?-1:1
+        if (by===0){
+            await this.setState({
+                'loaded':false,
+                placementStart: 0,
+                placementEnd: 10,
+                placementPage:1
+            })
+        }
+        else{
+            if (this.state.placementStart+by>-1){
+                await this.setState({
+                    'loaded':false,
+                    placementStart: this.state.placementStart+by,
+                    placementEnd: this.state.placementEnd+by,
+                    placementPage:this.state.placementPage+x
+                })
+            }
+            else{
+                alert("Cannot move futher from here.")
+                return
+            }
+        }
+        var  request_json = {
+            'action':'get',
+            'filter':'item',
+            'item':this.state.update.id,
+            'start':this.state.placementStart,
+            'end':this.state.placementEnd
+        }
+        this.getPlacementsData(request_json)
+    }
 
     columns = [
         {
@@ -171,7 +235,30 @@ class ItemList extends Component {
             prop: 'sold'
         }      
     ]
-    
+
+    placementColumns = [
+        {
+            id:1,
+            name:"Item",
+            prop:'item_name',
+        },
+        {
+            id:2,
+            name:'Place On',
+            prop:'placed_on_str'
+        },
+        {
+            id:3,
+            name:'Stock',
+            prop:'stock'
+        },
+        {
+            id:4,
+            name:'Purchase Order ID',
+            prop:'purchase_order_uuid'
+        }
+    ]
+    dummy(){}
 
     render() {
         const catagories = this.state.catagories
@@ -239,6 +326,14 @@ Catagory :
                         <br>
                         </br>
                         </Grid>
+                        </Grid>
+                        <Grid container justify='center'>
+                            <Grid item xm={8} >
+                                <List data={this.state.placements} header={this.placementColumns}  popUp={this.dummy} update={this.update_placement_table} page={this.state.placementPage}>
+
+                                </List>
+                            </Grid>
+
                         </Grid>
                     </div>
         return (
