@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import List from '../list';
-import { getPlace, updatePlace,  deletePlaces } from '../../api/inventory/placeApi';
+import { getPlace, updatePlace,  deletePlaces, assignPlace } from '../../api/inventory/placeApi';
 import {Button, TextField, Grid, Input } from '@material-ui/core';
 import {getPlacements, deletePlacement } from '../../api/misc'
 import {getItems} from '../../api/inventory/itemApi'
@@ -33,15 +33,14 @@ class PlaceList extends Component {
             'popUp':false,
             'place':{},
             'update':{
-                'name':''
+                'name':'',
+                'stock':1,
             },
             'placementUpdate':{},
             'placements':[],
             'items':[],
             'purchaseItems':[],
-            'selectedPurchaseItem':{
-
-            }
+            'selectedPurchaseItem':[]
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -53,6 +52,7 @@ class PlaceList extends Component {
         this.updateItemsTable = this.updateItemsTable.bind(this)
         this.selectItem = this.selectItem.bind(this)
         this.selectPurchaseItem = this.selectPurchaseItem.bind(this)
+        this.assignPlacement = this.assignPlacement.bind(this)
     }
     
     onChange(e)
@@ -230,6 +230,23 @@ class PlaceList extends Component {
         })
     }
 
+    async assignPlacement(){
+        var request = {
+            'action':"add",
+            'place_id':this.state.place.id,
+            'purchase_item':this.state.selectedPurchaseItem.id,
+            'stock':this.state.update.stock
+        }
+        await assignPlace(JSON.stringify(request)).then(data => {
+            if (data['status']){
+                Swal.fire('Selected Items have been assigned to the place.')
+                this.updateItemsTable(0)
+            }else{
+                Swal.fire(data['error'])
+            }
+        })
+    }
+
     columns = [
         {
             id:1,
@@ -378,15 +395,15 @@ class PlaceList extends Component {
         }
         await this.setState({
             ...this.state,
-            addPlacementFinal: false,
+            addPlacementFinal: true,
             placementUpdate:{
                 ...this.state.placementUpdate,
                 placementUpdate:{
                     'purchase_item_id':id,
                     'placed_on':this.state.place.id
                 },
-                'selectedPurchaseItem':purchase_item,
-            }
+            },
+            'selectedPurchaseItem':purchase_item,
         })
         console.log(this.state)
     }
@@ -396,19 +413,23 @@ class PlaceList extends Component {
             <table cellSpacing={10}  cellPadding={10} >
                 <tbody>
                     <tr>
-                        <td>
-                            <List data={this.state.selectedItem} header={this.itemsColumn}/>
+                        <td colSpan={2}>
+                            <h2><u>Selected Item</u></h2>
+                            <List data={[this.state.selectedItem]} header={this.itemsColumn}/>
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <List data={this.state.selectedPurchaseItem} header={this.purchaseItemsColumn}/>
+                        <td colSpan={2}>
+                            <h2><u>Selected Stock (Purchase Order)</u></h2>
+                            <List data={[this.state.selectedPurchaseItem]} header={this.purchaseItemsColumn}/>
                         </td>
                     </tr>
                     <tr>
+                        <td> 
+                            <TextField required id="stock"  name="stock" onChange={this.onChange} label="Number of Items To Assign" fullWidth defaultValue={this.state.update.stock}  type='number' autoFocus min={1} max={this.state.selectedPurchaseItem.on_default} />
+                        </td>
                         <td>
-                            Number of Items : 
-                            <TextField required id="stock"  name="stock" onChange={this.onChange} label="stock" defaultValue={1}  type='number' autoFocus min={1} max={this.state.selectedPurchaseItem.on_default} />
+                            <Button  variant="contained" color="primary" onClick={()=> {this.assignPlacement()}}>Assign</Button>
                         </td>
                     </tr>
                 </tbody>

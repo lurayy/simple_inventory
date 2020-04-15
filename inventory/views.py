@@ -695,7 +695,7 @@ def assign_place(request):
 
     assign placement foramt : 
     {
-        'action':'assign',
+        'action':'add',
         'place_id':1,
         'purchase_item':2,
         'stock':3        
@@ -710,16 +710,17 @@ def assign_place(request):
     '''    
     response_json = {'status':''}
     if request.method == "POST":
+        print("here")
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "assign":
+            if data_json['action'] == "add":
                 place = Place.objects.get(id=int(data_json['place_id']))
                 purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item']))
                 placement = Placement.objects.create(
-                    item = purchase_item,
-                    place_on = place,
-                    stock = int(data_json["quantity"])
+                    purchase_item = purchase_item,
+                    placed_on = place,
+                    stock = int(data_json["stock"])
                 )
                 placement.save()
                 response_json['status'] = True

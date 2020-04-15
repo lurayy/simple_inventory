@@ -70,8 +70,9 @@ def places_to_json(places):
 def placements_to_json(placements):
     data=[]
     for placement in placements:
-        temp = PlacementSerializer(placement).data
-        temp['purchase_order_uuid'] = str(placement.purchase_item.purchase_order.uuid)
-        temp['item_name'] = str(placement.item.name)
-        data.append(temp)
+        if( placement.stock != 0):
+            temp = PlacementSerializer(placement).data
+            temp['purchase_order_uuid'] = str(placement.purchase_item.purchase_order.uuid)
+            temp['item_name'] = str(placement.item.name)
+            data.append(temp)
     return data

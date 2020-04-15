@@ -9,9 +9,6 @@ import Button from '@material-ui/core/Button';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
-import { withStyles } from '@material-ui/styles';
-import PropTypes from 'prop-types';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import LoadingIcon from '../loading';
 
