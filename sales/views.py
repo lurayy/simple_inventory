@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 from user_handler.models import Tax, Discount
 from user_handler.models import Customer, CustomUserBase, Tax, Discount
 from .serializers import InvoiceStatusSerializer
+
 @login_required
 @require_http_methods(['POST'])
 def invoices(request):

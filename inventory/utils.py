@@ -74,5 +74,6 @@ def placements_to_json(placements):
             temp = PlacementSerializer(placement).data
             temp['purchase_order_uuid'] = str(placement.purchase_item.purchase_order.uuid)
             temp['item_name'] = str(placement.item.name)
+            temp['placed_on_str'] = str(placement.placed_on.name)
             data.append(temp)
     return data
