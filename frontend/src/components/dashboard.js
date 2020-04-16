@@ -51,7 +51,8 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 import FeaturedPlayListIcon from '@material-ui/icons/FeaturedPlayList';
 import SettingsIcon from '@material-ui/icons/Settings';
-import Hello from './dashboard/hello';
+
+import CustomerList from './customer/customerList'
 
 
 const drawerWidth = 240;
@@ -283,6 +284,7 @@ function Dashboard() {
                     <Route path='/vendors' component = {Vendors}></Route>
                     
                     <Route path='/customers/create' component = {CustomerCreation}></Route>
+                    <Route path='/customers/:id' component = {CustomerList}></Route>
                     <Route path='/customers' component = {Customers}></Route>
 
                     <Route path='/purchaseorders/create' component = {PurchaseOrderCreation}></Route>

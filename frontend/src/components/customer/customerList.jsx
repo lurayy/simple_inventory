@@ -34,8 +34,18 @@ class CustomerList extends Component {
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.customerDelete = this.customerDelete.bind(this)
+        this.back = this.back.bind(this)
+        this.popUp= this.popUp.bind(this)
     }
     
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/customers')
+        }
+    }
+
     onChange(e)
     {
         this.setState({
@@ -44,6 +54,17 @@ class CustomerList extends Component {
                 [e.target.name] : [e.target.value][0]
             }
         })
+    }
+
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+            console.log(e)
+        }
     }
 
     
@@ -114,22 +135,31 @@ class CustomerList extends Component {
         
     }
     
-    async popUp(id, uuid=0){
-        const data = {
-            'action':'get',
-            'customer_id':id,
-        }
-        var data_main;
-        await getCustomer(JSON.stringify(data)).then(data => {
-            if (data['status']){
-                data_main=data
+    async popUp(id, uuid=0, fromUrl=false){
+        if(!fromUrl){
+            this.props.pushNewId(id)
+        }else{
+            const data = {
+                'action':'get',
+                'customer_id':id,
             }
-        })
-        await this.setState({
-            'popUp':true,
-            'update':data_main['customers'][0],
-            'customer':data_main['customers'][0]
-        })
+            var data_main;
+            await getCustomer(JSON.stringify(data)).then(data => {
+                if (data['status']){
+                    data_main=data
+                }
+                else {
+                    Swal.fire(data['error'])
+                    return
+                }
+            })
+            await this.setState({
+                'popUp':true,
+                'update':data_main['customers'][0],
+                'customer':data_main['customers'][0]
+            })
+        }
+                
     }
 
 
@@ -157,8 +187,15 @@ class CustomerList extends Component {
     ]
 
 
+
     render() {
-        const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
+        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
          const popUpRender =
          <div>
             &nbsp;
@@ -166,7 +203,7 @@ class CustomerList extends Component {
             &nbsp;
             &nbsp;
             &nbsp;
-            &nbsp; <Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+            &nbsp; <Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
                 <ArrowLeftIcon></ArrowLeftIcon>
          Back
      </Button>

@@ -26,8 +26,8 @@ const styles = makeStyles((theme) => ({
 
 
 class Customers extends Component {
-    constructor(props){
-        super(props)
+    constructor(props, context ){
+        super(props, context)
         this.state = {
             'customers':[],
             'loaded':false,
@@ -36,13 +36,15 @@ class Customers extends Component {
             'page':1
         }
         this.update_table = this.update_table.bind(this)
+        this.pushNewId = this.pushNewId.bind(this)
     }
+
 
     componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
         }
-        this.update_table(0)
+        this.update_table(0)    
     }
 
     async update_table (by) {
@@ -89,6 +91,10 @@ class Customers extends Component {
         })
     }
 
+    pushNewId(id){
+        this.props.history.push('/customers/'+id)
+    }
+
  
 
 render() {
@@ -96,7 +102,7 @@ render() {
 
     const render_after_load = (
         <div>
-            <CustomerList data={this.state.customers} update={this.update_table} page={this.state.page} />
+            <CustomerList ref={this.child} data={this.state.customers} update={this.update_table} page={this.state.page} pushNewId={this.pushNewId} />
         </div>
     )
 
