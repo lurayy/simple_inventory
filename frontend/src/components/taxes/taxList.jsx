@@ -37,8 +37,28 @@ class TaxList extends Component {
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.taxDelete = this.taxDelete.bind(this)
+        this.taxDelete = this.taxDelete.bind(this);
+        this.back = this.back.bind(this);
     }
+
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/taxes')
+        }
+    }
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+            console.log(e)
+        }
+    }
+
     
     onChange(e)
     {
@@ -62,7 +82,7 @@ class TaxList extends Component {
                             'Tax details has been updated.',
                             'success'
                           )                        
-                          this.props.update(0)
+                          this.back()
                     }
                     else{
                         Swal.fire({
@@ -100,7 +120,7 @@ class TaxList extends Component {
                         showConfirmButton: false,
                         timer:1000
                     })                   
-                    this.props.update(0)
+                    this.back()
                 }   else{
                     Swal.fire({
                         icon:'error',
@@ -114,7 +134,10 @@ class TaxList extends Component {
     })
 }
     
-    async popUp(id, uuid=0){
+    async popUp(id, uuid=0,fromUrl){
+        if(!fromUrl){
+            this.props.pushNewId(id)
+        }else{
         const data = {
             'action':'get',
             'tax_id':id,
@@ -132,7 +155,7 @@ class TaxList extends Component {
         })
     }
 
-
+    }
     columns = [
         {
             id:1,
@@ -159,15 +182,20 @@ class TaxList extends Component {
 
     render() {
         const { classes } = this.props;
-
-        const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
+        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
         &nbsp;
         &nbsp;
         &nbsp;
         &nbsp;
         &nbsp;
-        &nbsp; <Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+        &nbsp; <Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
             <ArrowLeftIcon></ArrowLeftIcon>
      Back
  </Button>

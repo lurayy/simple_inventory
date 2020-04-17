@@ -19,6 +19,7 @@ class VendorList extends Component {
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.back = this.back.bind(this)
         this.vendorDelete = this.vendorDelete.bind(this)
     }
     
@@ -32,7 +33,23 @@ class VendorList extends Component {
         })
     }
 
-    
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/vendors')
+        }
+    }
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+            console.log(e)
+        }
+    }
     async onSubmit(){
             var data = this.state.update
             data = {...data, 'action':'edit'}
@@ -45,7 +62,7 @@ class VendorList extends Component {
                             'Vendor Details has been updated.',
                             'success'
                           )
-                        this.props.update(0)
+                        this.back()
                     }
                     else{
                         Swal.fire({
@@ -82,7 +99,7 @@ class VendorList extends Component {
                         showConfirmButton: false,
                         timer:1000
                     })  
-                    this.props.update(0)
+                    this.back()
                 }   else{
                     Swal.fire({
                         icon:'error',
@@ -95,7 +112,10 @@ class VendorList extends Component {
     })
 }
     
-    async popUp(id, uuid=0){
+    async popUp(id, uuid=0, fromUrl){
+        if(!fromUrl){
+            this.props.pushNewId(id)
+        }else{
         const data = {
             'action':'get',
             'vendor_id':id,
@@ -112,6 +132,7 @@ class VendorList extends Component {
             'update':data_main['vendors'][0]
         })
     }
+}
 
 
     columns = [
@@ -139,14 +160,20 @@ class VendorList extends Component {
     
 
     render() {
-        const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
+        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
              
              
         <Grid  container spacing={3} justify="center" alignContent='center' alignItems="center">
         
             <Grid item xm={4}>
-            <Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+            <Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
                 <ArrowLeftIcon></ArrowLeftIcon>
          Back
      </Button>          <h1>{this.state.update.name}</h1>

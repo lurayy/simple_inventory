@@ -53,6 +53,7 @@ class PlaceList extends Component {
         this.selectItem = this.selectItem.bind(this)
         this.selectPurchaseItem = this.selectPurchaseItem.bind(this)
         this.assignPlacement = this.assignPlacement.bind(this)
+        this.back = this.back.bind(this)
     }
     
     onChange(e)
@@ -64,7 +65,24 @@ class PlaceList extends Component {
             }
         })
     }
-
+    
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/places')
+        }
+    }
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+            console.log(e)
+        }
+    }
     
     async update (by) {
         var x = by<0?-1:1
@@ -152,7 +170,7 @@ class PlaceList extends Component {
                 try { 
                     if (data['status']){
                         alert("Place Data updated.")
-                        this.props.update(0)
+                        this.back()
                     }
                     else{
                         alert(data['error'])
@@ -173,7 +191,7 @@ class PlaceList extends Component {
             try {
                 if (data['status']){
                     alert('Place data deleted.')
-                    this.props.update(0)
+                    this.back()
                 }   else{
                     alert(data['error'])
                 }
@@ -183,7 +201,10 @@ class PlaceList extends Component {
         })
     }
     
-    async popUp(id, uuid=0){
+    async popUp(id, uuid=0, fromUrl){
+        if(!fromUrl){
+            this.props.pushNewId(id)
+        }else{
         const data = {
             'action':'get',
             'place_id':id,
@@ -208,6 +229,7 @@ class PlaceList extends Component {
         }
         this.getPlacementsData(req)
     }
+}
 
     async addNewItem(id){
         var request = {
@@ -408,7 +430,13 @@ class PlaceList extends Component {
         console.log(this.state)
     }
     render() {
-        const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
+        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const fianlForm = <div>
             <table cellSpacing={10}  cellPadding={10} >
                 <tbody>
@@ -461,7 +489,7 @@ class PlaceList extends Component {
                         &nbsp;
                         &nbsp;
                         &nbsp;
-                        &nbsp;<Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+                        &nbsp;<Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
                             <ArrowLeftIcon></ArrowLeftIcon>
                             Back
                         </Button>

@@ -23,6 +23,7 @@ class Placements extends Component {
             'page':1
         }
         this.update_table = this.update_table.bind(this)
+        this.pushNewId = this.pushNewId.bind(this)
     }
 
     componentDidMount() {
@@ -31,6 +32,11 @@ class Placements extends Component {
         }
         this.update_table(0)
     }
+    
+    pushNewId(id){
+        this.props.history.push('/places/'+id)
+    }
+
 
     async update_table (by) {
         var x = by<0?-1:1
@@ -82,7 +88,7 @@ class Placements extends Component {
 render() {
     const render_after_load = (
         <div>
-            <PlaceList data={this.state.places} update={this.update_table} page={this.state.page} />
+            <PlaceList pushNewId={this.pushNewId} data={this.state.places} update={this.update_table} page={this.state.page} />
         </div>
     )
 

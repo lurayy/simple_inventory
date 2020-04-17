@@ -39,7 +39,14 @@ class Taxes extends Component {
             'page':1
         }
         this.update_table = this.update_table.bind(this)
+        this.pushNewId = this.pushNewId.bind(this)
     }
+
+    
+    pushNewId(id){
+        this.props.history.push('/taxes/'+id)
+    }
+
 
     componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
@@ -100,7 +107,7 @@ render() {
 
     const render_after_load = (
         <div>
-            <TaxList data={this.state.taxes} update={this.update_table} page={this.state.page} />
+            <TaxList data={this.state.taxes} update={this.update_table} page={this.state.page} pushNewId={this.pushNewId}/>
         </div>
     )
 

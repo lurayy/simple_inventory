@@ -40,6 +40,12 @@ class Users extends Component {
             'page':1
         }
         this.update_table = this.update_table.bind(this)
+        this.pushNewId = this.pushNewId.bind(this)
+    }
+
+    
+    pushNewId(id){
+        this.props.history.push('/users/'+id)
     }
 
     componentDidMount() {
@@ -108,7 +114,7 @@ class Users extends Component {
     render() {
         const render_after_load = (
             <div>
-                <UserList data={this.state.users} update={this.update_table} page={this.state.page} />
+                <UserList pushNewId={this.pushNewId} data={this.state.users} update={this.update_table} page={this.state.page} />
             </div>
         )
         const { classes } = this.props;

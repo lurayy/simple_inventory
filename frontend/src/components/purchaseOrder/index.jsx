@@ -31,6 +31,12 @@ class PurchaseOrders extends Component {
             'page':1
         }
         this.update_table = this.update_table.bind(this)
+        this.pushNewId = this.pushNewId.bind(this)
+    }
+
+    
+    pushNewId(id){
+        this.props.history.push('/purchaseorders/'+id)
     }
 
     componentDidMount() {
@@ -92,7 +98,7 @@ class PurchaseOrders extends Component {
 render() {
     const render_after_load = (
         <div>
-            <PurchaseOrderList data={this.state.purchaseOrders} update={this.update_table} page={this.state.page} />
+            <PurchaseOrderList pushNewId={this.pushNewId} data={this.state.purchaseOrders} update={this.update_table} page={this.state.page} />
         </div>
     )
 

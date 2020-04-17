@@ -177,7 +177,7 @@ def s_user(request):
         data_json = json.loads(json_str)   
         try:
             if data_json['action'] == "get":
-                user = CustomUserBase.objects.get(id=data_json['user_id'], uuid=data_json['uuid'])
+                user = CustomUserBase.objects.get(id=data_json['user_id'])
                 user_json = {'id':'', 'name':'', 'status':'','username':'', 'uuid':''}
                 user_json['id'] = str(user.id)
                 user_json['name'] = f'{user.first_name} {user.last_name}'
@@ -192,7 +192,7 @@ def s_user(request):
                 user_json['status'] = True
                 return JsonResponse(user_json)
             else:
-                user = CustomUserBase.objects.get(id=int(data_json['user_id']), uuid=str(data_json['uuid']))
+                user = CustomUserBase.objects.get(id=int(data_json['user_id']))
                 if str(data_json['action']).lower() == 'delete':
                     user.is_active = False
                 if str(data_json['action']).lower() == 'revive':

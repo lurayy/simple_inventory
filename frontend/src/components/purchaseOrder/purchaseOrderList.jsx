@@ -18,6 +18,7 @@ class PurchaseOrderList extends Component {
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.purchaseOrderDelete = this.purchaseOrderDelete.bind(this)
+        this.back = this.back.bind(this)
     }
     
     onChange(e)
@@ -30,7 +31,24 @@ class PurchaseOrderList extends Component {
         })
     }
 
-    
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/purchaseorders')
+        }
+    }
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+            console.log(e)
+        }
+    }
+
     async onSubmit(e){
         e.preventDefault();
             var data = this.state.vendor
@@ -47,7 +65,7 @@ class PurchaseOrderList extends Component {
                             icon:'success',
                             text:"Purchase Order Details updated."
                         })
-                        this.props.update(0)
+                        this.back()
                     }
                     else{
                         Swal.fire(data['error'])
@@ -78,7 +96,7 @@ class PurchaseOrderList extends Component {
                     try {
                         if (data['status']){
                             Swal.fire('Purchase Order Deleted.')
-                            this.props.update(0)
+                            this.back()
                         }   else{
                             Swal.fire(data['error'])
                         }
@@ -90,7 +108,10 @@ class PurchaseOrderList extends Component {
          })
     }
     
-    async popUp(id, uuid=0){
+    async popUp(id, uuid=0, fromUrl){
+        if(!fromUrl){
+            this.props.pushNewId(id)
+        }else{
         const data = {
             'action':'get',
             'purchase_order_id':id,
@@ -113,6 +134,7 @@ class PurchaseOrderList extends Component {
             'purchase_items':data_main['p_items']
         })
     }
+}
 
 
     columns = [
@@ -145,7 +167,13 @@ class PurchaseOrderList extends Component {
     
 
     render() {
-        const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
+        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <PopUpEdit purchase_order={this.state.purchase_order} purchase_items={this.state.purchase_items} update={this.props.update} delete={this.purchaseOrderDelete} ></PopUpEdit>
         return (
             <div>

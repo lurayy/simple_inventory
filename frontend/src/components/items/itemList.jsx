@@ -28,6 +28,7 @@ class ItemList extends Component {
         this.onSubmit = this.onSubmit.bind(this);
         this.itemDelete = this.itemDelete.bind(this)
         this.getPlacementsData = this.getPlacementsData.bind(this);
+        this.back = this.back.bind(this)
     }
     
     onChange(e)
@@ -40,6 +41,23 @@ class ItemList extends Component {
         })
     }
 
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/items')
+        }
+    }
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+            console.log(e)
+        }
+    }
     
     async onSubmit(e){
         e.preventDefault();
@@ -105,7 +123,10 @@ class ItemList extends Component {
 })
     }
 
-    async popUp(id, uuid=0){
+    async popUp(id, uuid=0, fromUrl){
+        if(!fromUrl){
+            this.props.pushNewId(id)
+        }else{
         var data = {
             'action':'get',
             'item_id':id,
@@ -151,6 +172,7 @@ class ItemList extends Component {
         }
         this.getPlacementsData(data)
     }
+}
 
     async getPlacementsData(request){
         await getPlacements(JSON.stringify(request)).then(data=> {
@@ -261,12 +283,18 @@ class ItemList extends Component {
     dummy(){}
 
     render() {
+        var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
         const catagories = this.state.catagories
-        const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
             <Grid container justify='center'>
 <Grid item xm={6}>
-<Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+<Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
                 <ArrowLeftIcon></ArrowLeftIcon>
          Back
      </Button>          <h1>{this.state.item.name}</h1>

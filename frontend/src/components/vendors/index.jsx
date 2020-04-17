@@ -37,8 +37,14 @@ class Vendors extends Component {
             'page':1
         }
         this.update_table = this.update_table.bind(this)
+        this.pushNewId = this.pushNewId.bind(this)
     }
 
+    
+    pushNewId(id){
+        this.props.history.push('/vendors/'+id)
+    }
+    
     componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
             this.props.history.push('/')
@@ -97,7 +103,7 @@ render() {
 
     const render_after_load = (
         <div>
-            <VendorList data={this.state.vendors} update={this.update_table} page={this.state.page} />
+            <VendorList data={this.state.vendors} update={this.update_table} page={this.state.page}  pushNewId={this.pushNewId}/>
         </div>
     )
 

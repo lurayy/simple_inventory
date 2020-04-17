@@ -40,7 +40,13 @@ class Items extends Component {
             'page':1
         }
         this.update_table = this.update_table.bind(this)
+        this.pushNewId = this.pushNewId.bind(this)
+
     }
+    pushNewId(id){
+        this.props.history.push('/items/'+id)
+    }
+
 
     componentDidMount() {
         if (this.props.user.isLoggedIn === false ){
@@ -98,7 +104,7 @@ class Items extends Component {
 render() {
     const render_after_load = (
         <div>
-            <ItemList data={this.state.items} update={this.update_table} page={this.state.page} />
+            <ItemList pushNewId={this.pushNewId} data={this.state.items} update={this.update_table} page={this.state.page} />
         </div>
     )
     const { classes } = this.props;

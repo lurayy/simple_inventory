@@ -18,8 +18,26 @@ class UserList extends Component {
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.back = this.back.bind(this);
     }
     
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/users')
+        }
+    }
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+            console.log(e)
+        }
+    }
     
     onChange(e)
     {
@@ -45,7 +63,7 @@ class UserList extends Component {
                     'Details has been updated.',
                     'success'
                   )                
-                  this.props.update(0)
+                  this.back()
             }
         })
     }
@@ -59,7 +77,7 @@ class UserList extends Component {
         updateUser(JSON.stringify(data)).then(data =>{
             if (data['status']){
                 Swal.fire('User has been deleted. They cannot login now')
-                this.props.update(0)
+                this.back()
             }
         })
     }
@@ -74,12 +92,15 @@ class UserList extends Component {
         updateUser(JSON.stringify(data)).then(data =>{
             if (data['status']){
                 Swal.fire('User has been made active. They login now')
-                this.props.update(0)
+                this.back()
             }
         })
     }
 
-    async popUp(id, uuid=0){
+    async popUp(id, uuid=0, fromUrl){
+        if(!fromUrl){
+            this.props.pushNewId(id)
+        }else{
         const data = {
             'action':'get',
             'user_id':id,
@@ -97,6 +118,7 @@ class UserList extends Component {
             'update':data_main
         })
     }
+}
 
     columns = [
         {
@@ -122,8 +144,13 @@ class UserList extends Component {
     ]
     
 
-    render() {
-        const list = <List data={this.props.data} header={this.columns} popUp={this.popUp} update={this.props.update} page={this.props.page}/>
+    render() {var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
+        const list = <List data={listData} header={this.columns} popUp={this.popUp} update={this.props.update} page={this.props.page}/>
         const popUpRender = 
         
         
@@ -131,7 +158,7 @@ class UserList extends Component {
              <Grid  container spacing={3} justify="center" alignContent='center' alignItems="center">
         
         <Grid item xm={4}>
-        <Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+        <Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
             <ArrowLeftIcon></ArrowLeftIcon>
      Back
  </Button>          <h1>{this.state.user_data.name}</h1>
