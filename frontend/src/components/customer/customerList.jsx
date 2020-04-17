@@ -8,6 +8,8 @@ import PropTypes from 'prop-types';
 import {FormControl, InputLabel, Input} from '@material-ui/core'
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 import Swal from 'sweetalert2'
+import LoadingIcon from '../loading';
+
 
 const styles = makeStyles((theme) => ({
     root: {
@@ -27,6 +29,7 @@ class CustomerList extends Component {
         super(props)
         this.popUp = this.popUp.bind(this)
         this.state = {
+            'loading':false,
             'popUp':false,
             'customer':{},
             'update':{}
@@ -67,8 +70,21 @@ class CustomerList extends Component {
         }
     }
 
-    
+    complete(){
+        this.setState({
+            ...this.state,
+            loading:false
+        })
+    }
+    loading(){
+        this.setState({
+            ...this.state,
+            loading:true
+        })
+    }
+
     async onSubmit(){
+            this.loading()
             var data = this.state.update
             data = {...data, 'action':'edit'}
             updateCustomer(JSON.stringify(data)).then(data=> {
@@ -79,21 +95,24 @@ class CustomerList extends Component {
                             'Customer Details has been updated.',
                             'success'
                           )
-                        this.props.update(0)
-                    }
+                            this.back()
+                        }
                     else{
                         Swal.fire({
                             icon:'error',
                             title:data['error']
                         })
+                        this.complete()
                     }
                 }catch(e){
                     console.log(e)
                 }
             })
+        this.complete()
     }
 
     customerDelete(id){
+        this.loading()
         var data = {
             'customers_id':[
                 id
@@ -118,12 +137,14 @@ class CustomerList extends Component {
                                 showConfirmButton: false,
                                 timer:1000
                             })
-                            this.props.update(0)
+                            this.back()
                         }   else{
                             Swal.fire({
                                 icon:'error',
                                 title:data['error']
                             })
+                            this.complete()
+                            this.back()
                         }
                     }catch(e){
                         console.log(e)
@@ -132,10 +153,12 @@ class CustomerList extends Component {
               
             }
           })
+          this.complete()
         
     }
     
     async popUp(id, uuid=0, fromUrl=false){
+        this.loading()
         if(!fromUrl){
             this.props.pushNewId(id)
         }else{
@@ -159,7 +182,7 @@ class CustomerList extends Component {
                 'customer':data_main['customers'][0]
             })
         }
-                
+        this.complete()
     }
 
 
@@ -329,7 +352,7 @@ class CustomerList extends Component {
         </div>
         return (
             <div>
-                {this.state.popUp ? popUpRender : list}
+                {this.state.loading ?  <LoadingIcon></LoadingIcon> :this.state.popUp ? popUpRender : list}
             </div>
         )
     }
