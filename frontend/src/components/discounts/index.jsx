@@ -8,23 +8,10 @@ import Button from '@material-ui/core/Button';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
-import { withStyles } from '@material-ui/styles';
-import PropTypes from 'prop-types';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import LoadingIcon from '../loading';
 
 
-const styles = makeStyles((theme) => ({
-    root: {
-    flexGrow: 12,
-    },
-    paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    },
-}));
 
 
 class Discounts extends Component {
@@ -38,6 +25,7 @@ class Discounts extends Component {
             'page':1
         }
         this.update_table = this.update_table.bind(this)
+        this.pushNewId = this.pushNewId.bind(this)
     }
 
     componentDidMount() {
@@ -92,19 +80,23 @@ class Discounts extends Component {
         })
     }
 
+    pushNewId(id){
+        this.props.history.push('/discounts/'+id)
+    }
+
  
 
+
 render() {
-    const { classes } = this.props;
 
     const render_after_load = (
         <div>
-            <DiscountList data={this.state.discounts} update={this.update_table} page={this.state.page} />
+            <DiscountList pushNewId={this.pushNewId} data={this.state.discounts} update={this.update_table} page={this.state.page} />
         </div>
     )
 
     return(
-        <div className={classes.root}>
+        <div>
         <Grid container spacing={3} justify="center" alignItems="center">
             <Grid item xs={3} >
             <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
@@ -123,7 +115,7 @@ render() {
               </Grid>
   
           <Grid item xs={12}>
-            <Paper className={classes.paper}>
+            <Paper>
             {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
             </Paper>
           </Grid>
@@ -135,13 +127,8 @@ render() {
 }
 
 
-
-Discounts.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
-
 const mapStateToProps = state => ({
     user: state.user,
 })
 
-export default withStyles(styles)(connect(mapStateToProps)(Discounts))
+export default connect(mapStateToProps)(Discounts)

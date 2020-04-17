@@ -20,6 +20,25 @@ class InvoiceListing extends Component {
         this.invoiceDelete = this.invoiceDelete.bind(this)
     }
     
+     
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+        }
+    }
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/invoices')
+        }
+    }
+
+       
     onChange(e)
     {
         this.setState({
@@ -42,7 +61,7 @@ class InvoiceListing extends Component {
             updateInvoice(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
-                        Swal.fire("Vendor Data updated.")
+                        Swal.fire("Invoice Data updated.")
                         this.props.update(0)
                     }
                     else{
@@ -92,35 +111,40 @@ class InvoiceListing extends Component {
     })
 }
     
-    async popUp(id, uuid=0){
-        const data = {
-            'action':'get',
-            'invoice_id':id,
+    async popUp(id, uuid=0, fromUrl=false){
+        if(!fromUrl){
+            this.props.pushNewId(id)
         }
-        var data_main;
-        await getInvoice(JSON.stringify(data)).then(data => {
-            if (data['status']){
-                console.log(data)
-                data_main=data
+        else{
+            const data = {
+                'action':'get',
+                'invoice_id':id,
             }
-            else{
-                Swal.fire({
-                    icon:'error',
-                    title:data['error']
-                })
+            var data_main;
+            await getInvoice(JSON.stringify(data)).then(data => {
+                if (data['status']){
+                    console.log(data)
+                    data_main=data
+                }
+                else{
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })
+                }
+            })
+            if (data_main['invoice_items'].length === 0) {
+                console.log("blank")
+                data_main['invoice_items'] = [{
+                    id:0
+                }]
             }
-        })
-        if (data_main['invoice_items'].length === 0) {
-            console.log("blank")
-            data_main['invoice_items'] = [{
-                id:0
-            }]
+            await this.setState({
+                'popUp':true,
+                'invoice':data_main['invoice'][0],
+                'invoice_items':data_main['invoice_items']
+            })
         }
-        await this.setState({
-            'popUp':true,
-            'invoice':data_main['invoice'][0],
-            'invoice_items':data_main['invoice_items']
-        })
     }
 
 
@@ -159,7 +183,14 @@ class InvoiceListing extends Component {
     
 
     render() {
-        const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
+
+        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <PopUpEdit invoice={this.state.invoice} invoice_items={this.state.invoice_items} update={this.props.update} delete={this.invoiceDelete} ></PopUpEdit>
         return (
             <div>

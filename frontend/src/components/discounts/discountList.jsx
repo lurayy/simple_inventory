@@ -11,20 +11,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
-import { withStyles } from '@material-ui/styles';
-import PropTypes from 'prop-types';
-
-const styles = makeStyles((theme) => ({
-    root: {
-    flexGrow: 12,
-    },
-    paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    },
-}));
-
 
 class DiscountList extends Component {
     
@@ -38,8 +24,41 @@ class DiscountList extends Component {
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.back = this.back.bind(this)
         this.discountDelete = this.discountDelete.bind(this)
     }
+    
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+        }
+    }
+
+       
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/discounts')
+        }
+    }
+    complete(){
+        this.setState({
+            ...this.state,
+            loading:false
+        })
+    }
+    loading(){
+        this.setState({
+            ...this.state,
+            loading:true
+        })
+    }
+
     
     onChange(e)
     {
@@ -64,7 +83,7 @@ class DiscountList extends Component {
                             'Discounts details has been updated.',
                             'success'
                           )
-                        this.props.update(0)
+                        this.back()
                     }
                     else{
                         Swal.fire({
@@ -103,7 +122,7 @@ class DiscountList extends Component {
                                 showConfirmButton: false,
                                 timer:1000
                             })
-                            this.props.update(0)
+                            this.back()
                         }   else{
                             Swal.fire({
                                 icon:'error',
@@ -119,22 +138,27 @@ class DiscountList extends Component {
           })
     }
     
-    async popUp(id, uuid=0){
-        const data = {
-            'action':'get',
-            'discount_id':id,
+    async popUp(id, uuid=0, fromUrl=false){
+        if(!fromUrl){
+            this.props.pushNewId(id)
         }
-        var data_main;
-        await getDiscount(JSON.stringify(data)).then(data => {
-            if (data['status']){
-                data_main=data
+        else{
+            const data = {
+                'action':'get',
+                'discount_id':id,
             }
-        })
-        await this.setState({
-            'popUp':true,
-            'discount':data_main['discounts'][0],
-            'update':data_main['discounts'][0]
-        })
+            var data_main;
+            await getDiscount(JSON.stringify(data)).then(data => {
+                if (data['status']){
+                    data_main=data
+                }
+            })
+            await this.setState({
+                'popUp':true,
+                'discount':data_main['discounts'][0],
+                'update':data_main['discounts'][0]
+            })
+        }
     }
 
 
@@ -163,9 +187,14 @@ class DiscountList extends Component {
     
 
     render() {
-        const { classes } = this.props;
+        var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
 
-        const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         
         const popUpRender =
          <div>
@@ -174,7 +203,7 @@ class DiscountList extends Component {
             &nbsp;
             &nbsp;
             &nbsp;
-            &nbsp; <Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+            &nbsp; <Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
                 <ArrowLeftIcon></ArrowLeftIcon>
          Back
      </Button>
@@ -203,7 +232,7 @@ class DiscountList extends Component {
             <Grid container spacing={3}>
                 <Grid item xm={6} md={6}>
                     Discount Type :  
-                 <FormControl className={classes.formControl}>
+                 <FormControl>
                                 <Select onChange={this.onChange}   value={this.state.update.discount_type}  name='discount_type' id="discount_type">
                                 <MenuItem value="percent">Percentage</MenuItem>
                                 <MenuItem value="fixed">Fixed</MenuItem>
@@ -237,9 +266,6 @@ class DiscountList extends Component {
         </Grid><br></br>
         </div>
 
-
-
-
         return (
             <div>
                 {this.state.popUp ? popUpRender : list}
@@ -248,10 +274,6 @@ class DiscountList extends Component {
     }
 }
 
-DiscountList.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
 
-
-export default withStyles(styles)(DiscountList)
+export default (DiscountList)
 

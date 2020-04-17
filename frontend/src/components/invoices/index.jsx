@@ -42,6 +42,7 @@ class Invoices extends Component {
             'page':1
         }
         this.update_table = this.update_table.bind(this)
+        this.pushNewId = this.pushNewId.bind(this)
     }
 
     componentDidMount() {
@@ -105,6 +106,11 @@ class Invoices extends Component {
             }  
         })
     }
+    
+    pushNewId(id){
+        this.props.history.push('/invoices/'+id)
+    }
+
 
  
 
@@ -113,7 +119,7 @@ render() {
 
     const render_after_load = (
         <div>
-            <InvoiceListing data={this.state.invoices} update={this.update_table} page={this.state.page} />
+            <InvoiceListing pushNewId={this.pushNewId} data={this.state.invoices} update={this.update_table} page={this.state.page} />
         </div>
     )
 

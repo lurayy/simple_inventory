@@ -53,6 +53,15 @@ import FeaturedPlayListIcon from '@material-ui/icons/FeaturedPlayList';
 import SettingsIcon from '@material-ui/icons/Settings';
 
 import CustomerList from './customer/customerList'
+import DiscountList from './discounts/discountList'
+import InvoiceListing from './invoices/invoiceListing'
+import ItemCatagoryList from './itemCatagories/itemCatagoryList'
+import ItemList from './items/itemList'
+import PlaceList from './placement/placeList'
+import PurchaseOrderList  from './purchaseOrder/purchaseOrderList'
+import TaxList from './taxes/taxList'
+import UserList from './users/userList'
+import VendorList from './vendors/vendorList'
 
 
 const drawerWidth = 240;
@@ -279,8 +288,11 @@ function Dashboard() {
                     <Route path='/login' component={Login}></Route>
                     <Route path='/logout' component={Logout}></Route>
                     <Route path='/users/create' component = {UserCreation}></Route>
+                    <Route path='/users/:id' component = {UserList}></Route>
                     <Route path='/users' component = {Users}></Route>
+
                     <Route path='/vendors/create' component = {VendorCreation}></Route>
+                    <Route path='/vendors/:id' component = {VendorList}></Route>
                     <Route path='/vendors' component = {Vendors}></Route>
                     
                     <Route path='/customers/create' component = {CustomerCreation}></Route>
@@ -288,24 +300,31 @@ function Dashboard() {
                     <Route path='/customers' component = {Customers}></Route>
 
                     <Route path='/purchaseorders/create' component = {PurchaseOrderCreation}></Route>
+                    <Route path='/purchaseorders/:id' component = {PurchaseOrderList}></Route>
                     <Route path='/purchaseorders' component = {PurchaseOrders}></Route>
                     
                     <Route path='/invoices/create' component = {InvoiceCreation}></Route>
+                    <Route path='/invoices/:id' component = {InvoiceListing}></Route>
                     <Route path='/invoices' component = {Invoices}></Route>
 
                     <Route path='/discounts/create' component= {DiscountCreation}></Route>
+                    <Route path='/discounts/:id' component= {DiscountList}></Route>
                     <Route path='/discounts' component= {Discounts}></Route>
                     
                     <Route path='/taxes/create' component= {TaxCreation}></Route>
+                    <Route path='/taxes/:id' component= {TaxList}></Route>
                     <Route path='/taxes' component= {Taxes}></Route>
                     
                     <Route path='/items/create' component= {ItemCreation}></Route>
+                    <Route path='/items/:id' component= {ItemList}></Route>
                     <Route path='/items' component= {Items}></Route>
 
                     <Route path='/itemcatagories/create' component= {ItemCatagoryCreation}></Route>
+                    <Route path='/itemcatagories/:id' component= {ItemCatagoryList}></Route>
                     <Route path='/itemcatagories' component= {ItemCatagories}></Route>
 
                     <Route path='/places/create' component= {PlaceCreation}></Route>
+                    <Route path='/places/:id' component= {PlaceList}></Route>
                     <Route path='/places' component= {Places}></Route>
                     </Switch>
             </Router>

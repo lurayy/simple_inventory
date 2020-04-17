@@ -22,6 +22,7 @@ class ItemCatagoryList extends Component {
         this.onSubmit = this.onSubmit.bind(this);
         this.itemCatDelete = this.itemCatDelete.bind(this)
         this.popUptemp = this.popUptemp.bind(this)
+        this.back = this.back.bind(this)
         this.updatetemp = this.updatetemp.bind(this)
     }
     popUptemp(id,uuid){
@@ -29,6 +30,23 @@ class ItemCatagoryList extends Component {
     }
     updatetemp(){
 
+    }
+    back(){ 
+        if (this.props.data){
+            this.setState({...this.state, popUp:false});
+        }else{
+            this.props.history.push('/itemcatagories')
+        }
+    }
+    async componentDidMount(){
+        try {
+            const {id} = this.props.match.params
+            if (id){
+                await this.popUp(id,0,true)
+            }
+        }catch(e){
+            console.log(e)
+        }
     }
     onChange(e)
     {
@@ -54,7 +72,7 @@ class ItemCatagoryList extends Component {
                             'ItemCatagory Data updated.',
                             'success'
                           )
-                        this.props.update(0)
+                        this.back()
                     }
                     else{
                         Swal.fire({
@@ -94,8 +112,8 @@ class ItemCatagoryList extends Component {
                         showConfirmButton: false,
                         timer:1000
                     })
-                    this.props.update(0)
-                }   else{
+                    this.back() 
+                    }   else{
                     Swal.fire({
                         icon:'error',
                         title:data['error']
@@ -109,7 +127,10 @@ class ItemCatagoryList extends Component {
 })
     }
     
-    async popUp(id, uuid=0){
+    async popUp(id, uuid=0, fromUrl){
+        if(!fromUrl){
+            this.props.pushNewId(id)
+        }else{
         const data = {
             'action':'get',
             'item_catagory_id':id,
@@ -126,6 +147,7 @@ class ItemCatagoryList extends Component {
             'popUp':true,
             'itemCatagory':data_main['item_catagories'][0]
         })
+    }
     }
 
 
@@ -173,11 +195,17 @@ class ItemCatagoryList extends Component {
     
 
     render() {
-        const list = <List data={this.props.data} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        var listData
+        if (!this.props.data){
+            listData = []
+        }else{
+            listData=this.props.data
+        }
+        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
             <Grid container justify='center'>
 <Grid item xm={6}>
-<Button  variant="contained" size='small' color="primary" onClick={()=> {this.setState({...this.state, popUp:false})}}>
+<Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
                 <ArrowLeftIcon></ArrowLeftIcon>
          Back
      </Button>
