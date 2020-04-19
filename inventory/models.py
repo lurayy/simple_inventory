@@ -17,6 +17,7 @@ class PurchaseOrderStatus(models.Model):
 
 class PurchaseOrder(models.Model):
     uuid = models.UUIDField(unique=True,default= uuid.uuid4)
+    third_party_invoice_number = models.CharField(max_length=255, null=True, blank=True)
     added_by = models.ForeignKey(CustomUserBase, on_delete= models.SET_NULL, null=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True)
     invoiced_on = models.DateTimeField()
@@ -55,8 +56,22 @@ class ItemCatagory(models.Model):
     def __str__(self):
         return self.name
 
+
+def product_directory_path(instance, filename):
+    return 'product_image/product_{0}/image_{0}'.format(instance.name)
+
+
+def thumbnail_directory_path(instance, filename):
+    return 'product_image/product_{0}/thumbnail_{0}'.format(instance.name)
+
+
 class Item(models.Model):
     name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+    weight = models.FloatField(null=True, blank=True)
+    average_cost_price = models.FloatField(default=0)
+    product_image =  models.ImageField(null = True, upload_to = product_directory_path, blank = True)
+    thumbnail_url = models.ImageField(null = True, upload_to =  thumbnail_directory_path, blank = True)
     is_active = models.BooleanField(default=True)
     catagory = models.ForeignKey(ItemCatagory, on_delete=models.SET_NULL, null=True, blank=True, related_name='items')
     stock = models.PositiveIntegerField(default=0)
@@ -77,6 +92,7 @@ class Item(models.Model):
 
 
 class PurchaseItem(models.Model):
+    uuid = models.UUIDField(unique=True,default= uuid.uuid4)
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='items')
     quantity = models.PositiveIntegerField(default=0)

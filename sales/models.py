@@ -15,11 +15,9 @@ class Invoice(models.Model):
     ''' schema for invoice'''
     added_by = models.ForeignKey(CustomUserBase, on_delete=models.SET_NULL, null=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
-    
     invoiced_on = models.DateTimeField()
     due_on = models.DateTimeField()
-    order_number = models.UUIDField(unique=True,default= uuid.uuid4)
-    
+    invoice_number = models.UUIDField(unique=True,default= uuid.uuid4)
     total_amount = models.FloatField()
     paid_amount = models.FloatField()
     tax_total = models.PositiveIntegerField()

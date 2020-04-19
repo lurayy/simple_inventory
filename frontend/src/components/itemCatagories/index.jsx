@@ -92,6 +92,7 @@ class ItemCatagories extends Component {
     async getItemCatagoriesData (request_json) {
         await getItemCatagories(JSON.stringify(request_json)).then(data => {
             if (data['status']){
+                console.log(data)
                 this.setState({
                     'item_catagories':data['item_catagories'],
                     'loaded':true

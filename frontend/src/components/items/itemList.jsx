@@ -9,6 +9,10 @@ import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 import Swal from 'sweetalert2'
 
 
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+
+
 
 class ItemList extends Component {
     
@@ -29,6 +33,7 @@ class ItemList extends Component {
         this.itemDelete = this.itemDelete.bind(this)
         this.getPlacementsData = this.getPlacementsData.bind(this);
         this.back = this.back.bind(this)
+        this.dummy =this.dummy.bind(this)
     }
     
     onChange(e)
@@ -179,6 +184,7 @@ class ItemList extends Component {
             try { 
                 console.log(data)
                 if (data['status']){
+                    console.log(data)
                     this.setState({
                        ...this.state,
                        placements : data['placements']
@@ -280,7 +286,13 @@ class ItemList extends Component {
             prop:'purchase_order_uuid'
         }
     ]
-    dummy(){}
+    dummy(id){
+        for (var x in this.state.placements){
+            if (parseInt(this.state.placements[x]['id']) === parseInt( id)){
+                window.location.href= ("/purchaseorders/"+this.state.placements[x]['purchase_order_id'])
+            }
+        }
+    }
 
     render() {
         var listData
@@ -292,73 +304,99 @@ class ItemList extends Component {
         const catagories = this.state.catagories
         const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
         const popUpRender = <div>
-            <Grid container justify='center'>
-<Grid item xm={6}>
-<Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
-                <ArrowLeftIcon></ArrowLeftIcon>
-         Back
-     </Button>          <h1>{this.state.item.name}</h1>
+                    <Grid container>
+                    <Grid item xm={3}>
+                    <Button  variant="contained" size='small' color="primary" onClick={()=> {this.back()}}>
+                                    <ArrowLeftIcon></ArrowLeftIcon>
+                            Back
+                     </Button>        
+                     </Grid><Grid item xm={6}>  <h1>{this.state.item.name}</h1>
+                     </Grid><Grid container justify='center'><Grid item >
+
                         <form onSubmit={this.onSubmit}>
-                            <table>
+                            <table cellSpacing={10} cellPadding={10} >
                                 <tbody>
                                 <tr>
-                                    <td>
-                                    Name:
-                                    </td>
                                     <td>
                                     <TextField
                                 id ='name'
                                 name="name"
                                 type='text'
+                                label="Item's Name"
                                 onChange={this.onChange}  
-                                placeholder={this.state.update.name}          
+                                defaultValue={this.state.update.name}          
                             />
+                                    </td>
+                                    <td>
+                                    <TextField type='number' label='Sales Price' defaultValue={this.state.update.sales_price} onChange={this.onChange}></TextField><br></br>
+                            
                                     </td>
                                 </tr>
                                 <tr>
-<td>
-Catagory :
-</td>
-<td>
-<select name='catagory' id="catagory" onChange={this.onChange} value={this.state.update.catagory} required >
+                                <td colSpan={2}>
+                                    Item Catagory : 
+                                <Select fullWidth lable='Item Catagory' name='catagory' id="catagory" onChange={this.onChange} value={this.state.update.catagory} required >
                                 {catagories.map(
                                     x => (
-                                    <option key={x.id} value={parseInt(x.id)}>{x.name}</option>
+                                    <MenuItem key={x.id} value={parseInt(x.id)}>{x.name}</MenuItem>
                                     )
                                 )}
-                            </select>
-</td>
+                            </Select>
+                            </td>
                                 </tr>
-                                </tbody>
-                            </table>
-                             
-                              <br></br><br></br>
-                            
-                            Sales Price : <input placeholder={this.state.update.sales_price} onChange={this.onChange}></input><br></br>
-                            Stock : {this.state.update.stock} <br></br>
-                            Sold : {this.state.update.sold} <br></br>
-
-                            <br></br>
-                            <Button
+                                <tr>
+                                    <td>
+                                    <TextField
+          id="outlined-read-only-input"
+          label="Current Stock"
+          defaultValue={this.state.update.stock}
+          InputProps={{
+            readOnly: true,
+          }}
+          variant="outlined"
+        />
+                                    </td>
+                                    <td>
+                                    <TextField
+          id="outlined-read-only-input"
+          label="Number Of Sold Items"
+          defaultValue={this.state.update.sold}
+          InputProps={{
+            readOnly: true,
+          }}
+          variant="outlined"
+        />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    <Button
                                 type='submit'
                                 variant="contained"
                                 color="primary"
                                 >
                                 Update
-                                </Button> <Button variant="contained" color="secondary" onClick={() => {this.itemDelete(this.state.update.id)}}>
+                                </Button>
+                                    </td>
+                                    <td>
+                                    <Button variant="contained" color="secondary" onClick={() => {this.itemDelete(this.state.update.id)}}>
                             Delete Item
                         </Button> 
-                        
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>                             
                 </form>
             
                         <br>
                         </br>
                         </Grid>
                         </Grid>
+                        </Grid>
                         <Grid container justify='center'>
                             <Grid item xm={8} >
+                                <u><h3>Placement Of Current Item</h3></u>
                                 <List data={this.state.placements} header={this.placementColumns}  popUp={this.dummy} update={this.update_placement_table} page={this.state.placementPage}>
-
                                 </List>
                             </Grid>
 
