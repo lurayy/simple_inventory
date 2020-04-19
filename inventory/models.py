@@ -48,9 +48,10 @@ def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
 
 
 class ItemCatagory(models.Model):
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    
+
     def __str__(self):
         return self.name
 
