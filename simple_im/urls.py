@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
 from user_handler.views import entry_point
-
+from django.views.static import serve
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -10,6 +10,9 @@ urlpatterns = [
     path('apiv1/sales/', include('sales.urls')),
     path('apiv1/inventory/', include('inventory.urls')),
     path('apiv1/users/', include('user_handler.urls')),
+    url(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
+    url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
+
     path('', entry_point, name = " entry point"),
 ]
 
