@@ -11,8 +11,9 @@ urlpatterns = [
     path('apiv1/inventory/', include('inventory.urls')),
     path('apiv1/users/', include('user_handler.urls')),
     path('', entry_point, name = " entry point"),
-    # re_path(r'^(?:.*)/?$',  entry_point, name = " entry point")
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+urlpatterns.append(
+    re_path(r'^(?:.*)/?$',  entry_point, name = " entry point"))
