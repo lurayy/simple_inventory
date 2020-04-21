@@ -58,11 +58,11 @@ class ItemCatagory(models.Model):
 
 
 def product_directory_path(instance, filename):
-    return 'product_image/product_{0}/image_{0}'.format(instance.name)
+    return 'product_image/product_{0}/image_{0}.jpg'.format(instance.name)
 
 
 def thumbnail_directory_path(instance, filename):
-    return 'product_image/product_{0}/thumbnail_{0}'.format(instance.name)
+    return 'product_image/product_{0}/thumbnail_{0}.jpg'.format(instance.name)
 
 
 class Item(models.Model):
@@ -71,7 +71,7 @@ class Item(models.Model):
     weight = models.FloatField(null=True, blank=True)
     average_cost_price = models.FloatField(default=0)
     product_image =  models.ImageField(null = True, upload_to = product_directory_path, blank = True)
-    thumbnail_url = models.ImageField(null = True, upload_to =  thumbnail_directory_path, blank = True)
+    thumbnail_image = models.ImageField(null = True, upload_to =  thumbnail_directory_path, blank = True)
     is_active = models.BooleanField(default=True)
     catagory = models.ForeignKey(ItemCatagory, on_delete=models.SET_NULL, null=True, blank=True, related_name='items')
     stock = models.PositiveIntegerField(default=0)

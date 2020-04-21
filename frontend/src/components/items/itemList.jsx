@@ -2,15 +2,17 @@ import React, { Component } from 'react'
 import List from '../list';
 import { getItem, updateItem,  deleteItems } from '../../api/inventory/itemApi';
 import {getItemCatagories} from '../../api/inventory/itemCatagory'
-import {Button, TextField,Grid } from '@material-ui/core';
+import {Button, TextField,Grid, Card, CardActionArea } from '@material-ui/core';
 import {getPlacements} from '../../api/misc'
 
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 import Swal from 'sweetalert2'
-
+import url from '../../server';
 
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import { CardMedia } from '@material-ui/core';
+import FileBase64 from 'react-filebase64';
 
 
 
@@ -26,7 +28,9 @@ class ItemList extends Component {
                 'catagory':''
             },
             'update':{},
-            'placements':[]
+            'placements':[],
+            'thumbnail_image':false,
+            'product_image':false
         }
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -34,6 +38,7 @@ class ItemList extends Component {
         this.getPlacementsData = this.getPlacementsData.bind(this);
         this.back = this.back.bind(this)
         this.dummy =this.dummy.bind(this)
+        this.onFileChange = this.onFileChange.bind(this)
     }
     
     onChange(e)
@@ -64,10 +69,43 @@ class ItemList extends Component {
         }
     }
     
+    onFileChange(e){
+        
+    const toDataURL = url => fetch(url)
+        .then(response => response.blob())
+        .then(blob => new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+        }))
+    
+    
+    toDataURL(e.target.files[0])
+        .then(dataUrl => {
+        console.log('RESULT:', dataUrl)
+        this.setState({
+            ...this.state,
+            product_image: dataUrl
+        })
+        })   
+    }
+
+    getFiles(files){
+        this.setState({ product_image: files })
+      }
+      
+    getThumbnail(files){
+        this.setState({ thumbnail_image: files })
+      }
+
     async onSubmit(e){
         e.preventDefault();
+        console.log(this.state)
             var data = this.state.update
             data = {...data, 'action':'edit','item_id':data.id}
+            data['new_product_image'] = this.state.product_image
+            data['new_thumbnail_image'] = this.state.thumbnail_image
             updateItem(JSON.stringify(data)).then(data=> {
                 try { 
                     if (data['status']){
@@ -295,6 +333,9 @@ class ItemList extends Component {
     }
 
     render() {
+        var product_image=url.slice(0,-1) +this.state.update.product_image;
+        var thumbnail_image=url.slice(0,-1) +this.state.update.thumbnail_image;
+
         var listData
         if (!this.props.data){
             listData = []
@@ -310,8 +351,8 @@ class ItemList extends Component {
                                     <ArrowLeftIcon></ArrowLeftIcon>
                             Back
                      </Button>        
-                     </Grid><Grid item xm={6}>  <h1>{this.state.item.name}</h1>
-                     </Grid><Grid container justify='center'><Grid item >
+                     </Grid><Grid item xm={8}>  <h1>{this.state.update.name}</h1>
+                     </Grid><Grid container justify='center'><Grid item md={6}>
 
                         <form onSubmit={this.onSubmit}>
                             <table cellSpacing={10} cellPadding={10} >
@@ -368,6 +409,75 @@ class ItemList extends Component {
         />
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                    <TextField
+                                id ='weight'
+                                name="weight"
+                                type='number'
+                                label="Item's Weight (in kg)"
+                                onChange={this.onChange}  
+                                defaultValue={this.state.update.weight}          
+                            />
+                                    </td>
+                                    <td>
+                                    <TextField
+                                id ='average_cost_price'
+                                name="average_cost_price"
+                                type='number'
+                                label="Item's Cost Price"
+                                onChange={this.onChange}  
+                                defaultValue={this.state.update.average_cost_price}          
+                            />
+                                    </td>
+                                    </tr>
+                                    <tr>
+                                        <td colSpan={2}>
+                                        <TextField
+                                            fullWidth
+                                            id ='description'
+                                            name="description"
+                                            type='text'
+                                            label="Description"
+                                            onChange={this.onChange}  
+                                            defaultValue={this.state.update.description}          
+                                        />
+                                        </td>
+                                    </tr>
+                                <tr>
+                                    <td colSpan={2}>
+                                        <h3>Product Image</h3>
+                                            <img width="100%" src={product_image} alt='Product Image' ></img>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    Upload Product Image : <FileBase64
+                                    multiple={ true } 
+                                    onDone={ this.getFiles.bind(this) } />
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td colSpan={2}>
+                                        <h3>Thumbnail Image</h3>
+                                            <img width="100%" src={thumbnail_image} alt='Thumbnail Image' ></img>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    Upload Thumbnail : <FileBase64
+                                    multiple={ true } 
+                                    onDone={ this.getThumbnail.bind(this) } />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+
+                                    </td>
+                                </tr>
+
+
                                 <tr>
                                     <td>
                                     <Button

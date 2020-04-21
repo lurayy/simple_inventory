@@ -11,6 +11,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from .serializers import StatusSerializer
 
+import base64
+
+from django.core.files.base import ContentFile
+
 
 @login_required
 @require_http_methods(['POST'])
@@ -434,6 +438,28 @@ def item(request):
                 item.name = str(data_json['name'])
                 item.catagory = ItemCatagory.objects.get(id=int(data_json['catagory']))
                 item.is_active = data_json['is_active']
+                item.description = data_json['description']
+                item.weight = data_json['weight']
+                item.average_cost_price =  data_json['average_cost_price']
+                try:
+                    if (data_json['new_product_image']):
+                        data = data_json['new_product_image'][0]['base64']
+                        format, imgstr = data.split(';base64,') 
+                        ext = format.split('/')[-1] 
+                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+                        item.product_image = data
+                except:
+                    pass
+                try:
+                    if (data_json['new_thumbnail_image']):
+                        data = data_json['new_thumbnail_image'][0]['base64']
+                        format, imgstr = data.split(';base64,') 
+                        ext = format.split('/')[-1] 
+                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+                        item.thumbnail_image = data
+                except:
+                    pass
+
                 item.save()
                 response_json = {'status':True}
             if data_json['action'] == "get":
