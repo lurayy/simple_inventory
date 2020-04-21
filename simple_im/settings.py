@@ -51,6 +51,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -176,6 +177,8 @@ CSRF_TRUSTED_ORIGINS = [
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'frontend', "build", "static"),  # update the STATICFILES_DIRS
 )
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
