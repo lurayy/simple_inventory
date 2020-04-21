@@ -220,8 +220,10 @@ class ItemList extends Component {
     async getPlacementsData(request){
         await getPlacements(JSON.stringify(request)).then(data=> {
             try { 
-                console.log(data)
                 if (data['status']){
+                    for(var i in data['placements']){
+                        data['placements'][i]['qr_code_image'] =  url.slice(0,-1) +data['placements'][i]['qr_code_image'];
+                    }
                     console.log(data)
                     this.setState({
                        ...this.state,
@@ -504,13 +506,23 @@ class ItemList extends Component {
                         </Grid>
                         </Grid>
                         <Grid container justify='center'>
-                            <Grid item xm={8} >
+                            <Grid item xm={6} >
                                 <u><h3>Placement Of Current Item</h3></u>
                                 <List data={this.state.placements} header={this.placementColumns}  popUp={this.dummy} update={this.update_placement_table} page={this.state.placementPage}>
                                 </List>
+                                <hr></hr>
+                                <Grid item xm={4}>
+                                {this.state.placements.map(
+                                                header => (
+                                                    <div key={header.id} >
+                                                    <h4> {header['uuid']} </h4>
+                                                    <img src={header['qr_code_image']} ></img></div>
+                                                )
+                                            )}
+                                            </Grid>
                             </Grid>
-
                         </Grid>
+                       
                     </div>
         return (
             <div>

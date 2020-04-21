@@ -5,6 +5,10 @@ from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from user_handler.models import CustomUserBase, Vendor, Tax, Discount 
 from django.db.models import Q
+import qrcode
+from django.core.files.base import ContentFile
+from io import BytesIO
+
 
 class PurchaseOrderStatus(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -91,6 +95,9 @@ class Item(models.Model):
         unique_together = ['name', 'catagory', 'sales_price']
 
 
+def qrcode_directory_path(instance, filename):
+    return 'product_image/product_{0}/qrcode_{1}.jpg'.format(instance.item.name,instance.uuid)
+
 class PurchaseItem(models.Model):
     uuid = models.UUIDField(unique=True,default= uuid.uuid4)
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
@@ -101,6 +108,7 @@ class PurchaseItem(models.Model):
     purchase_price = models.FloatField(default=0)
     stock = models.PositiveIntegerField(default=0)
     defective = models.PositiveIntegerField(default=0)
+    qr_code_image = models.ImageField(null = True, upload_to =  qrcode_directory_path, blank = True)
     DISCOUNT = (
         ('percent', "Percent"),
         ('fixed', 'Fixed')
@@ -114,8 +122,10 @@ class PurchaseItem(models.Model):
     )
     status = models.CharField(max_length=25, choices=STATUS_S, default='incomplete')
     is_active = models.BooleanField(default=True)    
+
     def __str__(self):
         return f'{self.item} of {self.purchase_order}'
+    
 
 
 
@@ -204,6 +214,13 @@ def placement_pre_save_handler(sender, instance, *args, **kwargs):
 
 @receiver(models.signals.pre_save, sender=PurchaseItem)
 def pre_save_handler(sender, instance, *args, **kwargs):
+    if not instance.id:
+        print('Creating BarCode')
+        img_qr = qrcode.make(instance.uuid)
+        with BytesIO() as output:
+            img_qr.save(output, 'PNG')
+            data = output.getvalue()
+        instance.qr_code_image = ContentFile(data, name='bar_code.png')
     if (instance.quantity < instance.defective):
         raise Exception("Number of defective items are greater than the quntity of the purchase item ")
     print(instance.stock, instance.quantity, instance.defective, instance.sold)

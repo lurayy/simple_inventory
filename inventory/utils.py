@@ -47,8 +47,8 @@ def items_to_json(items):
     for item in items:
         temp = ItemSerializer(item).data
         temp['catagory_str'] = str(ItemCatagory.objects.get(id=temp['catagory']))
-        # temp['product_image'] = item.product_image.url
-        # temp['product_thumbnail_image'] = item.product_thumbnail_image.url
+        # temp['product_image'] = item.product_image.url()
+        # print(item.product_thumbnail_image.url())
         # print(item.product_image.__url)
         data.append(temp)
     return data
@@ -79,5 +79,6 @@ def placements_to_json(placements):
             temp['purchase_order_id'] = str(placement.purchase_item.purchase_order.id)
             temp['item_name'] = str(placement.item.name)
             temp['placed_on_str'] = str(placement.placed_on.name)
+            temp['qr_code_image'] = str(placement.purchase_item.qr_code_image.url)
             data.append(temp)
     return data
