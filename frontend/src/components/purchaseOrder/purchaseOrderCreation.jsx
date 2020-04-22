@@ -615,7 +615,18 @@ class PurchaseOrderCreation extends Component {
                                     {vendorPopup}
                                     </td>
                                 </tr>
-                                
+                                <tr>
+                                    <td colSpan={2}>
+                                    <TextField
+                                        value={this.state.update.purchase_order.third_party_invoice_number}
+                                        label='Third Party Invoice Number'
+                                        variant="outlined"
+                                        name = 'third_party_invoice_number'
+                                        onChange={this.onChange}
+                                        fullWidth
+                                        />
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td>
                                     Invoiced On:<br></br>

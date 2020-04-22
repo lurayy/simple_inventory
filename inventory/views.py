@@ -125,6 +125,7 @@ def purchase_orders(request):
                     vendor = Vendor.objects.get(id=int(data_json['vendor'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     completed_on = str_to_datetime(data_json['completed_on']),
+                    third_party_invoice_number = data_json['third_party_invoice_number'],
                     status = status          
                 )
                 purchase_order.save()
@@ -171,10 +172,11 @@ def purchase_order(request):
                 purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
                 purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
                 purchase_order.status = PurchaseOrderStatus.objects.get(id=int(data_json['status']))
+                purchase_order.third_party_invoice_number = data_json['third_party_invoice_number']
                 purchase_order.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
-            if data_json['action'] == 'get':    
+            if data_json['action'] == 'get':   
                 order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
                 response_json['p_order'] = purchase_orders_to_json([order])
                 response_json['p_items'] = purchase_items_to_json(PurchaseItem.objects.filter(purchase_order=order))        
@@ -432,9 +434,9 @@ def item(request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            item = Item.objects.get(id=int(data_json['item_id']))
             response_json = {'status':False}
             if data_json['action'] == "edit":
+                item = Item.objects.get(id=int(data_json['item_id']))
                 item.name = str(data_json['name'])
                 item.catagory = ItemCatagory.objects.get(id=int(data_json['catagory']))
                 item.is_active = data_json['is_active']
@@ -459,10 +461,15 @@ def item(request):
                         item.thumbnail_image = data
                 except:
                     pass
-
                 item.save()
                 response_json = {'status':True}
             if data_json['action'] == "get":
+                try:
+                    if data_json['filter'] == 'purchase_item':
+                        purchase_item = PurchaseItem.objects.get(uuid=data_json['uuid'])
+                        item = purchase_item.item
+                except Exception as ex:
+                    item = Item.objects.get(id=int(data_json['item_id']))
                 response_json['items'] = items_to_json([item])
                 response_json['status'] = True
             return JsonResponse(response_json)
@@ -736,7 +743,6 @@ def assign_place(request):
     '''    
     response_json = {'status':''}
     if request.method == "POST":
-        print("here")
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -837,7 +843,6 @@ def purchase_items(request):
                         temp = {}
                         try:
                             x = Placement.objects.get(placed_on=default, purchase_item=purchase_item)
-                            print(x.stock)
                             if (x.stock>0):
                                 temp = {
                                     'purchase_order_id': purchase_item.purchase_order.uuid,

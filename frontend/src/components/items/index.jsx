@@ -16,7 +16,6 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import LoadingIcon from '../loading';
 
 
-
 const styles = makeStyles((theme) => ({
     root: {
     flexGrow: 12,
@@ -37,16 +36,30 @@ class Items extends Component {
             'loaded':false,
             'start':0,
             'end':10,
-            'page':1
+            'page':1,
+            'result':'No result',
+            'dialog_open':false
         }
         this.update_table = this.update_table.bind(this)
         this.pushNewId = this.pushNewId.bind(this)
-
     }
+    
+  
     pushNewId(id){
         this.props.history.push('/items/'+id)
     }
 
+    handleScan = data => {
+        if (data) {
+          this.setState({
+            result: data
+          })
+        }
+      }
+      handleError = err => {
+        console.error(err)
+      }
+      
 
     componentDidMount() {
         if (this.props.user.isLoggedIn === false ){

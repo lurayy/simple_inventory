@@ -191,7 +191,6 @@ class PopUpEdit extends Component {
         updatePurchaseOrder(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 Swal.fire("Purchase Order Details Has Been Updated.")
-                this.props.update(0)
             }
             else{
                 Swal.fire("Error : ",data.error)
@@ -569,6 +568,18 @@ class PopUpEdit extends Component {
                                         }}
                                         label='Added By'
                                         variant="outlined"
+                                        fullWidth
+                                        />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colSpan={2}>
+                                    <TextField
+                                        value={this.state.update.purchase_order.third_party_invoice_number}
+                                        label='Third Party Invoice Number'
+                                        variant="outlined"
+                                        name = 'third_party_invoice_number'
+                                        onChange={this.onChange}
                                         fullWidth
                                         />
                                     </td>

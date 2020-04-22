@@ -11,9 +11,9 @@ import url from '../../server';
 
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { CardMedia } from '@material-ui/core';
 import FileBase64 from 'react-filebase64';
 
+import QrScanner from '../../qrScanner'
 
 
 class ItemList extends Component {
@@ -39,6 +39,12 @@ class ItemList extends Component {
         this.back = this.back.bind(this)
         this.dummy =this.dummy.bind(this)
         this.onFileChange = this.onFileChange.bind(this)
+        this.handleQR = this.handleQR.bind(this)
+        this.getDataFromQR = this.getDataFromQR.bind(this)
+    }
+    
+    handleQR(value){
+        this.getDataFromQR(value)
     }
     
     onChange(e)
@@ -166,6 +172,56 @@ class ItemList extends Component {
 })
     }
 
+    async getDataFromQR(uuid){
+        var data = {
+            'action':'get',
+            'filter':'purchase_item',
+            'uuid':uuid
+        }
+        console.log("asdf", uuid)
+
+        var data_main;
+        await getItem(JSON.stringify(data)).then(data => {
+            if (data['status']){
+                data_main=data
+            }
+        })
+        await this.setState({
+            'popUp':true,
+            'update':data_main['items'][0]
+        })
+        data = {
+            'action':'get',
+            'start':0,
+            'end':50
+        }
+        await getItemCatagories(JSON.stringify(data)).then(data=> {
+            try { 
+                if (data['status']){
+                    this.setState({
+                        ...this.state,
+                        'catagories':data['item_catagories']
+                    })
+                }
+                else{
+                    Swal.fire({
+                        icon:'error',
+                        title:data['error']
+                    })                   }
+            }catch(e){
+                console.log(e)
+            }
+        })
+        data ={
+            'action':'get',
+            'start':0,
+            'end':10,
+            'filter':'item',
+            'item':data_main['items'][0]['id']
+        }
+        this.getPlacementsData(data)
+    }
+
     async popUp(id, uuid=0, fromUrl){
         if(!fromUrl){
             this.props.pushNewId(id)
@@ -174,6 +230,8 @@ class ItemList extends Component {
             'action':'get',
             'item_id':id,
         }
+        }
+       
         var data_main;
         await getItem(JSON.stringify(data)).then(data => {
             if (data['status']){
@@ -215,7 +273,7 @@ class ItemList extends Component {
         }
         this.getPlacementsData(data)
     }
-}
+
 
     async getPlacementsData(request){
         await getPlacements(JSON.stringify(request)).then(data=> {
@@ -345,7 +403,7 @@ class ItemList extends Component {
             listData=this.props.data
         }
         const catagories = this.state.catagories
-        const list = <List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} />
+        const list = <div><QrScanner onFind={this.handleQR} ></QrScanner><br></br><List data={listData} header={this.columns}   popUp={this.popUp} update={this.props.update} page={this.props.page} /></div>
         const popUpRender = <div>
                     <Grid container>
                     <Grid item xm={3}>

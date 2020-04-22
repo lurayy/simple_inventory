@@ -1115,12 +1115,12 @@ class PopUpEdit extends Component {
                         <tr>
                             <td colSpan="2">
                             <TextField
-                                defaultValue= {this.state.update.invoice.order_number}
+                                defaultValue= {this.state.update.invoice.invoice_number}
                                 InputProps={{
                                     readOnly: true,
                                 }}
                                 fullWidth
-                                label='Order Number'
+                                label='Invoice Number'
                                 variant="outlined"
                                 />
                         </td>
