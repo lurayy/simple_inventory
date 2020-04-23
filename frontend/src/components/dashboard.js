@@ -62,8 +62,8 @@ import PurchaseOrderList  from './purchaseOrder/purchaseOrderList'
 import TaxList from './taxes/taxList'
 import UserList from './users/userList'
 import VendorList from './vendors/vendorList'
-
-
+import Export from './export/index'
+import GetAppIcon from '@material-ui/icons/GetApp';
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -274,6 +274,12 @@ function Dashboard() {
       </ListItemIcon>
       <ListItemText primary="Staff Management" />
     </ListItem>
+    <ListItem button onClick={()=> {window.location.href="/export"}}>
+      <ListItemIcon>
+      <GetAppIcon />
+      </ListItemIcon>
+      <ListItemText primary="Export Data" />
+    </ListItem>
         </List>
         </Router>
       </Drawer>
@@ -326,6 +332,8 @@ function Dashboard() {
                     <Route path='/places/create' component= {PlaceCreation}></Route>
                     <Route path='/places/:id' component= {PlaceList}></Route>
                     <Route path='/places' component= {Places}></Route>
+
+                    <Route path='/export' component= {Export}></Route>
                     </Switch>
             </Router>
             </Grid>            

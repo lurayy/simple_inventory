@@ -11,9 +11,24 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from .serializers import StatusSerializer
 
+from django.template.loader import get_template 
+
 import base64
+from django.utils import timezone
+
 
 from django.core.files.base import ContentFile
+
+from io import BytesIO
+from django.template.loader import get_template
+import xhtml2pdf.pisa as pisa
+from django.http import HttpResponse
+
+from django.template.loader import get_template
+from django.template import Context
+from io import StringIO
+import cgi
+
 
 
 @login_required
@@ -956,3 +971,35 @@ def purchase_order_statuss(request):
 #                     places = Place.objects.filter(placements__item__id = invoice_item.id)
 #                     for place in places:
 #                         print(place.name)
+
+
+def render_to_pdf(template_src, context_dict={}):
+    template = get_template('export_items_data.html')
+    html  = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
+
+@login_required
+def export_data(request):
+    template = get_template('export_items_data.html')
+    items = items_to_json(Item.objects.filter(is_active=True))
+    data = {
+    'today': datetime.date.today(), 
+    'items':items
+    }
+    html = template.render(data)
+    pdf = render_to_pdf('export_items_data', data)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = "export_data"
+        content = "inline; filename='%s'" %(filename)
+        download = request.GET.get("download")
+        if download:
+            content = "attachment; filename='%s'" %(filename)
+        response['Content-Disposition'] = content
+        return response
+    return HttpResponse("Not found")
+    

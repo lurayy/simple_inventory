@@ -29,7 +29,10 @@ urlpatterns = [
     path('items/catagory', views.item_catagory, name = "get/edit "),
     path('items/catagories/delete', views.delete_item_catagories, name = "delete"),
 
-    path('placements', views.placements, name = 'placements')
+    path('placements', views.placements, name = 'placements'),
+
+    path('export',views.export_data, name='Export data'),
+    
     
     
 ]
