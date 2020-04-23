@@ -225,17 +225,21 @@ class ItemList extends Component {
     async popUp(id, uuid=0, fromUrl){
         if(!fromUrl){
             this.props.pushNewId(id)
+            console.log("popup ",id)
         }else{
         var data = {
             'action':'get',
             'item_id':id,
         }
-        }
-       
         var data_main;
         await getItem(JSON.stringify(data)).then(data => {
+            console.log(data)
             if (data['status']){
                 data_main=data
+            }
+            else{
+                Swal.fire(data['error'])
+                return
             }
         })
         await this.setState({
@@ -273,6 +277,7 @@ class ItemList extends Component {
         }
         this.getPlacementsData(data)
     }
+}
 
 
     async getPlacementsData(request){
