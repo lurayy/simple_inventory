@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {getExport, selectExportFields} from '../../api/misc';
+import {getExport, } from '../../api/misc';
 import {  connect } from 'react-redux';
 
 
@@ -7,24 +7,9 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import { withStyles } from '@material-ui/styles';
-import PropTypes from 'prop-types';
 import LoadingIcon from '../loading';
-import List from '../list'
-import ReactDOM from 'react-dom';
-import { PDFViewer,Document, PDFDownloadLink, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import url from '../../server'
 
-const styles = makeStyles((theme) => ({
-    root: {
-    flexGrow: 12,
-    },
-    paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    },
-}));
 
 
 class Export extends Component {
@@ -43,20 +28,6 @@ class Export extends Component {
         }
     }
 
-    getExportFields(){
-        var data = {
-            'action':"get",
-            'model':'item'
-        }
-        selectExportFields(JSON.stringify(data)).then(data => {
-            if (data['status']){
-                this.setState({
-                    'fields':data['fields'],
-                    'loaded':true
-                })
-            }  
-        })
-    }
 
     export(){
         var data = {
@@ -74,26 +45,55 @@ class Export extends Component {
         })
     }
 
+    redirect(em){
+        this.props.history.push("/export/"+em)
+
+    }
 
 
 
 render() {
-    const link = url+"apiv1/inventory/export"
+    const index_redner = (
+        <Grid container justify='center'>
+            <Grid item xs={10}>
+        <table cellPadding={15} cellSpacing={25} >
+            <tbody>
+                <tr>
+                    <td>
+                    <Button variant="contained" color="secondary" onClick={()=>{this.redirect('purchaseorders')}}>Export Purchase Orders</Button>
+
+                    </td>
+                    <td>
+                    <Button  variant="contained" color="secondary"  onClick={()=>{this.redirect('invoices')}}>Export Invoices</Button>
+                    </td>
+                    <td>
+                    <Button variant="contained" color="secondary" onClick={()=>{this.redirect('items')}}>Export Items</Button>
+                    </td>
+                 </tr>
+            </tbody>
+        </table>
+            </Grid>
+        </Grid>
+        )
+   
+    
     const render_after_load = (
         <div>
-           <h1>Export Data</h1>
-            <a href={link} >Export</a>
+            {index_redner}
+            <Grid container>
+                <Grid md={10} item>
+                
+                </Grid>
+            </Grid>
         </div>
     )
-   
-
     const { classes } = this.props;
 
     return(
-        <div className={classes.root}>
+        <div >
         <Grid container spacing={3} justify="center" alignItems="center">  
-          <Grid item md={12}>
-            <Paper className={classes.paper}>
+          <Grid item md={10}>
+            <Paper>
             {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
             </Paper>
           </Grid>
@@ -104,13 +104,9 @@ render() {
 }
 
 
-Export.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
-
 
 const mapStateToProps = state => ({
     user: state.user,
 })
 
-export default withStyles(styles)(connect(mapStateToProps)(Export))
+export default (connect(mapStateToProps)(Export))

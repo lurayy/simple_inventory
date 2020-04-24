@@ -53,6 +53,18 @@ def items_to_json(items):
         data.append(temp)
     return data
 
+
+def items_to_json_with_selection(items,fields):
+    data = []
+    for item in items:
+        final = []
+        temp = ItemSerializer(item).data
+        temp['catagory'] = str(ItemCatagory.objects.get(id=temp['catagory']))
+        for field in fields:
+            final.append(temp[field])
+        data.append(final)
+    return data
+
 def item_catagories_to_json(catagories):
     data = []
     for catagory in catagories:

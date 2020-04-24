@@ -113,7 +113,7 @@ const getTaxes = async data => {
   }
 
   
-  const selectExportFields = async data => {
+  const getExportFields = async data => {
     try {
       return await baseRequest('apiv1/inventory/export','POST', data);
     } catch(e){
@@ -130,5 +130,5 @@ const getTaxes = async data => {
   }
 
   
-export {getExport, selectExportFields, deletePlacement,  getPlacements, getPurchaseOrderStatus, getDiscounts, createDiscount, deleteDiscounts, updateDiscount, getDiscount, getTaxes, createTax, deleteTaxes, updateTax, getTax}
+export {getExport, getExportFields, deletePlacement,  getPlacements, getPurchaseOrderStatus, getDiscounts, createDiscount, deleteDiscounts, updateDiscount, getDiscount, getTaxes, createTax, deleteTaxes, updateTax, getTax}
   

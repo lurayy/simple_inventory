@@ -31,6 +31,21 @@ const getResponse = async response => {
     const json = await response.json();
     return { response, json };
   }
+  if (contentType === 'application/pdf'){
+    response.blob().then(
+      (blob) =>{
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `export.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+      }
+    )
+    const json = {'status':true}
+    return {response, json}
+  }
   return { response };
 };
 

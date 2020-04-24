@@ -13,9 +13,12 @@ class Index extends Component {
         this.state = {
             'loading':true
         }
+        this.redirect = this.redirect.bind(this)
     }
-    
-    
+
+    redirect(link){
+      this.props.history.push(link)
+    }
 
     async componentDidMount() { 
         await getCurrentUser().then(data => {
@@ -42,7 +45,7 @@ class Index extends Component {
         }
         else{
           if (this.props.user.isLoggedIn){
-            render_x = <Dashboard></Dashboard>
+            render_x = <Dashboard redirect={this.redirect} ></Dashboard>
           }
           else{
             render_x = <Login></Login>

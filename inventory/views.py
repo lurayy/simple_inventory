@@ -5,7 +5,7 @@ import json
 import datetime
 from user_handler.models import Vendor, CustomUserBase
 from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus, ItemCatagory
-from .utils import purchase_orders_to_json, purchase_items_to_json, str_to_datetime, vendors_to_json, items_to_json, item_catagories_to_json, places_to_json, placements_to_json
+from .utils import purchase_orders_to_json, purchase_items_to_json, str_to_datetime, vendors_to_json, items_to_json, item_catagories_to_json, places_to_json, placements_to_json,items_to_json_with_selection
 from .exceptions import  EmptyValueException
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
@@ -657,7 +657,7 @@ def places(request):
                             temp['stock'] = p.stock
                             response_json['placements'].append(temp)
                         else:
-                            print("empty")
+                            pass
                     response_json['status'] = True
                 else:
                     response_json= {'places':[]}
@@ -957,20 +957,51 @@ def purchase_order_statuss(request):
         return JsonResponse({'status':True, 'data':data})
 
 
-# @login_required
-# @require_http_methods(['POST'])
-# def item_places(request):
-#     if request.method=="POST":
-#         json_str = request.body.decode(encoding='UTF-8')
-#         data_json = json.loads(json_str)
-#         temp = {}
-#         data = []
-#         if data_json['action']=='get':
-#             for invoice_item in InvoiceItem.objects.filter(invoice=invoice):
-#                     print (invoice_item)
-#                     places = Place.objects.filter(placements__item__id = invoice_item.id)
-#                     for place in places:
-#                         print(place.name)
+@login_required
+@require_http_methods(['POST'])
+def handle_export(request):
+    sensative = ['purchaseitem', 'invoiceitem', 'is_active', 'product_image', 'thumbnail_image', 'id', 'item_placements']
+    if request.method=="POST":
+        try:
+            data_json = json.loads(request.body.decode(encoding='UTF-8'))
+            if data_json['action'] == "get":
+                model = str(data_json['model']).lower()
+                x = []
+                if model == 'item':
+                    temp = Item._meta.get_fields(include_hidden=True)
+                    for t in temp:
+                        if t.name not in sensative:
+                            x.append(t.name)
+                    return JsonResponse({'status':True,"fields":x})
+            if (data_json['action'] == 'export'):
+                model = str(data_json['model']).lower()
+                if data_json['model'] == 'item':
+                    items = Item.objects.filter(is_active=True)                # apply more filter here 
+
+                    fields = (data_json['filter']['fields'])
+                    selected_fields = []
+                    for key in fields:
+                        if key not in sensative:
+                            if fields[key] == True:
+                                selected_fields.append(key)
+                    data = items_to_json_with_selection(items, selected_fields)
+                    print(data)
+                    pdf = export_data(data,selected_fields)
+                    if pdf:
+                        response = HttpResponse(pdf, content_type='application/pdf')
+                        filename = "export_data"
+                        content = "inline; filename='%s'" %(filename)
+                        download = request.GET.get("download")
+                        if download:
+                            content = "attachment; filename='%s'" %(filename)
+                        response['Content-Disposition'] = content
+                        return response
+                    return HttpResponse("Not found")
+
+            return JsonResponse({'status':True})
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
 
 
 def render_to_pdf(template_src, context_dict={}):
@@ -982,24 +1013,14 @@ def render_to_pdf(template_src, context_dict={}):
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
 
-@login_required
-def export_data(request):
+
+def export_data(data, fields):
     template = get_template('export_items_data.html')
-    items = items_to_json(Item.objects.filter(is_active=True))
     data = {
     'today': datetime.date.today(), 
-    'items':items
+    'items':data,
+    'headers':fields
     }
     html = template.render(data)
     pdf = render_to_pdf('export_items_data', data)
-    if pdf:
-        response = HttpResponse(pdf, content_type='application/pdf')
-        filename = "export_data"
-        content = "inline; filename='%s'" %(filename)
-        download = request.GET.get("download")
-        if download:
-            content = "attachment; filename='%s'" %(filename)
-        response['Content-Disposition'] = content
-        return response
-    return HttpResponse("Not found")
-    
+    return pdf

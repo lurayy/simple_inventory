@@ -70,29 +70,24 @@
         <table class="table">
             <thead>
             <tr>
-                <th>Name</th>
-                <th>Catagory</th>
-                <th>Description</th>
-                <th>Weight</th>
-                <th>Stock</th>
-                <th>Price</th>
+                {% for header in headers %}
+                <th>{{ header }}</th>
+                {% endfor %}
             </tr>
             </thead>
             <tbody>
             {% for item in items %}
                 <tr>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.catagory_str }}</td>
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.weight }} kg</td>
-                    <td>{{ item.stock}}</td>
-                    <td>{{ item.sales_price }}</td>
+                    {% for i in item %}
+                    <td>{{ i }}</td>
+                    {% endfor %}
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+{{ Items }}
 
 </body>
 </html>

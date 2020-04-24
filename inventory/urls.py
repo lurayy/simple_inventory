@@ -31,7 +31,7 @@ urlpatterns = [
 
     path('placements', views.placements, name = 'placements'),
 
-    path('export',views.export_data, name='Export data'),
+    path('export',views.handle_export, name='Export data'),
     
     
     

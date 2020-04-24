@@ -64,6 +64,10 @@ import UserList from './users/userList'
 import VendorList from './vendors/vendorList'
 import Export from './export/index'
 import GetAppIcon from '@material-ui/icons/GetApp';
+import ExportPurchaseOrders from './export/exportPurchaseOrders';
+import ExportInvoices from './export/exportInvoices';
+import ExportItems from './export/exportItems';
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -146,7 +150,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Dashboard() {
+function Dashboard(props) {
   
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
@@ -333,6 +337,9 @@ function Dashboard() {
                     <Route path='/places/:id' component= {PlaceList}></Route>
                     <Route path='/places' component= {Places}></Route>
 
+                    <Route path='/export/purchaseorders' component={ExportPurchaseOrders}></Route>
+                    <Route path='/export/invoices' component={ExportInvoices}></Route>
+                    <Route path='/export/items' component={ExportItems}></Route>
                     <Route path='/export' component= {Export}></Route>
                     </Switch>
             </Router>
