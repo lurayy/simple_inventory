@@ -973,7 +973,7 @@ def handle_export(request):
                         if t.name not in sensative:
                             x.append(t.name)
                     return JsonResponse({'status':True,"fields":x})
-            if (data_json['action'] == 'export'):
+            if (data_json['action'] == 'export' ):
                 items = Item.objects.filter(is_active=True)
                 model = str(data_json['model']).lower()
                 if data_json['model'] == 'item':
@@ -1044,6 +1044,10 @@ def handle_export(request):
 
                     if (data_json['filter']['is_applied_catagory']):
                         items = items.filter(catagory__id = int(data_json['filter']['catagory']))
+                    
+                    if (data_json['showItems']):
+                        items = items[int(data_json['start']) : int(data_json['end'])]
+                        return JsonResponse({'status':True, 'items':items_to_json(items)})
 
                     fields = (data_json['filter']['fields'])
                     selected_fields = []

@@ -47,7 +47,6 @@ class Export extends Component {
 
     redirect(em){
         this.props.history.push("/export/"+em)
-
     }
 
 
