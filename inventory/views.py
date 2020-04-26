@@ -960,7 +960,7 @@ def purchase_order_statuss(request):
 @login_required
 @require_http_methods(['POST'])
 def handle_export(request):
-    sensative = ['purchaseitem', 'invoiceitem', 'is_active', 'product_image', 'thumbnail_image', 'id', 'item_placements']
+    sensative = ['purchaseitem', 'invoiceitem', 'product_image', 'thumbnail_image', 'id', 'item_placements']
     if request.method=="POST":
         try:
             data_json = json.loads(request.body.decode(encoding='UTF-8'))
@@ -974,9 +974,76 @@ def handle_export(request):
                             x.append(t.name)
                     return JsonResponse({'status':True,"fields":x})
             if (data_json['action'] == 'export'):
+                items = Item.objects.filter(is_active=True)
                 model = str(data_json['model']).lower()
                 if data_json['model'] == 'item':
-                    items = Item.objects.filter(is_active=True)                # apply more filter here 
+                    if (data_json['filter']['is_applied_name']):
+                        if(data_json['filter']['exact_name']):
+                            items = items.filter(name=str(data_json['filter']['name']))
+                        else:
+                            items = items.filter(name__icontains=str(data_json['filter']['name']))
+                
+                    if(data_json['filter']['is_applied_weight_from']):
+                        temp_start = data_json['filter']['weight_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filter']['is_applied_weight_upto']):
+                        temp_end = data_json['filter']['weight_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filter']['is_applied_weight_from'] == True or data_json['filter']['is_applied_weight_upto'] == True:
+                        items = items.filter(weight__range = (temp_start, temp_end))
+ 
+                    if(data_json['filter']['is_applied_average_cost_price_from']):
+                        temp_start = data_json['filter']['average_cost_price_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filter']['is_applied_average_cost_price_upto']):
+                        temp_end = data_json['filter']['average_cost_price_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filter']['is_applied_average_cost_price_from'] == True or data_json['filter']['is_applied_average_cost_price_upto'] == True:
+                        items = items.filter(average_cost_price__range = (temp_start, temp_end))
+
+                    if(data_json['filter']['is_applied_stock_from']):
+                        temp_start = data_json['filter']['stock_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filter']['is_applied_stock_upto']):
+                        temp_end = data_json['filter']['stock_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filter']['is_applied_stock_from'] == True or data_json['filter']['is_applied_stock_upto'] == True:
+                        items = items.filter(stock__range = (temp_start, temp_end))
+ 
+
+                    if(data_json['filter']['is_applied_sold_from']):
+                        temp_start = data_json['filter']['sold_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filter']['is_applied_sold_upto']):
+                        temp_end = data_json['filter']['sold_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filter']['is_applied_sold_from'] == True or data_json['filter']['is_applied_stock_upto'] == True:
+                        items = items.filter(sold__range = (temp_start, temp_end))
+ 
+
+
+                    if(data_json['filter']['is_applied_sales_price_from']):
+                        temp_start = data_json['filter']['sales_price_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filter']['is_applied_sales_price_upto']):
+                        temp_end = data_json['filter']['sales_price_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filter']['is_applied_sales_price_from'] == True or data_json['filter']['is_applied_sales_price_upto'] == True:
+                        items = items.filter(sales_price__range = (temp_start, temp_end))
+ 
+
+                    if (data_json['filter']['is_applied_catagory']):
+                        items = items.filter(catagory__id = int(data_json['filter']['catagory']))
 
                     fields = (data_json['filter']['fields'])
                     selected_fields = []
@@ -985,7 +1052,6 @@ def handle_export(request):
                             if fields[key] == True:
                                 selected_fields.append(key)
                     data = items_to_json_with_selection(items, selected_fields)
-                    print(data)
                     pdf = export_data(data,selected_fields)
                     if pdf:
                         response = HttpResponse(pdf, content_type='application/pdf')

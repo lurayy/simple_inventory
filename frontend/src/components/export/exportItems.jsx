@@ -24,6 +24,18 @@ class ExportItems extends Component {
             'update':[],
             'filters':{
                 exact_name:true,
+                is_applied_name:false,
+                is_applied_weight_from: false,
+                is_applied_weight_upto: false,
+                is_applied_average_cost_price_from:false,
+                is_applied_average_cost_price_upto:false,
+                is_applied_catagory:false,
+                is_applied_stock_from:false,
+                is_applied_stock_upto:false,
+                is_applied_sales_price_from:false,
+                is_applied_sales_price_upto:false,
+                is_applied_sold_from:false,
+                is_applied_sold_upto:false
             },
             'item_catagories':[]
         }
@@ -44,6 +56,7 @@ class ExportItems extends Component {
                 var x;
                 var show_fields = [];
                 var old;
+                var filters = {};
                 data['fields'].map(field => {
                     old=field
                     temp[field]=false
@@ -55,7 +68,9 @@ class ExportItems extends Component {
                         }
                     )
                     show_fields.push({'key':old, "str":field})
+                    
                 })
+                filters['exact_name'] = false
                 temp['name'] = true
                 console.log(show_fields)
                 this.setState({
@@ -136,12 +151,14 @@ class ExportItems extends Component {
         var request_json = {
             'model':'item',
             'action':'export',
-            'filter':{'fields':this.state.update}
+            'filter':{'fields':this.state.update, ...this.state.filters}
         }
         getExportFields(JSON.stringify(request_json)).then(data=>{
            console.log(data)
             if(data['status']){
-                console.log('Headers')
+            }
+            else{
+                Swal.fire(data['error'])
             }
         })
     }
