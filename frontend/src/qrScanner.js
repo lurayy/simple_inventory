@@ -50,12 +50,10 @@ function QrScanner(props) {
 
   return (
     <div>
-      <br />
       <Button variant="contained" color="secondary" onClick={handleClickOpen}>
         Scan Item's QR Code 
       </Button>
       <SimpleDialog open={open} onClose={handleClose} onFind={props.onFind} />
-      <br></br>
     </div>
   );
 }

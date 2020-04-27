@@ -416,6 +416,78 @@ def items(request):
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)
+
+                if data_json['filter'] == 'multiple':
+                    items = Item.objects.filter(is_active=True)
+                    if (data_json['filters']['is_applied_name']):
+                        if(data_json['filters']['exact_name']):
+                            items = items.filter(name=str(data_json['filters']['name']))
+                        else:
+                            items = items.filter(name__icontains=str(data_json['filters']['name']))
+                
+                    if(data_json['filters']['is_applied_weight_from']):
+                        temp_start = data_json['filters']['weight_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filters']['is_applied_weight_upto']):
+                        temp_end = data_json['filters']['weight_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filters']['is_applied_weight_from'] == True or data_json['filters']['is_applied_weight_upto'] == True:
+                        items = items.filter(weight__range = (temp_start, temp_end))
+
+                    if(data_json['filters']['is_applied_average_cost_price_from']):
+                        temp_start = data_json['filters']['average_cost_price_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filters']['is_applied_average_cost_price_upto']):
+                        temp_end = data_json['filters']['average_cost_price_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filters']['is_applied_average_cost_price_from'] == True or data_json['filters']['is_applied_average_cost_price_upto'] == True:
+                        items = items.filter(average_cost_price__range = (temp_start, temp_end))
+
+                    if(data_json['filters']['is_applied_stock_from']):
+                        temp_start = data_json['filters']['stock_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filters']['is_applied_stock_upto']):
+                        temp_end = data_json['filters']['stock_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filters']['is_applied_stock_from'] == True or data_json['filters']['is_applied_stock_upto'] == True:
+                        items = items.filter(stock__range = (temp_start, temp_end))
+
+
+                    if(data_json['filters']['is_applied_sold_from']):
+                        temp_start = data_json['filters']['sold_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filters']['is_applied_sold_upto']):
+                        temp_end = data_json['filters']['sold_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filters']['is_applied_sold_from'] == True or data_json['filters']['is_applied_stock_upto'] == True:
+                        items = items.filter(sold__range = (temp_start, temp_end))
+
+                    if(data_json['filters']['is_applied_sales_price_from']):
+                        temp_start = data_json['filters']['sales_price_from']
+                    else:
+                        temp_start = 0
+                    if (data_json['filters']['is_applied_sales_price_upto']):
+                        temp_end = data_json['filters']['sales_price_upto']
+                    else:
+                        temp_end = 9999999999999
+                    if data_json['filters']['is_applied_sales_price_from'] == True or data_json['filters']['is_applied_sales_price_upto'] == True:
+                        items = items.filter(sales_price__range = (temp_start, temp_end))
+
+
+                    if (data_json['filters']['is_applied_catagory']):
+                        items = items.filter(catagory__id = int(data_json['filters']['catagory']))
+                    items = items[int(data_json['start']) : int(data_json['end'])]
+                    return JsonResponse({'status':True, 'items':items_to_json(items)})
+
+
             if data_json['action'] == "add":
                 item = Item.objects.create(
                     name = str(data_json['name']),

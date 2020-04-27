@@ -178,8 +178,6 @@ class ItemList extends Component {
             'filter':'purchase_item',
             'uuid':uuid
         }
-        console.log("asdf", uuid)
-
         var data_main;
         await getItem(JSON.stringify(data)).then(data => {
             if (data['status']){
@@ -541,8 +539,6 @@ class ItemList extends Component {
 
                                     </td>
                                 </tr>
-
-
                                 <tr>
                                     <td>
                                     <Button
