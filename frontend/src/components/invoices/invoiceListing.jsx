@@ -167,7 +167,7 @@ class InvoiceListing extends Component {
         {
             id:4,
             name:"Order Number",
-            prop: 'order_number'
+            prop: 'invoice_number'
         },
         {
             id:5,

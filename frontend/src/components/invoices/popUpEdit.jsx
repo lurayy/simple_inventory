@@ -129,9 +129,7 @@ class PopUpEdit extends Component {
                                 'invoice_items' : invoice_items
                             }                      
                         })
-                        console.log('added')
                         this.postInvoiceItem(false,false)
-                        console.log('alert')
                         Swal.fire({
                             title: 'Invoice Item added !',
                             text:'Scan Another One',
@@ -143,9 +141,24 @@ class PopUpEdit extends Component {
                                 this.qrRef['current'].click()
                             }
                           })
+                        return
                     }
                 }
-               
+                this.addInvoiceItem()
+                this.selectItem(data['purchase_item'][0]['item'],  data['purchase_item'][0]['item_name'])   
+                this.setState({
+                    ...this.state,
+                    'update': {
+                        ...this.state.update,
+                        'invoice_items':{
+                            ...this.state.update.invoice_items,
+                            [this.state.current] : {
+                                ...this.state.update.invoice_items[this.state.current],
+                                'purchase_item' : data['purchase_item'][0]['id']
+                            },
+                        }
+                    }
+                })
             }
         })
     }
