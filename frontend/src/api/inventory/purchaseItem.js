@@ -33,6 +33,15 @@ import { baseRequest } from '../base';
       alert(e)
     }
   };
+
   
-export { getPurchaseItems, deletePurchaseItems, createPurchaseItem, updatePurchaseItem}
+  const getPurchaseItem = async data => {
+    try {
+      return await baseRequest('apiv1/inventory/pitem','POST', data);
+    } catch(e){
+      alert(e)
+    }
+  };
+  
+export { getPurchaseItem, getPurchaseItems, deletePurchaseItems, createPurchaseItem, updatePurchaseItem}
   

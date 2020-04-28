@@ -986,6 +986,12 @@ def purchase_item(request):
                 purchase_item.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
+            if data_json['action'] == 'get':
+                print(data_json)
+                if data_json['filter'] == 'uuid':
+                    print("here")
+                    purchase_item = PurchaseItem.objects.get(uuid=data_json['uuid'])
+                    return JsonResponse({'status':True, 'purchase_item':  purchase_items_to_json([purchase_item])})
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 

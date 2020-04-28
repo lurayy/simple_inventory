@@ -5,6 +5,7 @@ import List from '../list';
 import Popup from "reactjs-popup";
 import style from '../purchaseOrder/css/popUp.module.css';
 import {getCustomers} from '../../api/sales/customer';
+import {getPurchaseItem} from '../../api/inventory/purchaseItem'
 import {updateInvoice, getInvoice, deleteInvoices, getInvoiceStatus} from '../../api/sales/invoice';
 import {updateInvoiceItem, deleteInvoiceItems, createInvoiceItem} from '../../api/sales/invoiceItem'
 import {getItems} from '../../api/inventory/itemApi';
@@ -15,23 +16,19 @@ import "react-datepicker/dist/react-datepicker.css";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import Table from 'react-bootstrap/Table'
-
 import IconButton from '@material-ui/core/IconButton';
-
 import {Button, TextField } from '@material-ui/core';
-
 import Swal from 'sweetalert2'
-
-
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-
+import QrScanner from '../../qrScanner'
 
 
 class PopUpEdit extends Component {
 
     constructor(props){
         super(props)
+        this.qrRef = React.createRef();
         this.state = {
             'tax_start':0,
             'tax_end':5,
@@ -71,8 +68,8 @@ class PopUpEdit extends Component {
                 'invoice_items':this.props.invoice_items
             }
         }
+
         this.update_table = this.update_table.bind(this)
-        this.stateman = this.stateman.bind(this)
         this.refreshTable = this.refreshTable.bind(this)
         this.getItemData = this.getItemData.bind(this)
         this.selectItem = this.selectItem.bind(this)
@@ -95,10 +92,70 @@ class PopUpEdit extends Component {
         this.addEntryDiscount = this.addEntryDiscount.bind(this)
         this.addEntryTax = this.addEntryTax.bind(this)
         this.popUpTemp = this.popUpTemp.bind(this)
+        this.handleQRMultiple = this.handleQRMultiple.bind(this)
     }
+
+    sleep(milliseconds) {
+        const date = Date.now();
+        let currentDate = null;
+        do {
+          currentDate = Date.now();
+        } while (currentDate - date < milliseconds);
+      }
+      
+
+    handleQRMultiple(value){
+        this.addItemFromQR(value)
+        // this.sleep(3000);
+        return true
+    }
+
+    async addItemFromQR(uuid){
+        var request_json =  {
+            'action':'get',
+            'filter':'uuid',
+            'uuid': uuid
+        }
+        await getPurchaseItem(JSON.stringify(request_json)).then(data => {
+            if (data['status']){
+                for( var key in this.state.update.invoice_items){
+                    if ( parseInt( data['purchase_item'][0]['id']) === parseInt(this.state.update.invoice_items[key]['purchase_item'])){
+                        var invoice_items = this.state.update.invoice_items
+                        invoice_items[key]['quantity'] = invoice_items[key]['quantity'] + 1  
+                        this.setState({
+                            ...this.state,
+                            update : {
+                                ...this.state.update,
+                                'invoice_items' : invoice_items
+                            }                      
+                        })
+                        console.log('added')
+                        this.postInvoiceItem(false,false)
+                        console.log('alert')
+                        Swal.fire({
+                            title: 'Invoice Item added !',
+                            text:'Scan Another One',
+                            timer: 1000,
+                            onClose: () => {
+                            }
+                          }).then((result) => {
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                this.qrRef['current'].click()
+                            }
+                          })
+                    }
+                }
+               
+            }
+        })
+    }
+        
+    
+
     popUpTemp(){
 
     }
+
     removeEntry(id, dis){
         if (dis){
             var temp = this.state.update.invoice_items[this.state.current].applied_discount
@@ -158,6 +215,7 @@ class PopUpEdit extends Component {
         await getCustomers(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 this.setState({
+                    ...this.state,
                     'customer_selection':data['customers'],
                 })
             } 
@@ -173,6 +231,7 @@ class PopUpEdit extends Component {
 
     selectCustomer(id,name){
         this.setState({
+            ...this.state,
             'update': {
                 ...this.state.update,
                 'invoice':{
@@ -187,6 +246,7 @@ class PopUpEdit extends Component {
     onChange(e)
     {
         this.setState({
+            ...this.state,
             'update': {
                 ...this.state.update,
                 'invoice':{
@@ -225,6 +285,7 @@ class PopUpEdit extends Component {
         await getPlaces(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 this.setState({
+                    ...this.state,
                     'sold_from_selection':data['placements'],
                 })
                 var temp = [], key, x;
@@ -236,6 +297,7 @@ class PopUpEdit extends Component {
                     return el != null;
                 });
                 this.setState({
+                    ...this.state,
                     'place_selection':temp
                 })
                 this.update_stock(data)
@@ -321,6 +383,7 @@ class PopUpEdit extends Component {
     
     invoiceHandler(date){
         this.setState({
+            ...this.state,
             'update': {
                 ...this.state.update,
                 'invoice':{
@@ -333,6 +396,7 @@ class PopUpEdit extends Component {
     
     dueOnHandler(date){
         this.setState({
+            ...this.state,
             'update': {
                 ...this.state.update,
                 'invoice':{
@@ -352,7 +416,7 @@ class PopUpEdit extends Component {
         updateInvoice(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 Swal.fire("Invoice Details Has Been Updated.")
-                this.props.update(0)
+                this.refreshTable()
             }
             else{
                 Swal.fire({
@@ -364,6 +428,7 @@ class PopUpEdit extends Component {
 
     onChangePI(e){
         this.setState({
+            ...this.state,
             'update': {
                 ...this.state.update,
                 'invoice_items':{
@@ -377,7 +442,7 @@ class PopUpEdit extends Component {
         })
     }
 
-    postInvoiceItem(is_new=false){
+    postInvoiceItem(is_new=false, alert=true){
         var request_json
         if (is_new){
             request_json = {
@@ -389,7 +454,9 @@ class PopUpEdit extends Component {
             request_json['applied_discount'] = []
             createInvoiceItem(JSON.stringify(request_json)).then(data => {
                 if (data['status']){
-                    Swal.fire("Invoice Item Has Been Added.")
+                    if (alert){
+                        Swal.fire("Invoice Item Has Been Added.")
+                    }
                     this.refreshTable()
                 }
                 else{
@@ -410,7 +477,9 @@ class PopUpEdit extends Component {
         request_json['applied_discount'] = []
         updateInvoiceItem(JSON.stringify(request_json)).then(data => {
             if (data['status']){
-                Swal.fire("Invoice Item Details Has Been Updated.")
+                if (alert){
+                    Swal.fire("Invoice Item Details Has Been Updated.")
+                }
                 this.refreshTable()
             }
             else{
@@ -461,6 +530,7 @@ class PopUpEdit extends Component {
             }
         }
         this.setState({
+            ...this.state,
             'current':current,
             'new':true,
             'popUp':true,
@@ -557,6 +627,7 @@ class PopUpEdit extends Component {
     }
     selectItem(id, name){
         this.setState({
+            ...this.state,
             'update': {
                 ...this.state.update,
                 'invoice_items':{
@@ -609,10 +680,6 @@ class PopUpEdit extends Component {
                 'invoice_items':items
             }
         })
-    }
-
-
-    stateman(){
     }
 
 
@@ -710,6 +777,7 @@ class PopUpEdit extends Component {
         if (dis){
             if (by===0){
                 await this.setState({
+                    ...this.state,
                     'discoount_loaded':false,
                     discount_start: 0,
                     discount_end: 10,
@@ -719,6 +787,7 @@ class PopUpEdit extends Component {
             else{
                 if (this.state.discount_start+by>-1){
                     await this.setState({
+                        ...this.state,
                         'discount_loaded':false,
                         discount_start: this.state.discount_start+by,
                         discount_end: this.state.discount_end+by,
@@ -741,6 +810,7 @@ class PopUpEdit extends Component {
     else { 
         if (by===0){
             await this.setState({
+                ...this.state,
                 'tax_loaded':false,
                 tax_start: 0,
                 tax_end: 10,
@@ -750,6 +820,7 @@ class PopUpEdit extends Component {
         else{
             if (this.state.tax_start+by>-1){
                 await this.setState({
+                    ...this.state,
                     'tax_loaded':false,
                     tax_start: this.state.tax_start+by,
                     tax_end: this.state.tax_end+by,
@@ -776,6 +847,7 @@ class PopUpEdit extends Component {
         await getDiscounts(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 this.setState({
+                    ...this.state,
                     'discount_selection':data['discounts'],
                     'discount_loaded':true
                 })
@@ -791,6 +863,7 @@ class PopUpEdit extends Component {
         await getTaxes(JSON.stringify(request_json)).then(data => {
             if (data['status']){
                 this.setState({
+                    ...this.state,
                     'tax_selection':data['taxes'],
                     'tax_loaded':true
                 })
@@ -852,7 +925,6 @@ class PopUpEdit extends Component {
             }
         }
     }
-
 
     render() {
         const item_selection = this.state.item_selection
@@ -1226,7 +1298,19 @@ class PopUpEdit extends Component {
                 </Grid>
                 <Grid container justify='center'>
                     <Grid item xs={8} >
-                    <h3>Items</h3> <Button variant="contained" color="secondary"  onClick={() => {this.addInvoiceItem()}}>Add New Items</Button>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td>
+                                <Button variant="contained" color="secondary"  onClick={() => {this.addInvoiceItem()}}>Add New Items</Button>
+                                </td>
+                                <td>
+                                    <QrScanner refoption={this.qrRef} onFind={this.handleQRMultiple} ></QrScanner>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    <h3>Items</h3> 
                     {this.state.popUp ? popUpItem :<List data={this.state.update.invoice_items} header={this.columns} page={false} popUp={this.popUp} />}
                     </Grid>
                 </Grid>

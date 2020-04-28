@@ -45,6 +45,7 @@ class ItemList extends Component {
     
     handleQR(value){
         this.getDataFromQR(value)
+        return true
     }
     
     onChange(e)

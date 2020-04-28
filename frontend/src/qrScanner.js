@@ -6,20 +6,38 @@ import QrReader from 'react-qr-reader'
 
 
 function SimpleDialog(props) {
-  const { onClose, open } = props;
+  const { onClose, open, onOpen } = props;
 
   const handleClose = () => {
+    console.log('close')
     onClose();
   };
 
   const handleError = value =>{
     console.log(value)
   };
+  const sleep = (milliseconds) =>{
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+  }
 
+  const handleOpen = () => { 
+    onOpen();
+  }
+  
   const handleScan = value => {
     if (value){
-      props.onFind(value)
+      if (props.onFind(value)){
+        handleClose()
+      }
+    }
+    else{
       handleClose()
+      sleep(3000)
+      handleOpen()
     }
   }
 
@@ -50,10 +68,10 @@ function QrScanner(props) {
 
   return (
     <div>
-      <Button variant="contained" color="secondary" onClick={handleClickOpen}>
-        Scan Item's QR Code 
+      <Button variant="contained" ref={props.refoption} color="secondary" id="btnScanner" onClick={handleClickOpen}>
+        Scan QR Code 
       </Button>
-      <SimpleDialog open={open} onClose={handleClose} onFind={props.onFind} />
+      <SimpleDialog open={open} onClose={handleClose} onOpen={handleClickOpen} onFind={props.onFind} />
     </div>
   );
 }
