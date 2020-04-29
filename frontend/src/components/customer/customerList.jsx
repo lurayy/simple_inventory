@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import List from '../list';
-import { getCustomer, updateCustomer,  deleteCustomers } from '../../api/sales/customer';
+import { getCustomer, updateCustomer,  deleteCustomers, getCustomerCategory } from '../../api/sales/customer';
 import {Button, TextField, Grid, withStyles } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
@@ -9,6 +9,9 @@ import {FormControl, InputLabel, Input} from '@material-ui/core'
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 import Swal from 'sweetalert2'
 import LoadingIcon from '../loading';
+
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 
 
 const styles = makeStyles((theme) => ({
@@ -32,8 +35,10 @@ class CustomerList extends Component {
             'loading':false,
             'popUp':false,
             'customer':{},
-            'update':{}
+            'update':{},
+            'customerCategories':[]
         }
+        this.getCustomerCategories = this.getCustomerCategories.bind(this)
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.customerDelete = this.customerDelete.bind(this)
@@ -60,14 +65,35 @@ class CustomerList extends Component {
     }
 
     async componentDidMount(){
+        await this.getCustomerCategories()
         try {
             const {id} = this.props.match.params
             if (id){
                 await this.popUp(id,0,true)
             }
+            else{
+            }
         }catch(e){
             console.log(e)
         }
+
+    }
+
+    async getCustomerCategories() {
+        var requestJson = {
+            'action':'get',
+        }
+        await getCustomerCategory(JSON.stringify(requestJson)).then((data) => {
+            if(data['status']){
+                this.setState({
+                    ...this.state,
+                    customerCategories:data['customerCategories']
+                })
+            }
+            else{
+                Swal.fire(data['error'])
+            }
+        })
     }
 
     complete(){
@@ -153,8 +179,7 @@ class CustomerList extends Component {
               
             }
           })
-          this.complete()
-        
+          this.complete()   
     }
     
     async popUp(id, uuid=0, fromUrl=false){
@@ -206,12 +231,18 @@ class CustomerList extends Component {
             id:4,
             name:"Address",
             prop: 'address'
-        }      
+        },
+        {
+            id:5,
+            name:"Category",
+            prop:'category_str'
+        }   
     ]
 
 
 
     render() {
+        const catagories = this.state.customerCategories
         var listData
         if (!this.props.data){
             listData = []
@@ -328,6 +359,17 @@ class CustomerList extends Component {
                                 value={this.state.update.tax_number}   
                             />
                </Grid>
+            </Grid>
+            <Grid container spacing={3}>
+            <Grid item xm={6} md={6}>
+            <Select onChange={this.onChange} fullWidth  value={this.state.update.category}  name='category' id="category">
+                {catagories.map(
+                    x => (
+                    <MenuItem key={x.id} value={parseInt(x.id)}>{x.name}</MenuItem>
+                    )
+                )}
+            </Select>
+            </Grid>
             </Grid>
             <Grid container spacing={3}  alignItems='flex-end'>
 

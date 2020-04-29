@@ -9,7 +9,6 @@ import qrcode
 from django.core.files.base import ContentFile
 from io import BytesIO
 
-
 class PurchaseOrderStatus(models.Model):
     name = models.CharField(max_length=255, unique=True)
     is_end = models.BooleanField(default=False)
@@ -17,7 +16,6 @@ class PurchaseOrderStatus(models.Model):
 
     def __str__(self):
         return f'{self.name}'
-    
 
 class PurchaseOrder(models.Model):
     uuid = models.UUIDField(unique=True,default= uuid.uuid4)

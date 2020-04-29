@@ -5,7 +5,7 @@ django.setup()
 
 import random
 from faker import Faker
-from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount
+from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount, CustomerCategory
 from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, Item, PurchaseItem, Place, Placement
 from sales.models import Invoice, InvoiceItem
 
@@ -48,6 +48,13 @@ users = CustomUserBase.objects.all()
 for user in users:
     print(str(user))
 
+for x in range(2):
+    name = 'category_'+str(x)
+    temp = CustomerCategory(
+        name=name
+    )
+    temp.save()
+
 
 print("--------------------------- Vendors -------------------------")
 ## Vendors 
@@ -67,6 +74,7 @@ for _ in range(VENDOR_COUNT-1):
     print (f'{temp} created.')
 
 print("--------------------------- Customer -------------------------")
+csutomer_category = CustomerCategory.objects.all()
 for _ in range(CUSTOMER_COUNT):
     temp = Customer.objects.create(
         first_name = fake.first_name(),
@@ -76,7 +84,8 @@ for _ in range(CUSTOMER_COUNT):
         tax_number = fake.ean8(),
         phone1 = fake.phone_number(),
         phone2 = fake.phone_number(),
-        address = fake.address()        
+        address = fake.address(),
+        category = csutomer_category[random.randint(0,1)]     
     )
     temp.save()
     print (f'{temp} created.')

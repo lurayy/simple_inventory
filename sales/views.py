@@ -4,12 +4,12 @@ from inventory.utils import str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 import json
-from .utils import invoices_to_json, invoice_items_to_json, discounts_to_json, taxes_to_json, customers_to_json
+from .utils import invoices_to_json, invoice_items_to_json, discounts_to_json, taxes_to_json, customers_to_json, categories_to_json
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_http_methods
 from user_handler.models import Tax, Discount
-from user_handler.models import Customer, CustomUserBase, Tax, Discount
+from user_handler.models import Customer, CustomUserBase, Tax, Discount, CustomerCategory
 from .serializers import InvoiceStatusSerializer
 
 @login_required
@@ -327,6 +327,7 @@ def customer(request):
                 customer.phone2 = str(data_json['phone2'])
                 customer.address = str(data_json['address'])
                 customer.is_active = (data_json['is_active'])
+                customer.category = CustomerCategory.objects.get(id=data_json['category'])
                 customer.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
@@ -337,6 +338,24 @@ def customer(request):
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+@login_required
+@require_http_methods(['POST'])
+def customer_category(request):
+    response_json = {'status':''}
+    try: 
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        if data_json['action'] == "get":
+            response_json = {
+                'status':True,
+                'customerCategories': categories_to_json(CustomerCategory.objects.filter(is_active=True))
+            }
+            return JsonResponse(response_json)
+    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+                
 
 
 ######################################## InvoieItems ########################################

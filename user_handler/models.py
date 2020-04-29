@@ -38,6 +38,14 @@ class Vendor(models.Model):
         return f'{self.first_name} {self.last_name}'
 
 
+
+class CustomerCategory(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.name}'
+
 class Customer(models.Model):
     ''' model schema for customer '''
     first_name = models.CharField(max_length=255)
@@ -49,12 +57,13 @@ class Customer(models.Model):
     phone1 = models.CharField(max_length=25)
     phone2 = models.CharField(max_length=25)
     address = models.TextField()
-
+    category = models.ForeignKey(CustomerCategory, on_delete=models.SET_NULL, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
 
 class Tax(models.Model):
     name = models.CharField(max_length=255)

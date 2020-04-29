@@ -42,6 +42,14 @@ const getCustomers = async data => {
       alert(e)
     }
   };
+   
+  const getCustomerCategory= async data => {
+    try {
+      return await baseRequest('apiv1/sales/customers/category','POST', data);
+    } catch(e){
+      alert(e)
+    }
+  };
   
-export {getCustomers, createCustomer, deleteCustomers, updateCustomer, getCustomer}
+export {getCustomerCategory, getCustomers, createCustomer, deleteCustomers, updateCustomer, getCustomer}
   

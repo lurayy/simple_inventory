@@ -121,7 +121,7 @@ def purchase_orders(request):
                     orders = PurchaseOrder.objects.filter(is_active=True, vendor=vendor_obj).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "added_by":
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
-                    orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end]    
+                    orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end]            
                 response_json['p_orders'] = purchase_orders_to_json(orders)
                 response_json['status'] = True
                 return JsonResponse(response_json)

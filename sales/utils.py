@@ -1,6 +1,6 @@
 from .models import Invoice, InvoiceItem 
 from user_handler.models import Customer, CustomUserBase
-from .serializers import InvoiceSerializer, InvoiceItemSerializer, CustomerSerializer, TaxSerializer, DiscountSerializer
+from .serializers import InvoiceSerializer, InvoiceItemSerializer, CustomerSerializer, TaxSerializer, DiscountSerializer, CustomerCategorySerializer
 from inventory.models import PurchaseItem, Place, Item
 
 def invoices_to_json(models):
@@ -51,5 +51,13 @@ def customers_to_json(customers):
             temp['name'] = str(temp['first_name']) + " " + str(temp['middle_name'] ) + " "+ str(temp['last_name'])
         else:
             temp['name'] = str(temp['first_name']) + " "+str(temp['last_name'])
+        temp['category_str'] = str(customer.category)
+        data.append(temp)
+    return data
+
+def categories_to_json(categories):
+    data = []
+    for category in categories:
+        temp = CustomerCategorySerializer(category).data
         data.append(temp)
     return data

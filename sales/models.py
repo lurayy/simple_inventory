@@ -36,7 +36,6 @@ class Invoice(models.Model):
         super(Invoice, self).save(*args, **kwargs)
 
 
-
 class InvoiceItem(models.Model):
     ''' this model hold the items and the details of that item, that are add to invoice'''
     purchase_item = models.ForeignKey(PurchaseItem, on_delete = models.SET_NULL, null=True)
