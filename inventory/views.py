@@ -725,6 +725,7 @@ def places(request):
                                 'vendor': p.purchase_item.purchase_order.vendor.first_name +  ' ' + p.purchase_item.purchase_order.vendor.last_name
                             }
                             temp['placed_on'] = p.placed_on.id
+                            temp['sales_price'] = p.item.sales_price
                             temp['str_placed_on'] = p.placed_on.name
                             temp['stock'] = p.stock
                             response_json['placements'].append(temp)

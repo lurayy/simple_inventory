@@ -22,6 +22,7 @@ def purchase_items_to_json(items):
     for item in items:
         temp = PurchaseItemSerializer(item).data
         temp['item_name'] = str(Item.objects.get(id=temp['item']))
+        temp['sales_price'] = item.item.sales_price
         data.append(temp)
     return data
 
@@ -90,6 +91,7 @@ def placements_to_json(placements):
             temp['purchase_order_uuid'] = str(placement.purchase_item.purchase_order.uuid) 
             temp['purchase_order_id'] = str(placement.purchase_item.purchase_order.id)
             temp['item_name'] = str(placement.item.name)
+            temp['sales_price'] = placement.item.sales_price
             temp['placed_on_str'] = str(placement.placed_on.name)
             temp['qr_code_image'] = str(placement.purchase_item.qr_code_image.url)
             data.append(temp)

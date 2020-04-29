@@ -154,7 +154,8 @@ class PopUpEdit extends Component {
                             ...this.state.update.invoice_items,
                             [this.state.current] : {
                                 ...this.state.update.invoice_items[this.state.current],
-                                'purchase_item' : data['purchase_item'][0]['id']
+                                'purchase_item' : data['purchase_item'][0]['id'],
+                                'price': data['purchase_item'][0]['sales_price']
                             },
                         }
                     }
@@ -340,11 +341,12 @@ class PopUpEdit extends Component {
                 var string  = data['placements'][p]['purchase_item_details']['purchase_price'] + "/-  " + data['placements'][p]['purchase_item_details']['quantity'] + " " + data['placements'][p]['purchase_item_details']['vendor'] 
                 temp.push({
                     'id': data['placements'][p]['purchase_item'],
-                    'str':string
+                    'str':string,
+                    'sales_price': data['placements'][p]['sales_price']
                 })
             }
-            
         }
+        console.log("temp", data)
         this.setState({
             ...this.state,
             'stock_selection': temp
@@ -353,6 +355,7 @@ class PopUpEdit extends Component {
     
 
     async onChangePlace(e){
+        console.log(this.state.sold_from_selection)
         await this.setState({
             'update': {
                 ...this.state.update,
@@ -371,7 +374,8 @@ class PopUpEdit extends Component {
                         var string  = this.state.sold_from_selection[p]['purchase_item_details']['purchase_price'] + "/-  " + this.state.sold_from_selection[p]['purchase_item_details']['quantity'] + " " + this.state.sold_from_selection[p]['purchase_item_details']['vendor'] 
                         temp.push({
                             'id': this.state.sold_from_selection[p]['purchase_item'],
-                            'str':string
+                            'str':string,
+                            'sales_price': this.state.sold_from_selection[p]['purchase_item']['sales_price']
                         })
                     }
                 }
@@ -440,6 +444,23 @@ class PopUpEdit extends Component {
     }
 
     onChangePI(e){
+        if (e.target.name === "purchase_item"){
+            console.log(this.state.stock_selection)
+            this.setState({
+                ...this.state,
+                'update': {
+                    ...this.state.update,
+                    'invoice_items':{
+                        ...this.state.update.invoice_items,
+                        [this.state.current] : {
+                            ...this.state.update.invoice_items[this.state.current],
+                            [e.target.name] : [e.target.value][0]
+                        },
+                    }
+                }
+            })
+        }
+        else{
         this.setState({
             ...this.state,
             'update': {
@@ -453,6 +474,7 @@ class PopUpEdit extends Component {
                 }
             }
         })
+    }
     }
 
     postInvoiceItem(is_new=false, alert=true){
@@ -638,7 +660,7 @@ class PopUpEdit extends Component {
                 })            }
         })
     }
-    selectItem(id, name){
+    selectItem(id, name, price){
         this.setState({
             ...this.state,
             'update': {
@@ -648,7 +670,8 @@ class PopUpEdit extends Component {
                     [this.state.current] : {
                         ...this.state.update.invoice_items[this.state.current],
                         'item_name' : name,
-                        'item':id
+                        'item':id,
+                        'price':price
                     },
                 }
             }
@@ -947,7 +970,7 @@ class PopUpEdit extends Component {
             <div className={style.dropdown_content} id='item_dropdown'>
                     {item_selection.map(
                         item => (
-                        <a key={item.id} onClick={() => {this.selectItem(item.id, item.name)}} >{item.name} {item.sales_price}</a>
+                        <a key={item.id} onClick={() => {this.selectItem(item.id, item.name, item.sales_price)}} >{item.name} {item.sales_price}</a>
                         )
                     )}
             </div>
@@ -1064,11 +1087,11 @@ class PopUpEdit extends Component {
                 </tr>
                 <tr>
                     <td>
-                    Quantity : <input name="quantity" placeholder={this.state.update.invoice_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required min='1' ></input><br></br>
+                    Quantity : <input name="quantity" value={this.state.update.invoice_items[this.state.current].quantity} type="number" onChange={this.onChangePI} required min='1' ></input><br></br>
                 
                     </td>
                     <td>
-                    Price : <input name="price" placeholder={this.state.update.invoice_items[this.state.current].price} type="number" onChange={this.onChangePI} required></input><br></br>
+                    Price : <input name="price" value={this.state.update.invoice_items[this.state.current].price} type="number" onChange={this.onChangePI} required></input><br></br>
                 
                     </td>
                     </tr>
