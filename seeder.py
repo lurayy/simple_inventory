@@ -276,4 +276,4 @@ for _ in range (GIFT_CARD_COUNT):
         is_active = True
     )
     temp.save()
-    print f'{temp.name} with {temp.count_limit}'
+    print (temp.name)
