@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from django.dispatch import receiver
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, pre_delete 
 from django.db.models import signals
 
 class GiftCardCategory(models.Model):
@@ -15,13 +15,16 @@ class GiftCard(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     category = models.ForeignKey(GiftCardCategory, on_delete=models.SET_NULL, blank=True, null=True)
     code = models.CharField(max_length=50)
-
+    discount_types = (
+        ('percent', "Perecent"),
+        ('fixed', "Fixed")
+    )
+    discount_type = models.CharField(max_length=8, choices=discount_types, default='fixed')
+    rate = models.PositiveIntegerField()
     count_used = models.PositiveIntegerField(default=0)
     count_limit = models.PositiveIntegerField(blank=True, null=True)
-
     is_limited = models.BooleanField(default=True)
     has_unique_codes = models.BooleanField(default=False)
-
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
@@ -33,15 +36,22 @@ class GiftCard(models.Model):
         else:
             return False
 
-
 class UniqueCard(models.Model):
-    gift_card = models.ForeignKey(GiftCard, on_delete=models.CASCADE)
+    gift_card = models.ForeignKey(GiftCard, on_delete=models.CASCADE, related_name='unique_codes')
     code = models.CharField(max_length=10, unique=True)
     is_used = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.code} {self.gift_card.name}'
+
+
+# @receiver(pre_delete, sender=UniqueCard)
+# def pre_delete_handler_unique_card(sender, instance, **kwargs):
+#     instance.gift_card.count_limit = instance.gift_card.count_limit - 1
+#     instance.gift_card.save()
+
+
 
 
 @receiver(pre_save, sender=GiftCard)

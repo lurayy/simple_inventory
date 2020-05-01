@@ -8,7 +8,7 @@ from faker import Faker
 from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount, CustomerCategory
 from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, Item, PurchaseItem, Place, Placement
 from sales.models import Invoice, InvoiceItem
-
+from payment.models import GiftCard, UniqueCard, GiftCardCategory
 USER_COUNT = 2
 VENDOR_COUNT = 5
 CUSTOMER_COUNT = 10
@@ -19,6 +19,8 @@ ITEM_CATAGORY_COUNT = 4
 ITEM_COUNT = 8
 
 PLACE_COUNT = 5
+GIFT_CARD_COUNT = 100
+CATEGORY = 10
 #calculate placement from place and purchase_order_item
 
 
@@ -195,6 +197,8 @@ for order in PurchaseOrder.objects.all():
     print(f'{order} changed to {order.status}')
 
 
+
+
 # print("--------------------------- Invoice -------------------------")
 # global_temp = Customer.objects.all()
 # STATUS_S = ['sent', 'due', 'paid', 'completed', 'shiped']
@@ -249,3 +253,27 @@ for order in PurchaseOrder.objects.all():
 #     print("added  ",x)
 #     invoice.status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
 #     invoice.save()
+
+for i in range (CATEGORY):
+    name = "category_"+str(i)
+    temp = GiftCardCategory.objects.create(
+        name= name
+    )
+    print(str(temp))
+    temp.save()
+
+category = GiftCardCategory.objects.all()
+
+for _ in range (GIFT_CARD_COUNT):
+    temp = GiftCard.objects.create(
+        name = fake.last_name(),
+        category = category[random.randint(0,len(category)-1)],
+        code = fake.first_name(),
+        rate = random.randint(0,50),
+        count_limit = random.randint(5,100),
+        is_limited = True,
+        has_unique_codes = True,
+        is_active = True
+    )
+    temp.save()
+    print f'{temp.name} with {temp.count_limit}'

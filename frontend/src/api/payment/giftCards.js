@@ -1,4 +1,4 @@
-import { baseRequest } from './base';
+import { baseRequest } from '../base';
  
 
 const getGiftCards = async data => {
@@ -27,7 +27,7 @@ const getGiftCards = async data => {
   };
   
   
-  const editGiftCard = async data => {
+  const updateGiftCard = async data => {
     try {
       return await baseRequest('apiv1/payment/giftcard','POST', data);
     } catch(e){
@@ -43,8 +43,17 @@ const getGiftCards = async data => {
     }
   };
 
+  
+  const validateGiftCard = async data => {
+    try {
+      return await baseRequest('apiv1/payment/giftcards/validate','POST', data);
+    } catch(e){
+      alert(e)
+    }
+  };
+
 
 
   
-export { getGiftCard, getGiftCards, createGiftCard, editGiftCard, deleteGiftCards }
+export { validateGiftCard, getGiftCard, getGiftCards, createGiftCard, updateGiftCard, deleteGiftCards }
   

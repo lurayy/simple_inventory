@@ -68,6 +68,12 @@ import ExportPurchaseOrders from './export/exportPurchaseOrders';
 import ExportInvoices from './export/exportInvoices';
 import ExportItems from './export/exportItems';
 
+
+import CardGiftcardIcon from '@material-ui/icons/CardGiftcard';
+import GiftCards from './giftCards/index'
+import GiftCardList from './giftCards/cardList'
+import GiftCardCreation from './giftCards/createCard'
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -245,6 +251,12 @@ function Dashboard(props) {
       </ListItemIcon>
       <ListItemText primary="Items" />
     </ListItem>
+    <ListItem button onClick={()=> {window.location.href="/cards"}}>
+      <ListItemIcon>
+      <CardGiftcardIcon />
+      </ListItemIcon>
+      <ListItemText primary="Gift Cards" />
+    </ListItem>
         </List>
         <Divider />
         <List>
@@ -341,6 +353,12 @@ function Dashboard(props) {
                     <Route path='/export/invoices' component={ExportInvoices}></Route>
                     <Route path='/export/items' component={ExportItems}></Route>
                     <Route path='/export' component= {Export}></Route>
+
+                    <Route path='/cards/create' component={GiftCardCreation}></Route>
+                    <Route path='/cards/:id' component= {GiftCardList}></Route>
+                    <Route path='/cards' component= {GiftCards}></Route>
+
+                    
                     </Switch>
             </Router>
             </Grid>            

@@ -10,6 +10,7 @@ urlpatterns = [
     path('apiv1/sales/', include('sales.urls')),
     path('apiv1/inventory/', include('inventory.urls')),
     path('apiv1/users/', include('user_handler.urls')),
+    path('apiv1/payment/', include('payment.urls')),
     path('', entry_point, name = " entry point"),
 ]
 
