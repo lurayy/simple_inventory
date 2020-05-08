@@ -48,7 +48,6 @@ def gift_card(request):
             if data_json['action'] == "get":
                 if data_json['filter'] == "uuid":
                     response_json['status'] = True
-                    print("here")
                     response_json['gift_cards']  = gift_card_to_json(GiftCard.objects.get(uuid=data_json['uuid']))
                     return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -103,4 +102,24 @@ def delete_unique_cards(request):
 @login_required
 @require_http_methods(['POST'])
 def validate_gift_card(request):
-    pass
+    response_json = {'status':''}
+    if request.method == "POST":
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            code = data_json['code']
+            try:
+                card = UniqueCard.objects.get(code=code)
+                if card.is_used:
+                    response_json['status'] = False
+                    response_json['msg'] = "Card is already used."
+                else:
+                    response_json['status'] = True
+                    response_json['msg'] = "Valid"
+            except:
+                response_json['status'] = False
+                response_json['msg'] = "Card Doesnot Exsist."
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
