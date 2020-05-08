@@ -3,6 +3,7 @@ import uuid
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, pre_delete 
 from django.db.models import signals
+from sales.models import Invoice
 
 class GiftCardCategory(models.Model):
     name = models.CharField(max_length=255)
@@ -46,9 +47,22 @@ class UniqueCard(models.Model):
         return f'{self.code} {self.gift_card.name}'
 
 
-# class PaymentDetails(models.Model):
+class PaymentMethod(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f'{self.name}'
 
 
+class Payment(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="payments")
+    amount = models.FloatField()
+    method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, related_name="payments")
+    bank_name = models.CharField(max_length=255, null=True, blank=True)
+    transaction_id = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.invoice.customer.name} {self.method} {self.invoice.invoiced_on}'
 
 
 # @receiver(pre_delete, sender=UniqueCard)
