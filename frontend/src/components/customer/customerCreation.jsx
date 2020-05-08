@@ -216,13 +216,10 @@ class CustomerCreation extends Component {
     }
 }
 
-CustomerCreation.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
 
 
 const mapStateToProps = state => ({
     user: state.user
 })
 
-export default withStyles(styles)(connect(mapStateToProps)(CustomerCreation))
+export default connect(mapStateToProps)(CustomerCreation)

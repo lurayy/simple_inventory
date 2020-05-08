@@ -46,6 +46,11 @@ class UniqueCard(models.Model):
         return f'{self.code} {self.gift_card.name}'
 
 
+# class PaymentDetails(models.Model):
+
+
+
+
 # @receiver(pre_delete, sender=UniqueCard)
 # def pre_delete_handler_unique_card(sender, instance, **kwargs):
 #     instance.gift_card.count_limit = instance.gift_card.count_limit - 1
@@ -113,3 +118,4 @@ def delete_unique_cards(gift_card,count):
     for i in range(count):
         card = cards[i]
         card.delete()
+

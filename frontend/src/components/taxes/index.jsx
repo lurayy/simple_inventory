@@ -103,7 +103,6 @@ class Taxes extends Component {
  
 
 render() {
-    const { classes } = this.props;
 
     const render_after_load = (
         <div>
@@ -112,7 +111,7 @@ render() {
     )
 
     return(
-        <div className={classes.root}>
+        <div >
         <Grid container spacing={3} justify="center" alignItems="center">
             <Grid item xs={3} >
             <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
@@ -131,7 +130,7 @@ render() {
               </Grid>
   
           <Grid item xs={12}>
-            <Paper className={classes.paper}>
+            <Paper>
             {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
             </Paper>
           </Grid>
@@ -144,13 +143,8 @@ render() {
 
 
 
-Taxes.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
-
-
 const mapStateToProps = state => ({
     user: state.user,
 })
 
-export default withStyles(styles)(connect(mapStateToProps)(Taxes))
+export default connect(mapStateToProps)(Taxes)

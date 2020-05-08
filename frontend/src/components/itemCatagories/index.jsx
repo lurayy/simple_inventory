@@ -109,10 +109,9 @@ render() {
             <ItemCatagoryList data={this.state.item_catagories} update={this.update_table} page={this.state.page} pushNewId={this.pushNewId}/>
         </div>
     )
-    const { classes } = this.props;
 
     return(
-        <div className={classes.root}>
+        <div >
         <Grid container spacing={3} justify="center" alignItems="center">
             <Grid item xs={3} >
             <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
@@ -131,7 +130,7 @@ render() {
               </Grid>
   
           <Grid item xs={12}>
-            <Paper className={classes.paper}>
+            <Paper >
             {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
             </Paper>
           </Grid>
@@ -146,11 +145,8 @@ render() {
 
 
 
-ItemCatagories.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
 const mapStateToProps = state => ({
     user: state.user,
 })
 
-export default withStyles(styles)(connect(mapStateToProps)(ItemCatagories))
+export default connect(mapStateToProps)(ItemCatagories)

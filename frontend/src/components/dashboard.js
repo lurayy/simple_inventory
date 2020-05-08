@@ -17,7 +17,10 @@ import Login from './users/login';
 import Logout from './users/logout';
 import VendorCreation from './vendors/vendorCreation';
 import UserCreation from './users/userCreation';
-import { BrowserRouter as Router, Switch , Route} from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, NavLink } from 'react-router-dom';
+import { withRouter } from 'react-router'
+
+
 import Users from './users';
 import Vendors from './vendors/index';
 import Customers from './customer/index';
@@ -58,7 +61,7 @@ import InvoiceListing from './invoices/invoiceListing'
 import ItemCatagoryList from './itemCatagories/itemCatagoryList'
 import ItemList from './items/itemList'
 import PlaceList from './placement/placeList'
-import PurchaseOrderList  from './purchaseOrder/purchaseOrderList'
+import PurchaseOrderList from './purchaseOrder/purchaseOrderList'
 import TaxList from './taxes/taxList'
 import UserList from './users/userList'
 import VendorList from './vendors/vendorList'
@@ -118,6 +121,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     whiteSpace: 'nowrap',
     width: drawerWidth,
+    // backgroundColor: '#333333',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -157,7 +161,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Dashboard(props) {
-  
+
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const handleDrawerOpen = () => {
@@ -170,14 +174,18 @@ function Dashboard(props) {
 
   const user = useSelector(state => state.user);
   var isDashboard = false
-  if( (window.location.pathname) ==='/'){
+  if ((window.location.pathname) === '/') {
     isDashboard = true
   }
 
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
+      <AppBar
+        style={{ backgroundColor: '100vw' }}
+        position="absolute"
+        className={clsx(classes.appBar, open && classes.appBarShift)}
+      >
         <Toolbar className={classes.toolbar}>
           <IconButton
             edge="start"
@@ -191,8 +199,8 @@ function Dashboard(props) {
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             Mandala IMS
           </Typography>
-          <IconButton color="inherit"  onClick={()=> {window.location.href="/logout"}}>
-          <ExitToAppIcon/>
+          <IconButton color="inherit" onClick={() => { window.location.href = "/logout" }}>
+            <ExitToAppIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -202,102 +210,115 @@ function Dashboard(props) {
           paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
         }}
         open={open}
+
       >
         <div className={classes.toolbarIcon}>
           <Typography>
-            {user.data.first_name} <span>  </span> {user.data.last_name}<br></br>
+            {user.data.first_name} John <span>  </span> {user.data.last_name} Doe <br></br>
             {user.data.user_type}
           </Typography>
           <IconButton onClick={handleDrawerClose}>
             <ChevronLeftIcon />
           </IconButton>
         </div>
-        <Router>
         <Divider />
         <List>
-    <ListItem button onClick={()=> {window.location.href="/"}}>
-      <ListItemIcon>
-        <DashboardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Dashboard" />
-    </ListItem>
-    <ListItem button  onClick={()=> {window.location.href="/purchaseorders"}}>
-      <ListItemIcon>
-        <ShoppingCartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Purchase Orders" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/vendors"}}>
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Vendors" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/invoices"}}>
-      <ListItemIcon>
-        <DescriptionIcon />
-      </ListItemIcon>
-      <ListItemText primary="Invoices" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/customers"}}>
-      <ListItemIcon>
-        <MonetizationOnIcon />
-      </ListItemIcon>
-      <ListItemText primary="Customers" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/items"}}>
-      <ListItemIcon>
-      <FeaturedPlayListIcon />
-      </ListItemIcon>
-      <ListItemText primary="Items" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/cards"}}>
-      <ListItemIcon>
-      <CardGiftcardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Gift Cards" />
-    </ListItem>
+          
+          <ListItem button onClick={() => { props.history.push('/') }}>
+            <ListItemIcon>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push("/purchaseorders") }}>
+            <ListItemIcon>
+              <ShoppingCartIcon />
+            </ListItemIcon>
+            <ListItemText primary="Purchase Orders" />
+          </ListItem>   
+
+          <ListItem button onClick={() => { props.history.push("/vendors") }}>
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Vendors" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push("/invoices") }}>            
+            <ListItemIcon>
+              <DescriptionIcon />
+            </ListItemIcon>
+            <ListItemText primary="Invoices" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push("/customers") }}>
+            <ListItemIcon>
+              <MonetizationOnIcon />
+            </ListItemIcon>
+            <ListItemText primary="Customers" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push("/items") }}>
+            <ListItemIcon>
+              <FeaturedPlayListIcon />
+            </ListItemIcon>
+            <ListItemText primary="Items" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push('/cards') }}>
+            <ListItemIcon>
+              <CardGiftcardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Gift Cards" />
+          </ListItem>
         </List>
+
         <Divider />
+
         <List>
-    <ListItem button onClick={()=> {window.location.href="/places"}}>
-      <ListItemIcon>
-      <SettingsIcon />
-      </ListItemIcon>
-      <ListItemText primary="Item Managements" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/discounts"}}>
-      <ListItemIcon>
-      <SettingsIcon />
-      </ListItemIcon>
-      <ListItemText primary="Discounts" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/taxes"}}>
-      <ListItemIcon>
-      <SettingsIcon />
-      </ListItemIcon>
-      <ListItemText primary="Taxes" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/itemcatagories"}}>
-      <ListItemIcon>
-      <SettingsIcon />
-      </ListItemIcon>
-      <ListItemText primary="Item Catagories" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/users"}}>
-      <ListItemIcon>
-      <SettingsIcon />
-      </ListItemIcon>
-      <ListItemText primary="Staff Management" />
-    </ListItem>
-    <ListItem button onClick={()=> {window.location.href="/export"}}>
-      <ListItemIcon>
-      <GetAppIcon />
-      </ListItemIcon>
-      <ListItemText primary="Export Data" />
-    </ListItem>
+          <ListItem button onClick={() => { props.history.push("/places") }}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Item Managements" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push("/discounts") }}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Discounts" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push("/taxes") }}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Taxes" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push("/itemcatagories") }}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Item Catagories" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push("/users") }}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Staff Management" />
+          </ListItem>
+
+          <ListItem button onClick={() => { props.history.push("/export") }}>
+            <ListItemIcon>
+              <GetAppIcon />
+            </ListItemIcon>
+            <ListItemText primary="Export Data" />
+          </ListItem>
         </List>
-        </Router>
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
@@ -305,63 +326,61 @@ function Dashboard(props) {
           <Grid container justify="center">
             <Grid item xs={12} >
               {/* {isDashboard ? <Hello></Hello>: <span></span>} */}
-            <Router>
-            <Switch>
-                    <Route path='/login' component={Login}></Route>
-                    <Route path='/logout' component={Logout}></Route>
-                    <Route path='/users/create' component = {UserCreation}></Route>
-                    <Route path='/users/:id' component = {UserList}></Route>
-                    <Route path='/users' component = {Users}></Route>
+              <Switch>
+                <Route path='/login' component={Login}></Route>
+                <Route path='/logout' component={Logout}></Route>
+                <Route path='/users/create' component={UserCreation}></Route>
+                <Route path='/users/:id' component={UserList}></Route>
+                <Route path='/users' component={Users}></Route>
 
-                    <Route path='/vendors/create' component = {VendorCreation}></Route>
-                    <Route path='/vendors/:id' component = {VendorList}></Route>
-                    <Route path='/vendors' component = {Vendors}></Route>
-                    
-                    <Route path='/customers/create' component = {CustomerCreation}></Route>
-                    <Route path='/customers/:id' component = {CustomerList}></Route>
-                    <Route path='/customers' component = {Customers}></Route>
+                <Route path='/vendors/create' component={VendorCreation}></Route>
+                <Route path='/vendors/:id' component={VendorList}></Route>
+                <Route path='/vendors' component={Vendors}></Route>
 
-                    <Route path='/purchaseorders/create' component = {PurchaseOrderCreation}></Route>
-                    <Route path='/purchaseorders/:id' component = {PurchaseOrderList}></Route>
-                    <Route path='/purchaseorders' component = {PurchaseOrders}></Route>
-                    
-                    <Route path='/invoices/create' component = {InvoiceCreation}></Route>
-                    <Route path='/invoices/:id' component = {InvoiceListing}></Route>
-                    <Route path='/invoices' component = {Invoices}></Route>
+                <Route path='/customers/create' component={CustomerCreation}></Route>
+                <Route path='/customers/:id' component={CustomerList}></Route>
+                <Route path='/customers' component={Customers}></Route>
 
-                    <Route path='/discounts/create' component= {DiscountCreation}></Route>
-                    <Route path='/discounts/:id' component= {DiscountList}></Route>
-                    <Route path='/discounts' component= {Discounts}></Route>
-                    
-                    <Route path='/taxes/create' component= {TaxCreation}></Route>
-                    <Route path='/taxes/:id' component= {TaxList}></Route>
-                    <Route path='/taxes' component= {Taxes}></Route>
-                    
-                    <Route path='/items/create' component= {ItemCreation}></Route>
-                    <Route path='/items/:id' component= {ItemList}></Route>
-                    <Route path='/items' component= {Items}></Route>
+                <Route path='/purchaseorders/create' component={PurchaseOrderCreation}></Route>
+                <Route path='/purchaseorders/:id' component={PurchaseOrderList}></Route>
+                <Route path='/purchaseorders' component={PurchaseOrders}></Route>
 
-                    <Route path='/itemcatagories/create' component= {ItemCatagoryCreation}></Route>
-                    <Route path='/itemcatagories/:id' component= {ItemCatagoryList}></Route>
-                    <Route path='/itemcatagories' component= {ItemCatagories}></Route>
+                <Route path='/invoices/create' component={InvoiceCreation}></Route>
+                <Route path='/invoices/:id' component={InvoiceListing}></Route>
+                <Route path='/invoices' component={Invoices}></Route>
 
-                    <Route path='/places/create' component= {PlaceCreation}></Route>
-                    <Route path='/places/:id' component= {PlaceList}></Route>
-                    <Route path='/places' component= {Places}></Route>
+                <Route path='/discounts/create' component={DiscountCreation}></Route>
+                <Route path='/discounts/:id' component={DiscountList}></Route>
+                <Route path='/discounts' component={Discounts}></Route>
 
-                    <Route path='/export/purchaseorders' component={ExportPurchaseOrders}></Route>
-                    <Route path='/export/invoices' component={ExportInvoices}></Route>
-                    <Route path='/export/items' component={ExportItems}></Route>
-                    <Route path='/export' component= {Export}></Route>
+                <Route path='/taxes/create' component={TaxCreation}></Route>
+                <Route path='/taxes/:id' component={TaxList}></Route>
+                <Route path='/taxes' component={Taxes}></Route>
 
-                    <Route path='/cards/create' component={GiftCardCreation}></Route>
-                    <Route path='/cards/:id' component= {GiftCardList}></Route>
-                    <Route path='/cards' component= {GiftCards}></Route>
+                <Route path='/items/create' component={ItemCreation}></Route>
+                <Route path='/items/:id' component={ItemList}></Route>
+                <Route path='/items' component={Items}></Route>
 
-                    
-                    </Switch>
-            </Router>
-            </Grid>            
+                <Route path='/itemcatagories/create' component={ItemCatagoryCreation}></Route>
+                <Route path='/itemcatagories/:id' component={ItemCatagoryList}></Route>
+                <Route path='/itemcatagories' component={ItemCatagories}></Route>
+
+                <Route path='/places/create' component={PlaceCreation}></Route>
+                <Route path='/places/:id' component={PlaceList}></Route>
+                <Route path='/places' component={Places}></Route>
+
+                <Route path='/export/purchaseorders' component={ExportPurchaseOrders}></Route>
+                <Route path='/export/invoices' component={ExportInvoices}></Route>
+                <Route path='/export/items' component={ExportItems}></Route>
+                <Route path='/export' component={Export}></Route>
+
+                <Route path='/cards/create' component={GiftCardCreation}></Route>
+                <Route path='/cards/:id' component={GiftCardList}></Route>
+                <Route path='/cards' component={GiftCards}></Route>
+
+
+              </Switch>
+            </Grid>
           </Grid>
         </Container>
       </main>
@@ -369,4 +388,4 @@ function Dashboard(props) {
   );
 }
 
-export default Dashboard
+export default withRouter(Dashboard)

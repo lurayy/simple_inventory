@@ -7,6 +7,9 @@ import Dashboard from './dashboard'
 import LoadingIcon from './loading'
 import Login from './users/login'
 
+
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+
 class Index extends Component {
     constructor (props){
         super(props)

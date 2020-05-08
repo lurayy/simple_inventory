@@ -94,11 +94,6 @@ def delete_unique_cards(request):
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
-
-
-
-
-
 @login_required
 @require_http_methods(['POST'])
 def validate_gift_card(request):

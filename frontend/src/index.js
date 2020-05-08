@@ -8,13 +8,19 @@ import rootReducer from './reducers';
 import { Provider } from 'react-redux';
 import thunkMiddleware from 'redux-thunk';
 
+
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+
+
 const store = createStore(rootReducer, applyMiddleware(thunkMiddleware));
 
 ReactDOM.render(
     <Provider store={store}>
-        <App />
+        <Router>
+            <App />
+        </Router>
     </Provider>
     , document.getElementById('root')
-    );
+);
 
 serviceWorker.unregister();

@@ -400,9 +400,6 @@ class CustomerList extends Component {
     }
 }
 
-CustomerList.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
 
 
-export default withStyles(styles)(CustomerList)
+export default CustomerList

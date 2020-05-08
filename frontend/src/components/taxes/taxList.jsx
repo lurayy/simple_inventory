@@ -224,7 +224,7 @@ class TaxList extends Component {
         <Grid container spacing={3}>
             <Grid item xm={6} md={6}>
                 Tax Type :  
-                <FormControl className={classes.formControl}>
+                <FormControl >
                                 <Select onChange={this.onChange}   value={this.state.update.tax_type}  name='tax_type' id="tax_type">
                                 <MenuItem value="normal">Normal (Percentage)</MenuItem>
                                 <MenuItem value="fixed">Fixed</MenuItem>
@@ -264,9 +264,6 @@ class TaxList extends Component {
     }
 }
 
-TaxList.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
 
-export default withStyles(styles)(TaxList)
+export default TaxList
 
