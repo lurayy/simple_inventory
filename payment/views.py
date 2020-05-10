@@ -156,13 +156,13 @@ def apply_payment(request):
     try:
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)
-        payment_method = PaymentMethod.objects.get(id=data_json['paymentMethod'])
+        payment_method = PaymentMethod.objects.get(id=data_json['payment_method'])
         if (payment_method.is_gift_card):
             pass
         else:
             payment = Payment.objects.create(
                 invoice = Invoice.objects.get(id=data_json['invoice_id']),
-                payment_method = PaymentMethod.objects.get(id=data_json['paymentMethod']),
+                payment_method = PaymentMethod.objects.get(id=data_json['payment_method']),
                 amount = data_json['amount'],
                 transaction_from = data_json['transaction_from'],
                 transaction_id = data_json['transaction_id']
