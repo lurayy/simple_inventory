@@ -5,8 +5,9 @@ from django.contrib.auth.decorators import login_required
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from .utils import gift_card_categories_to_json, unique_cards_to_json, gift_cards_to_json, gift_card_to_json
-from .models import GiftCard, GiftCardCategory, UniqueCard
+from .utils import gift_card_categories_to_json, unique_cards_to_json, gift_cards_to_json, gift_card_to_json, payment_methods_to_json
+from .models import GiftCard, GiftCardCategory, UniqueCard, Payment, PaymentMethod
+from sales.models import Invoice
 
 @login_required
 @require_http_methods(['POST'])
@@ -118,3 +119,52 @@ def validate_gift_card(request):
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
+# {
+#     invoice_id:,
+#     payment_method:
+#     amount
+#     bank_name 
+#     transaction_id
+# }
+
+@login_required
+@require_http_methods(['POST'])
+def payment_methods(request):
+    response_json = {'status':'', 'payment_methods':''}
+    try:  
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        if data_json['action'] == 'get':
+            pay_methods = PaymentMethod.objects.filter(is_active=True)
+            response_json['payment_methods'] = payment_methods_to_json(pay_methods)
+            response_json['status'] = True
+        return JsonResponse(response_json)
+    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+
+
+@login_required
+@require_http_methods(['POST'])
+def apply_payment(request):
+    response_json = {'status':''}
+    try:
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        payment_method = PaymentMethod.objects.get(id=data_json['paymentMethod'])
+        if (payment_method.is_gift_card):
+            pass
+        else:
+            payment = Payment.objects.create(
+                invoice = Invoice.objects.get(id=data_json['invoice_id']),
+                payment_method = PaymentMethod.objects.get(id=data_json['paymentMethod']),
+                amount = data_json['amount'],
+                transaction_from = data_json['transaction_from'],
+                transaction_id = data_json['transaction_id']
+            )
+            payment.save()
+        response_json['status'] = True
+        return JsonResponse(response_json)
+    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

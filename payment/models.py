@@ -49,6 +49,8 @@ class UniqueCard(models.Model):
 
 class PaymentMethod(models.Model):
     name = models.CharField(max_length=255)
+    is_gift_card = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -58,7 +60,7 @@ class Payment(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="payments")
     amount = models.FloatField()
     method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, related_name="payments")
-    bank_name = models.CharField(max_length=255, null=True, blank=True)
+    transaction_from = models.CharField(max_length=255, null=True, blank=True)
     transaction_id = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):

@@ -1,6 +1,6 @@
 ''' Searializers module for models of api '''
 from rest_framework import serializers
-from .models import GiftCard, GiftCardCategory, UniqueCard
+from .models import GiftCard, GiftCardCategory, UniqueCard, Payment, PaymentMethod
 
 class GiftCardSerializer(serializers.ModelSerializer):
 
@@ -20,4 +20,11 @@ class GiftCardCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GiftCardCategory
+        fields= '__all__'
+
+
+class PaymentMethodSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PaymentMethod
         fields= '__all__'
