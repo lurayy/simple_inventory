@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import {getVendors} from '../../api/inventory/vendorApi';
-import {  connect } from 'react-redux';
-import  VendorList  from './vendorList';
-import { Link} from 'react-router-dom';
+import { getVendors } from '../../api/inventory/vendorApi';
+import { connect } from 'react-redux';
+import VendorList from './vendorList';
+import { Link } from 'react-router-dom';
 
 import Button from '@material-ui/core/Button';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -17,125 +17,128 @@ import LoadingIcon from '../loading';
 
 const styles = makeStyles((theme) => ({
     root: {
-    flexGrow: 12,
+        flexGrow: 12,
     },
     paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
     },
 }));
 
 class Vendors extends Component {
-    constructor(props){
+    constructor(props) {
         super(props)
         this.state = {
-            'vendors':[],
-            'loaded':false,
-            'start':0,
-            'end':10,
-            'page':1
+            'vendors': [],
+            'loaded': false,
+            'start': 0,
+            'end': 10,
+            'page': 1
         }
         this.update_table = this.update_table.bind(this)
         this.pushNewId = this.pushNewId.bind(this)
     }
 
-    
-    pushNewId(id){
-        this.props.history.push('/vendors/'+id)
+
+    pushNewId(id) {
+        this.props.history.push('/vendors/' + id)
     }
-    
+
     componentDidMount() {
-        if (this.props.user.isLoggedIn === false ){
+        if (this.props.user.isLoggedIn === false) {
             this.props.history.push('/')
         }
         this.update_table(0)
     }
 
-    async update_table (by) {
-        var x = by<0?-1:1
-        if (by===0){
+    async update_table(by) {
+        var x = by < 0 ? -1 : 1
+        if (by === 0) {
             await this.setState({
-                'loaded':false,
+                'loaded': false,
                 start: 0,
                 end: 10,
-                page:1
+                page: 1
             })
         }
-        else{
-            if (this.state.start+by>-1){
+        else {
+            if (this.state.start + by > -1) {
                 await this.setState({
-                    'loaded':false,
-                    start: this.state.start+by,
-                    end: this.state.end+by,
-                    page:this.state.page+x
+                    'loaded': false,
+                    start: this.state.start + by,
+                    end: this.state.end + by,
+                    page: this.state.page + x
                 })
             }
-            else{
+            else {
                 alert("Cannot move futher from here.")
                 return
             }
         }
-        var  request_json = {
-            'action':'get',
-            'filter':'none',
-            'start':this.state.start,
-            'end':this.state.end
+        var request_json = {
+            'action': 'get',
+            'filter': 'none',
+            'start': this.state.start,
+            'end': this.state.end
         }
         this.getVendorsData(request_json)
     }
-    
-    async getVendorsData (request_json) {
+
+    async getVendorsData(request_json) {
         await getVendors(JSON.stringify(request_json)).then(data => {
-            if (data['status']){
+            if (data['status']) {
                 this.setState({
-                    'vendors':data['vendors'],
-                    'loaded':true
+                    'vendors': data['vendors'],
+                    'loaded': true
                 })
-            }  
+            }
         })
     }
 
- 
 
-render() {
-    const { classes } = this.props;
 
-    const render_after_load = (
-        <div>
-            <VendorList data={this.state.vendors} update={this.update_table} page={this.state.page}  pushNewId={this.pushNewId}/>
-        </div>
-    )
+    render() {
+        const { classes } = this.props;
 
-    return(
-        <div>
-        <Grid container spacing={3} justify="center" alignItems="center">
-            <Grid item xs={3} >
-            <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
-              <RefreshIcon/>&nbsp;&nbsp;&nbsp;Refresh Table
-              </Button>
-            </Grid>
-            <Grid item xs={5}>
-  
-            </Grid>
-              <Grid item xs={3}>
-              <Link to='/vendors/create' style={{ textDecoration: 'none' }}>
-              <Button variant="contained" color="secondary">
-              <AddCircleIcon/>&nbsp;&nbsp;&nbsp;Add New Discount
-              </Button>
-              </Link>
-              </Grid>
-  
-          <Grid item xs={12}>
-            <Paper>
-            {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
-            </Paper>
-          </Grid>
-          
-        </Grid>
-      </div>
-    )
-}
+        const render_after_load = (
+            <div>
+                <VendorList data={this.state.vendors} update={this.update_table} page={this.state.page} pushNewId={this.pushNewId} />
+            </div>
+        )
+
+        return (
+            <div>
+                <Grid container
+                    spacing={2}
+                    direction="row"
+                    justify="space-between"
+                    alignItems="center"
+                >
+                    <h2 style={{ marginTop: 0 }}>
+                        Vendors
+                    </h2>
+                    <div>
+                        <Button style={{ margin: '5px 10px' }} variant="contained" color="primary" onClick={() => { this.update_table(0) }}>
+                            <RefreshIcon />&nbsp;&nbsp;&nbsp;Refresh Table
+                        </Button>
+                        <Link to='/vendors/create' style={{ textDecoration: 'none' }}>
+                            <Button style={{ margin: '5px 10px' }} variant="contained" color="secondary">
+                                <AddCircleIcon />&nbsp;&nbsp;&nbsp;Add New Discount
+                            </Button>
+                        </Link>
+                    </div>
+
+                    <Grid item xs={12}>
+                        <Paper>
+                            {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
+                        </Paper>
+                    </Grid>
+
+                </Grid>
+            </div>
+        )
+    }
 }
 
 

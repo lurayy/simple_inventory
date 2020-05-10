@@ -108,22 +108,26 @@ class Customers extends Component {
 
         return (
             <div>
-                <Grid container spacing={3} justify="center" alignItems="center">
-                    <Grid item xs={3} >
-                        <Button variant="contained" color="primary" onClick={() => { this.update_table(0) }}>
+                <Grid container
+                    spacing={2}
+                    direction="row"
+                    justify="space-between"
+                    alignItems="center"
+                >
+                    <h2 style={{ marginTop: 0 }}>
+                        Customers
+                    </h2>
+                    <div>
+                        <Button style={{ margin: '5px 10px' }} variant="contained" color="primary" onClick={() => { this.update_table(0) }}>
                             <RefreshIcon />&nbsp;&nbsp;&nbsp;Refresh Table
-            </Button>
-                    </Grid>
-                    <Grid item xs={5}>
+                        </Button>
 
-                    </Grid>
-                    <Grid item xs={3}>
                         <Link to='/customers/create' style={{ textDecoration: 'none' }}>
-                            <Button variant="contained" color="secondary">
+                            <Button style={{ margin: '5px 10px' }} variant="contained" color="secondary">
                                 <AddCircleIcon />&nbsp;&nbsp;&nbsp;Add New Customer
-            </Button>
+                            </Button>
                         </Link>
-                    </Grid>
+                    </div>
 
                     <Grid item xs={12}>
                         <Paper>

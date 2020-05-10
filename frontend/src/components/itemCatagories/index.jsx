@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import {getItemCatagories} from '../../api//inventory/itemCatagory';
-import {  connect } from 'react-redux';
-import  ItemCatagoryList  from './itemCatagoryList';
-import { Link} from 'react-router-dom';
+import { getItemCatagories } from '../../api//inventory/itemCatagory';
+import { connect } from 'react-redux';
+import ItemCatagoryList from './itemCatagoryList';
+import { Link } from 'react-router-dom';
 
 
 import Button from '@material-ui/core/Button';
@@ -18,127 +18,131 @@ import LoadingIcon from '../loading';
 
 const styles = makeStyles((theme) => ({
     root: {
-    flexGrow: 12,
+        flexGrow: 12,
     },
     paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
     },
 }));
 
 
 
 class ItemCatagories extends Component {
-    constructor(props){
+    constructor(props) {
         super(props)
         this.state = {
-            'items':[],
-            'loaded':false,
-            'start':0,
-            'end':10,
-            'page':1
+            'items': [],
+            'loaded': false,
+            'start': 0,
+            'end': 10,
+            'page': 1
         }
         this.update_table = this.update_table.bind(this)
         this.pushNewId = this.pushNewId.bind(this)
     }
 
-    
-    pushNewId(id){
-        this.props.history.push('/itemcatagories/'+id)
+
+    pushNewId(id) {
+        this.props.history.push('/itemcatagories/' + id)
     }
 
 
     componentDidMount() {
-        if (this.props.user.isLoggedIn === false ){
+        if (this.props.user.isLoggedIn === false) {
             this.props.history.push('/')
         }
         this.update_table(0)
     }
 
-    async update_table (by) {
-        var x = by<0?-1:1
-        if (by===0){
+    async update_table(by) {
+        var x = by < 0 ? -1 : 1
+        if (by === 0) {
             await this.setState({
-                'loaded':false,
+                'loaded': false,
                 start: 0,
                 end: 10,
-                page:1
+                page: 1
             })
         }
-        else{
-            if (this.state.start+by>-1){
+        else {
+            if (this.state.start + by > -1) {
                 await this.setState({
-                    'loaded':false,
-                    start: this.state.start+by,
-                    end: this.state.end+by,
-                    page:this.state.page+x
+                    'loaded': false,
+                    start: this.state.start + by,
+                    end: this.state.end + by,
+                    page: this.state.page + x
                 })
             }
-            else{
+            else {
                 alert("Cannot move futher from here.")
                 return
             }
         }
-        var  request_json = {
-            'action':'get',
-            'filter':'none',
-            'start':this.state.start,
-            'end':this.state.end
+        var request_json = {
+            'action': 'get',
+            'filter': 'none',
+            'start': this.state.start,
+            'end': this.state.end
         }
         this.getItemCatagoriesData(request_json)
     }
-    
-    async getItemCatagoriesData (request_json) {
+
+    async getItemCatagoriesData(request_json) {
         await getItemCatagories(JSON.stringify(request_json)).then(data => {
-            if (data['status']){
+            if (data['status']) {
                 console.log(data)
                 this.setState({
-                    'item_catagories':data['item_catagories'],
-                    'loaded':true
+                    'item_catagories': data['item_catagories'],
+                    'loaded': true
                 })
-            }  
+            }
         })
     }
 
- 
 
-render() {
-    const render_after_load = (
-        <div>
-            <ItemCatagoryList data={this.state.item_catagories} update={this.update_table} page={this.state.page} pushNewId={this.pushNewId}/>
-        </div>
-    )
 
-    return(
-        <div >
-        <Grid container spacing={3} justify="center" alignItems="center">
-            <Grid item xs={3} >
-            <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
-              <RefreshIcon/>&nbsp;&nbsp;&nbsp;Refresh Table
-              </Button>
-            </Grid>
-            <Grid item xs={5}>
-  
-            </Grid>
-              <Grid item xs={3}>
-              <Link to='/itemcatagories/create' style={{ textDecoration: 'none' }}>
-              <Button variant="contained" color="secondary">
-              <AddCircleIcon/>&nbsp;&nbsp;&nbsp;Add New Item Catagories
-              </Button>
-              </Link>
-              </Grid>
-  
-          <Grid item xs={12}>
-            <Paper >
-            {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
-            </Paper>
-          </Grid>
-          
-        </Grid>
-      </div>
-    )
-}
+    render() {
+        const render_after_load = (
+            <div>
+                <ItemCatagoryList data={this.state.item_catagories} update={this.update_table} page={this.state.page} pushNewId={this.pushNewId} />
+            </div>
+        )
+
+        return (
+            <div >
+                <Grid container
+                    spacing={2}
+                    direction="row"
+                    justify="space-between"
+                    alignItems="center"
+                >
+                    <h2 style={{ marginTop: 0 }}>
+                        Item Categories
+                    </h2>
+                    <div>
+                        <Button style={{ margin: '5px 10px' }} variant="contained" color="primary" onClick={() => { this.update_table(0) }}>
+                            <RefreshIcon />&nbsp;&nbsp;&nbsp;Refresh Table
+                        </Button>
+
+                        <Link to='/itemcatagories/create' style={{ textDecoration: 'none' }}>
+                            <Button style={{ margin: '5px 10px' }} variant="contained" color="secondary">
+                                <AddCircleIcon />&nbsp;&nbsp;&nbsp;Add New Item Catagories
+                            </Button>
+                        </Link>
+                    </div>
+
+                    <Grid item xs={12}>
+                        <Paper >
+                            {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
+                        </Paper>
+                    </Grid>
+
+                </Grid>
+            </div>
+        )
+    }
 }
 
 

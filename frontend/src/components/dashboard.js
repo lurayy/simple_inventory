@@ -13,11 +13,12 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import Avatar from '@material-ui/core/Avatar';
 import Login from './users/login';
 import Logout from './users/logout';
 import VendorCreation from './vendors/vendorCreation';
 import UserCreation from './users/userCreation';
-import { BrowserRouter as Router, Switch, Route, NavLink } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, NavLink, useLocation } from 'react-router-dom';
 import { withRouter } from 'react-router'
 
 
@@ -158,12 +159,36 @@ const useStyles = makeStyles((theme) => ({
   fixedHeight: {
     height: 240,
   },
+
+  active: {
+    backgroundColor: '#ddd'
+  },
+
+  avatar: {
+    margin: 'auto'
+  }
+
 }));
 
 function Dashboard(props) {
 
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+
+  const [activeRoute, setActiveRoute] = React.useState('')
+
+
+  //For giving styling to active route
+  let location = useLocation();
+  React.useEffect(() => {
+    const { pathname } = location;
+    const baseRoute = pathname.split('/')[1]
+    setActiveRoute(baseRoute)
+    console.log(baseRoute);
+  });
+
+
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -182,7 +207,6 @@ function Dashboard(props) {
     <div className={classes.root}>
       <CssBaseline />
       <AppBar
-        style={{ backgroundColor: '100vw' }}
         position="absolute"
         className={clsx(classes.appBar, open && classes.appBarShift)}
       >
@@ -213,6 +237,9 @@ function Dashboard(props) {
 
       >
         <div className={classes.toolbarIcon}>
+          <Typography style={{ width: '100%' }}>
+            <Avatar className={classes.avatar} alt={user.data.first_name + " " + user.data.last_name} src="https://material-ui.com/static/images/avatar/1.jpg" />
+          </Typography>
           <Typography>
             {user.data.first_name} John <span>  </span> {user.data.last_name} Doe <br></br>
             {user.data.user_type}
@@ -222,51 +249,53 @@ function Dashboard(props) {
           </IconButton>
         </div>
         <Divider />
-        <List>
-          
-          <ListItem button onClick={() => { props.history.push('/') }}>
+        <Divider />
+
+        <List style={{padding: 0}}>
+
+          <ListItem className={activeRoute == '' ? classes.active : 'null'} button onClick={() => { props.history.push('/') }}>
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/purchaseorders") }}>
+          <ListItem className={activeRoute == 'purchaseorders' ? classes.active : 'null'} button onClick={() => { props.history.push("/purchaseorders") }}>
             <ListItemIcon>
               <ShoppingCartIcon />
             </ListItemIcon>
             <ListItemText primary="Purchase Orders" />
-          </ListItem>   
+          </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/vendors") }}>
+          <ListItem className={activeRoute == 'vendors' ? classes.active : 'null'} button onClick={() => { props.history.push("/vendors") }}>
             <ListItemIcon>
               <PeopleIcon />
             </ListItemIcon>
             <ListItemText primary="Vendors" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/invoices") }}>            
+          <ListItem className={activeRoute == 'invoices' ? classes.active : 'null'} button onClick={() => { props.history.push("/invoices") }}>
             <ListItemIcon>
               <DescriptionIcon />
             </ListItemIcon>
             <ListItemText primary="Invoices" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/customers") }}>
+          <ListItem className={activeRoute == 'customers' ? classes.active : 'null'} button onClick={() => { props.history.push("/customers") }}>
             <ListItemIcon>
               <MonetizationOnIcon />
             </ListItemIcon>
             <ListItemText primary="Customers" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/items") }}>
+          <ListItem className={activeRoute == 'items' ? classes.active : 'null'} button onClick={() => { props.history.push("/items") }}>
             <ListItemIcon>
               <FeaturedPlayListIcon />
             </ListItemIcon>
             <ListItemText primary="Items" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push('/cards') }}>
+          <ListItem className={activeRoute == 'cards' ? classes.active : 'null'} button onClick={() => { props.history.push('/cards') }}>
             <ListItemIcon>
               <CardGiftcardIcon />
             </ListItemIcon>
@@ -277,42 +306,42 @@ function Dashboard(props) {
         <Divider />
 
         <List>
-          <ListItem button onClick={() => { props.history.push("/places") }}>
+          <ListItem className={activeRoute == 'places' ? classes.active : 'null'} button onClick={() => { props.history.push("/places") }}>
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText primary="Item Managements" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/discounts") }}>
+          <ListItem className={activeRoute == 'discounts' ? classes.active : 'null'} button onClick={() => { props.history.push("/discounts") }}>
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText primary="Discounts" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/taxes") }}>
+          <ListItem className={activeRoute == 'taxes' ? classes.active : 'null'} button onClick={() => { props.history.push("/taxes") }}>
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText primary="Taxes" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/itemcatagories") }}>
+          <ListItem className={activeRoute == 'itemcatagories' ? classes.active : 'null'} button onClick={() => { props.history.push("/itemcatagories") }}>
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText primary="Item Catagories" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/users") }}>
+          <ListItem className={activeRoute == 'users' ? classes.active : 'null'} button onClick={() => { props.history.push("/users") }}>
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText primary="Staff Management" />
           </ListItem>
 
-          <ListItem button onClick={() => { props.history.push("/export") }}>
+          <ListItem className={activeRoute == 'export' ? classes.active : 'null'} button onClick={() => { props.history.push("/export") }}>
             <ListItemIcon>
               <GetAppIcon />
             </ListItemIcon>

@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { getUsers } from '../../api/user'
-import {  connect } from 'react-redux';
+import { connect } from 'react-redux';
 import UserList from './userList';
-import { Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 
 import Button from '@material-ui/core/Button';
@@ -19,45 +19,45 @@ import Swal from 'sweetalert2';
 
 const styles = makeStyles((theme) => ({
     root: {
-    flexGrow: 12,
+        flexGrow: 12,
     },
     paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
     },
 }));
 
 class Users extends Component {
 
-    constructor(props){
+    constructor(props) {
         super(props)
         this.state = {
-            'users':[],
-            'loaded':false,
-            'start':0,
-            'end':10,
-            'page':1
+            'users': [],
+            'loaded': false,
+            'start': 0,
+            'end': 10,
+            'page': 1
         }
         this.update_table = this.update_table.bind(this)
         this.pushNewId = this.pushNewId.bind(this)
     }
 
-    
-    pushNewId(id){
-        this.props.history.push('/users/'+id)
+
+    pushNewId(id) {
+        this.props.history.push('/users/' + id)
     }
 
     componentDidMount() {
-        if (this.props.user.isLoggedIn === false ){
+        if (this.props.user.isLoggedIn === false) {
             this.props.history.push('/')
         }
-        if (this.props.user.data.user_type !== "MANAGER"){
+        if (this.props.user.data.user_type !== "MANAGER") {
             console.log("not manager")
             Swal.fire({
-                icon:'error',
-                title:'Permission Denied!',
-                text:'You donont have authorization. Contact Manager or Admin'
+                icon: 'error',
+                title: 'Permission Denied!',
+                text: 'You donont have authorization. Contact Manager or Admin'
             })
             this.props.history.push('/')
             return
@@ -66,50 +66,50 @@ class Users extends Component {
 
     }
 
-    async getUsersData (request_json) {
+    async getUsersData(request_json) {
         await getUsers(JSON.stringify(request_json)).then(data => {
-            if (data['status']){
+            if (data['status']) {
                 this.setState({
-                    'users':data['users'],
-                    'loaded':true
+                    'users': data['users'],
+                    'loaded': true
                 })
-            }  
+            }
         })
     }
 
-    async update_table (by) {
-        var x = by<0?-1:1
-        if (by===0){
+    async update_table(by) {
+        var x = by < 0 ? -1 : 1
+        if (by === 0) {
             await this.setState({
-                'loaded':false,
+                'loaded': false,
                 start: 0,
                 end: 10,
-                page:1
+                page: 1
             })
         }
-        else{
-            if (this.state.start+by>-1){
+        else {
+            if (this.state.start + by > -1) {
                 await this.setState({
-                    'loaded':false,
-                    start: this.state.start+by,
-                    end: this.state.end+by,
-                    page:this.state.page+x
+                    'loaded': false,
+                    start: this.state.start + by,
+                    end: this.state.end + by,
+                    page: this.state.page + x
                 })
             }
-            else{
+            else {
                 alert("Cannot move futher from here.")
                 return
             }
         }
-        var  request_json = {
-            'action':'get',
-            'filter':'none',
-            'start':this.state.start,
-            'end':this.state.end
+        var request_json = {
+            'action': 'get',
+            'filter': 'none',
+            'start': this.state.start,
+            'end': this.state.end
         }
         this.getUsersData(request_json)
     }
-    
+
 
     render() {
         const render_after_load = (
@@ -120,33 +120,36 @@ class Users extends Component {
         const { classes } = this.props;
 
 
-        return(
+        return (
             <div className={classes.root}>
-        <Grid container spacing={3} justify="center" alignItems="center">
-            <Grid item xs={3} >
-            <Button variant="contained" color="primary" onClick={() => {this.update_table(0)}}>
-              <RefreshIcon/>&nbsp;&nbsp;&nbsp;Refresh Table
-              </Button>
-            </Grid>
-            <Grid item xs={5}>
-  
-            </Grid>
-              <Grid item xs={3}>
-              <Link to='/users/create' style={{ textDecoration: 'none' }}>
-              <Button variant="contained" color="secondary">
-              <AddCircleIcon/>&nbsp;&nbsp;&nbsp;Add New Staff
-              </Button>
-              </Link>
-              </Grid>
-  
-          <Grid item xs={12}>
-            <Paper className={classes.paper}>
-            {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
-            </Paper>
-          </Grid>
-          
-        </Grid>
-      </div>
+                <Grid container
+                    spacing={2}
+                    direction="row"
+                    justify="space-between"
+                    alignItems="center"
+                >
+                    <h2 style={{ marginTop: 0 }}>
+                        Vendors
+                    </h2>
+                    <div>
+                        <Button style={{ margin: '5px 10px' }} variant="contained" color="primary" onClick={() => { this.update_table(0) }}>
+                            <RefreshIcon />&nbsp;&nbsp;&nbsp;Refresh Table
+                        </Button>
+                        <Link to='/users/create' style={{ textDecoration: 'none' }}>
+                            <Button style={{ margin: '5px 10px' }} variant="contained" color="secondary">
+                                <AddCircleIcon />&nbsp;&nbsp;&nbsp;Add New Staff
+                            </Button>
+                        </Link>
+                    </div>
+
+                    <Grid item xs={12}>
+                        <Paper className={classes.paper}>
+                            {this.state.loaded ? render_after_load : <LoadingIcon></LoadingIcon>}
+                        </Paper>
+                    </Grid>
+
+                </Grid>
+            </div>
         )
     }
 }
@@ -154,7 +157,7 @@ class Users extends Component {
 
 Users.propTypes = {
     classes: PropTypes.object.isRequired,
-  };
+};
 
 
 const mapStateToProps = state => ({
