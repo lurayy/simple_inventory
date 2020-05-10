@@ -112,6 +112,12 @@ def validate_gift_card(request):
                 else:
                     response_json['status'] = True
                     response_json['msg'] = "Valid"
+                    response_json['card_detail'] = {
+                        'discountType':card.gift_card.discount_type,
+                        'rate':card.gift_card.rate,
+                        'name':card.gift_card.name,
+                        'category':card.gift_card.category
+                    }
             except:
                 response_json['status'] = False
                 response_json['msg'] = "Card Doesnot Exsist."
@@ -141,8 +147,6 @@ def payment_methods(request):
         return JsonResponse(response_json)
     except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
-
 
 
 @login_required
