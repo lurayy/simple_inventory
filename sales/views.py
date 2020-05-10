@@ -494,8 +494,6 @@ def delete_invoice_items(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
-
-
 @login_required
 @require_http_methods(['POST'])
 def discounts(request):
@@ -654,3 +652,7 @@ def invoice_status(request):
             data.append(temp)
         return JsonResponse({'status':True, 'data':data})
 
+
+# @login_required
+# @require_http_methods(['POST'])
+# def 
