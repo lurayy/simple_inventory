@@ -121,6 +121,7 @@ def validate_gift_card(request):
             except:
                 response_json['status'] = False
                 response_json['msg'] = "Card Doesnot Exsist."
+            print(response_json)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -158,14 +159,31 @@ def apply_payment(request):
         data_json = json.loads(json_str)
         payment_method = PaymentMethod.objects.get(id=data_json['payment_method'])
         if (payment_method.is_gift_card):
-            pass
+            card = UniqueCard.objects.get(code = data_json['transaction_from'])
+            if card.is_used:
+                raise Exception('The gift card is already used.')
+            invoice = Invoice.objects.get(id=data_json['invoice_id'])
+            if card.gift_card.discount_type == "percent":
+                amount = invoice.bill_amount * card.gift_card.rate/100
+            else:
+                amount = card.gift_card.rate
+            payment = Payment.objects.create(
+                invoice = invoice,
+                payment_method = PaymentMethod.objects.get(id=data_json['payment_method']),
+                amount = amount,
+                transaction_from = data_json['transaction_from']
+            )
+            payment.save()
+            card.is_used.save()
+            invoice.save()
         else:
             payment = Payment.objects.create(
                 invoice = Invoice.objects.get(id=data_json['invoice_id']),
                 payment_method = PaymentMethod.objects.get(id=data_json['payment_method']),
                 amount = data_json['amount'],
                 transaction_from = data_json['transaction_from'],
-                transaction_id = data_json['transaction_id']
+                transaction_id = data_json['transaction_id'],
+                bank_name = data_json['bank_name']
             )
             payment.save()
         response_json['status'] = True

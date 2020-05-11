@@ -237,9 +237,9 @@ function Dashboard(props) {
 
       >
         <div className={classes.toolbarIcon}>
-          <Typography style={{ width: '100%' }}>
+          <div style={{ width: '100%' }}>
             <Avatar className={classes.avatar} alt={user.data.first_name + " " + user.data.last_name} src="https://material-ui.com/static/images/avatar/1.jpg" />
-          </Typography>
+          </div>
           <Typography>
             {user.data.first_name} John <span>  </span> {user.data.last_name} Doe <br></br>
             {user.data.user_type}
@@ -251,7 +251,7 @@ function Dashboard(props) {
         <Divider />
         <Divider />
 
-        <List style={{padding: 0}}>
+        <List style={{ padding: 0 }}>
 
           <ListItem className={activeRoute == '' ? classes.active : 'null'} button onClick={() => { props.history.push('/') }}>
             <ListItemIcon>

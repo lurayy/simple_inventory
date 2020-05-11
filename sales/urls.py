@@ -18,4 +18,5 @@ urlpatterns = [
     path('taxes', views.taxes, name=""),
     path('tax', views.tax, name=''),
     path('taxes/delete', views.delete_taxes, name=""),
+    path('export',views.export_data, name="export data related to sales")
 ]

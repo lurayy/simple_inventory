@@ -47,6 +47,10 @@
   display: block;
 }
 
+.paymentFormField{
+  margin: 10px;
+}
+
 /* Change color of dropdown links on hover */
 .dropdown_content a:hover {background-color: #f1f1f1}
 

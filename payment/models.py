@@ -50,6 +50,7 @@ class UniqueCard(models.Model):
 class PaymentMethod(models.Model):
     name = models.CharField(max_length=255)
     is_gift_card = models.BooleanField(default=False)
+    is_bank = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -60,11 +61,12 @@ class Payment(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="payments")
     amount = models.FloatField()
     method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, related_name="payments")
-    transaction_from = models.CharField(max_length=255, null=True, blank=True)
-    transaction_id = models.CharField(max_length=255, null=True, blank=True)
+    transaction_from = models.CharField(max_length=255, null=True, blank=True)                                          # bank account/khali/esewa number
+    transaction_id = models.CharField(max_length=255, null=True, blank=True)                                            # id 
+    bank_name = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return f'{self.invoice.customer.name} {self.method} {self.invoice.invoiced_on}'
+        return f'{self.invoice.customer.first_name} {self.invoice.customer.last_name} {self.method} {self.invoice.invoiced_on}'
 
 
 # @receiver(pre_delete, sender=UniqueCard)

@@ -104,7 +104,7 @@ def invoices(request):
                     due_on = str_to_datetime(data_json['due_on']),
                     status = stat[0],
                     total_amount = 0,
-                    paid_amount=0,
+                    bill_amount=0,
                     additional_discount=0      
                 )
                 invoice.save()
@@ -128,7 +128,7 @@ def invoice(request):
         'id':1,
         'invoiced_on': "2019-11-16T08:15:00.000",
         'completed_on: "2019-11-16T08:15:00.000",
-        'paid_amount': 2500,
+        'bill_amount': 2500,
         'added_by':1,                <- added_by id
         'customer':1,                  <- customer id 
         'status':'paid',
@@ -653,6 +653,29 @@ def invoice_status(request):
         return JsonResponse({'status':True, 'data':data})
 
 
-# @login_required
-# @require_http_methods(['POST'])
-# def 
+@login_required
+@require_http_methods(['POST'])
+def export_data(request):
+    pass
+
+
+def render_to_pdf(template_src, context_dict={}):
+    template = get_template('export_items_data.html')
+    html  = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
+
+
+def export_data(data, fields):
+    template = get_template('export_items_data.html')
+    data = {
+    'today': datetime.date.today(), 
+    'invoices':data,
+    'headers':fields
+    }
+    html = template.render(data)
+    pdf = render_to_pdf('export_items_data', data)
+    return pdf

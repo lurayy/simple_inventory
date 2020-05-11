@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.db.models import signals
 import uuid 
+# from payment.models import Payment
 
 class InvoiceStatus(models.Model):
     name = models.CharField(max_length=255)
@@ -19,6 +20,7 @@ class Invoice(models.Model):
     due_on = models.DateTimeField()
     invoice_number = models.UUIDField(unique=True,default= uuid.uuid4)
     total_amount = models.FloatField()
+    bill_amount = models.FloatField()
     paid_amount = models.FloatField()
     tax_total = models.PositiveIntegerField()
     discount_total = models.PositiveIntegerField(default=0)
@@ -28,11 +30,18 @@ class Invoice(models.Model):
     is_active = models.BooleanField(default=True)
     
     def __str__(self):
-        return f'{self.customer} {self.order_number}'
+        return f'{self.customer} {self.invoice_number}'
 
     def save(self, *args, **kwargs):
         self.total_amount = round(self.total_amount, 2)
-        self.paid_amount = round(self.paid_amount, 2)
+        self.bill_amount = round(self.bill_amount, 2)
+        self.paid_amount = 0
+        from payment.models import Payment
+        print(Payment)
+        if self.id:
+            payments_list = Payment.objects.all().filter(invoice = self.id)
+            for pay in payments_list:
+                self.paid_amount = self.paid_amount + pay.amount
         super(Invoice, self).save(*args, **kwargs)
 
 
@@ -111,7 +120,7 @@ def tranction_handler(sender, instance, **kwargs):
         instance.total_amount = instance.total_amount + invoice_item.total 
         instance.discount_total = instance.discount_total + invoice_item.discount_amount
         instance.tax_total = instance.tax_total + invoice_item.tax_total
-    instance.paid_amount = instance.total_amount - instance.additional_discount
+    instance.bill_amount = instance.total_amount - instance.additional_discount
 
 
 # @receiver(post_save, sender=InvoiceItem)
