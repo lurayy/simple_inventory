@@ -188,9 +188,9 @@ CSRF_TRUSTED_ORIGINS = [
     'localhost:3000','localhost:8000','*'
 ]
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'frontend', "build", "static"),  # update the STATICFILES_DIRS
-)
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, 'frontend', "build", "static"),  # update the STATICFILES_DIRS
+# )
 
 
 REST_FRAMEWORK = {
