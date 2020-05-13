@@ -13,6 +13,7 @@ from .models import CustomUserBase
 import json
 from django.middleware.csrf import get_token
 
+from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
 
 def csrf(request):
@@ -211,20 +212,20 @@ def s_user(request):
 
 @require_http_methods(['POST'])
 def get_current_user(request):
-    users_json = []
     try:
-        if (request.user.uuid):
-            if request.method == 'POST':
-                user = CustomUserBase.objects.get(id=int(request.user.id), uuid=request.user.uuid)
-                user_json = {'first_name':user.first_name,
-                    'last_name':user.last_name,
-                    'user_type':user.user_type,
-                    'username':user.username
-                    }
-                response_json = {'status':True, 'user_data':user_json}
-                return JsonResponse(response_json)
-        else:
-            response_json = {'status':False, 'user_data':{}}
-            return JsonResponse(response_json)
+        data = {'token':request.headers['Authorization'].split(' ')[1]}
+        valid_data = VerifyJSONWebTokenSerializer().validate(data)
+        user = valid_data['user']
+        response_json = {
+            'status':True,
+            'user':{
+                'first_name':user.first_name,
+                'last_name':user.last_name,
+                'email':user.email,
+                'user_type':user.user_type,
+                'username':user.username
+            }
+        }
+        return JsonResponse( response_json)
     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

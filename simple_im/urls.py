@@ -7,14 +7,13 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('super/', admin.site.urls),
-    path('apiv1/sales/', include('sales.urls')),
-    path('apiv1/inventory/', include('inventory.urls')),
-    path('apiv1/users/', include('user_handler.urls')),
-    path('apiv1/payment/', include('payment.urls')),
-    path('', entry_point, name = " entry point"),
+    path('api/v1/sales/', include('sales.urls')),
+    path('api/v1/inventory/', include('inventory.urls')),
+    path('api/v1/user/', include('user_handler.urls')),
+    path('api/v1/payment/', include('payment.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-urlpatterns.append(
-    re_path(r'^(?:.*)/?$',  entry_point, name = " entry point"))
+# urlpatterns.append(
+#     re_path(r'^(?:.*)/?$',  entry_point, name = " entry point"))
