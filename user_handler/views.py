@@ -210,7 +210,6 @@ def s_user(request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
-@require_http_methods(['POST'])
 def get_current_user(request):
     try:
         data = {'token':request.headers['Authorization'].split(' ')[1]}
