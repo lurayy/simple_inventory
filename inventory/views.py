@@ -123,10 +123,10 @@ def add_new_purchase_order(self,request):
 def get_purchase_order_details(self, request):
     ''' To get data about single purchase order
     To get info about a single purchase_order, trigger /apiv1/inventory/porders/<purchase_order_id>/
-    To edit the data, you can POST on the same link: 
+    To update the data, you can POST on the same link: 
     POST format:
     {
-        'action':'edit',
+        'action':'update',
         'id':1,
         'invoiced_on': "2019-11-16T08:15:00.000",
         'completed_on: "2019-11-16T08:15:00.000",
@@ -164,7 +164,7 @@ def update_purchase_order(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "edit":
+            if data_json['action'] == "update":
                 purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
                 purchase_order.total_cost = data_json['total_cost']
                 purchase_order.discount_type = data_json['discount_type']
@@ -362,7 +362,7 @@ def update_vendor(self, request):
     response_json = {'status':False, 'vendors':[]}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
-            if data_json['action'] == "edit":
+            if data_json['action'] == "update":
                 vendor = Vendor.objects.get(id=int(data_json['id']))
                 vendor.first_name = str(data_json['first_name'])
                 vendor.last_name = str(data_json['last_name'])
@@ -525,7 +525,7 @@ def get_item_details(self, request):
 
     POST For editing
     {
-        'action':'edit',
+        'action':'update',
         id: 1
         name: "klj"
         is_active:True,
@@ -552,14 +552,16 @@ def get_item_details(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
-def udpate_item(self, request):
+
+@require_http_methods(['POST'])
+@bind
+def update_item(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):            
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             response_json = {'status':False}
-
-            if data_json['action'] == "edit":
+            if data_json['action'] == "update":
                 item = Item.objects.get(id=int(data_json['item_id']))
                 item.name = str(data_json['name'])
                 item.catagory = ItemCatagory.objects.get(id=int(data_json['catagory']))
@@ -603,8 +605,8 @@ def delete_items(self, request):
         ]
     }
     '''
-    response_json = {'status':''}
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        response_json = {'status':''}
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -617,6 +619,8 @@ def delete_items(self, request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
 
@@ -668,7 +672,7 @@ def item_catagory(self, request):
     '''
     POST For editing
     {
-        'action':'edit',
+        'action':'update',
         is_active :True
         item_catagory_id: 1
         name: "klj"
@@ -681,7 +685,7 @@ def item_catagory(self, request):
             data_json = json.loads(json_str)
             item_catagory = ItemCatagory.objects.get(id=int(data_json['item_catagory_id']))
             response_json = {'status':False}
-            if data_json['action'] == "edit":
+            if data_json['action'] == "update":
                 item_catagory.name = str(data_json['name'])
                 item_catagory.is_active = data_json['is_active']
                 item_catagory.save()
@@ -796,7 +800,7 @@ def place(self, request):
     '''
     POST For editing
     {
-        'action':'edit',
+        'action':'update',
         place_id: 1
         name: "klj"
     }
@@ -808,7 +812,7 @@ def place(self, request):
             data_json = json.loads(json_str)
             place = Place.objects.get(id=int(data_json['place_id']))
             response_json = {'status':False}
-            if data_json['action'] == "edit":
+            if data_json['action'] == "update":
                 place.name = str(data_json['name'])
                 place.save()
                 response_json = {'status':True}
@@ -891,7 +895,7 @@ def assign_place(self, request):
                 placement.delete()
                 response_json['status'] = True
                 return JsonResponse(response_json)
-            if data_json['action'] == 'edit':
+            if data_json['action'] == 'update':
                 placement.stock = int(data_json['quantity'])
                 placement.save()
                 response_json['status'] = True
@@ -1001,9 +1005,9 @@ def purchase_items(self, request):
 @bind
 def purchase_item(self, request):
     '''
-    function to edit purchase item 
+    function to update purchase item 
     {
-        'action':'edit',
+        'action':'update',
         'item': 1,
         'purchase_order':5,
         'quantity':3,
@@ -1021,7 +1025,7 @@ def purchase_item(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "edit":
+            if data_json['action'] == "update":
                 purchase_item = PurchaseItem.objects.get(id=data_json['id'])
                 purchase_item.status = 'incomplete'
                 purchase_item.save()

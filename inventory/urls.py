@@ -14,12 +14,12 @@ urlpatterns = [
     path('vendors/delete', views.delete_vendors, name="delete vendors"),
     path('vendor/update', views.update_vendor, name='update vendor'),   
 
-    # path('items/get', views.get_multiple_items, name="get multiple items")
+    path('items/get', views.get_multiple_items, name="get multiple items"),
+    path('item/add', views.add_new_item, name="add new item"),
+    path('item/get', views.get_item_details, name="get item details"),
+    path('item/update', views.update_item, name='update item detail'),
+    path('items/delete', views.delete_items, name= "delete item"),
 
-
-    # path('items', views.items, name="GET and add items "),
-    # path('item', views.item, name='edit data of item'),
-    # path('items/delete', views.delete_items, name="delete items "),
 
     path('places', views.places, name="GET and add places"),
     path('place', views.place, name='edit places '),
