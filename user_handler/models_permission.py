@@ -1,6 +1,7 @@
 from django.db import models
 
 class CustomPermission(models.Model):
+    name = models.CharField(max_length=255)
     apply_payment = models.BooleanField(default=True)
     payment_methods = models.BooleanField(default=True)
     validate_gift_card = models.BooleanField(default=True)
@@ -33,6 +34,7 @@ class CustomPermission(models.Model):
     get_item_details = models.BooleanField(default=True)
     add_new_item = models.BooleanField(default=True)
     get_multiple_items = models.BooleanField(default=True)
+    get_vendor_details = models.BooleanField(default=True)
     update_vendor = models.BooleanField(default=True)
     delete_vendors = models.BooleanField(default=True)
     add_new_vendor = models.BooleanField(default=True)

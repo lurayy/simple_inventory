@@ -2,18 +2,15 @@ from django.db import models
 import uuid 
 from django.contrib.auth.models import AbstractUser
 from django.dispatch import receiver
+from .models_permission import CustomPermission
 
 class CustomUserBase(AbstractUser):
     '''Base Custom UserClass'''
     is_active = models.BooleanField(default=True)
     is_destroyed = models.BooleanField(default=False)
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
-    USER_TYPES = (
-    ('STAFF', "Staff"),
-    ('MANAGER', "Manager")
-    )
-    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='STAFF')  
-    
+    role = models.ForeignKey(CustomPermission, on_delete=models.CASCADE, related_name='role_users', null=True, blank=True)
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 

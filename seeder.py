@@ -9,6 +9,8 @@ from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount,
 from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, Item, PurchaseItem, Place, Placement
 from sales.models import Invoice, InvoiceItem
 from payment.models import GiftCard, UniqueCard, GiftCardCategory
+from user_handler.models_permission import CustomPermission
+
 USER_COUNT = 2
 VENDOR_COUNT = 5
 CUSTOMER_COUNT = 10
@@ -33,6 +35,10 @@ INVOICE_ITEM_COUNT = 100
 
 Faker.seed(22506)
 
+permission = CustomPermission.objects.create(
+    name="super_role"
+)
+permission.save()
 
 ## craete fake users
 fake = Faker()
@@ -44,6 +50,7 @@ for _ in range(USER_COUNT):
     user = CustomUserBase.objects.create_user(username, email, password)
     user.first_name = username
     user.last_name = fake.last_name()
+    user.role = permission
     user.save()
 
 users = CustomUserBase.objects.all()

@@ -12,7 +12,7 @@ class UserForm(UserCreationForm,ModelForm):
 
     class Meta(UserCreationForm):
         model = CustomUserBase
-        fields = ['first_name','last_name','email','username','user_type']
+        fields = ['first_name','last_name','email','username','role']
 
 
 class LoginForm(forms.Form):
