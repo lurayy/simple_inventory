@@ -20,6 +20,10 @@ urlpatterns = [
     path('item/update', views.update_item, name='update item detail'),
     path('items/delete', views.delete_items, name= "delete item"),
 
+    path('items/categories/get', views.get_multiple_item_catagories, name='item categories'),
+    path('items/category/add', views.add_new_item_catagory, name=" item category add"),
+    path('items/category/get', views.get_item_catagory_details, name="get item category single"),
+    path('items/categories/delete', views.delete_item_catagories, name="dlete "),
 
     path('places', views.places, name="GET and add places"),
     path('place', views.place, name='edit places '),
@@ -27,9 +31,6 @@ urlpatterns = [
 
     path('places/assign', views.assign_place, name="placement curd"),
 
-    path('items/catagories', views.item_catagories, name = "get/add "),
-    path('items/catagory', views.item_catagory, name = "get/edit "),
-    path('items/catagories/delete', views.delete_item_catagories, name = "delete"),
 
     path('placements', views.placements, name = 'placements'),
 

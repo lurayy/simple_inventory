@@ -629,7 +629,7 @@ def delete_items(self, request):
 
 @require_http_methods(['POST'])
 @bind
-def item_catagories(self, request):
+def get_multiple_item_catagories(self, request):
     '''
     get data about the items
     POST to get data
@@ -645,7 +645,7 @@ def item_catagories(self, request):
     }
     '''
     response_json = {'status':'False'}
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -653,6 +653,21 @@ def item_catagories(self, request):
                 catagroies = ItemCatagory.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
                 response_json['item_catagories'] = item_catagories_to_json(catagroies)
                 response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def add_new_item_catagory(self, request):
+    response_json = {'status':'False'}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]): 
+        try:   
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             if data_json['action'] == "add":
                 catagory = ItemCatagory.objects.create(
                     name = data_json['name']
@@ -662,13 +677,13 @@ def item_catagories(self, request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
-
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
 @require_http_methods(['POST'])
 @bind
-def item_catagory(self, request):
+def get_item_catagory_details(self, request):
     '''
     POST For editing
     {
@@ -679,23 +694,41 @@ def item_catagory(self, request):
     }
     '''
     response_json = {'status':'', 'items':[]}
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             item_catagory = ItemCatagory.objects.get(id=int(data_json['item_catagory_id']))
             response_json = {'status':False}
-            if data_json['action'] == "update":
-                item_catagory.name = str(data_json['name'])
-                item_catagory.is_active = data_json['is_active']
-                item_catagory.save()
-                response_json = {'status':True}
             if data_json['action'] == "get":
                 response_json['item_catagories'] = item_catagories_to_json([item_catagory])
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def update_item_category(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            if data_json['action'] == "update":
+                item_catagory = ItemCatagory.objects.get(id=int(data_json['item_catagory_id']))
+                item_catagory.name = str(data_json['name'])
+                item_catagory.is_active = data_json['is_active']
+                item_catagory.save()
+                response_json = {'status':True}
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
 
 
 @require_http_methods(['POST'])
@@ -709,7 +742,7 @@ def delete_item_catagories(self, request):
     }
     '''
     response_json = {'status':''}
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -722,6 +755,8 @@ def delete_item_catagories(self, request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
 ######################################## Place ########################################
