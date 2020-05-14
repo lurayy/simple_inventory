@@ -1315,4 +1315,3 @@ def export_data(data, fields):
     html = template.render(data)
     pdf = render_to_pdf('export_items_data', data)
     return pdf
-

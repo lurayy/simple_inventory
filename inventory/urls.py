@@ -13,7 +13,8 @@ urlpatterns = [
     path('vendor/add', views.add_new_vendor, name='add new vendor'),
     path('vendors/delete', views.delete_vendors, name="delete vendors"),
     path('vendor/update', views.update_vendor, name='update vendor'),   
-
+    path('vendor/get', views.get_vendor_details, name="get single vendor"),
+    
     path('items/get', views.get_multiple_items, name="get multiple items"),
     path('item/add', views.add_new_item, name="add new item"),
     path('item/get', views.get_item_details, name="get item details"),
