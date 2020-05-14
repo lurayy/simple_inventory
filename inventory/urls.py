@@ -1,19 +1,18 @@
 from django.urls import path
 from . import views
 urlpatterns = [
-    path('status/porders', views.purchase_order_statuss, name='get purchase order status'),
+    path('purchaseorders/status', views.purchase_order_statuss, name='get purchase order status'),
 
-    path('porders', views.purchase_orders, name="GET and add  purchase orders"),
-    path('porder', views.purchase_order, name='edit  pruchase order'),
-    path('porders/delete', views.delete_purchase_orders, name = "Delete purhcase orders"),
-
-    path('pitems', views.purchase_items, name='add a purchase item'),
-    path('pitem', views.purchase_item, name='update/ get pitem'),
-    path('pitems/delete', views.delete_purchase_items, name="delete purchase item"),
-
-    path('vendors', views.vendors, name="GET and add vendors"),
-    path('vendor', views.vendor, name='edit and get  data of a vendor'),
+    path('purchaseorders/get', views.get_multiple_purchase_orders, name="GET \  purchase orders"),
+    path('purchaseorder/add', views.add_new_purchase_order, name = 'add new purchase order'),
+    path('purchaseorder/get', views.get_purchase_order_details, name='get single purchase order details'),
+    path('purchaseorder/update', views.update_purchase_order, name='update purchase order'),
+    path('purchaseorders/delete', views.delete_purchase_orders, name = "delete multiple purchase orders"),
+    
+    path('vendors/get', views.get_multiple_vendors, name="GET vendors"),
+    path('vendor/add', views.add_new_vendor, name='add new vendor'),
     path('vendors/delete', views.delete_vendors, name="delete vendors"),
+    path('vendor/update', views.update_vendor, name='update vendor'),   
 
     path('items', views.items, name="GET and add items "),
     path('item', views.item, name='edit data of item'),
@@ -31,8 +30,5 @@ urlpatterns = [
 
     path('placements', views.placements, name = 'placements'),
 
-    path('export',views.handle_export, name='Export data'),
-    
-    
-    
+    path('export',views.handle_export, name='Export data'),   
 ]

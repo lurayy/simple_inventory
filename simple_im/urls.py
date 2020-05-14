@@ -14,6 +14,3 @@ urlpatterns = [
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-# urlpatterns.append(
-#     re_path(r'^(?:.*)/?$',  entry_point, name = " entry point"))

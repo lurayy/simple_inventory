@@ -32,8 +32,6 @@ def check(user):
 def entry_point(request):
     return render (request, 'build/index.html')
 
-
-
 @ensure_csrf_cookie
 @require_http_methods(['POST'])
 def user_login(request):
