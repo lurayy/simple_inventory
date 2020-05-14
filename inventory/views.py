@@ -42,7 +42,6 @@ def check_permission(f_name, token):
 
 @require_http_methods(['POST'])
 @bind
-@bind
 def get_multiple_purchase_orders(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         if request.method == "POST":
@@ -81,7 +80,6 @@ def get_multiple_purchase_orders(self, request):
 
 
 @require_http_methods(['POST'])
-@bind
 @bind
 def add_new_purchase_order(request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
@@ -124,7 +122,6 @@ def add_new_purchase_order(request):
 
 @require_http_methods(['POST'])
 @bind
-@bind
 def get_purchase_order_details(request):
     ''' To get data about single purchase order
     To get info about a single purchase_order, trigger /apiv1/inventory/porders/<purchase_order_id>/
@@ -163,7 +160,6 @@ def get_purchase_order_details(request):
 
 @require_http_methods(['POST'])
 @bind
-@bind
 def update_purchase_order(request):
     response_json = {'status':False, 'p_order':{}, 'p_items':[]}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
@@ -193,7 +189,6 @@ def update_purchase_order(request):
 
 
 @require_http_methods(['POST'])
-@bind
 @bind
 def delete_purchase_orders(request):
     '''
@@ -234,7 +229,6 @@ def delete_purchase_orders(request):
 
 
 @require_http_methods(['POST'])
-@bind
 @bind
 def get_multiple_vendors(request):
     '''
@@ -287,7 +281,6 @@ def get_multiple_vendors(request):
 
 @require_http_methods(['POST'])
 @bind
-@bind
 def add_new_vendor(request):
     response_json = {'status':False, 'vendors':[]}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
@@ -324,7 +317,6 @@ def add_new_vendor(request):
 
 @require_http_methods(['POST'])
 @bind
-@bind
 def delete_vendors(request):
     '''
     {
@@ -358,7 +350,7 @@ def delete_vendors(request):
 
 @require_http_methods(['POST'])
 @bind
-@bind
+
 def get_vendor_details(request):
     '''
     
@@ -381,7 +373,6 @@ def get_vendor_details(request):
 
 
 @require_http_methods(['POST'])
-@bind
 @bind
 def update_vendor(request):
     response_json = {'status':False, 'vendors':[]}
@@ -414,7 +405,6 @@ def update_vendor(request):
 
 
 @require_http_methods(['POST'])
-@bind
 @bind
 def items(request):
     '''
@@ -537,7 +527,6 @@ def items(request):
 
 @require_http_methods(['POST'])
 @bind
-@bind
 def item(request):
     '''
     use only get to get data 
@@ -602,7 +591,6 @@ def item(request):
 
 @require_http_methods(['POST'])
 @bind
-@bind
 def delete_items(request):
     '''
     {
@@ -632,7 +620,6 @@ def delete_items(request):
 
 
 @require_http_methods(['POST'])
-@bind
 @bind
 def item_catagories(request):
     '''
