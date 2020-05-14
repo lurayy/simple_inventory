@@ -25,14 +25,21 @@ urlpatterns = [
     path('items/category/get', views.get_item_catagory_details, name="get item category single"),
     path('items/categories/delete', views.delete_item_catagories, name="dlete "),
 
-    path('places', views.places, name="GET and add places"),
-    path('place', views.place, name='edit places '),
-    path('places/delete', views.delete_places, name="delete places"),
+    path('places/get',views.get_multiple_places, name=" "),
+    path('place/add',views.add_new_place, name=" "),
+    path('place/update',views.update_place, name=" "),
+    path('places/delete',views.delete_places, name=" "),
 
-    path('places/assign', views.assign_place, name="placement curd"),
+    path('placements/assign', views.assign_place, name="placement curd"),
 
 
-    path('placements', views.placements, name = 'placements'),
+    path('placements/get', views.get_placements, name = 'placements'),
 
-    path('export',views.handle_export, name='Export data'),   
+    path('export',views.export_inventory, name='Export data'),   
+
+    path('purchaseitems/get',views.get_mulitple_purchase_items, name="purchae items"),
+    path('purchaseitem/add',views.add_new_purchase_item, name="purchae items"),
+    path('purchaseitems/delete',views.delete_purchase_items, name="purchae items"),
+    path('purchaseitem/get',views.get_purchase_item_details, name="purchae items"),
+    path('purchaseitem/update',views.update_purchase_item, name="purchae items"),
 ]

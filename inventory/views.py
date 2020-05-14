@@ -764,7 +764,7 @@ def delete_item_catagories(self, request):
 
 @require_http_methods(['POST'])
 @bind
-def places(self, request):
+def get_multiple_places(self, request):
     '''
     get data about the items
     POST to get data
@@ -781,7 +781,7 @@ def places(self, request):
     '''
     response_json = {'status':'False','placements':[]}
 
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -816,22 +816,35 @@ def places(self, request):
                             'count_assignment':len(place.placements.filter(is_active=True))
                         })
                     response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def add_new_place(self, request):
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            response_json = {'status':False,'placements':[]}
             if data_json['action'] == "add":
                 place = Place.objects.create(
                     name = data_json['name']
                 )
                 place.save()
                 response_json['status'] = True
-            return JsonResponse(response_json)
+            return response_json
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
-
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
 @require_http_methods(['POST'])
 @bind
-def place(self, request):
+def update_place(self, request):
     '''
     POST For editing
     {
@@ -841,7 +854,7 @@ def place(self, request):
     }
     '''
     response_json = {'status':''}
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -871,7 +884,7 @@ def delete_places(self, request):
     }
     '''
     response_json = {'status':''}
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -884,6 +897,8 @@ def delete_places(self, request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 ######################################## Placement ########################################
 
@@ -909,8 +924,8 @@ def assign_place(self, request):
         'purchase_item':3,
     }
     '''    
-    response_json = {'status':''}
-    if request.method == "POST":
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -937,41 +952,43 @@ def assign_place(self, request):
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
-
-
-@require_http_methods(['POST'])
-@bind
-def placements(self, request):
-    request_json =  {}
-    if request.method == "POST":
-            try:
-                json_str = request.body.decode(encoding='UTF-8')
-                data_json = json.loads(json_str)
-                if data_json['action'] == "get":
-                    start = data_json['start']
-                    end = data_json['end']
-                    if data_json['filter'] == 'none':
-                        placements = Placement.objects.filter(is_active=True).order_by('-id')[start:end]
-                        request_json['placements'] = placements_to_json(placements)
-                    if data_json['filter'] == 'item':
-                        placements = Placement.objects.filter(is_active=True, item=data_json['item'])[start:end]
-                        request_json['placements'] = placements_to_json(placements)
-                    if data_json['filter'] == 'place':
-                        placements = Placement.objects.filter(is_active=True, placed_on=data_json['place'])[start:end]
-                        request_json['placements'] = placements_to_json(placements)    
-                request_json['status'] = True
-                return JsonResponse(request_json)
-            except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
-                return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
 
 
 @require_http_methods(['POST'])
 @bind
-def purchase_items(self, request):
+def get_placements(self, request):
+    request_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                start = data_json['start']
+                end = data_json['end']
+                if data_json['filter'] == 'none':
+                    placements = Placement.objects.filter(is_active=True).order_by('-id')[start:end]
+                    request_json['placements'] = placements_to_json(placements)
+                if data_json['filter'] == 'item':
+                    placements = Placement.objects.filter(is_active=True, item=data_json['item'])[start:end]
+                    request_json['placements'] = placements_to_json(placements)
+                if data_json['filter'] == 'place':
+                    placements = Placement.objects.filter(is_active=True, placed_on=data_json['place'])[start:end]
+                    request_json['placements'] = placements_to_json(placements)    
+            request_json['status'] = True
+            return JsonResponse(request_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+@require_http_methods(['POST'])
+@bind
+def get_mulitple_purchase_items(self, request):
     '''
     function to add purchase item 
     {
@@ -988,27 +1005,13 @@ def purchase_items(self, request):
 
     }
     '''
-    response_json = {'status':'', 'purchase_items':[]}
-    if request.method == "POST":
+    response_json = {'status':False, 'purchase_items':[]}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "add":
-                purchase_item = PurchaseItem.objects.create(
-                    item = Item.objects.get(id=int(data_json['item'])),
-                    purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order'])),
-                    quantity = int(data_json['quantity']),
-                    purchase_price = data_json['purchase_price'],
-                    defective = int(data_json['defective']),
-                    discount_type = data_json['discount_type'],
-                    discount = float(data_json['discount']),
-                    status = data_json['status']
-                    )                
-                purchase_item.save()
-                response_json = {'status':True}
-                return JsonResponse(response_json)
             if data_json['action'] == 'get':
-                if data_json['filter'] == 'itemForPlace':
+                if data_json['filter'] == 'item_for_place':
                     default = Place.objects.get(is_default=True)
                     purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id']))
                     for purchase_item in purchase_items:
@@ -1034,11 +1037,40 @@ def purchase_items(self, request):
 
 
 
+@require_http_methods(['POST'])
+@bind
+def add_new_purchase_item(self, request):
+    response_json = {'status':False, 'purchase_items':[]}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "add":
+                purchase_item = PurchaseItem.objects.create(
+                    item = Item.objects.get(id=int(data_json['item'])),
+                    purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order'])),
+                    quantity = int(data_json['quantity']),
+                    purchase_price = data_json['purchase_price'],
+                    defective = int(data_json['defective']),
+                    discount_type = data_json['discount_type'],
+                    discount = float(data_json['discount']),
+                    status = data_json['status']
+                    )                
+                purchase_item.save()
+                response_json = {'status':True}
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+    
 
 
 @require_http_methods(['POST'])
 @bind
-def purchase_item(self, request):
+def get_purchase_item_details(self, request):
     '''
     function to update purchase item 
     {
@@ -1056,23 +1088,9 @@ def purchase_item(self, request):
     }
     '''
     response_json = {'status':''}
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
-            json_str = request.body.decode(encoding='UTF-8')
-            data_json = json.loads(json_str)
-            if data_json['action'] == "update":
-                purchase_item = PurchaseItem.objects.get(id=data_json['id'])
-                purchase_item.status = 'incomplete'
-                purchase_item.save()
-                purchase_item.quantity = int(data_json['quantity'])
-                purchase_item.purchase_price = float(data_json['purchase_price'])
-                purchase_item.defective = int(data_json['defective'])
-                purchase_item.discount_type = data_json['discount_type']
-                purchase_item.discount = float(data_json['discount'])
-                purchase_item.status = data_json['status']    
-                purchase_item.save()
-                response_json = {'status':True}
-                return JsonResponse(response_json)
+           
             if data_json['action'] == 'get':
                 print(data_json)
                 if data_json['filter'] == 'uuid':
@@ -1081,7 +1099,31 @@ def purchase_item(self, request):
                     return JsonResponse({'status':True, 'purchase_item':  purchase_items_to_json([purchase_item])})
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+
+@require_http_methods(['POST'])
+@bind
+def update_purchase_item(self, request):
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        if data_json['action'] == "update":
+            purchase_item = PurchaseItem.objects.get(id=data_json['id'])
+            purchase_item.status = 'incomplete'
+            purchase_item.save()
+            purchase_item.quantity = int(data_json['quantity'])
+            purchase_item.purchase_price = float(data_json['purchase_price'])
+            purchase_item.defective = int(data_json['defective'])
+            purchase_item.discount_type = data_json['discount_type']
+            purchase_item.discount = float(data_json['discount'])
+            purchase_item.status = data_json['status']    
+            purchase_item.save()
+            response_json = {'status':True}
+        return JsonResponse(response_json)
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
 @require_http_methods(['POST'])
@@ -1095,7 +1137,7 @@ def delete_purchase_items(self, request):
         }
     '''
     response_json = {'status':''}
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -1117,22 +1159,28 @@ def delete_purchase_items(self, request):
 @require_http_methods(['POST'])
 @bind
 def purchase_order_statuss(self, request):
-    if request.method == "POST":
-        statuss = PurchaseOrderStatus.objects.all()
-        data = []
-        for status in statuss:
-            temp =  StatusSerializer(status).data
-            data.append(temp)
-        return JsonResponse({'status':True, 'data':data})
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            statuss = PurchaseOrderStatus.objects.all()
+            data = []
+            for status in statuss:
+                temp =  StatusSerializer(status).data
+                data.append(temp)
+            return JsonResponse({'status':True, 'data':data})
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
 
 
 
 
 @require_http_methods(['POST'])
 @bind
-def handle_export(self, request):
+def export_inventory(self, request):
     sensative = ['purchaseitem', 'invoiceitem', 'product_image', 'thumbnail_image', 'id', 'item_placements']
-    if request.method=="POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             data_json = json.loads(request.body.decode(encoding='UTF-8'))
             if data_json['action'] == "get":
@@ -1242,6 +1290,8 @@ def handle_export(self, request):
             return JsonResponse({'status':True})
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
 
