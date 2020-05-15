@@ -9,7 +9,7 @@ urlpatterns = [
     path('verify', views.csrf, name = 'get csrf token'),
 
     path('login',obtain_jwt_token),
-    path('logout', views.user_logout, name='user logout'),
+    # path('logout', views.user_logout, name='user logout'),
     path('create', views.user_creation, name='Create New User'),
     path('get', views.users, name="get user data"),
     path('get/0', views.s_user, name='get user data'),
