@@ -60,11 +60,11 @@ def check(user):
 #             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
-# @login_required
-# def user_logout(request):
-#     '''User logout function'''
-#     logout(request)
-#     return HttpResponseRedirect('/login')
+@login_required
+def user_logout(request):
+    '''User logout function'''
+    logout(request)
+    return HttpResponseRedirect('/login')
 
 
 # @ensure_csrf_cookie
