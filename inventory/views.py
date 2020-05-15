@@ -22,22 +22,7 @@ from django.template.loader import get_template
 from django.template import Context
 from io import StringIO
 import cgi
-
-from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
-
-
-def bind(f):
-    return f.__get__(f, type(f))
-
-def check_permission(f_name, token):
-    try:
-        valid_data = VerifyJSONWebTokenSerializer().validate({'token':token})
-        user = valid_data['user']
-        print(user.username)
-        return True
-    except:
-        return False
-
+from user_handler.permission_check import bind, check_permission
 
 
 @require_http_methods(['POST'])

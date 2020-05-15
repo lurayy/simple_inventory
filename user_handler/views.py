@@ -14,8 +14,9 @@ import json
 from django.middleware.csrf import get_token
 
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
-
-
+from .serializers import CustomPermissionSerializer
+from .permission_check import bind, check_permission
+from .models_permission import CustomPermission
 def csrf(request):
     return JsonResponse({'x-csrftoken': get_token(request)})
 
@@ -27,76 +28,72 @@ def check(user):
     else:
         return False
 
-@ensure_csrf_cookie
-@require_http_methods(['GET'])
-def entry_point(request):
-    return render (request, 'build/index.html')
+# @ensure_csrf_cookie
+# @require_http_methods(['GET'])
+# def entry_point(request):
+#     return render (request, 'build/index.html')
 
-@ensure_csrf_cookie
+# @ensure_csrf_cookie
+# @require_http_methods(['POST'])
+# def user_login(request):
+#     '''user login function'''
+#     response_json = {}
+#     try:    
+#         if request.user.is_authenticated:
+#             response_json['status'] = True
+#             return JsonResponse(response_json)
+#         else:
+#             if request.method == 'POST':
+#                 json_str = request.body.decode(encoding='UTF-8')
+#                 data_json = json.loads(json_str)
+#                 username = data_json['username']
+#                 password = data_json['password']
+#                 user = authenticate(request, username = username, password = password)
+#                 if user is not None:
+#                     login(request,user)
+#                     response_json['status'] = True
+#                     return JsonResponse(response_json)
+#                 else:
+#                     response_json = {'status':False, 'msg':'Username or Password is not correct.'}
+#                     return JsonResponse(response_json)
+#     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+#             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+# @login_required
+# def user_logout(request):
+#     '''User logout function'''
+#     logout(request)
+#     return HttpResponseRedirect('/login')
+
+
+# @ensure_csrf_cookie
+# @require_http_methods(['GET'])
+# @login_required
+# def dashboard(request):
+#     '''Dashboard entry point fucntion'''
+#     return render (request, 'build/index.html')
+
+
 @require_http_methods(['POST'])
-def user_login(request):
-    '''user login function'''
-    response_json = {}
-    try:    
-        if request.user.is_authenticated:
-            response_json['status'] = True
-            return JsonResponse(response_json)
-        else:
-            if request.method == 'POST':
-                json_str = request.body.decode(encoding='UTF-8')
-                data_json = json.loads(json_str)
-                username = data_json['username']
-                password = data_json['password']
-                user = authenticate(request, username = username, password = password)
-                if user is not None:
-                    login(request,user)
-                    response_json['status'] = True
-                    return JsonResponse(response_json)
-                else:
-                    response_json = {'status':False, 'msg':'Username or Password is not correct.'}
-                    return JsonResponse(response_json)
-    except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
-
-@login_required
-def user_logout(request):
-    '''User logout function'''
-    logout(request)
-    return HttpResponseRedirect('/login')
-
-
-@ensure_csrf_cookie
-@require_http_methods(['GET'])
-@login_required
-def dashboard(request):
-    '''Dashboard entry point fucntion'''
-    return render (request, 'build/index.html')
-
-
-@require_http_methods(['POST'])
-@login_required
-@user_passes_test(check)
+@bind
 def user_creation(request):
     '''Creates new  non-super user'''
     response_json = {}
     new_user = None
     try:
-        if request.method == 'POST':
+        if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)    
             user =  CustomUserBase.objects.get(id=request.user.id)
-            if (user.user_type == "MANAGER"):
-                new_user = CustomUserBase.objects.create_user(str(data_json['username']), str(data_json['email']), str(data_json['password']))
-                new_user.first_name = str(data_json['first_name'])
-                new_user.last_name = str(data_json['last_name'])
-                new_user.user_type = str(data_json['user_type'])
-                new_user.save()
-                response_json['status'] = True
-                return JsonResponse(response_json)
-            else:
-                response_json = {'status':False, 'error': 'Permission Denied'}
-                return JsonResponse(response_json)
+            new_user = CustomUserBase.objects.create_user(str(data_json['username']), str(data_json['email']), str(data_json['password']))
+            new_user.first_name = str(data_json['first_name'])
+            new_user.last_name = str(data_json['last_name'])
+            role = CustomPermission.objects.get(data_json['custom_permission'])
+            new_user.role =role
+            new_user.save()
+            response_json['status'] = True
+            return JsonResponse(response_json)
     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
         if (new_user):
             new_user.delete()
@@ -187,7 +184,9 @@ def s_user(request):
                 user_json['is_active'] = user.is_active
                 user_json['email'] = str(user.email)
                 user_json['uuid'] = str(user.uuid)
-                user_json['user_type'] = user.user_type
+                user_json['role'] = int(user.role)
+                user_json['role_str'] = str(user.role)
+                user_json['roles_given'] = CustomPermissionSerializer(user.role).data
                 user_json['status'] = True
                 return JsonResponse(user_json)
             else:
@@ -219,7 +218,7 @@ def get_current_user(request):
                 'first_name':user.first_name,
                 'last_name':user.last_name,
                 'email':user.email,
-                'user_type':user.user_type,
+                'role_str':str(user.role),
                 'username':user.username
             }
         }

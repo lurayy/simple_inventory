@@ -63,3 +63,6 @@ class CustomPermission(models.Model):
     delete_invoices = models.BooleanField(default=True)
     invoice = models.BooleanField(default=True)
     invoices = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.name}'
