@@ -11,10 +11,12 @@ from django.views.decorators.http import require_http_methods
 from user_handler.models import Tax, Discount
 from user_handler.models import Customer, CustomUserBase, Tax, Discount, CustomerCategory
 from .serializers import InvoiceStatusSerializer
+from user_handler.permission_check import bind, check_permission
 
-@login_required
+
 @require_http_methods(['POST'])
-def invoices(request):
+@bind
+def get_multiple_invoices(request):
     ''' fucntion to get data from sales, will add filter later
     filter = None
     {
@@ -65,8 +67,8 @@ def invoices(request):
         'action':'add',
     }
     '''
-    if request.method == "POST":
-        response_json = {}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -74,7 +76,7 @@ def invoices(request):
             if str(data_json['action']) == "get":
                 start = int(data_json["start"])
                 end = int(data_json["end"])
-                response_json = {'status':'', 'sales':[]}
+                response_json = {'status':False, 'sales':[]}
                 if str(data_json['filter']).lower() == "none":
                     invoices = Invoice.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "status":
@@ -93,6 +95,20 @@ def invoices(request):
                 response_json['invoices'] = invoices_to_json(invoices)
                 response_json['status'] = True
                 return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def add_new_invoice(request):
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        response_json = {'status':False}
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             if str(data_json['action'] == "add"):
                 stat = InvoiceStatus.objects.filter(is_active=True, is_sold=False)
                 if (len(stat) == 0):
@@ -109,22 +125,23 @@ def invoices(request):
                 )
                 invoice.save()
                 response_json['status'] = True
-                return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-
-@login_required
 @require_http_methods(['POST'])
-#edit invoice order 
-def invoice(request):
+@bind
+#update invoice order 
+def update_invoice(request):
     ''' To get data about single purchase order
     To get info about a single invoice, trigger /apiv1/inventory/porders/<invoice_id>/
-    To edit the data, you can POST on the same link: 
+    To update the data, you can POST on the same link: 
     POST format:
     {
-        'action':'edit',
+        'action':'update',
         'id':1,
         'invoiced_on': "2019-11-16T08:15:00.000",
         'completed_on: "2019-11-16T08:15:00.000",
@@ -135,17 +152,18 @@ def invoice(request):
 
     }
     '''
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            response_json = {'status':'', 'invoice':{}, 'invoice_items':[]}
-            if data_json['action'] == "edit":
+            response_json = {'status':False, 'invoice':{}, 'invoice_items':[]}
+            if data_json['action'] == "update":
                 new_status = InvoiceStatus.objects.get(id=data_json['status']) 
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
                 
                 if (new_status == invoice.status and invoice.status.is_sold ==True):
-                    raise Exception("Cannot Edit Invoice Or Invoice Item if it's already sold.")
+                    raise Exception("Cannot update Invoice Or Invoice Item if it's already sold.")
                 elif (new_status != invoice.status):
                     invoice.status = new_status
                     invoice.save()
@@ -156,19 +174,35 @@ def invoice(request):
                 invoice.additional_discount = float(data_json['additional_discount'])
                 invoice.save()
                 response_json = {'status':True}
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def get_invoice_details(request):
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        response_json = {'status':False}
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             if data_json['action'] == 'get':
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
                 response_json['invoice'] = invoices_to_json([invoice])
                 response_json['invoice_items'] = invoice_items_to_json(InvoiceItem.objects.filter(invoice=invoice))
                 response_json['status'] = True
-                return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-@login_required
 @require_http_methods(['POST'])
+@bind
 def delete_invoices(request):
     '''
     {
@@ -177,8 +211,9 @@ def delete_invoices(request):
         ]
     }
     '''
-    response_json = {'status':''}
-    if request.method == "POST":
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -193,14 +228,15 @@ def delete_invoices(request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
-
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 ######################################## Customer  ########################################
 
-@login_required
+
 @require_http_methods(['POST'])
-def customers(request):
+@bind
+def get_multiple_customers(request):
     '''
     Fucntion to get and add customers data
     POST Format:
@@ -223,8 +259,33 @@ def customers(request):
         address: "lk"
     }
     '''
-    response_json = {'status':'', 'customers':[]}
-    if request.method == "POST":
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        response_json = {'status':False}
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                if data_json['filter'] == "name":
+                    customers = Customer.objects.filter(is_active=True, first_name__icontains=str(data_json['name']).lower() ).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['customers'] = customers_to_json(customers)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
+                else:
+                    customers = Customer.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['customers'] = customers_to_json(customers)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def add_new_customer(request):
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -243,24 +304,15 @@ def customers(request):
                 customer.save()
                 response_json['customers'] = customers_to_json([customer])
                 response_json = {'status':True}
-                return JsonResponse(response_json)
-            if data_json['action'] == "get":
-                if data_json['filter'] == "name":
-                    customers = Customer.objects.filter(is_active=True, first_name__icontains=str(data_json['name']).lower() ).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                    response_json['customers'] = customers_to_json(customers)
-                    response_json['status'] = True
-                    return JsonResponse(response_json)
-                else:
-                    customers = Customer.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                    response_json['customers'] = customers_to_json(customers)
-                    response_json['status'] = True
-                    return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})  
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-@login_required
 @require_http_methods(['POST'])
+@bind
 def delete_customers(request):
     '''
     {
@@ -269,8 +321,8 @@ def delete_customers(request):
         ]
     }
     '''
-    response_json = {'status':''}
-    if request.method == "POST":
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -285,17 +337,20 @@ def delete_customers(request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-@login_required
+
 @require_http_methods(['POST'])
-def customer(request):
+@bind
+def update_customer(request):
     '''
     TO get data [GET] to the url : /apiv1/sales/customers/<customer id>
-    To edit [POST] 
+    To update [POST] 
     Format : 
     {
-        'action':'edit',
+        'action':'update',
         id: 1
         first_name: "kj"
         middle_name: "lkj"
@@ -310,12 +365,13 @@ def customer(request):
         added_by: 1
     }
     '''
-    response_json = {'status':'', 'customers':[]}
-    if request.method == "POST":
+    response_json = {'status':False, 'customers':[]}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "edit":
+            if data_json['action'] == "update":
                 customer = Customer.objects.get(id=int(data_json['id']))
                 customer.first_name = str(data_json['first_name'])
                 customer.last_name = str(data_json['last_name'])
@@ -331,37 +387,59 @@ def customer(request):
                 customer.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+@require_http_methods(['POST'])
+@bind
+def get_customer_details(request):
+    response_json = {'status':False, 'customers':[]}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 customer = Customer.objects.get(id=int(data_json['customer_id']))
                 response_json['customers'] = customers_to_json([customer])
                 response_json['status'] = True
-                return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse(response_json)        
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-@login_required
+
+
 @require_http_methods(['POST'])
-def customer_category(request):
-    response_json = {'status':''}
-    try: 
-        json_str = request.body.decode(encoding='UTF-8')
-        data_json = json.loads(json_str)
-        if data_json['action'] == "get":
-            response_json = {
-                'status':True,
-                'customerCategories': categories_to_json(CustomerCategory.objects.filter(is_active=True))
-            }
+@bind
+def get_customer_categories(request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try: 
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                response_json = {
+                    'status':True,
+                    'customerCategories': categories_to_json(CustomerCategory.objects.filter(is_active=True))
+                }
             return JsonResponse(response_json)
-    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+                return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-                
 
 
 ######################################## InvoieItems ########################################
-@login_required
+
 @require_http_methods(['POST'])
-def invoice_items(request):
+@bind
+def add_new_invoice_item(request):
     '''
     function to add purchase item 
     {
@@ -379,8 +457,8 @@ def invoice_items(request):
         'total':234
     }
     '''
-    response_json = {'status':''}
-    if request.method == "POST":
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -392,7 +470,7 @@ def invoice_items(request):
                     invoice = Invoice.objects.get(id=int(data_json['invoice'])),
                     quantity = int(data_json['quantity']),
                     price = float(data_json['price']),
-                    )                
+                    )
                 invoice_item.save()
                 for dis_id in data_json['discount']:
                     dis = Discount.objects.get(id=int(dis_id))
@@ -404,17 +482,20 @@ def invoice_items(request):
                 invoice_item.invoice.save()
                 invoice_item.invoice.save()
                 response_json = {'status':True}
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-@login_required
+
 @require_http_methods(['POST'])
-def invoice_item(request):
+@bind
+def update_invoice_item(request):
     '''
-    function to edit purchase item 
+    function to update purchase item 
     {
-        'action':'edit',
+        'action':'update',
         'item': 1,
         'purchase_item':5,
         'sold_from':2,
@@ -428,17 +509,15 @@ def invoice_item(request):
         'total':234
     }
     '''
-    response_json = {'status':''}
-    if request.method == "POST":
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            response_json = {}
-            if data_json['action'] == "edit":
-                
+            if data_json['action'] == "update":
                 invoice_item = InvoiceItem.objects.get(id=data_json["invoice_item_id"])
                 if(invoice_item.invoice.status.is_sold):
-                    raise Exception("Cannot edit item's that are already sold.")
+                    raise Exception("Cannot update item's that are already sold.")
                 invoice_item.item = Item.objects.get(id=int(data_json['item']))
                 invoice_item.purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item']))
                 invoice_item.sold_from = Place.objects.get(id=int(data_json['sold_from']))
@@ -458,17 +537,29 @@ def invoice_item(request):
                 invoice_item.invoice.save()
                 response_json = {'status':True}
                 return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+@require_http_methods(['POST'])
+@bind
+def get_invoice_item_details(request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)        
             if data_json['action'] == "get":
                 invoice_item = InvoiceItem.objects.get(id=data_json['invoice_item_id'])
                 response_json['invoice_items'] = invoice_items_to_json([invoice_item])
                 response_json['status'] = True
-                return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse(response_json)            
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
-
-@login_required
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+        
 @require_http_methods(['POST'])
+@bind
 def delete_invoice_items(request):
     '''
         {
@@ -477,8 +568,8 @@ def delete_invoice_items(request):
             ]
         }
     '''
-    response_json = {'status':''}
-    if request.method == "POST":
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -492,13 +583,35 @@ def delete_invoice_items(request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-@login_required
 @require_http_methods(['POST'])
-def discounts(request):
-    response_json = {'status':''}
-    if request.method == "POST":
+@bind
+def get_multiple_discounts(request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                if data_json['filter'] == 'none':
+                    discounts = Discount.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['discounts'] = discounts_to_json(discounts)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def add_new_discount(request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -512,31 +625,23 @@ def discounts(request):
                 discount.save()
                 response_json['discounts'] = discounts_to_json([discount])
                 response_json = {'status':True}
-                return JsonResponse(response_json)
-            if data_json['action'] == "get":
-                if data_json['filter'] == 'none':
-                    discounts = Discount.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                    response_json['discounts'] = discounts_to_json(discounts)
-                    response_json['status'] = True
-                    return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-@login_required
+
 @require_http_methods(['POST'])
-def discount(request):
-    response_json =  {}
-    if request.method == "POST":
+@bind
+def update_discount(request):
+    response_json =  {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "get":
-                discounts = Discount.objects.filter(is_active=True, id = data_json['discount_id'])
-                response_json['discounts'] = discounts_to_json(discounts)
-                response_json['status'] = True
-                return JsonResponse(response_json)
-            if data_json['action'] == "edit":
+            if data_json['action'] == "update":
                 discount = Discount.objects.get(is_active=True, id = data_json['discount_id'])
                 discount.name = data_json['name']
                 discount.code = data_json['code']
@@ -545,33 +650,57 @@ def discount(request):
                 discount.is_active = data_json['is_active']
                 discount.save()
                 response_json['status'] = True
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
-@login_required
+
 @require_http_methods(['POST'])
+@bind
+def get_discount_details(request):
+    response_json =  {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)        
+            if data_json['action'] == "get":
+                discounts = Discount.objects.filter(is_active=True, id = data_json['discount_id'])
+                response_json['discounts'] = discounts_to_json(discounts)
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+            
+
+@require_http_methods(['POST'])
+@bind
 def delete_discount(request):
-    response_json = {}
-    try:
-        json_str = request.body.decode(encoding='UTF-8')
-        data_json = json.loads(json_str)
-        ids = data_json['discounts_id']
-        for id in ids:
-            discount = Discount.objects.get(id=int(id))
-            discount.is_active = False
-            discount.save()
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            ids = data_json['discounts_id']
+            for id in ids:
+                discount = Discount.objects.get(id=int(id))
+                discount.is_active = False
+                discount.save()
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-@login_required
 @require_http_methods(['POST'])
-def taxes(request):
-    response_json = {'status':''}
-    if request.method == "POST":
+@bind
+def add_new_tax(request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -585,31 +714,39 @@ def taxes(request):
                 tax.save()
                 response_json['taxes'] = taxes_to_json([tax])
                 response_json = {'status':True}
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+@require_http_methods(['POST'])
+@bind
+def get_multiple_taxes(request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
                     taxes = Tax.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
                     response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
-                    return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
-@login_required
 @require_http_methods(['POST'])
-def tax(request):
-    response_json =  {}
-    if request.method == "POST":
+@bind
+def update_tax(request):
+    response_json =  {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "get":
-                taxes = Tax.objects.get(is_active=True, id = data_json['tax_id'])
-                response_json['taxes'] = taxes_to_json([taxes])
-                response_json['status'] = True
-                return JsonResponse(response_json)
-            if data_json['action'] == "edit":
+            if data_json['action'] == "update":
                 tax = Tax.objects.get(is_active=True, id = data_json['tax_id'])
                 tax.name = data_json['name']
                 tax.code = data_json['code']
@@ -618,45 +755,77 @@ def tax(request):
                 tax.is_active = data_json['is_active']
                 tax.save()
                 response_json['status'] = True
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-@login_required
+
 @require_http_methods(['POST'])
+@bind
+def get_tax_details(request):
+    response_json =  {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                taxes = Tax.objects.get(is_active=True, id = data_json['tax_id'])
+                response_json['taxes'] = taxes_to_json([taxes])
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
 def delete_taxes(request):
-    response_json = {}
-    try:
-        json_str = request.body.decode(encoding='UTF-8')
-        data_json = json.loads(json_str)
-        ids = data_json['taxes_id']
-        for id in ids:
-            tax = Tax.objects.get(id=int(id))
-            tax.is_active = False
-            tax.save()
-        response_json['status'] = True
-        return JsonResponse(response_json)
-    except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            ids = data_json['taxes_id']
+            for id in ids:
+                tax = Tax.objects.get(id=int(id))
+                tax.is_active = False
+                tax.save()
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
 
-@login_required
 @require_http_methods(['POST'])
-def invoice_status(request):
-    if request.method == "POST":
+@bind
+def get_invoice_status(request):
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         statuss = InvoiceStatus.objects.all()
         data = []
         for status in statuss:
             temp =  InvoiceStatusSerializer(status).data
             data.append(temp)
         return JsonResponse({'status':True, 'data':data})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-@login_required
 @require_http_methods(['POST'])
-def export_data(request):
-    pass
+@bind
+def export_sales_data(request):
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        return JsonResponse({'status':True}) 
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
 
 
 def render_to_pdf(template_src, context_dict={}):

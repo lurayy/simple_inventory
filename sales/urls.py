@@ -1,22 +1,31 @@
 from django.urls import path
 from . import views
 urlpatterns = [
-    path('invoices', views.invoices, name="GET and add invoices"),
-    path('invoice', views.invoice, name='Get and edit data ofa invoice'),
-    path('invoices/delete', views.delete_invoices, name='dlete invoice'),
-    path('invoices/status', views.invoice_status, name="status"),
-    path('customers', views.customers, name=""),
-    path('customer', views.customer, name=''),
+    path('invoices/get', views.get_multiple_invoices, name="GET and add invoices"),
+    path('invoices/delete', views.delete_invoices, name='Get and edit data ofa invoice'),
+    path('invoice/get', views.get_invoice_details, name='dlete invoice'),
+    path('invoice/update', views.update_invoice, name="status"),
+
+    path('customers/get', views.get_multiple_customers, name=""),
+    path('customer/update', views.update_customer, name=''),
     path('customers/delete', views.delete_customers, name="delete customers"),
-    path('customers/category', views.customer_category, name='customer category'),
-    path('invoiceitems', views.invoice_items, name=""),
-    path('invoiceitem', views.invoice_item, name=''),
+    path('customers/category', views.get_customer_categories, name='customer category'),
+    path('customer/get', views.get_customer_details, name=''),
+
+    path('invoiceitems/get', views.get_multiple_invoices, name=""),
+    path('invoiceitem/get', views.get_invoice_details, name=''),
     path('invoiceitems/delete', views.delete_invoice_items, name=""),    
-    path('discounts', views.discounts, name=""),
-    path('discount', views.discount, name=''),
+    path('invoiceitems/update', views.update_invoice_item, name=""),
+
+    path('discounts/get', views.get_multiple_discounts, name=""),
+    path('discount/get', views.get_discount_details, name=''),
     path('discounts/delete', views.delete_discount, name=""),
-    path('taxes', views.taxes, name=""),
-    path('tax', views.tax, name=''),
+    path('discount/update', views.update_discount, name=''),
+
+    path('taxes/get', views.get_multiple_taxes, name=""),
+    path('tax/get', views.get_tax_details, name=''),
     path('taxes/delete', views.delete_taxes, name=""),
-    path('export',views.export_data, name="export data related to sales")
+    path('tax/update', views.update_tax),
+
+    path('export',views.export_sales_data, name="export data related to sales")
 ]
