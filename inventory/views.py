@@ -348,7 +348,7 @@ def update_vendor(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
             if data_json['action'] == "update":
-                vendor = Vendor.objects.get(id=int(data_json['id']))
+                vendor = Vendor.objects.get(id=int(data_json['vendor_id']))
                 vendor.first_name = str(data_json['first_name'])
                 vendor.last_name = str(data_json['last_name'])
                 vendor.middle_name = str(data_json['middle_name'])
