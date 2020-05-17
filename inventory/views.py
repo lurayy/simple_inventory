@@ -23,6 +23,7 @@ from django.template import Context
 from io import StringIO
 import cgi
 from user_handler.permission_check import bind, check_permission
+from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
 
 @require_http_methods(['POST'])
@@ -78,11 +79,13 @@ def add_new_purchase_order(self,request):
                     status =  PurchaseOrderStatus.objects.filter(is_end=False)[0]
                 if (status.is_end):
                     status =  PurchaseOrderStatus.objects.filter(is_end=False)[0]
+                valid_data = VerifyJSONWebTokenSerializer().validate({'token':request.headers['Authorization'].split(' ')[1]})
+                user = valid_data['user']
                 purchase_order = PurchaseOrder.objects.create(
                     total_cost = data_json['total_cost'],
                     discount_type = data_json['discount_type'],
                     discount = data_json['discount'],
-                    added_by = CustomUserBase.objects.get(id=int(request.user.id)),
+                    added_by = user,
                     vendor = Vendor.objects.get(id=int(data_json['vendor'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     completed_on = str_to_datetime(data_json['completed_on']),
@@ -265,6 +268,8 @@ def add_new_vendor(self, request):
             data_json = json.loads(json_str)
             response_json = {'status':False}
             if data_json['action'] == "add":
+                valid_data = VerifyJSONWebTokenSerializer().validate({'token':request.headers['Authorization'].split(' ')[1]})
+                user = valid_data['user']
                 vendor = Vendor.objects.create(
                     first_name = str(data_json['first_name']),
                     last_name = str(data_json['last_name']),
@@ -275,7 +280,7 @@ def add_new_vendor(self, request):
                     phone1 = str(data_json['phone1']),
                     phone2 = str(data_json['phone2']),
                     address = str(data_json['address']),
-                    added_by = CustomUserBase.objects.get(id=request.user.id)
+                    added_by = user
                 )
                 vendor.save()
                 response_json['vendors'] = vendors_to_json([vendor])
