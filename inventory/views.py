@@ -490,8 +490,30 @@ def add_new_item(self, request):
                 item = Item.objects.create(
                     name = str(data_json['name']),
                     sales_price = data_json['sales_price'],
-                    catagory = ItemCatagory.objects.get(id=int(data_json['catagory']))
+                    catagory = ItemCatagory.objects.get(id=int(data_json['catagory'])),
+                    description = data_json['description'],
+                    weight = data_json['weight'],
+                    average_cost_price = data_json['average_cost_price']
                 )
+                item.save()
+                try:
+                    if (data_json['new_product_image']):
+                        data = data_json['new_product_image'][0]['base64']
+                        format, imgstr = data.split(';base64,') 
+                        ext = format.split('/')[-1] 
+                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+                        item.product_image = data
+                except:
+                    pass
+                try:
+                    if (data_json['new_thumbnail_image']):
+                        data = data_json['new_thumbnail_image'][0]['base64']
+                        format, imgstr = data.split(';base64,') 
+                        ext = format.split('/')[-1] 
+                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+                        item.thumbnail_image = data
+                except:
+                    pass
                 item.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
@@ -553,6 +575,7 @@ def update_item(self, request):
                 item.is_active = data_json['is_active']
                 item.description = data_json['description']
                 item.weight = data_json['weight']
+                item.sales_price = data_json['sales_price']
                 item.average_cost_price =  data_json['average_cost_price']
                 try:
                     if (data_json['new_product_image']):
