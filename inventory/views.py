@@ -352,6 +352,8 @@ def update_vendor(self, request):
     response_json = {'status':False, 'vendors':[]}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 vendor = Vendor.objects.get(id=int(data_json['vendor_id']))
                 vendor.first_name = str(data_json['first_name'])
@@ -729,6 +731,8 @@ def update_item_category(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 item_catagory = ItemCatagory.objects.get(id=int(data_json['item_catagory_id']))
                 item_catagory.name = str(data_json['name'])
@@ -841,6 +845,8 @@ def get_multiple_places(self, request):
 def add_new_place(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             response_json = {'status':False,'placements':[]}
             if data_json['action'] == "add":
                 place = Place.objects.create(
@@ -1103,7 +1109,8 @@ def get_purchase_item_details(self, request):
     response_json = {'status':''}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
-           
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)    
             if data_json['action'] == 'get':
                 print(data_json)
                 if data_json['filter'] == 'uuid':
@@ -1195,7 +1202,8 @@ def export_inventory(self, request):
     sensative = ['purchaseitem', 'invoiceitem', 'product_image', 'thumbnail_image', 'id', 'item_placements']
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
-            data_json = json.loads(request.body.decode(encoding='UTF-8'))
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 model = str(data_json['model']).lower()
                 x = []
