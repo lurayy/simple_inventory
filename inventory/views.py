@@ -586,8 +586,8 @@ def update_item(self, request):
                 item.sales_price = data_json['sales_price']
                 item.average_cost_price =  data_json['average_cost_price']
                 try:
-                    if (data_json['new_product_image']):
-                        data = data_json['new_product_image'][0]['base64']
+                    if (data_json['product_image']):
+                        data = data_json['product_image'][0]['base64']
                         format, imgstr = data.split(';base64,') 
                         ext = format.split('/')[-1] 
                         data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
@@ -595,8 +595,8 @@ def update_item(self, request):
                 except:
                     pass
                 try:
-                    if (data_json['new_thumbnail_image']):
-                        data = data_json['new_thumbnail_image'][0]['base64']
+                    if (data_json['thumbnail_image']):
+                        data = data_json['thumbnail_image'][0]['base64']
                         format, imgstr = data.split(';base64,') 
                         ext = format.split('/')[-1] 
                         data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
