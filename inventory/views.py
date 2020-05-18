@@ -558,7 +558,7 @@ def get_item_details(self, request):
                         purchase_item = PurchaseItem.objects.get(uuid=data_json['uuid'])
                         item = purchase_item.item
                 except Exception as ex:
-                    item = Item.objects.get(id=int(data_json['item_id']))
+                    item = Item.objects.get(id=int(data_json['item_id']), is_active=True )
                 response_json['items'] = items_to_json([item])
                 response_json['status'] = True
             return JsonResponse(response_json)
