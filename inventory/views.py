@@ -607,7 +607,7 @@ def update_item(self, request):
                 response_json = {'status':True}
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
-                return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
