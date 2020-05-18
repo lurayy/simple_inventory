@@ -489,6 +489,7 @@ def get_multiple_items(self, request):
 @require_http_methods(['POST'])
 @bind
 def add_new_item(self, request):
+    response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
             json_str = request.body.decode(encoding='UTF-8')
