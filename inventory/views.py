@@ -667,9 +667,16 @@ def get_multiple_item_catagories(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
-                catagroies = ItemCatagory.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                response_json['item_catagories'] = item_catagories_to_json(catagroies)
-                response_json['status'] = True
+                if data_json['filter'] == 'none':
+                    catagroies = ItemCatagory.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['item_catagories'] = item_catagories_to_json(catagroies)
+                    response_json['status'] = True
+                if data_json['filter'] == "category":
+                    catagroy = ItemCatagory.objects.get(is_active=True, id=data_json['category_id'])
+                    response_json['category_details'] = item_catagories_to_json([catagroy])
+                    categories = ItemCatagory.objects.filter(is_active=True, parent =catagroy)
+                    response_json['sub_categories'] = item_catagories_to_json(categories)
+                    response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -686,8 +693,13 @@ def add_new_item_catagory(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "add":
+                try:
+                    parent = ItemCatagory.objects.get(id=data_json['parent'])
+                except:
+                    parent = None
                 catagory = ItemCatagory.objects.create(
-                    name = data_json['name']
+                    name = data_json['name'],
+                    parent = parent
                 )
                 catagory.save()
                 response_json['status'] = True
@@ -696,6 +708,23 @@ def add_new_item_catagory(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+def get_parent_categories(category):
+    current = category
+    loop = True
+    sub  = {}
+    data = {}
+    while loop:
+        if current.parent:
+            details = item_catagories_to_json([current],False)
+            data = {'details':details, 'sub_categories': data}
+            current = current.parent
+        else:
+            details = item_catagories_to_json([current], False)
+            data = {'details':details, 'sub_categories': data}
+            loop = False
+    return data
 
 
 @require_http_methods(['POST'])
@@ -715,10 +744,13 @@ def get_item_catagory_details(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            item_catagory = ItemCatagory.objects.get(id=int(data_json['item_catagory_id']))
+            item_catagory = ItemCatagory.objects.get(id=int(data_json['item_category_id']))
             response_json = {'status':False}
             if data_json['action'] == "get":
-                response_json['item_catagories'] = item_catagories_to_json([item_catagory])
+                response_json['item_category'] = item_catagories_to_json([item_catagory])
+                sub_categories = ItemCatagory.objects.filter(is_active=True, parent = item_catagory)
+                response_json['sub_categories'] = item_catagories_to_json(sub_categories)
+                response_json['parent_tree'] = get_parent_categories(item_catagory)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -736,9 +768,14 @@ def update_item_category(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
-                item_catagory = ItemCatagory.objects.get(id=int(data_json['item_catagory_id']))
+                item_catagory = ItemCatagory.objects.get(id=int(data_json['item_category_id']))
                 item_catagory.name = str(data_json['name'])
                 item_catagory.is_active = data_json['is_active']
+                try:
+                    parent = ItemCatagory.objects.get(id=data_json['parent'])
+                except:
+                    parent = None
+                item_catagory.parent = parent
                 item_catagory.save()
                 response_json = {'status':True}
             return JsonResponse(response_json)
