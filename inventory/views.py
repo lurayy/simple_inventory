@@ -511,8 +511,8 @@ def add_new_item(self, request):
                         ext = format.split('/')[-1] 
                         data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
                         item.product_image = data
-                except:
-                    pass
+                except Exception as exp:
+                    return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 try:
                     if (data_json['new_thumbnail_image']):
                         data = data_json['new_thumbnail_image'][0]['base64']
@@ -520,8 +520,8 @@ def add_new_item(self, request):
                         ext = format.split('/')[-1] 
                         data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
                         item.thumbnail_image = data
-                except:
-                    pass
+                except Exception as exp:
+                    return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 item.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
