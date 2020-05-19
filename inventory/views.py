@@ -490,10 +490,12 @@ def get_multiple_items(self, request):
 @bind
 def add_new_item(self, request):
     response_json = {'status':False}
+    
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            print(data_json)
             if data_json['action'] == "add":
                 item = Item.objects.create(
                     name = str(data_json['name']),
@@ -669,6 +671,10 @@ def get_multiple_item_catagories(self, request):
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
                     catagroies = ItemCatagory.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['item_catagories'] = item_catagories_to_json(catagroies)
+                    response_json['status'] = True
+                if data_json['filter'] == 'parent':
+                    catagroies = ItemCatagory.objects.filter(is_active=True, parent=None).order_by('id')[int(data_json['start']):int(data_json['end'])]
                     response_json['item_catagories'] = item_catagories_to_json(catagroies)
                     response_json['status'] = True
                 if data_json['filter'] == "category":
