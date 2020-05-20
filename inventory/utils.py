@@ -70,6 +70,7 @@ def item_catagories_to_json(catagories, include_items = True):
     data = []
     for catagory in catagories:
         temp = ItemCatagorySerializer(catagory).data
+        temp['parent_str'] = str(catagory.parent)
         if include_items:
             pass
         data.append(temp)
