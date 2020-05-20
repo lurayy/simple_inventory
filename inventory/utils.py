@@ -71,9 +71,7 @@ def item_catagories_to_json(catagories, include_items = True):
     for catagory in catagories:
         temp = ItemCatagorySerializer(catagory).data
         if include_items:
-            items = catagory.items.filter(is_active=True)
-            temp['count'] = len(items)
-            temp['items'] = items_to_json(items)
+            pass
         data.append(temp)
     return data
 

@@ -409,6 +409,11 @@ def get_multiple_items(self, request):
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)
+                if data_json['filter'] == 'category':
+                    items = items = Item.objects.filter(is_active=True, catagory = ItemCatagory.objects.get(id=data_json['category_id'])).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['items'] = items_to_json(items)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
                 if data_json['filter'] == "name":
                     items = Item.objects.filter(is_active=True, name__icontains = str(data_json['name']).lower() ).order_by('id')[int(data_json['start']):int(data_json['end'])]
                     response_json['items'] = items_to_json(items)
@@ -671,15 +676,15 @@ def get_multiple_item_catagories(self, request):
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
                     catagroies = ItemCatagory.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                    response_json['item_catagories'] = item_catagories_to_json(catagroies)
+                    response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
                     response_json['status'] = True
                 if data_json['filter'] == 'parent':
                     catagroies = ItemCatagory.objects.filter(is_active=True, parent=None).order_by('id')[int(data_json['start']):int(data_json['end'])]
-                    response_json['item_catagories'] = item_catagories_to_json(catagroies)
+                    response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
                     response_json['status'] = True
                 if data_json['filter'] == "category":
                     catagroy = ItemCatagory.objects.get(is_active=True, id=data_json['category_id'])
-                    response_json['category_details'] = item_catagories_to_json([catagroy])
+                    response_json['category_details'] = item_catagories_to_json([catagroy], False)
                     categories = ItemCatagory.objects.filter(is_active=True, parent =catagroy)
                     response_json['sub_categories'] = item_catagories_to_json(categories)
                     response_json['status'] = True
