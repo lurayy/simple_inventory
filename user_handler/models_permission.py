@@ -27,6 +27,7 @@ class CustomPermission(models.Model):
     update_place = models.BooleanField(default=True)
     add_new_place = models.BooleanField(default=True)
     get_multiple_places = models.BooleanField(default=True)
+    update_item_category = models.BooleanField(default=True)
     delete_item_catagories = models.BooleanField(default=True)
     get_item_catagory_details = models.BooleanField(default=True)
     add_new_item_catagory = models.BooleanField(default=True)
