@@ -247,6 +247,11 @@ def pre_save_handler(sender, instance, *args, **kwargs):
             instance.item.save()
             for placement in instance.items_places.all():
                 placement.delete()
+    if instance.discount_type == 'fixed':
+        instance.purchase_price = instance.non_discount_price - instance.discount
+    else:
+        instance.purchase_price = instance.non_discount_price - instance.non_discount_price*instance.discount/100
+        
 
 @receiver(post_save, sender=PurchaseItem)
 def post_save_handler(sender, instance, created, **kwargs):

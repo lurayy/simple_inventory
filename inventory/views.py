@@ -38,7 +38,7 @@ def get_multiple_purchase_orders(self, request):
             if str(data_json['action']).lower() == "get":
                 start = int(data_json["start"])
                 end = int(data_json["end"])
-                response_json = {'status':'', 'p_orders':[]}
+                response_json = {'status':'', 'purchase_orders':[]}
                 if str(data_json['filter']).lower() == "none":
                     orders = PurchaseOrder.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "status":
@@ -55,7 +55,7 @@ def get_multiple_purchase_orders(self, request):
                 if str(data_json['filter']).lower() == "added_by":
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
                     orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end]            
-                response_json['p_orders'] = purchase_orders_to_json(orders)
+                response_json['purchase_orders'] = purchase_orders_to_json(orders)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -94,7 +94,7 @@ def add_new_purchase_order(self,request):
                 )
                 purchase_order.save()
                 response_json['status'] = True
-                response_json['p_orders'] = purchase_orders_to_json([purchase_order])
+                response_json['purchase_orders'] = purchase_orders_to_json([purchase_order])
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -1119,7 +1119,7 @@ def add_new_purchase_item(self, request):
                     item = Item.objects.get(id=int(data_json['item'])),
                     purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order'])),
                     quantity = int(data_json['quantity']),
-                    purchase_price = data_json['purchase_price'],
+                    non_discount_price = data_json['non_discount_price'],
                     defective = int(data_json['defective']),
                     discount_type = data_json['discount_type'],
                     discount = float(data_json['discount']),
