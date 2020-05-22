@@ -47,7 +47,7 @@ def items_to_json(items):
     data = []
     for item in items:
         temp = ItemSerializer(item).data
-        temp['catagory_str'] = str(ItemCatagory.objects.get(id=temp['catagory']))
+        temp['catagory_str'] = str(item.catagory)
         # temp['product_image'] = item.product_image.url()
         # print(item.product_thumbnail_image.url())
         # print(item.product_image.__url)
