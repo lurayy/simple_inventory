@@ -16,7 +16,7 @@ from user_handler.permission_check import bind, check_permission
 
 @require_http_methods(['POST'])
 @bind
-def get_multiple_invoices(request):
+def get_multiple_invoices(self, request):
     ''' fucntion to get data from sales, will add filter later
     filter = None
     {
@@ -103,7 +103,7 @@ def get_multiple_invoices(request):
 
 @require_http_methods(['POST'])
 @bind
-def add_new_invoice(request):
+def add_new_invoice(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         response_json = {'status':False}
         try:
@@ -135,7 +135,7 @@ def add_new_invoice(request):
 @require_http_methods(['POST'])
 @bind
 #update invoice order 
-def update_invoice(request):
+def update_invoice(self, request):
     ''' To get data about single purchase order
     To get info about a single invoice, trigger /apiv1/inventory/porders/<invoice_id>/
     To update the data, you can POST on the same link: 
@@ -161,7 +161,6 @@ def update_invoice(request):
             if data_json['action'] == "update":
                 new_status = InvoiceStatus.objects.get(id=data_json['status']) 
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
-                
                 if (new_status == invoice.status and invoice.status.is_sold ==True):
                     raise Exception("Cannot update Invoice Or Invoice Item if it's already sold.")
                 elif (new_status != invoice.status):
@@ -183,7 +182,7 @@ def update_invoice(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_invoice_details(request):
+def get_invoice_details(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         response_json = {'status':False}
         try:
@@ -203,7 +202,7 @@ def get_invoice_details(request):
 
 @require_http_methods(['POST'])
 @bind
-def delete_invoices(request):
+def delete_invoices(self, request):
     '''
     {
         "invoices_id":[
@@ -236,7 +235,7 @@ def delete_invoices(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_multiple_customers(request):
+def get_multiple_customers(self, request):
     '''
     Fucntion to get and add customers data
     POST Format:
@@ -283,7 +282,7 @@ def get_multiple_customers(request):
 
 @require_http_methods(['POST'])
 @bind
-def add_new_customer(request):
+def add_new_customer(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         response_json = {'status':False}
         try:
@@ -313,7 +312,7 @@ def add_new_customer(request):
 
 @require_http_methods(['POST'])
 @bind
-def delete_customers(request):
+def delete_customers(self, request):
     '''
     {
         "customers_id":[
@@ -344,7 +343,7 @@ def delete_customers(request):
 
 @require_http_methods(['POST'])
 @bind
-def update_customer(request):
+def update_customer(self, request):
     '''
     TO get data [GET] to the url : /apiv1/sales/customers/<customer id>
     To update [POST] 
@@ -396,7 +395,7 @@ def update_customer(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_customer_details(request):
+def get_customer_details(self, request):
     response_json = {'status':False, 'customers':[]}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -416,7 +415,7 @@ def get_customer_details(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_customer_categories(request):
+def get_customer_categories(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try: 
@@ -439,7 +438,7 @@ def get_customer_categories(request):
 
 @require_http_methods(['POST'])
 @bind
-def add_new_invoice_item(request):
+def add_new_invoice_item(self, request):
     '''
     function to add purchase item 
     {
@@ -491,7 +490,7 @@ def add_new_invoice_item(request):
 
 @require_http_methods(['POST'])
 @bind
-def update_invoice_item(request):
+def update_invoice_item(self, request):
     '''
     function to update purchase item 
     {
@@ -542,7 +541,7 @@ def update_invoice_item(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_invoice_item_details(request):
+def get_invoice_item_details(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -560,7 +559,7 @@ def get_invoice_item_details(request):
         
 @require_http_methods(['POST'])
 @bind
-def delete_invoice_items(request):
+def delete_invoice_items(self, request):
     '''
         {
             "invoice_items_id":[
@@ -589,7 +588,7 @@ def delete_invoice_items(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_multiple_discounts(request):
+def get_multiple_discounts(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
@@ -609,7 +608,7 @@ def get_multiple_discounts(request):
 
 @require_http_methods(['POST'])
 @bind
-def add_new_discount(request):
+def add_new_discount(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -635,7 +634,7 @@ def add_new_discount(request):
 
 @require_http_methods(['POST'])
 @bind
-def update_discount(request):
+def update_discount(self, request):
     response_json =  {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -657,7 +656,7 @@ def update_discount(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_discount_details(request):
+def get_discount_details(self, request):
     response_json =  {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -677,7 +676,7 @@ def get_discount_details(request):
 
 @require_http_methods(['POST'])
 @bind
-def delete_discount(request):
+def delete_discount(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -698,7 +697,7 @@ def delete_discount(request):
 
 @require_http_methods(['POST'])
 @bind
-def add_new_tax(request):
+def add_new_tax(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -721,7 +720,7 @@ def add_new_tax(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_multiple_taxes(request):
+def get_multiple_taxes(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -740,7 +739,7 @@ def get_multiple_taxes(request):
 
 @require_http_methods(['POST'])
 @bind
-def update_tax(request):
+def update_tax(self, request):
     response_json =  {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -764,7 +763,7 @@ def update_tax(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_tax_details(request):
+def get_tax_details(self, request):
     response_json =  {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -783,7 +782,7 @@ def get_tax_details(request):
 
 @require_http_methods(['POST'])
 @bind
-def delete_taxes(request):
+def delete_taxes(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
@@ -805,7 +804,7 @@ def delete_taxes(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_invoice_status(request):
+def get_invoice_status(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         statuss = InvoiceStatus.objects.all()
         data = []
@@ -819,7 +818,7 @@ def get_invoice_status(request):
 
 @require_http_methods(['POST'])
 @bind
-def export_sales_data(request):
+def export_sales_data(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         return JsonResponse({'status':True}) 
     else:

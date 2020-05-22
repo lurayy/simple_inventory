@@ -12,7 +12,7 @@ from user_handler.permission_check import bind, check_permission
 
 @require_http_methods(['POST'])
 @bind
-def get_multiple_gift_cards(request):
+def get_multiple_gift_cards(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         response_json = {'status':False, 'gift_cards':[]}
         try:
@@ -43,7 +43,7 @@ def get_multiple_gift_cards(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_gift_card_details(request):
+def get_gift_card_details(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
@@ -64,7 +64,7 @@ def get_gift_card_details(request):
 
 @require_http_methods(['POST'])
 @bind
-def delete_gift_cards(request):
+def delete_gift_cards(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
@@ -84,7 +84,7 @@ def delete_gift_cards(request):
 
 @require_http_methods(['POST'])
 @bind
-def update_gift_card(request):
+def update_gift_card(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
@@ -115,7 +115,7 @@ def update_gift_card(request):
 
 @require_http_methods(['POST'])
 @bind
-def delete_unique_cards(request):
+def delete_unique_cards(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
@@ -136,7 +136,7 @@ def delete_unique_cards(request):
 
 @require_http_methods(['POST'])
 @bind
-def validate_gift_card(request):
+def validate_gift_card(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
@@ -192,7 +192,7 @@ def validate_gift_card(request):
 
 @require_http_methods(['POST'])
 @bind
-def get_payment_methods(request):
+def get_payment_methods(self, request):
     response_json = {'status':'', 'payment_methods':''}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:  
@@ -212,7 +212,7 @@ def get_payment_methods(request):
 
 @require_http_methods(['POST'])
 @bind
-def apply_payment(request):
+def apply_payment(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
