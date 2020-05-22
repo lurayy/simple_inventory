@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'accounting',
     'payment',
     'corsheaders',
     'landing_pages',
