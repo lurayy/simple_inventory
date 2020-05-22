@@ -179,12 +179,11 @@ def s_user(request):
                 user_json['name'] = f'{user.first_name} {user.last_name}'
                 user_json['first_name'] = user.first_name
                 user_json['last_name'] = user.last_name
-                user_json['status'] = str(user.user_type)
                 user_json['username'] = str(user.username)
                 user_json['is_active'] = user.is_active
                 user_json['email'] = str(user.email)
                 user_json['uuid'] = str(user.uuid)
-                user_json['role'] = int(user.role)
+                user_json['role'] = (user.role.id)
                 user_json['role_str'] = str(user.role)
                 user_json['roles_given'] = CustomPermissionSerializer(user.role).data
                 user_json['status'] = True
