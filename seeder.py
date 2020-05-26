@@ -2,6 +2,7 @@ import os, django
 
 os.environ.setdefault("DJANGO_SETTING_MODULE", "simple_im.settings")
 django.setup()
+import datetime
 
 import random
 from faker import Faker
@@ -10,7 +11,7 @@ from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, I
 from sales.models import Invoice, InvoiceItem
 from payment.models import GiftCard, UniqueCard, GiftCardCategory
 from user_handler.models_permission import CustomPermission
-
+from accounting.models import EntryType, LedgerEntry, Account
 USER_COUNT = 2
 VENDOR_COUNT = 5
 CUSTOMER_COUNT = 10
@@ -25,13 +26,14 @@ GIFT_CARD_COUNT = 10
 CATEGORY = 5
 #calculate placement from place and purchase_order_item
 
+Ledger_Count = 400
 
 PURCHASE_ORDER_STATUS = 3
 PURCHASE_ORDER_COUNT = 5
 PURCHASE_ORDER_ITEM_COUNT = 25
 
-INVOICE_COUNT = 50
-INVOICE_ITEM_COUNT = 100
+INVOICE_COUNT = 5
+INVOICE_ITEM_COUNT = 10
 
 Faker.seed(22506)
 
@@ -284,3 +286,27 @@ for _ in range (GIFT_CARD_COUNT):
     )
     temp.save()
     print (temp.name)
+
+
+headers = [
+        'assets','liabilities','revenue','expense','draw','equity'
+    ]
+
+headers_obj = []
+for header in headers:
+    temp = EntryType.objects.create(
+        name = header,
+        header = header,
+    )
+    temp.save()
+    headers_obj.append(temp)
+
+for i in range(Ledger_Count):
+    temp = LedgerEntry.objects.create(
+        header = headers_obj[random.randint(0, len(headers_obj)-1)],
+        date = datetime.datetime.now(),
+        amount = random.randint(10, 100000)
+    )
+    temp.save()
+    print('entry: ',i)
+

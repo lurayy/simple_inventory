@@ -39,7 +39,33 @@ class PurchaseOrder(models.Model):
         for item in self.items.filter(is_active=True):
             self.total_cost = self.total_cost + item.purchase_price*(item.quantity)
         super(PurchaseOrder, self).save(*args, **kwargs)
-
+        # settings = AccountingSettings.objects.all()[0]
+        # remarks_str = "Purchase "+str(self.uuid)
+        # if self.discount == "fixed":
+        #     purchase_cost  = self.total_cost - self.discount
+        # else:
+        #     purchase_cost  = self.total_cost - self.total_cost*0.01*self.discount
+        # try:
+        #     remarks_str = "Purchase "+str(self.uuid)
+        #     entry = LedgerEntry.objects.filter(remarks = remarks_str, account = settings.default_purchase_account)
+        # except:
+        #     dr_entry = LedgerEntry.objects.create(
+        #         account = settings.default_purchase_account,
+        #         remarks = remarks_str,
+        #         date = datetime.datetime.now(),
+        #         header = settings.default_purchase_order_entry_type_on_dr,
+        #         amount = self.purchase_cost
+        #     )
+        #     dr_entry.save()
+        #     cr_entry = LedgerEntry.objects.create(
+        #         account = settings.default_purchase_account,
+        #         remarks = remarks_str,
+        #         date = datetime.datetime.now(),
+        #         header = settings.default_purchase_order_entry_type_on_cr,
+        #         amount = self.purchase_cost
+        #     )
+        #     cr_entry.save()
+            
 
 @receiver(models.signals.post_save, sender=PurchaseOrder)
 def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
