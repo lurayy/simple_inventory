@@ -21,8 +21,8 @@ ITEM_CATAGORY_COUNT = 4
 ITEM_COUNT = 8
 
 PLACE_COUNT = 5
-GIFT_CARD_COUNT = 100
-CATEGORY = 10
+GIFT_CARD_COUNT = 10
+CATEGORY = 5
 #calculate placement from place and purchase_order_item
 
 

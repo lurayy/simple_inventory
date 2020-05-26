@@ -1127,6 +1127,20 @@ def add_new_purchase_item(self, request):
                     )                
                 purchase_item.save()
                 response_json = {'status':True}
+            if data_json['action'] == "add_multiple":
+                for purchase_items_json in data_json['purchase_items']:
+                    purchase_item = PurchaseItem.objects.create(
+                        item = Item.objects.get(id=int(purchase_items_json['item'])),
+                        purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order'])),
+                        quantity = int(purchase_items_json['quantity']),
+                        non_discount_price = purchase_items_json['non_discount_price'],
+                        defective = int(purchase_items_json['defective']),
+                        discount_type = purchase_items_json['discount_type'],
+                        discount = float(purchase_items_json['discount']),
+                        status = purchase_items_json['status']
+                        )                
+                    purchase_item.save()
+                response_json = {'status':True}
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
