@@ -196,6 +196,7 @@ for i in range(PURCHASE_ORDER_COUNT-1):
         )
         temp.save()
         temp.save()
+    purchase_order.save()
 
 
 for order in PurchaseOrder.objects.all():

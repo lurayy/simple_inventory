@@ -69,7 +69,6 @@ class PurchaseOrder(models.Model):
 
 @receiver(models.signals.post_save, sender=PurchaseOrder)
 def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
-    instance.total_cost = 0
     if instance.status.is_end == True:
         for item in instance.items.filter(is_active=True):
             item.status = "addedtocirculation"
@@ -277,6 +276,7 @@ def pre_save_handler(sender, instance, *args, **kwargs):
         instance.purchase_price = instance.non_discount_price - instance.discount
     else:
         instance.purchase_price = instance.non_discount_price - instance.non_discount_price*instance.discount/100
+    
         
 
 @receiver(post_save, sender=PurchaseItem)

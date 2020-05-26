@@ -82,7 +82,6 @@ def add_new_purchase_order(self,request):
                 valid_data = VerifyJSONWebTokenSerializer().validate({'token':request.headers['Authorization'].split(' ')[1]})
                 user = valid_data['user']
                 purchase_order = PurchaseOrder.objects.create(
-                    total_cost = data_json['total_cost'],
                     discount_type = data_json['discount_type'],
                     discount = data_json['discount'],
                     added_by = user,
@@ -154,7 +153,6 @@ def update_purchase_order(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
-                purchase_order.total_cost = data_json['total_cost']
                 purchase_order.discount_type = data_json['discount_type']
                 purchase_order.discount = data_json['discount']
                 purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
@@ -1126,6 +1124,7 @@ def add_new_purchase_item(self, request):
                     status = data_json['status']
                     )                
                 purchase_item.save()
+                purchase_item.purchase_order.save()
                 response_json = {'status':True}
             if data_json['action'] == "add_multiple":
                 for purchase_items_json in data_json['purchase_items']:
@@ -1140,6 +1139,7 @@ def add_new_purchase_item(self, request):
                         status = purchase_items_json['status']
                         )                
                     purchase_item.save()
+                    purchase_item.purchase_order.save()
                 response_json = {'status':True}
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -1178,7 +1178,6 @@ def get_purchase_item_details(self, request):
             if data_json['action'] == 'get':
                 print(data_json)
                 if data_json['filter'] == 'uuid':
-                    print("here")
                     purchase_item = PurchaseItem.objects.get(uuid=data_json['uuid'])
                     return JsonResponse({'status':True, 'purchase_item':  purchase_items_to_json([purchase_item])})
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -1204,6 +1203,7 @@ def update_purchase_item(self, request):
             purchase_item.discount = float(data_json['discount'])
             purchase_item.status = data_json['status']    
             purchase_item.save()
+            purchase_item.purchase_order.save()
             response_json = {'status':True}
         return JsonResponse(response_json)
     else:
@@ -1226,12 +1226,17 @@ def delete_purchase_items(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             ids = data_json['purchase_items_id']
+            orders = []
             for id in ids:
                 z = PurchaseItem.objects.get(id=int(id))
+                if z.purchase_order not in orders:
+                    orders.append(z.purchase_order) 
                 z.is_active = False
                 z.status = 'incomplete'
                 z.save()
                 z.delete()
+            for order in orders:
+                order.save()
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
