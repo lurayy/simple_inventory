@@ -1205,6 +1205,20 @@ def update_purchase_item(self, request):
             purchase_item.save()
             purchase_item.purchase_order.save()
             response_json = {'status':True}
+        if data_json['action'] == 'update_multiple':
+            for purchase_item_json in data_json['purchase_items']:
+                purchase_item = PurchaseItem.objects.get(id=purchase_item_json['id'])
+                purchase_item.status = 'incomplete'
+                purchase_item.save()
+                purchase_item.quantity = int(purchase_item_json['quantity'])
+                purchase_item.purchase_price = float(purchase_item_json['purchase_price'])
+                purchase_item.defective = int(purchase_item_json['defective'])
+                purchase_item.discount_type = purchase_item_json['discount_type']
+                purchase_item.discount = float(purchase_item_json['discount'])
+                purchase_item.status = purchase_item_json['status']    
+                purchase_item.save()
+                purchase_item.purchase_order.save()
+            response_json = {'status':True}
         return JsonResponse(response_json)
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
