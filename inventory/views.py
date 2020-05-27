@@ -1212,7 +1212,6 @@ def update_purchase_item(self, request):
                     purchase_item.status = 'incomplete'
                     purchase_item.save()
                     purchase_item.quantity = int(purchase_item_json['quantity'])
-                    purchase_item.purchase_price = float(purchase_item_json['purchase_price'])
                     purchase_item.defective = int(purchase_item_json['defective'])
                     purchase_item.discount_type = purchase_item_json['discount_type']
                     purchase_item.discount = float(purchase_item_json['discount'])
