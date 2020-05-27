@@ -1,6 +1,10 @@
 from django.db import models
 from user_handler.models import Customer, Vendor
 import uuid 
+from django.dispatch import receiver
+from django.db.models.signals import pre_save, post_save
+
+from inventory.models import PurchaseOrder
 
 class EntryType(models.Model):
     name = models.CharField(max_length=255)
@@ -13,8 +17,9 @@ class EntryType(models.Model):
         ('draw', 'Draw'),
         ('equity', 'Equity'),
     )
-    header = models.CharField(max_length=20, choices=HEADER_CHOICE, default='income')
+    header = models.CharField(max_length=20, choices=HEADER_CHOICE, default='assets')
     is_active = models.BooleanField(default=True)
+    is_credit = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.name} {self.header}'
@@ -49,6 +54,17 @@ class LedgerEntry(models.Model):
 
     def __str__(self):
         return f'{self.account} {self.date}'
+    
+    def save(self):
+        if self.id:
+            raise Exception("Ledger Entries are read-only.")
+    
+
+@receiver(models.signals.post_save, sender=LedgerEntry)
+def ledger_entry_post_save(sender, instance, *args, **kwargs):
+    pass
+
+
 
 class MonthlyStats(models.Model):
     total_assets = models.FloatField()
@@ -85,8 +101,10 @@ class AccountingSettings(models.Model):
 
 class DefaultLedgerEntry(models.Model):
     from payment.models import PaymentMethod
-
     payment_method = models.OneToOneField(PaymentMethod, on_delete=models.CASCADE)
     entry_type_on_cr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_cr')
     entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_dr')
 
+@receiver(models.signals.post_save, sender=PurchaseOrder)
+def handle_accounting_post_save(sender, instance, *args, **kwargs):
+    pass

@@ -1192,34 +1192,37 @@ def update_purchase_item(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)
-        if data_json['action'] == "update":
-            purchase_item = PurchaseItem.objects.get(id=data_json['id'])
-            purchase_item.status = 'incomplete'
-            purchase_item.save()
-            purchase_item.quantity = int(data_json['quantity'])
-            purchase_item.purchase_price = float(data_json['purchase_price'])
-            purchase_item.defective = int(data_json['defective'])
-            purchase_item.discount_type = data_json['discount_type']
-            purchase_item.discount = float(data_json['discount'])
-            purchase_item.status = data_json['status']    
-            purchase_item.save()
-            purchase_item.purchase_order.save()
-            response_json = {'status':True}
-        if data_json['action'] == 'update_multiple':
-            for purchase_item_json in data_json['purchase_items']:
-                purchase_item = PurchaseItem.objects.get(id=purchase_item_json['id'])
+        try:
+            if data_json['action'] == "update":
+                purchase_item = PurchaseItem.objects.get(id=data_json['id'])
                 purchase_item.status = 'incomplete'
                 purchase_item.save()
-                purchase_item.quantity = int(purchase_item_json['quantity'])
-                purchase_item.purchase_price = float(purchase_item_json['purchase_price'])
-                purchase_item.defective = int(purchase_item_json['defective'])
-                purchase_item.discount_type = purchase_item_json['discount_type']
-                purchase_item.discount = float(purchase_item_json['discount'])
-                purchase_item.status = purchase_item_json['status']    
+                purchase_item.quantity = int(data_json['quantity'])
+                purchase_item.purchase_price = float(data_json['purchase_price'])
+                purchase_item.defective = int(data_json['defective'])
+                purchase_item.discount_type = data_json['discount_type']
+                purchase_item.discount = float(data_json['discount'])
+                purchase_item.status = data_json['status']    
                 purchase_item.save()
                 purchase_item.purchase_order.save()
-            response_json = {'status':True}
-        return JsonResponse(response_json)
+                response_json = {'status':True}
+            if data_json['action'] == 'update_multiple':
+                for purchase_item_json in data_json['purchase_items']:
+                    purchase_item = PurchaseItem.objects.get(id=purchase_item_json['id'])
+                    purchase_item.status = 'incomplete'
+                    purchase_item.save()
+                    purchase_item.quantity = int(purchase_item_json['quantity'])
+                    purchase_item.purchase_price = float(purchase_item_json['purchase_price'])
+                    purchase_item.defective = int(purchase_item_json['defective'])
+                    purchase_item.discount_type = purchase_item_json['discount_type']
+                    purchase_item.discount = float(purchase_item_json['discount'])
+                    purchase_item.status = purchase_item_json['status']    
+                    purchase_item.save()
+                    purchase_item.purchase_order.save()
+                response_json = {'status':True}
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
