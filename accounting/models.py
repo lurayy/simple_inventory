@@ -61,8 +61,18 @@ class LedgerEntry(models.Model):
     
 
 @receiver(models.signals.post_save, sender=LedgerEntry)
-def ledger_entry_post_save(sender, instance, *args, **kwargs):
-    pass
+def ledger_entry_post_save(sender, instance, created, **kwargs):
+    if created:
+        if instance.header.is_credit:
+            instance.account.credit = instance.account.credit + instance.amount
+        else:
+            temp = instance.account.credit - instance.amount
+            if temp < 0:
+                instance.account.due = temp * -1
+            else:
+                instance.account.credit = temp
+        instance.account.save()
+
 
 
 
@@ -106,5 +116,5 @@ class DefaultLedgerEntry(models.Model):
     entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_dr')
 
 @receiver(models.signals.post_save, sender=PurchaseOrder)
-def handle_accounting_post_save(sender, instance, *args, **kwargs):
+def handle_accounting_post_save(sender, instance, created, **kwargs):
     pass
