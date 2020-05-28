@@ -55,23 +55,18 @@ class LedgerEntry(models.Model):
     def __str__(self):
         return f'{self.account} {self.date}'
     
-    def save(self):
-        if self.id:
-            raise Exception("Ledger Entries are read-only.")
-    
-
-@receiver(models.signals.post_save, sender=LedgerEntry)
-def ledger_entry_post_save(sender, instance, created, **kwargs):
-    if created:
-        if instance.header.is_credit:
-            instance.account.credit = instance.account.credit + instance.amount
-        else:
-            temp = instance.account.credit - instance.amount
-            if temp < 0:
-                instance.account.due = temp * -1
-            else:
-                instance.account.credit = temp
-        instance.account.save()
+# @receiver(models.signals.post_save, sender=LedgerEntry)
+# def ledger_entry_post_save(sender, instance, created, **kwargs):
+#     if created:
+#         if instance.header.is_credit:
+#             instance.account.credit = instance.account.credit + instance.amount
+#         else:
+#             temp = instance.account.credit - instance.amount
+#             if temp < 0:
+#                 instance.account.due = temp * -1
+#             else:
+#                 instance.account.credit = temp
+#         instance.account.save()
 
 
 
