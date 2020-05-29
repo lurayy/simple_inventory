@@ -486,29 +486,33 @@ def add_new_invoice_item(self, request):
                 invoice_item.invoice.save()
                 invoice_item.invoice.save()
                 response_json = {'status':True}
-            if data_json['action'] == "multiple_add":
+            if data_json['action'] == "add_multiple":
                 for invoice_item_json in data_json['invoice_items']:
-                    invoice_item = InvoiceItem.objects.create(
-                        item = Item.objects.get(id=int(invoice_item_json['item'])),
-                        purchase_item = PurchaseItem.objects.get(id=int(invoice_item_json['purchase_item'])),
-                        sold_from = Place.objects.get(id=int(invoice_item_json['sold_from'])),
-                        invoice = Invoice.objects.get(id=int(invoice_item_json['invoice'])),
-                        quantity = int(invoice_item_json['quantity']),
-                        price = float(invoice_item_json['price']),
-                        )
-                    invoice_item.save()
-                    for dis_id in invoice_item_json['discounts']:
-                        dis = Discount.objects.get(id=int(dis_id))
-                        invoice_item.discount.add(dis)
-                    for tax_id in invoice_item_json['taxes']:
-                        tax = Tax.objects.get(id=int(tax_id))
-                        invoice_item.taxes.add(tax)
-                    invoice_item.save()
-                    invoice_item.invoice.save()
-                    invoice_item.invoice.save()
+                    try:
+                        invoice_item = InvoiceItem.objects.create(
+                            item = Item.objects.get(id=int(invoice_item_json['item'])),
+                            purchase_item = PurchaseItem.objects.get(id=int(invoice_item_json['purchase_item'])),
+                            sold_from = Place.objects.get(id=int(invoice_item_json['sold_from'])),
+                            invoice = Invoice.objects.get(id=int(invoice_item_json['invoice'])),
+                            quantity = invoice_item_json['quantity'],
+                            price = invoice_item_json['price'],
+                            )
+                        invoice_item.save()
+                        for dis_id in invoice_item_json['discounts']:
+                            dis = Discount.objects.get(id=int(dis_id))
+                            invoice_item.discount.add(dis)
+                        for tax_id in invoice_item_json['taxes']:
+                            tax = Tax.objects.get(id=int(tax_id))
+                            invoice_item.taxes.add(tax)
+                        invoice_item.save()
+                        invoice_item.invoice.save()
+                        invoice_item.invoice.save()
+                        print(invoice_item)
+                    except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+                        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 response_json = {'status':True}
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
