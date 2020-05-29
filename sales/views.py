@@ -507,7 +507,6 @@ def add_new_invoice_item(self, request):
                         invoice_item.save()
                         invoice_item.invoice.save()
                         invoice_item.invoice.save()
-                        print(invoice_item)
                     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
                         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 response_json = {'status':True}
