@@ -13,6 +13,8 @@ from user_handler.models import Customer, CustomUserBase, Tax, Discount, Custome
 from .serializers import InvoiceStatusSerializer
 from user_handler.permission_check import bind, check_permission
 
+from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
+
 
 @require_http_methods(['POST'])
 @bind
