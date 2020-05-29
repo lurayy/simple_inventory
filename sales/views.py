@@ -129,7 +129,7 @@ def add_new_invoice(self, request):
                 )
                 invoice.save()
                 response_json['status'] = True
-                response_json['invoice'] = invoices_to_json(invoice)
+                response_json['invoice'] = invoices_to_json([invoice])
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
