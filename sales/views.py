@@ -113,8 +113,10 @@ def add_new_invoice(self, request):
                 stat = InvoiceStatus.objects.filter(is_active=True, is_sold=False)
                 if (len(stat) == 0):
                     raise Exception("Create a invoice status first. Contact Admin.")
+                valid_data = VerifyJSONWebTokenSerializer().validate({'token':request.headers['Authorization'].split(' ')[1]})
+                user = valid_data['user']
                 invoice = Invoice.objects.create(
-                    added_by = CustomUserBase.objects.get(id=int(request.user.id)),
+                    added_by = user,
                     customer = Customer.objects.get(id=int(data_json['customer'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     due_on = str_to_datetime(data_json['due_on']),
