@@ -126,7 +126,7 @@ def add_new_invoice(self, request):
                 invoice.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -194,7 +194,7 @@ def get_invoice_details(self, request):
                 response_json['invoice_items'] = invoice_items_to_json(InvoiceItem.objects.filter(invoice=invoice))
                 response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -304,7 +304,7 @@ def add_new_customer(self, request):
                 response_json['customers'] = customers_to_json([customer])
                 response_json = {'status':True}
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})  
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -406,7 +406,7 @@ def get_customer_details(self, request):
                 response_json['customers'] = customers_to_json([customer])
                 response_json['status'] = True
             return JsonResponse(response_json)        
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -597,7 +597,7 @@ def get_invoice_item_details(self, request):
                 response_json['invoice_items'] = invoice_items_to_json([invoice_item])
                 response_json['status'] = True
             return JsonResponse(response_json)            
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -670,7 +670,7 @@ def add_new_discount(self, request):
                 response_json['discounts'] = discounts_to_json([discount])
                 response_json = {'status':True}
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -712,7 +712,7 @@ def get_discount_details(self, request):
                 response_json['discounts'] = discounts_to_json(discounts)
                 response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -777,7 +777,7 @@ def get_multiple_taxes(self, request):
                     response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
                 return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -819,7 +819,7 @@ def get_tax_details(self, request):
                 response_json['taxes'] = taxes_to_json([taxes])
                 response_json['status'] = True
             return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
