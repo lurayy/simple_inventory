@@ -24,11 +24,25 @@ class EntryType(models.Model):
     def __str__(self):
         return f'{self.name} {self.header}'
 
+class AccountType(models.Model):
+    name = models.CharField(max_length=255)
+
+    HEADER_CHOICE = (
+        ('assets', 'Assets'),
+        ('liabilities', 'Liabilities'),
+        ('revenue', 'Revenue'),
+        ('expense', 'Expense'),
+    )
+    header = models.CharField(max_length=20, choices=HEADER_CHOICE, default='assets')
+
+    def __str__(self):
+        return f'{self.name} {self.header}'
+
+
 class Account(models.Model):
     uuid = models.UUIDField(unique=True,default= uuid.uuid4)
+    account_type = models.ForeignKey(AccountType, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
-    vendor = models.OneToOneField(Vendor, on_delete=models.CASCADE, blank=True, null=True)
-    customer = models.OneToOneField(Customer, on_delete=models.CASCADE, blank=True, null=True)
     opening_balance = models.FloatField(default=0)
     closing_balance = models.FloatField(default=0, blank=True, null=True)
     opening_date = models.DateTimeField()
@@ -36,11 +50,13 @@ class Account(models.Model):
     due = models.FloatField(default=0)
     credit = models.FloatField(default=0)
 
+    parent = models.ForeignKey('Account', on_delete=models.SET_NULL, blank=True, null=True)
+
     is_active = models.BooleanField(default=True)
     is_closed = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.name} {self.opening_balance}'
 
 
 class LedgerEntry(models.Model):
@@ -55,20 +71,23 @@ class LedgerEntry(models.Model):
     def __str__(self):
         return f'{self.account} {self.date}'
     
-# @receiver(models.signals.post_save, sender=LedgerEntry)
-# def ledger_entry_post_save(sender, instance, created, **kwargs):
-#     if created:
-#         if instance.header.is_credit:
-#             instance.account.credit = instance.account.credit + instance.amount
-#         else:
-#             temp = instance.account.credit - instance.amount
-#             if temp < 0:
-#                 instance.account.due = temp * -1
-#             else:
-#                 instance.account.credit = temp
-#         instance.account.save()
+    def save(self, *args, **kwargs):
+        if self.id:
+            raise Exception("Cannot update ledger entry.")
 
 
+@receiver(models.signals.post_save, sender=LedgerEntry)
+def ledger_entry_post_save(sender, instance, created, **kwargs):
+    if created:
+        if instance.header.is_credit:
+            instance.account.credit = instance.account.credit + instance.amount
+        else:
+            temp = instance.account.credit - instance.amount
+            if temp < 0:
+                instance.account.due = temp * -1
+            else:
+                instance.account.credit = temp
+        instance.account.save()
 
 
 class MonthlyStats(models.Model):
@@ -98,8 +117,6 @@ class AccountingSettings(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk and AccountingSettings.objects.exists():
-        # if you'll not check for self.pk 
-        # then error will also raised in update of exists model
             raise Exception('There is can be only one AccountingSettings instance')
         return super(AccountingSettings, self).save(*args, **kwargs)
 
