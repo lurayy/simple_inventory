@@ -302,12 +302,12 @@ for header in headers:
     temp.save()
     headers_obj.append(temp)
 
-for i in range(Ledger_Count):
-    temp = LedgerEntry.objects.create(
-        entry_type = headers_obj[random.randint(0, len(headers_obj)-1)],
-        date = datetime.datetime.now(),
-        amount = random.randint(10, 100000)
-    )
-    temp.save()
-    print('entry: ',i)
+# for i in range(Ledger_Count):
+#     temp = LedgerEntry.objects.create(
+#         entry_type = headers_obj[random.randint(0, len(headers_obj)-1)],
+#         date = datetime.datetime.now(),
+#         amount = random.randint(10, 100000)
+#     )
+#     temp.save()
+#     print('entry: ',i)
 

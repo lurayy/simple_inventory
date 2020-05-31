@@ -69,7 +69,7 @@ class Account(models.Model):
 
 
 class LedgerEntry(models.Model):
-    account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, blank=True)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     entry_type = models.ForeignKey(EntryType, on_delete=models.CASCADE)
     remarks = models.TextField(null=True, blank=True)
     date = models.DateTimeField()
