@@ -21,6 +21,8 @@ class EntryType(models.Model):
     is_active = models.BooleanField(default=True)
     is_credit = models.BooleanField(default=False)
 
+    is_active = models.BooleanField(default=True)
+
     def __str__(self):
         return f'{self.name} {self.header}'
 
@@ -34,6 +36,8 @@ class AccountType(models.Model):
         ('expense', 'Expense'),
     )
     header = models.CharField(max_length=20, choices=HEADER_CHOICE, default='assets')
+
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.name} {self.header}'
@@ -117,6 +121,7 @@ class MonthlyStats(models.Model):
     to_pay = models.FloatField(default=0)
     date = models.DateTimeField(default=0)
 
+    is_active = models.BooleanField(default=True)
 
 class AccountingSettings(models.Model):
     default_purchase_order_entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='purchase_order_default_entries_dr')
@@ -128,6 +133,8 @@ class AccountingSettings(models.Model):
     default_purchase_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_purchases')
 
     default_sales = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_sales')
+
+    is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         if not self.pk and AccountingSettings.objects.exists():
@@ -141,6 +148,8 @@ class DefaultLedgerEntry(models.Model):
     entry_type_on_cr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_cr')
     entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_dr')
 
+    is_active = models.BooleanField(default=True)
+    
 # @receiver(models.signals.post_save, sender=PurchaseOrder)
 # def handle_accounting_post_save(sender, instance, created, **kwargs):
 #     pass

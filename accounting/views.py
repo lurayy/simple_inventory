@@ -1,1 +1,2 @@
-from .views_collection.accounts import get_multiple_accounts, add_new_account, get_account_details, delete_accounts, update_account 
+from .views_collection.accounts import get_multiple_accounts, add_new_account, get_account_details, delete_accounts, update_account
+from .views_collection.types_curd import get_account_types

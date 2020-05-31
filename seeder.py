@@ -264,29 +264,29 @@ for order in PurchaseOrder.objects.all():
 #     invoice.status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
 #     invoice.save()
 
-for i in range (CATEGORY):
-    name = "category_"+str(i)
-    temp = GiftCardCategory.objects.create(
-        name= name
-    )
-    print(str(temp))
-    temp.save()
+# for i in range (CATEGORY):
+#     name = "category_"+str(i)
+#     temp = GiftCardCategory.objects.create(
+#         name= name
+#     )
+#     print(str(temp))
+#     temp.save()
 
-category = GiftCardCategory.objects.all()
+# category = GiftCardCategory.objects.all()
 
-for _ in range (GIFT_CARD_COUNT):
-    temp = GiftCard.objects.create(
-        name = fake.last_name(),
-        category = category[random.randint(0,len(category)-1)],
-        code = fake.first_name(),
-        rate = random.randint(0,50),
-        count_limit = random.randint(5,100),
-        is_limited = True,
-        has_unique_codes = True,
-        is_active = True
-    )
-    temp.save()
-    print (temp.name)
+# for _ in range (GIFT_CARD_COUNT):
+#     temp = GiftCard.objects.create(
+#         name = fake.last_name(),
+#         category = category[random.randint(0,len(category)-1)],
+#         code = fake.first_name(),
+#         rate = random.randint(0,50),
+#         count_limit = random.randint(5,100),
+#         is_limited = True,
+#         has_unique_codes = True,
+#         is_active = True
+#     )
+#     temp.save()
+#     print (temp.name)
 
 
 headers = [
@@ -311,3 +311,7 @@ for header in headers:
 #     temp.save()
 #     print('entry: ',i)
 
+temp = CustomUserBase.objects.get(id=1)
+role = CustomPermission.objects.get(id=1)
+temp.role = role
+temp.save()
