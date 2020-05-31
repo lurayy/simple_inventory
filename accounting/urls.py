@@ -6,4 +6,5 @@ urlpatterns = [
    path('account/add', views.add_new_account),
    path('account/get', views.get_account_details),
    path('accounts/delete', views.delete_accounts),
+   path('account/update', views.update_account)
 ]

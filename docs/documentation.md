@@ -27,13 +27,21 @@
     } 
 ```
 
+## Accounting
+- API: 'api/v1/accouting/'
+- Contains:
+    1. [Accounts] (accounting/accounts.md)
 
+
+
+
+#### Please note documents below has not been updated.
 ## User_handler 
 - Location: '/api/user.js'
 - [UserAPI Documentation](users.md)
 
 ## Inventory 
-- Location: '/api/inventory/...'
+- Location: '/api/v1/inventory/...'
 - Contains: 
     1. [Items](inventory/item.md)
     2. [Items catagory](inventory/item_catagory.md)
@@ -41,3 +49,4 @@
     4. [Purchase Items](inventory/purchase_item.md)
     5. [Purchase Order](inventory/purchase_order.md)
     6. [Vendor](inventory/vendor.md)
+

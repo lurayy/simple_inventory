@@ -143,3 +143,38 @@ def delete_accounts(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def update_account(self, request):
+    '''
+    url : api/v1/accouting/accounts/delete
+    {
+        "action":"delete",
+        "accounts_ids : [1],
+        "accounts_uuids":["a9140902-7863-40f6-b01a-ec5045d38c97"]
+    }
+    '''
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        response_json = {'status':False}
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'])
+            if data_json['action'] == "update":
+                account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'])
+                account.name = data_json['name']
+                account.opening_date = data_json['opening_date']
+                account.parent = Account.objects.get(id=data_json['parent_id'], uuid=data_json['parent_uuid'])
+                account.save()
+            if data_json['action'] == 'close':
+                account.is_closed = True
+                account.save()
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
