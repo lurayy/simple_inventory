@@ -117,6 +117,14 @@ def get_account_details(self, request):
 @require_http_methods(['POST'])
 @bind
 def delete_accounts(self, request):
+    '''
+    url : api/v1/accouting/accounts/delete
+    {
+        "action":"delete",
+        "accounts_ids : [1],
+        "accounts_uuids":["a9140902-7863-40f6-b01a-ec5045d38c97"]
+    }
+    '''
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         response_json = {'status':False}
