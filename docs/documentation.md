@@ -30,7 +30,7 @@
 ## Accounting
 - API: 'api/v1/accouting/'
 - Contains:
-    1. [Accounts] (accounting/accounts.md)
+    1. [Accounts](accounting/accounts.md)
 
 
 
