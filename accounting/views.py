@@ -151,9 +151,14 @@ def update_account(self, request):
     '''
     url : api/v1/accouting/accounts/delete
     {
-        "action":"delete",
-        "accounts_ids : [1],
-        "accounts_uuids":["a9140902-7863-40f6-b01a-ec5045d38c97"]
+        "action":"update/delete/close",
+        "accounts_id" : 1,
+        "accounts_uuid":"a9140902-7863-40f6-b01a-ec5045d38c97",
+        "name": "temp",
+        "opening_date":"2018-12-19T09:26:03.478039",
+        "new_parent":True/False
+        "parent_id":2,
+        "parent_uuid":"a9140902-7863-40f6-b01a-ec5045d38c97"
     }
     '''
     response_json = {'status':False}
@@ -167,7 +172,8 @@ def update_account(self, request):
                 account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'])
                 account.name = data_json['name']
                 account.opening_date = data_json['opening_date']
-                account.parent = Account.objects.get(id=data_json['parent_id'], uuid=data_json['parent_uuid'])
+                if data_json['new_parent']:
+                    account.parent = Account.objects.get(id=data_json['parent_id'], uuid=data_json['parent_uuid'])
                 account.save()
             if data_json['action'] == 'close':
                 account.is_closed = True
