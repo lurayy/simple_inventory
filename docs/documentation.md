@@ -31,6 +31,7 @@
 - API: 'api/v1/accouting/'
 - Contains:
     1. [Accounts](accounting/accounts.md)
+    2. [Account Types](accounting/types.md)
 
 
 

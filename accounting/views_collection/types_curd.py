@@ -13,7 +13,7 @@ from accounting.utils import accounts_to_json, entry_types_to_json, accounts_typ
 
 @require_http_methods(['POST'])
 @bind
-def get_account_types(self, request):
+def get_multiple_account_types(self, request):
     '''
     url : api/v1/accounting/accounts/get
     {
