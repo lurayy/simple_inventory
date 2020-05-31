@@ -57,11 +57,20 @@ class Account(models.Model):
 
     def __str__(self):
         return f'{self.name} {self.opening_balance}'
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            if (self.opening_balance < 0):
+                self.due = self.opening_balance
+            else:
+                self.credit = self.opening_balance
+        super(Account, self).save(*args, **kwargs)
+
 
 
 class LedgerEntry(models.Model):
     account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, blank=True)
-    header = models.ForeignKey(EntryType, on_delete=models.CASCADE)
+    entry_type = models.ForeignKey(EntryType, on_delete=models.CASCADE)
     remarks = models.TextField(null=True, blank=True)
     date = models.DateTimeField()
     amount = models.FloatField()
@@ -74,12 +83,14 @@ class LedgerEntry(models.Model):
     def save(self, *args, **kwargs):
         if self.id:
             raise Exception("Cannot update ledger entry.")
+        super(LedgerEntry, self).save(*args, **kwargs)
+
 
 
 @receiver(models.signals.post_save, sender=LedgerEntry)
 def ledger_entry_post_save(sender, instance, created, **kwargs):
     if created:
-        if instance.header.is_credit:
+        if instance.entry_type.is_credit:
             instance.account.credit = instance.account.credit + instance.amount
         else:
             temp = instance.account.credit - instance.amount
@@ -89,6 +100,11 @@ def ledger_entry_post_save(sender, instance, created, **kwargs):
                 instance.account.credit = temp
         instance.account.save()
 
+
+@receiver(pre_save, sender=LedgerEntry)
+def ledger_entry_pre_save(sender, instance, *args, **kwargs):
+    if not instance.account.is_active or instance.account.is_closed:
+        raise Exception("You Cannot Use Closed Accounts For Transactions.")
 
 class MonthlyStats(models.Model):
     total_assets = models.FloatField()
@@ -127,6 +143,6 @@ class DefaultLedgerEntry(models.Model):
     entry_type_on_cr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_cr')
     entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_dr')
 
-@receiver(models.signals.post_save, sender=PurchaseOrder)
-def handle_accounting_post_save(sender, instance, created, **kwargs):
-    pass
+# @receiver(models.signals.post_save, sender=PurchaseOrder)
+# def handle_accounting_post_save(sender, instance, created, **kwargs):
+#     pass

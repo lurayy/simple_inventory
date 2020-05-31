@@ -304,7 +304,7 @@ for header in headers:
 
 for i in range(Ledger_Count):
     temp = LedgerEntry.objects.create(
-        header = headers_obj[random.randint(0, len(headers_obj)-1)],
+        entry_type = headers_obj[random.randint(0, len(headers_obj)-1)],
         date = datetime.datetime.now(),
         amount = random.randint(10, 100000)
     )

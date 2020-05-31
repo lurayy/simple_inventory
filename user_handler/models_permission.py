@@ -2,6 +2,7 @@ from django.db import models
 
 class CustomPermission(models.Model):
     name = models.CharField(max_length=255)
+    get_multiple_accounts = models.BooleanField(default=True)
     apply_payment = models.BooleanField(default=True)
     get_payment_methods = models.BooleanField(default=True)
     update_gift_card = models.BooleanField(default=True)

@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/v1/inventory/', include('inventory.urls')),
     path('api/v1/user/', include('user_handler.urls')),
     path('api/v1/payment/', include('payment.urls')),
+    path('api/v1/accounting/', include('accounting.urls'))
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
