@@ -2,6 +2,7 @@ from django.db import models
 
 class CustomPermission(models.Model):
     name = models.CharField(max_length=255)
+    get_multiple_account_types = models.BooleanField(default=True)
     update_account = models.BooleanField(default=True)
     delete_accounts = models.BooleanField(default=True)
     get_account_details = models.BooleanField(default=True)

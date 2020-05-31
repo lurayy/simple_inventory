@@ -8,7 +8,7 @@ import random
 from faker import Faker
 from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount, CustomerCategory
 from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, Item, PurchaseItem, Place, Placement
-from sales.models import Invoice, InvoiceItem
+from sales.models import Invoice, InvoiceItem, InvoiceStatus
 from payment.models import GiftCard, UniqueCard, GiftCardCategory
 from user_handler.models_permission import CustomPermission
 from accounting.models import EntryType, LedgerEntry, Account
@@ -207,6 +207,18 @@ for order in PurchaseOrder.objects.all():
     print(f'{order} changed to {order.status}')
 
 
+name = [
+    "Draft",
+    "Done"
+]
+for i in range(2):
+    temp = InvoiceStatus.objects.create(
+        name = name[i]
+    )
+    temp.save()
+
+temp.is_end = True
+temp.save()
 
 
 # print("--------------------------- Invoice -------------------------")
