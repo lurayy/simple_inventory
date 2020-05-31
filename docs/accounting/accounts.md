@@ -17,7 +17,10 @@
         "account_type":1,
         "name":"new account",
         "opening_balance":5,
-        "opening_date":"2018-12-19T09:26:03.478039"
+        "opening_date":"2018-12-19T09:26:03.478039",
+        "parent":True,
+        "parent_id":2,
+        "parent_uuid":"a9140902-7863-40f6-b01a-ec5045d38c97"
     }
 ```
 

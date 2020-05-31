@@ -85,8 +85,6 @@ class LedgerEntry(models.Model):
             raise Exception("Cannot update ledger entry.")
         super(LedgerEntry, self).save(*args, **kwargs)
 
-
-
 @receiver(models.signals.post_save, sender=LedgerEntry)
 def ledger_entry_post_save(sender, instance, created, **kwargs):
     if created:

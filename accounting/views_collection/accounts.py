@@ -72,6 +72,9 @@ def add_new_account(self, request):
                     opening_balance = data_json['opening_balance'],
                     opening_date = str_to_datetime(data_json['opening_date'])
                 )
+                if data_json['parent']:
+                    account.parent = Account.objects.get(id=data_json['parent_id'], uuid=data_json['parent_uuid'])
+                account.save()
                 response_json['accounts'] = accounts_to_json([account])
                 response_json['status'] = True
                 return JsonResponse( response_json)
