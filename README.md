@@ -88,17 +88,3 @@ python3 manage.py createsuperuser
         status: true
     } 
 ```
-
-## User_handler 
-- Location: '/api/user.js'
-- [UserAPI Documentation](docs/users.md)
-
-## Inventory 
-- Location: '/api/inventory/...'
-- Contains: 
-    1. [Items](docs/inventory/item.md)
-    2. [Items catagory](docs/inventory/item_catagory.md)
-    3. [Places](docs/inventory/place.md)
-    4. [Purchase Items](docs/inventory/purchase_item.md)
-    5. [Purchase Order](docs/inventory/purchase_order.md)
-    6. [Vendor](docs/inventory/vendor.md)
