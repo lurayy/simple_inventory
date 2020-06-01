@@ -39,13 +39,12 @@
 ```
     {
         "action":"get",
-        "account_id":1,
         "account_uuid":"a9140902-7863-40f6-b01a-ec5045d38c97"
     }
 ```
 
 #### 4. Delete Accounts
-- URL :  api/v1/accouting/accounts/delete
+- URL :  api/v1/accounting/accounts/delete
 ```
     {
         "action":"delete",
