@@ -28,7 +28,6 @@ class EntryType(models.Model):
 
 class AccountType(models.Model):
     name = models.CharField(max_length=255)
-
     HEADER_CHOICE = (
         ('assets', 'Assets'),
         ('liabilities', 'Liabilities'),

@@ -32,6 +32,7 @@
 - Contains:
     1. [Accounts](accounting/accounts.md)
     2. [Account Types](accounting/types.md)
+    3. [Ledger Entries](accounting/ledger_entries.md)
 
 
 

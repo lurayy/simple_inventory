@@ -8,5 +8,9 @@ urlpatterns = [
    path('accounts/delete', views.delete_accounts),
    path('account/update', views.update_account),
 
-   path('accounts/types/get', views.get_multiple_account_types)
+   path('accounts/types/get', views.get_multiple_account_types),
+   path('ledger/types/get', views.get_multiple_ledger_entry_types),
+   path('ledger/entries/get', views.get_multiple_ledger_entries),
+   path('ledger/entry/add', views.add_new_ledger_entry),
+   path('ledger/entry/get', views.get_ledger_entry_details)
 ]

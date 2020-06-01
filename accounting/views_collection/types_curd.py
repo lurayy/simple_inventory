@@ -34,3 +34,24 @@ def get_multiple_account_types(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+@require_http_methods(['POST'])
+@bind
+def get_multiple_ledger_entry_types(self, request):
+    '''
+    url : api/v1/accouting/ledger/type
+    '''
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        response_json = {'status':False}
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] =="get":
+                response_json['ledger_entry_types'] = ledger_entries_to_json(EntryType.objects.filter(is_active=True))
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
