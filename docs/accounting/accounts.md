@@ -8,6 +8,16 @@
         "filter":"none"
     }
 ```
+- filter : name 
+```
+    {
+        "action":"get",
+        "start":0,
+        "end":20,
+        "filter":"name",
+        "name": "someKeyword"
+    }
+```
 
 #### 2. Add New Account 
 - URL : api/v1/accounting/account/add
