@@ -106,7 +106,7 @@ def get_account_details(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == 'get':
-                account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'])
+                account = Account.objects.get(uuid=data_json['account_uuid'])
                 response_json['accounts'] = accounts_to_json([account])
                 details =  {
                     'count_ledger_entry': len(LedgerEntry.objects.filter(account=account))
