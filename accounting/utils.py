@@ -8,10 +8,10 @@ def entry_types_to_json (models):
     for model in models:
         temp = (EntryTypeSerializer(model).data)
         data.append(temp)
-    choices = {
-        'header_choices' : EntryType.HEADER_CHOICE
-    }
-    data.append(choices)
+    # choices = {
+    #     'header_choices' : EntryType.HEADER_CHOICE
+    # }
+    # data.append(choices)
     return data
 
 
@@ -20,10 +20,10 @@ def accounts_types_to_json (models):
     for model in models:
         temp = (AccountTypeSerializer(model).data)
         data.append(temp)
-    choices = {
-        "header_choices" : AccountType.HEADER_CHOICE
-    }
-    data.append(choices)
+    # choices = {
+    #     "header_choices" : AccountType.HEADER_CHOICE
+    # }
+    # data.append(choices)
     return data
 
 def accounts_to_json(models):

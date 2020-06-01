@@ -22,31 +22,31 @@ def get_multiple_accounts(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
-        response_json = {'status':False}
-        try:
-            json_str = request.body.decode(encoding='UTF-8')
-            data_json = json.loads(json_str)
-            if str(data_json['action']).lower() == "get":
-                start = int(data_json["start"])
-                end = int(data_json["end"])
-                if data_json['filter'] == "none":
-                    accounts = Account.objects.filter(is_active=True, is_closed=False).order_by('id')[start:end]
-                    response_json['accounts'] = accounts_types_to_json(accounts)
-                    response_json['status'] = True
-                if data_json['filter'] == "closed":
-                    accounts = Account.objects.filter(is_active=True, is_closed=True).order_by('id')[start:end]
-                    response_json['accounts'] = accounts_types_to_json(accounts)
-                    response_json['status'] = True
-                if data_json['filter'] == "name":
-                    accounts = Account.objects.filter(is_active=True, name__contains=data_json['name']).order_by('id')[start:end]
-                    response_json['accounts'] = accounts_types_to_json(accounts)
-                    response_json['status'] = True
-                return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    else:
-        return JsonResponse({'status':False, "error":'You are not authorized.'})
+    # if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    #     response_json = {'status':False}
+    #     try:
+    json_str = request.body.decode(encoding='UTF-8')
+    data_json = json.loads(json_str)
+    if str(data_json['action']).lower() == "get":
+        start = int(data_json["start"])
+        end = int(data_json["end"])
+        if data_json['filter'] == "none":
+            accounts = Account.objects.filter(is_active=True, is_closed=False).order_by('id')[start:end]
+            response_json['accounts'] = accounts_to_json(accounts)
+            response_json['status'] = True
+        if data_json['filter'] == "closed":
+            accounts = Account.objects.filter(is_active=True, is_closed=True).order_by('id')[start:end]
+            response_json['accounts'] = accounts_to_json(accounts)
+            response_json['status'] = True
+        if data_json['filter'] == "name":
+            accounts = Account.objects.filter(is_active=True, name__contains=data_json['name']).order_by('id')[start:end]
+            response_json['accounts'] = accounts_to_json(accounts)
+            response_json['status'] = True
+        return JsonResponse(response_json)
+    #     except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
+    #         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    # else:
+    #     return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
 @require_http_methods(['POST'])
