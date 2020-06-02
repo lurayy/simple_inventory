@@ -142,9 +142,9 @@ def tranction_handler(sender, instance, **kwargs):
     instance.bill_amount = instance.total_amount - instance.additional_discount
 
 
-# @receiver(post_save, sender=Invoice)
-# def invoice_post_handler(sender, instance, **kwargs):
-#     send_update_invoice(instance)
+@receiver(post_save, sender=Invoice)
+def invoice_post_handler(sender, instance, **kwargs):
+    send_update_invoice(instance)
 
 # @receiver(post_save, sender=InvoiceItem)
 # def invoice_item_handler(sender, instance, **kwargs):
@@ -195,33 +195,42 @@ def sales_add(invoice):
 
 def send_update_invoice(invoice):
     if invoice.status.is_sold:
-        from sales.utils import invoices_to_json, invoice_items_to_json
-        from django.core.mail import send_mail
-
-        invoice_data = invoices_to_json([invoice])
-        invoice_item_data = invoice_items_to_json(invoice.invoice_items.all())
-        print(invoice_data, invoice_item_data)
-        # sensative = ['id', 'is_active', 'status',
-        #              'added_by', 'purchase_item', 'item', 'sold_from']
-        # fields = (data_json['filter']['fields'])
-        # selected_fields = []
-        # for key in fields:
-        #     if key not in sensative:
-        #         if fields[key] == True:
-        #             selected_fields.append(key)
-
-        data = {
-            'invoiceData':invoice_data,
-            'invoiceValues':invoice_data,
-            'invoiceItemData': invoice_item_data
-        }
-        response = export_data(data)
-        return response['pdf']
-        # res = send_mail("Invoice", "Some generic Message", settings.EMAIL_HOST_USER, ["lurayy36@gmail.com"], html_message=response['html'])
-        if res:
-            print("Invoice sent through email.")
-        else:
-            print("Invoice cannot be sent through email.")
+        if invoice.customer.email:
+            from sales.utils import invoices_to_json, invoice_items_to_json
+            from django.core.mail import send_mail
+            invoice_data = invoices_to_json([invoice])
+            invoice_item_data = invoice_items_to_json(invoice.invoice_items.all())
+            sensative = ['id', 'is_active', 'status','added_by', 'purchase_item', 'item', 'sold_from', 'invoice', 'discount', 'taxes']
+            invoice_fields = []
+            invoice_value = []
+            for key in invoice_data[0]:
+                if key not in sensative:
+                    invoice_fields.append(key)
+                    invoice_value.append(invoice_data[0][key])
+            invoice_item_fields = []
+            item_values = []
+            if len(invoice_item_data) > 0:
+                for key in invoice_item_data[0]:
+                    if key not in sensative:
+                        invoice_item_fields.append(key)
+                
+                for item in invoice_item_data:
+                    item_value = []
+                    for key in invoice_item_fields:
+                        item_value.append(item[key])
+                    item_values.append(item_value)
+            data = {
+                'invoice_fields':invoice_fields,
+                'invoice_values':invoice_value,
+                'item_fields':invoice_item_fields,
+                'item_values':item_values
+            }
+            response = export_data(data)
+            res = send_mail("Invoice", "Some generic Message", settings.EMAIL_HOST_USER, [invoice.customer.email], html_message=response['html'])
+            if res:
+                print("Invoice sent through email.")
+            else:
+                print("Invoice cannot be sent through email.")
 
 
 def render_to_pdf(template_src, context_dict={}):

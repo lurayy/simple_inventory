@@ -66,21 +66,41 @@
         <table class="table">
             </thead>
             <tbody>
+                <tr>    
+                    {% for value in data.invoice_fields %}
+                        <td>
+                            {{ value }}
+                        </td>
+                    {% endfor %}
+                </tr>
                 <tr>
-                    
-            {% for value in data.invoiceValues %}
-                <td>
-                    {{ value }}
-                </td>
-            {% endfor %}
-            
-        </tr>
+                    {% for value in data.invoice_values %}
+                    <td>
+                        {{value}}
+                    </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    {% for field in data.item_fields %}
+                    <td>
+                        {{ field }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {%  for values in data.item_values %}
+                <tr>
+                    {% for value in values %}
+                    <td>
+                        {{ value }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
-        
         <hr></hr>
-        {{ data }}
-
     </div>
 </div>
 
