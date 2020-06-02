@@ -42,6 +42,10 @@ def get_multiple_accounts(self, request):
             accounts = Account.objects.filter(is_active=True, name__contains=data_json['name']).order_by('id')[start:end]
             response_json['accounts'] = accounts_to_json(accounts)
             response_json['status'] = True
+        if data_json['filter'] == "parent":
+            accounts = Account.objects.filter(is_active=True, accounts=None).order_by('id')[start:end]
+            response_json['accounts'] = accounts_to_json(accounts)
+            response_json['status'] = True
         return JsonResponse(response_json)
     #     except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
     #         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
