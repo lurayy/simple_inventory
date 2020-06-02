@@ -216,3 +216,17 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_AUTH_COOKIE': None,
 }
+
+
+# EMAIL_HOST = 'smtp.mailgun.org'
+# EMAIL_HOST_USER = 'brad@sandbox5a850769f2524f8c93e1eaa27e6eaa91.mailgun.org'
+# EMAIL_HOST_PASSWORD = '97dc4ec12cc71d0d7cf6b1ecbe2470e0-a2b91229-4c7de35f'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'erp.temp98@gmail.com'
+EMAIL_HOST_PASSWORD = 'p@ssw0rd98'

@@ -15,10 +15,8 @@ import base64
 from django.utils import timezone
 from django.core.files.base import ContentFile
 from io import BytesIO
-from django.template.loader import get_template
 import xhtml2pdf.pisa as pisa
 from django.http import HttpResponse
-from django.template.loader import get_template
 from django.template import Context
 from io import StringIO
 import cgi

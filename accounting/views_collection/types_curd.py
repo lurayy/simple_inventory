@@ -39,7 +39,7 @@ def get_multiple_account_types(self, request):
 @bind
 def get_multiple_ledger_entry_types(self, request):
     '''
-    url : api/v1/accouting/ledger/type
+    url : api/v1/accouting/ledger/type/get
     '''
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
@@ -48,7 +48,7 @@ def get_multiple_ledger_entry_types(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] =="get":
-                response_json['ledger_entry_types'] = ledger_entries_to_json(EntryType.objects.filter(is_active=True))
+                response_json['ledger_entry_types'] = entry_types_to_json(EntryType.objects.filter(is_active=True))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
