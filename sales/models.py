@@ -22,6 +22,8 @@ class InvoiceStatus(models.Model):
     is_sold = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f'{self.name}'
 
 class Invoice(models.Model):
     ''' schema for invoice'''
