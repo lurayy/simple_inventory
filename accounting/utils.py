@@ -32,6 +32,10 @@ def accounts_to_json(models):
         temp = AccountSerializer(model).data
         temp['account_type_str'] = model.account_type.name
         temp['account_header_str'] = model.account_type.header
+        if len( Account.objects.filter(parent = model)) > 0 :
+            temp['has_child'] = True
+        else:
+            temp['has_child'] = False
         if model.parent:
             temp['parent_str'] = model.parent.name
             temp['parent_uuid'] = model.parent.uuid
