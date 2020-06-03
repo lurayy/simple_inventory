@@ -53,7 +53,7 @@ class Account(models.Model):
     due = models.FloatField(default=0)
     credit = models.FloatField(default=0)
 
-    parent = models.ForeignKey('Account', on_delete=models.SET_NULL, blank=True, null=True)
+    parent = models.ForeignKey('Account', on_delete=models.SET_NULL, blank=True, null=True, related_name='childs')
 
     is_active = models.BooleanField(default=True)
     is_closed = models.BooleanField(default=False)
