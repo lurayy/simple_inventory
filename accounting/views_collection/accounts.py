@@ -48,7 +48,7 @@ def get_multiple_accounts(self, request):
                     response_json['status'] = True
                 if data_json['filter'] == "account":
                     account=Account.objects.get(id=data_json['account_id'])
-                    childs = account.childs.all()
+                    childs = account.childs.all().filter(is_active=True)
                     response_json['accounts'] = accounts_to_json(childs)
                     response_json['status'] = True
                     # else:
@@ -153,6 +153,8 @@ def delete_accounts(self, request):
             if data_json['action'] == 'delete':
                 for i in range(len(data_json['accounts_ids'])):
                     account = Account.objects.get(id=data_json['accounts_ids'][i], uuid=data_json['accounts_uuids'][i])
+                    if len(account.childs.all().filter(is_active=True)):
+                        raise Exception("The account you are trying to delete has a dependent(child) account.")
                     account.is_active = False
                     account.is_closed = True
                     account.save()

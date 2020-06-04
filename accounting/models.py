@@ -148,7 +148,7 @@ class DefaultLedgerEntry(models.Model):
     entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_dr')
 
     is_active = models.BooleanField(default=True)
-    
+
 # @receiver(models.signals.post_save, sender=PurchaseOrder)
 # def handle_accounting_post_save(sender, instance, created, **kwargs):
 #     pass
