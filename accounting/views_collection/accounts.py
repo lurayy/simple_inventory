@@ -156,6 +156,7 @@ def delete_accounts(self, request):
                     account.is_active = False
                     account.is_closed = True
                     account.save()
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
