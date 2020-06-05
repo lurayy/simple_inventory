@@ -3,7 +3,7 @@ from user_handler.models import Customer, Vendor
 import uuid 
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
-
+import datetime
 from inventory.models import PurchaseOrder
 
 class EntryType(models.Model):
@@ -58,6 +58,10 @@ class Account(models.Model):
     is_active = models.BooleanField(default=True)
     is_closed = models.BooleanField(default=False)
 
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return f'{self.name} {self.opening_balance}'
     
@@ -78,15 +82,23 @@ class LedgerEntry(models.Model):
     date = models.DateTimeField()
     amount = models.FloatField()
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.account} {self.date}'
     
-    def save(self, *args, **kwargs):
-        if self.id:
-            raise Exception("Cannot update ledger entry.")
-        super(LedgerEntry, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     pass
+        # if self.id:
+        #     raise Exception("Cannot update ledger entry.")
+        # super(LedgerEntry, self).save(*args, **kwargs) 
+    
+    class Meta:
+        unique_together = ['account', 'entry_type', 'date', 'amount', 'remarks']
+
 
 @receiver(models.signals.post_save, sender=LedgerEntry)
 def ledger_entry_post_save(sender, instance, created, **kwargs):
@@ -121,6 +133,9 @@ class MonthlyStats(models.Model):
     date = models.DateTimeField(default=0)
 
     is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class AccountingSettings(models.Model):
     default_purchase_order_entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='purchase_order_default_entries_dr')
@@ -149,6 +164,58 @@ class DefaultLedgerEntry(models.Model):
 
     is_active = models.BooleanField(default=True)
 
-# @receiver(models.signals.post_save, sender=PurchaseOrder)
-# def handle_accounting_post_save(sender, instance, created, **kwargs):
-#     pass
+
+@receiver(models.signals.post_save, sender=PurchaseOrder)
+def handle_accounting_post_save(sender, instance, created, **kwargs):
+    print("ledger entry")
+    print(instance.status.is_end)
+    if instance.status.is_end:
+        settings = AccountingSettings.objects.filter(is_active=True)[0]
+        date = datetime.datetime.now()
+        remarks = str(instance.uuid) + str(date)
+        if instance.discount_type == "percent":
+            purchase_cost = instance.total_cost - instance.total_cost*0.01*instance.discount
+        else:
+            purchase_cost = instance.total_cost - instance.discount
+        x =  LedgerEntry.objects.filter(account = settings.default_purchase_account, entry_type = settings.default_purchase_order_entry_type_on_dr, remarks=remarks)
+        y = LedgerEntry.objects.filter(account = settings.default_purchase_account, entry_type = settings.default_purchase_order_entry_type_on_cr, remarks=remarks)
+        if len(x) < 0:
+            reverse_entries(x)
+        if len(y) < 0:
+            reverse_entries(x)
+        entry = LedgerEntry.objects.create(
+            account = settings.default_purchase_account,
+            entry_type = settings.default_purchase_order_entry_type_on_dr,
+            date = datetime.datetime.today(),
+            remarks = remarks,
+            amount = purchase_cost
+        )
+        print(entry)
+        entry2 = LedgerEntry.objects.create(
+            account = settings.default_purchase_account,
+            entry_type = settings.default_purchase_order_entry_type_on_cr,
+            remarks = remarks,
+            amount = purchase_cost,
+            date = datetime.datetime.today()
+        )
+        entry.save()
+        entry2.save()
+
+def reverse_entries(entries):
+    for entry in entries:
+        remarks = "reverse_minus" + entry.remarks
+        x = LedgerEntry.objects.create(
+            accounnt = entry.account,
+            entry_type = entry.entry_type,
+            remarks = remarks,
+            amount = -1*entry.amount,
+            date = datetime.datetime.today()
+        )
+        x.save()
+        entry.remarks = "reverse_plus" + entry.remarks
+        entry.save()
+
+# remarks 
+# normal : uuid+ date
+# revered : reverse_minus uuid + date
+# one being reversed : reverse_plus uuid data
