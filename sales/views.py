@@ -456,6 +456,26 @@ def update_customer_categories(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
+
+@require_http_methods(['POST'])
+@bind
+def add_customer_categories(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try: 
+            response_json['status'] = True
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            category = CustomerCategory.objects.create(name=data_json['name'])
+            category.save()
+            response_json['category'] = categories_to_json([category])
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+                return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
 @require_http_methods(['POST'])
 @bind
 def delete_customer_categories(self, request):
