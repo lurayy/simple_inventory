@@ -438,6 +438,46 @@ def get_customer_categories(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
+@require_http_methods(['POST'])
+@bind
+def update_customer_categories(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try: 
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            category = CustomerCategory.objects.get(id=data_json['cusomter_category_id'])
+            category.name = data_json['name']
+            category.is_active = data_json['is_active']
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+                return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def delete_customer_categories(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            ids = data_json['customer_category_ids']
+            if ids is None:
+                raise Exception('Empty List')
+            for id in ids:
+                customer = CustomerCategory.objects.get(id=int(id))
+                customer.is_active = False
+                customer.save()
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
 
 ######################################## InvoieItems ########################################
 
