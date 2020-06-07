@@ -372,7 +372,6 @@ def update_customer(self, request):
     '''
     response_json = {'status':False, 'customers':[]}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
-
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -391,7 +390,7 @@ def update_customer(self, request):
                 customer.category = CustomerCategory.objects.get(id=data_json['category'])
                 customer.save()
                 response_json = {'status':True}
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
