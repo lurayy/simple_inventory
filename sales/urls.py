@@ -13,9 +13,9 @@ urlpatterns = [
     path('customers/category', views.get_customer_categories, name='customer category'),
     path('customer/get', views.get_customer_details, name=''),
     path('customer/add', views.add_new_customer, name=''),
-    path('customers/category/update', views.update_customer_categories, name='customer category'),
-    path('customers/category/delete', views.delete_customer_categories, name='customer category'),
-    path('customers/category/add', views.add_customer_categories, name='customer category'),
+    path('customers/category/update', views.update_customer_categories),
+    path('customers/category/delete', views.delete_customer_categories),
+    path('customers/category/add', views.add_customer_categories),
 
     path('invoiceitems/get', views.get_multiple_invoices, name=""),
     path('invoiceitem/get', views.get_invoice_details, name=''),
