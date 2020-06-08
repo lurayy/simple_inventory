@@ -451,6 +451,7 @@ def update_customer_categories(self, request):
                 category.name = data_json['name']
                 category.is_active = data_json['is_active']
                 response_json['status'] = True
+                category.save()
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
                 return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
