@@ -16,13 +16,14 @@ urlpatterns = [
     path('customers/category/update', views.update_customer_categories),
     path('customers/category/delete', views.delete_customer_categories),
     path('customers/category/add', views.add_customer_categories),
+    path('customers/category/get', views.get_customer_category),
 
     path('invoiceitems/get', views.get_multiple_invoices, name=""),
     path('invoiceitem/get', views.get_invoice_details, name=''),
     path('invoiceitems/delete', views.delete_invoice_items, name=""),    
     path('invoiceitems/update', views.update_invoice_item, name=""),
     path('invoiceitem/add', views.add_new_invoice_item, name=''),
-
+    
     path('discounts/get', views.get_multiple_discounts, name=""),
     path('discount/get', views.get_discount_details, name=''),
     path('discounts/delete', views.delete_discount, name=""),

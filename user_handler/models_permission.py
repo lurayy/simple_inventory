@@ -74,6 +74,7 @@ class CustomPermission(models.Model):
     delete_invoice_items = models.BooleanField(default=True)
     get_invoice_details = models.BooleanField(default=True)
     get_multiple_invoices = models.BooleanField(default=True)
+    get_customer_category = models.BooleanField(default=True)
     add_customer_categories = models.BooleanField(default=True)
     delete_customer_categories = models.BooleanField(default=True)
     update_customer_categories = models.BooleanField(default=True)
