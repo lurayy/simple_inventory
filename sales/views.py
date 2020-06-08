@@ -447,7 +447,7 @@ def update_customer_categories(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
-                category = CustomerCategory.objects.get(id=data_json['cusomter_category_id'])
+                category = CustomerCategory.objects.get(id=data_json['customer_category_id'])
                 category.name = data_json['name']
                 category.is_active = data_json['is_active']
             return JsonResponse(response_json)
@@ -466,7 +466,7 @@ def get_customer_category(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
-                category = CustomerCategory.objects.get(id=data_json['cusomter_category_id'])
+                category = CustomerCategory.objects.get(id=data_json['customer_category_id'])
                 response_json = {
                     'status':True,
                     'customerCategories': categories_to_json([category])
