@@ -895,7 +895,7 @@ def add_new_place(self, request):
                 )
                 place.save()
                 response_json['status'] = True
-            return response_json
+            return JsonResponse( response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
