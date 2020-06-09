@@ -564,8 +564,6 @@ def get_item_details(self, request):
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
-
-
 @require_http_methods(['POST'])
 @bind
 def update_item(self, request):
@@ -947,6 +945,7 @@ def get_single_place(self,request):
                 response_json['place'] = {
                     'id':place.id,
                     'name':place.name,
+                    'is_active':place.is_active,
                     'count_assignment':len(place.placements.filter(is_active=True))
                 }
                 response_json['status'] = True
