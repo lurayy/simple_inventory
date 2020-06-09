@@ -4,6 +4,8 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, pre_delete 
 from django.db.models import signals
 from sales.models import Invoice
+from inventory.models import PurchaseOrder
+from user_handler.models import Customer, Vendor
 
 class GiftCardCategory(models.Model):
     name = models.CharField(max_length=255)
@@ -49,8 +51,15 @@ class UniqueCard(models.Model):
 
 class PaymentMethod(models.Model):
     name = models.CharField(max_length=255)
-    is_gift_card = models.BooleanField(default=False)
-    is_bank = models.BooleanField(default=False)
+    payment_method_types  = (
+    ('credit', "Credit"),
+    ('pre-paid', 'Pre-Paid'),
+    ('cash', 'Cash'),
+    ('transfer', 'Transfer'),
+    ('bank', 'Bank')
+    )
+    header = models.CharField(max_length=10, choices=payment_method_types, default='credit')
+    
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -58,12 +67,16 @@ class PaymentMethod(models.Model):
 
 
 class Payment(models.Model):
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="payments")
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="payments", null=True, blank=True)
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="payments", null=True, blank=True)
+
     amount = models.FloatField()
+
     method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, related_name="payments")
     transaction_from = models.CharField(max_length=255, null=True, blank=True)                                          # bank account/khali/esewa number
     transaction_id = models.CharField(max_length=255, null=True, blank=True)                                            # id 
     bank_name = models.CharField(max_length=255, null=True, blank=True)
+    remarks = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f'{self.invoice.customer.first_name} {self.invoice.customer.last_name} {self.method} {self.invoice.invoiced_on}'

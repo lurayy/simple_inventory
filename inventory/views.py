@@ -99,10 +99,6 @@ def add_new_purchase_order(self,request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-
-
-
-
 @require_http_methods(['POST'])
 @bind
 def get_purchase_order_details(self, request):
@@ -138,7 +134,6 @@ def get_purchase_order_details(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
 
 
 @require_http_methods(['POST'])

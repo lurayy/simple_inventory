@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 import datetime
 from inventory.models import PurchaseOrder
+from payment.models import Payment, PaymentMethod
 
 class EntryType(models.Model):
     name = models.CharField(max_length=255)
@@ -76,11 +77,11 @@ class Account(models.Model):
 
 
 class LedgerEntry(models.Model):
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, unique=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     entry_type = models.ForeignKey(EntryType, on_delete=models.CASCADE)
     remarks = models.TextField(null=True, blank=True)
     date = models.DateTimeField()
-    amount = models.FloatField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -97,16 +98,16 @@ class LedgerEntry(models.Model):
         # super(LedgerEntry, self).save(*args, **kwargs) 
     
     class Meta:
-        unique_together = ['account', 'entry_type', 'date', 'amount', 'remarks']
+        unique_together = ['account', 'entry_type', 'date', 'payment', 'remarks']
 
 
 @receiver(models.signals.post_save, sender=LedgerEntry)
 def ledger_entry_post_save(sender, instance, created, **kwargs):
     if created:
         if instance.entry_type.is_credit:
-            instance.account.credit = instance.account.credit + instance.amount
+            instance.account.credit = instance.account.credit + instance.payment.amount
         else:
-            temp = instance.account.credit - instance.amount
+            temp = instance.account.credit - instance.payment.amount
             if temp < 0:
                 instance.account.due = temp * -1
             else:
@@ -137,15 +138,20 @@ class MonthlyStats(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class AccountingSettings(models.Model):
-    default_purchase_order_entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='purchase_order_default_entries_dr')
-    default_sales_entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='sales_default_entries_dr')
-
-    default_purchase_order_entry_type_on_cr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='purchase_order_default_entries_cr')
-    default_sales_entry_type_on_cr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='sales_default_entries_cr')
-
+class DefaultEntryType(models.Model):
+    entry_type_for_credit_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_credits')
+    entry_type_for_pre_paid_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_pre_paid')
+    entry_type_for_cash_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_cash')
+    entry_type_for_transfer_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_transfer')
+    entry_type_for_bank_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_banks')
+    
+    entry_type_for_credit_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_credits')
+    entry_type_for_pre_paid_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_invoice')
+    entry_type_for_cash_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_cash')
+    entry_type_for_transfer_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_transfer')
+    entry_type_for_bank_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_bank')
+   
     default_purchase_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_purchases')
-
     default_sales = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_sales')
 
     is_active = models.BooleanField(default=True)
@@ -156,50 +162,59 @@ class AccountingSettings(models.Model):
         return super(AccountingSettings, self).save(*args, **kwargs)
 
 
-class DefaultLedgerEntry(models.Model):
-    from payment.models import PaymentMethod
-    payment_method = models.OneToOneField(PaymentMethod, on_delete=models.CASCADE)
-    entry_type_on_cr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_cr')
-    entry_type_on_dr = models.ForeignKey(EntryType, on_delete=models.CASCADE, related_name='default_dr')
+class FreeEntryLedger(models.Model):
+    entry_for = models.ForeignKey(LedgerEntry, on_delete=models.CASCADE)
+    amount = models.FloatField()
+    remarks = models.TextField()
 
-    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f'{self.entry_for}'
 
 
-@receiver(models.signals.post_save, sender=PurchaseOrder)
-def handle_accounting_post_save(sender, instance, created, **kwargs):
-    print("ledger entry")
-    print(instance.status.is_end)
-    if instance.status.is_end:
-        settings = AccountingSettings.objects.filter(is_active=True)[0]
-        date = datetime.datetime.now()
-        remarks = str(instance.uuid) + str(date)
-        if instance.discount_type == "percent":
-            purchase_cost = instance.total_cost - instance.total_cost*0.01*instance.discount
-        else:
-            purchase_cost = instance.total_cost - instance.discount
-        x =  LedgerEntry.objects.filter(account = settings.default_purchase_account, entry_type = settings.default_purchase_order_entry_type_on_dr, remarks=remarks)
-        y = LedgerEntry.objects.filter(account = settings.default_purchase_account, entry_type = settings.default_purchase_order_entry_type_on_cr, remarks=remarks)
-        if len(x) < 0:
-            reverse_entries(x)
-        if len(y) < 0:
-            reverse_entries(x)
-        entry = LedgerEntry.objects.create(
-            account = settings.default_purchase_account,
-            entry_type = settings.default_purchase_order_entry_type_on_dr,
-            date = datetime.datetime.today(),
-            remarks = remarks,
-            amount = purchase_cost
-        )
-        print(entry)
-        entry2 = LedgerEntry.objects.create(
-            account = settings.default_purchase_account,
-            entry_type = settings.default_purchase_order_entry_type_on_cr,
-            remarks = remarks,
-            amount = purchase_cost,
-            date = datetime.datetime.today()
-        )
-        entry.save()
-        entry2.save()
+# @receiver(models.signal.post_save, sender=Payment)
+# def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs):
+    
+
+
+
+# @receiver(models.signals.post_save, sender=PurchaseOrder)
+# def handle_accounting_post_save(sender, instance, created, **kwargs):
+#     print("ledger entry")
+#     print(instance.status.is_end)
+#     if instance.status.is_end:
+#         settings = AccountingSettings.objects.filter(is_active=True)[0]
+#         date = datetime.datetime.now()
+#         remarks = str(instance.uuid) + str(date)
+#         if instance.discount_type == "percent":
+#             purchase_cost = instance.total_cost - instance.total_cost*0.01*instance.discount
+#         else:
+#             purchase_cost = instance.total_cost - instance.discount
+#         x =  LedgerEntry.objects.filter(account = settings.default_purchase_account, entry_type = settings.default_purchase_order_entry_type_on_dr, remarks=remarks)
+#         y = LedgerEntry.objects.filter(account = settings.default_purchase_account, entry_type = settings.default_purchase_order_entry_type_on_cr, remarks=remarks)
+#         if len(x) < 0:
+#             reverse_entries(x)
+#         if len(y) < 0:
+#             reverse_entries(x)
+#         entry = LedgerEntry.objects.create(
+#             account = settings.default_purchase_account,
+#             entry_type = settings.default_purchase_order_entry_type_on_dr,
+#             date = datetime.datetime.today(),
+#             remarks = remarks,
+#             amount = purchase_cost
+#         )
+#         print(entry)
+#         entry2 = LedgerEntry.objects.create(
+#             account = settings.default_purchase_account,
+#             entry_type = settings.default_purchase_order_entry_type_on_cr,
+#             remarks = remarks,
+#             amount = purchase_cost,
+#             date = datetime.datetime.today()
+#         )
+#         entry.save()
+#         entry2.save()
 
 def reverse_entries(entries):
     for entry in entries:

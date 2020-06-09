@@ -12,6 +12,7 @@ from sales.models import Invoice, InvoiceItem, InvoiceStatus
 from payment.models import GiftCard, UniqueCard, GiftCardCategory
 from user_handler.models_permission import CustomPermission
 from accounting.models import EntryType, LedgerEntry, Account
+from payment.models import PaymentMethod
 USER_COUNT = 2
 VENDOR_COUNT = 5
 CUSTOMER_COUNT = 10
@@ -162,6 +163,17 @@ for _ in range(ITEM_COUNT):
     temp.save()
     print (f'{temp} created.')
 
+print('Ledger Entry Type')
+payemnts = ['credit','pre-paid','cash','transfer','bank']
+for i in range(5):
+    e = PaymentMethod.objects.create(
+        header = payemnts[i],
+        name = payemnts[i]
+    )
+    e.save()
+
+
+
 # print("--------------------------- Purchase Order -------------------------")
 # global_temp2 = PurchaseOrderStatus.objects.all()
 # global_temp = Vendor.objects.all()
@@ -301,18 +313,18 @@ for _ in range(ITEM_COUNT):
 #     print (temp.name)
 
 
-# headers = [
-#         'assets','liabilities','revenue','expense','draw','equity'
-#     ]
+headers = [
+        'assets','liabilities','revenue','expense','draw','equity'
+    ]
 
-# headers_obj = []
-# for header in headers:
-#     temp = EntryType.objects.create(
-#         name = header,
-#         header = header,
-#     )
-#     temp.save()
-#     headers_obj.append(temp)
+headers_obj = []
+for header in headers:
+    temp = EntryType.objects.create(
+        name = header,
+        header = header,
+    )
+    temp.save()
+    # headers_obj.append(temp)
 
 # for i in range(Ledger_Count):
 #     temp = LedgerEntry.objects.create(

@@ -219,7 +219,7 @@ def apply_payment(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             payment_method = PaymentMethod.objects.get(id=data_json['payment_method'], is_active=True)
-            if (payment_method.is_gift_card):
+            if (payment_method.header == "pre-paid"):
                 if data_json['isCardUnique']:
                     unique_card = UniqueCard.objects.get(code = data_json['transaction_from'])
                     if unique_card.is_used:
@@ -239,7 +239,7 @@ def apply_payment(self, request):
                     invoice = invoice,
                     payment_method = PaymentMethod.objects.get(id=data_json['payment_method']),
                     amount = amount,
-                    transaction_from = data_json['transaction_from']
+                    transaction_from = data_json['transaction_from'],
                 )
                 payment.save()
                 if data_json['isCardUnique']:
