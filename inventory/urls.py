@@ -31,6 +31,8 @@ urlpatterns = [
     path('place/add',views.add_new_place, name=" "),
     path('place/update',views.update_place, name=" "),
     path('places/delete',views.delete_places, name=" "),
+    path('place/get',views.get_single_place, name=" "),
+    
 
     path('placements/assign', views.assign_place, name="placement curd"),
 

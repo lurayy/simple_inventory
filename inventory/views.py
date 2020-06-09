@@ -621,7 +621,7 @@ def delete_items(self, request):
     }
     '''
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
-        response_json = {'status':''}
+        response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -799,7 +799,7 @@ def delete_item_catagories(self, request):
         ]
     }
     '''
-    response_json = {'status':''}
+    response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -913,7 +913,7 @@ def update_place(self, request):
         name: "klj"
     }
     '''
-    response_json = {'status':''}
+    response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -930,8 +930,31 @@ def update_place(self, request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
+@require_http_methods(['POST'])
+@bind
+def get_single_place(self,request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                place = Place.objects.get(is_active=True, id=data_json['place_id'])
+                response_json['place'] = {
+                    'id':place.id,
+                    'name':place.name,
+                    'count_assignment':len(place.placements.filter(is_active=True))
+                }
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 @require_http_methods(['POST'])
 @bind
@@ -943,7 +966,7 @@ def delete_places(self, request):
         ]
     }
     '''
-    response_json = {'status':''}
+    response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -1046,6 +1069,10 @@ def get_placements(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+
+
+
+# --------------------------------------------------------------------------------------------------------------------------------------------
 @require_http_methods(['POST'])
 @bind
 def get_mulitple_purchase_items(self, request):
@@ -1163,7 +1190,7 @@ def get_purchase_item_details(self, request):
         'id':1,
     }
     '''
-    response_json = {'status':''}
+    response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -1229,7 +1256,7 @@ def delete_purchase_items(self, request):
             ]
         }
     '''
-    response_json = {'status':''}
+    response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')

@@ -33,6 +33,7 @@ class CustomPermission(models.Model):
     export_inventory = models.BooleanField(default=True)
     get_placements = models.BooleanField(default=True)
     assign_place = models.BooleanField(default=True)
+    get_single_place = models.BooleanField(default=True)
     delete_places = models.BooleanField(default=True)
     update_place = models.BooleanField(default=True)
     add_new_place = models.BooleanField(default=True)

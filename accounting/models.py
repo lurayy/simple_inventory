@@ -77,7 +77,7 @@ class Account(models.Model):
 
 
 class LedgerEntry(models.Model):
-    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, unique=True)
+    payment = models.OneToOneField(Payment, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     entry_type = models.ForeignKey(EntryType, on_delete=models.CASCADE)
     remarks = models.TextField(null=True, blank=True)
