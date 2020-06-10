@@ -91,14 +91,13 @@ class LedgerEntry(models.Model):
     def __str__(self):
         return f'{self.account} {self.date}'
     
-    # def save(self, *args, **kwargs):
-    #     pass
-        # if self.id:
-        #     raise Exception("Cannot update ledger entry.")
-        # super(LedgerEntry, self).save(*args, **kwargs) 
+    def save(self, *args, **kwargs):
+        if self.id:
+            raise Exception("Cannot update ledger entry.")
+        super(LedgerEntry, self).save(*args, **kwargs) 
     
     class Meta:
-        unique_together = ['account', 'entry_type', 'date', 'payment', 'remarks']
+        unique_together = ['account', 'entry_type', 'date', 'payment']
 
 
 @receiver(models.signals.post_save, sender=LedgerEntry)
@@ -139,20 +138,34 @@ class MonthlyStats(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class DefaultEntryType(models.Model):
-    entry_type_for_credit_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_credits')
-    entry_type_for_pre_paid_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_pre_paid')
-    entry_type_for_cash_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_cash')
-    entry_type_for_transfer_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_transfer')
-    entry_type_for_bank_purchase_order = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_banks')
+    entry_type_for_credit_purchase_order_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_credits_cr')
+    entry_type_for_pre_paid_purchase_order_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_pre_paid_cr')
+    entry_type_for_cash_purchase_order_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_cash_cr')
+    entry_type_for_transfer_purchase_order_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_transfer_cr')
+    entry_type_for_bank_purchase_order_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_banks_cr')
     
-    entry_type_for_credit_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_credits')
-    entry_type_for_pre_paid_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_invoice')
-    entry_type_for_cash_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_cash')
-    entry_type_for_transfer_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_transfer')
-    entry_type_for_bank_invoice = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_bank')
+    entry_type_for_credit_invoice_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_credits_cr')
+    entry_type_for_pre_paid_invoice_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_invoice_cr')
+    entry_type_for_cash_invoice_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_cash_cr')
+    entry_type_for_transfer_invoice_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_transfer_cr')
+    entry_type_for_bank_invoice_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_bank_cr')
    
+    entry_type_for_credit_purchase_order_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_credits_dr')
+    entry_type_for_pre_paid_purchase_order_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_pre_paid_dr')
+    entry_type_for_cash_purchase_order_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_cash_dr')
+    entry_type_for_transfer_purchase_order_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_transfer_dr')
+    entry_type_for_bank_purchase_order_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_banks_dr')
+    
+    entry_type_for_credit_invoice_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_credits_dr')
+    entry_type_for_pre_paid_invoice_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_invoice_dr')
+    entry_type_for_cash_invoice_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_cash_dr')
+    entry_type_for_transfer_invoice_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_transfer_dr')
+    entry_type_for_bank_invoice_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_bank_dr')
+   
+    
+
     default_purchase_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_purchases')
-    default_sales = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_sales')
+    default_sales_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_sales')
 
     is_active = models.BooleanField(default=True)
 
@@ -174,10 +187,162 @@ class FreeEntryLedger(models.Model):
         return f'{self.entry_for}'
 
 
-# @receiver(models.signal.post_save, sender=Payment)
-# def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs):
-    
+@receiver(post_save, sender=Payment)
+def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs):
+    settings = DefaultEntryType.objects.filter(is_active=True)[0]
+    if created:
+        invoice = True
+        if instance.purchase_order:
+            invoice = False
+            if instance.invoice:
+                raise Exception("Both invoice and purchase order cann be assigned to same payment.")
+        if instance.method.header == "credit":
+            if invoice:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_credit_invoice_cr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_credit_invoice_dr,
+                    date = datetime.datetime.now()
+                )
+            else:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_credit_purchase_order_cr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_credit_purchase_order_dr,
+                    date = datetime.datetime.now()
+                )
+        if instance.method.header == "pre-paid":
+            if invoice:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_pre_paid_invoice_cr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_pre_paid_invoice_dr,
+                    date = datetime.datetime.now()
+                )
+            else:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_pre_paid_purchase_order_dr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_pre_paid_purchase_order_cr,
+                    date = datetime.datetime.now()
+                )
+        if instance.method.header == "cash":
+            if invoice:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_cash_invoice_cr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_cash_invoice_dr,
+                    date = datetime.datetime.now()
+                )
+            else:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_cash_purchase_order_dr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_cash_purchase_order_cr,
+                    date = datetime.datetime.now()
+                )
+        if instance.method.header == "transfer":
+            if invoice:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_transfer_invoice_cr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_transfer_invoice_dr,
+                    date = datetime.datetime.now()
+                )
+            else:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_transfer_purchase_order_dr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_transfer_purchase_order_cr,
+                    date = datetime.datetime.now()
+                )
+        if instance.method.header == "bank":
+            if invoice:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_bank_invoice_cr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_sales_account,
+                    entry_type = entry_type_for_bank_invoice_dr,
+                    date = datetime.datetime.now()
+                )
+            else:
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_bank_purchase_order_dr,
+                    date = datetime.datetime.now()
+                )
+                entry = LedgerEntry.objects.create(
+                    payment = instance,
+                    account = settings.default_purchase_account,
+                    entry_type = entry_type_for_bank_purchase_order_cr,
+                    date = datetime.datetime.now()
+                )   
 
+@receiver(pre_save, sender=Payment)
+def pre_save_payment_handler(sender, instance, *args, **kwargs):
+    old = Payment.objects.get(id=instance.id)
+    if instance.id:
+        if instance.amount != old.amount:
+            amount  = instance.amount - old.amount
+            for entry in LedgerEntry.objects.filter(payment = instance):
+                free = FreeEntryLedger.objects.create(
+                    entry_for = entry,
+                    amount = amount
+                )
 
 
 # @receiver(models.signals.post_save, sender=PurchaseOrder)

@@ -1013,25 +1013,26 @@ def assign_place(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "add":
                 place = Place.objects.get(id=int(data_json['place_id']))
-                purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item']))
+                purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item_id']))
                 placement = Placement.objects.create(
                     purchase_item = purchase_item,
                     placed_on = place,
-                    stock = int(data_json["stock"])
+                    stock = int(data_json["quantity"])
                 )
                 placement.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if data_json['action'] == 'delete':
-                placement = Placement.objects.get(id=int(data_json['id']))
+                placement = Placement.objects.get(id=int(data_json['placement_id']))
                 placement.delete()
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if data_json['action'] == 'update':
+                placement = Placement.objects.get(id=int(data_json['placement_id']))
                 placement.stock = int(data_json['quantity'])
                 placement.save()
                 response_json['status'] = True
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:

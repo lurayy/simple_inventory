@@ -88,6 +88,11 @@ class Payment(models.Model):
 #     instance.gift_card.save()
 
 
+# @receiver(models.signal.post_save, sender=PurchaseOrder)
+# def handle_post_save_purchase_order(sender, instance, created, **kwargs):
+#     if instance.status.is_end:
+        
+
 
 
 @receiver(pre_save, sender=GiftCard)
