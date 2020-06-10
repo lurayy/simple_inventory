@@ -77,36 +77,16 @@ class Payment(models.Model):
     transaction_id = models.CharField(max_length=255, null=True, blank=True)                                            # id 
     bank_name = models.CharField(max_length=255, null=True, blank=True)
     remarks = models.CharField(max_length=255, blank=True, null=True)
+    refunded = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.invoice.customer.first_name} {self.invoice.customer.last_name} {self.method} {self.invoice.invoiced_on}'
-
+        return f'{self.method} {self.amount}'
 
 # @receiver(pre_delete, sender=UniqueCard)
 # def pre_delete_handler_unique_card(sender, instance, **kwargs):
 #     instance.gift_card.count_limit = instance.gift_card.count_limit - 1
 #     instance.gift_card.save()
-
-
-@receiver(pre_save, sender=PurchaseOrder)
-def handle_post_save_purchase_order(sender, instance, *args, **kwargs):
-    print("pre save")
-
-    self.total_cost = 0
-    for item in self.items.filter(is_active=True):
-        self.total_cost = self.total_cost + item.purchase_price*(item.quantity)
-    if self.discount_type == "fixed":
-        self.paid_amount = self.total_cost - self.discount
-    else:
-        self.paid_amount = self.total_cost - self.total_cost*self.discount/100
-    
-    # if instance.id:
-    #     old = PurchaseOrder.objects.get(id= instance.id)
-    #     if old.status.is_end != instance.status.is_end:
-    #         if old.status.is_end == False and instance
-    #             print("Creating Payments")
-                
-
 
 
 @receiver(pre_save, sender=GiftCard)

@@ -30,8 +30,8 @@ CATEGORY = 5
 Ledger_Count = 400
 
 PURCHASE_ORDER_STATUS = 3
-PURCHASE_ORDER_COUNT = 5
-PURCHASE_ORDER_ITEM_COUNT = 25
+PURCHASE_ORDER_COUNT = 2
+PURCHASE_ORDER_ITEM_COUNT = 3
 
 INVOICE_COUNT = 5
 INVOICE_ITEM_COUNT = 10
@@ -174,63 +174,63 @@ for i in range(5):
 
 
 
-# print("--------------------------- Purchase Order -------------------------")
-# global_temp2 = PurchaseOrderStatus.objects.all()
-# global_temp = Vendor.objects.all()
-# for i in range(PURCHASE_ORDER_COUNT):
-#     temp = PurchaseOrder.objects.create(
-#         added_by = users[random.randint(0,len(users)-1)],
-#         vendor = global_temp[random.randint(0, len(global_temp)-1)],
-#         invoiced_on = fake.date_time(tzinfo=None, end_datetime=None),
-#         completed_on = fake.date_time(tzinfo=None, end_datetime=None),
-#         status = global_temp2[random.randint(0, len(global_temp2)-1)],
-#         total_cost = 0
-#     )
-#     temp.save()
-#     print (f'{i} of {PURCHASE_ORDER_COUNT}')
+print("--------------------------- Purchase Order -------------------------")
+global_temp2 = PurchaseOrderStatus.objects.all()
+global_temp = Vendor.objects.all()
+for i in range(PURCHASE_ORDER_COUNT):
+    temp = PurchaseOrder.objects.create(
+        added_by = users[random.randint(0,len(users)-1)],
+        vendor = global_temp[random.randint(0, len(global_temp)-1)],
+        invoiced_on = fake.date_time(tzinfo=None, end_datetime=None),
+        completed_on = fake.date_time(tzinfo=None, end_datetime=None),
+        status = global_temp2[random.randint(0, len(global_temp2)-1)],
+        total_cost = 0
+    )
+    temp.save()
+    print (f'{i} of {PURCHASE_ORDER_COUNT}')
 
-# print("--------------------------- Purchase Order Item -------------------------")
-# global_temp = Item.objects.all()
-# STATUS_S = ['delivered', 'incomplete', 'addedtocirculation']
-# global_temp2 = PurchaseOrder.objects.all()
-# for i in range(PURCHASE_ORDER_COUNT-1):
-#     purchase_order = global_temp2[i]
-#     item_number = random.randint(0,10)
-#     for _ in range(item_number):
-#         temp = PurchaseItem.objects.create(
-#             item = global_temp[random.randint(0, len(global_temp)-1)],
-#             purchase_order = purchase_order,
-#             quantity = random.randint(100, 400),
-#             sold = 0,
-#             purchase_price = random.randint(500, 50000),
-#             defective = random.randint(0, 100),
-#             status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
-#         )
-#         temp.save()
-#         temp.save()
-#     purchase_order.save()
-
-
-# for order in PurchaseOrder.objects.all():
-#     temp = PurchaseOrderStatus.objects.get(is_end=True)
-#     order.status = temp
-#     order.save()
-#     order.save()
-#     print(f'{order} changed to {order.status}')
+print("--------------------------- Purchase Order Item -------------------------")
+global_temp = Item.objects.all()
+STATUS_S = ['delivered', 'incomplete', 'addedtocirculation']
+global_temp2 = PurchaseOrder.objects.all()
+for i in range(PURCHASE_ORDER_COUNT-1):
+    purchase_order = global_temp2[i]
+    item_number = random.randint(0,10)
+    for _ in range(item_number):
+        temp = PurchaseItem.objects.create(
+            item = global_temp[random.randint(0, len(global_temp)-1)],
+            purchase_order = purchase_order,
+            quantity = random.randint(100, 400),
+            sold = 0,
+            non_discount_price = random.randint(500, 50000),
+            defective = random.randint(0, 100),
+            status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
+        )
+        temp.save()
+        temp.save()
+    purchase_order.save()
 
 
-# name = [
-#     "Draft",
-#     "Done"
-# ]
-# for i in range(2):
-#     temp = InvoiceStatus.objects.create(
-#         name = name[i]
-#     )
-#     temp.save()
+for order in PurchaseOrder.objects.all():
+    temp = PurchaseOrderStatus.objects.get(is_end=True)
+    order.status = temp
+    order.save()
+    order.save()
+    print(f'{order} changed to {order.status}')
 
-# temp.is_end = True
-# temp.save()
+
+name = [
+    "Draft",
+    "Done"
+]
+for i in range(2):
+    temp = InvoiceStatus.objects.create(
+        name = name[i]
+    )
+    temp.save()
+
+temp.is_end = True
+temp.save()
 
 
 # print("--------------------------- Invoice -------------------------")
@@ -339,3 +339,21 @@ temp = CustomUserBase.objects.get(id=1)
 role = CustomPermission.objects.get(id=1)
 temp.role = role
 temp.save()
+
+from accounting.models import AccountType, Account, DefaultEntryType
+
+headers =  [
+        'assets','liabilities','revenue','expense'
+    ]
+for head in headers:
+    temp = AccountType.objects.create(
+        name = head,
+        header= head
+    )
+    acc = Account.objects.create(
+        account_type = temp,
+        name = head,
+        opening_date = datetime.datetime.now()
+    )
+
+

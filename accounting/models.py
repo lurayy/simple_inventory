@@ -6,6 +6,7 @@ from django.db.models.signals import pre_save, post_save
 import datetime
 from inventory.models import PurchaseOrder
 from payment.models import Payment, PaymentMethod
+from django.db.models import signals
 
 class EntryType(models.Model):
     name = models.CharField(max_length=255)
@@ -77,11 +78,10 @@ class Account(models.Model):
 
 
 class LedgerEntry(models.Model):
-    payment = models.OneToOneField(Payment, on_delete=models.CASCADE)
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     entry_type = models.ForeignKey(EntryType, on_delete=models.CASCADE)
     remarks = models.TextField(null=True, blank=True)
-    date = models.DateTimeField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -89,7 +89,7 @@ class LedgerEntry(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.account} {self.date}'
+        return f'{self.account} {self.payment}'
     
     def save(self, *args, **kwargs):
         if self.id:
@@ -97,7 +97,7 @@ class LedgerEntry(models.Model):
         super(LedgerEntry, self).save(*args, **kwargs) 
     
     class Meta:
-        unique_together = ['account', 'entry_type', 'date', 'payment']
+        unique_together = ['account', 'entry_type', 'payment']
 
 
 @receiver(models.signals.post_save, sender=LedgerEntry)
@@ -170,9 +170,9 @@ class DefaultEntryType(models.Model):
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
-        if not self.pk and AccountingSettings.objects.exists():
+        if not self.pk and DefaultEntryType.objects.exists():
             raise Exception('There is can be only one AccountingSettings instance')
-        return super(AccountingSettings, self).save(*args, **kwargs)
+        return super(DefaultEntryType, self).save(*args, **kwargs)
 
 
 class FreeEntryLedger(models.Model):
@@ -191,6 +191,9 @@ class FreeEntryLedger(models.Model):
 def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs):
     settings = DefaultEntryType.objects.filter(is_active=True)[0]
     if created:
+        signals.post_save.disconnect(handle_accounting_for_payment_post_save, sender=Payment)
+        instance.save()
+        signals.post_save.connect(handle_accounting_for_payment_post_save, sender=Payment)
         invoice = True
         if instance.purchase_order:
             invoice = False
@@ -201,141 +204,121 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_credit_invoice_cr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_credit_invoice_cr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_credit_invoice_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_credit_invoice_dr,
+                    )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_credit_purchase_order_cr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_credit_purchase_order_cr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_credit_purchase_order_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_credit_purchase_order_dr,
+                    )
         if instance.method.header == "pre-paid":
             if invoice:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_pre_paid_invoice_cr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_pre_paid_invoice_cr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_pre_paid_invoice_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_pre_paid_invoice_dr,
+                    )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_pre_paid_purchase_order_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_pre_paid_purchase_order_dr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_pre_paid_purchase_order_cr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_pre_paid_purchase_order_cr,
+                    )
         if instance.method.header == "cash":
             if invoice:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_cash_invoice_cr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_cash_invoice_cr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_cash_invoice_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_cash_invoice_dr,
+                    )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_cash_purchase_order_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_cash_purchase_order_dr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_cash_purchase_order_cr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_cash_purchase_order_cr,
+                    )
         if instance.method.header == "transfer":
             if invoice:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_transfer_invoice_cr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_transfer_invoice_cr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_transfer_invoice_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_transfer_invoice_dr,
+                    )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_transfer_purchase_order_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_transfer_purchase_order_dr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_transfer_purchase_order_cr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_transfer_purchase_order_cr,
+                    )
         if instance.method.header == "bank":
             if invoice:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_bank_invoice_cr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_bank_invoice_cr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
-                    entry_type = entry_type_for_bank_invoice_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_bank_invoice_dr,
+                    )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_bank_purchase_order_dr,
-                    date = datetime.datetime.now()
-                )
+                    entry_type = settings.entry_type_for_bank_purchase_order_dr,
+                    )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
-                    entry_type = entry_type_for_bank_purchase_order_cr,
-                    date = datetime.datetime.now()
-                )   
+                    entry_type = settings.entry_type_for_bank_purchase_order_cr,
+                    )   
 
 @receiver(pre_save, sender=Payment)
 def pre_save_payment_handler(sender, instance, *args, **kwargs):
-    old = Payment.objects.get(id=instance.id)
     if instance.id:
+        old = Payment.objects.get(id=instance.id)
         if instance.amount != old.amount:
             amount  = instance.amount - old.amount
             for entry in LedgerEntry.objects.filter(payment = instance):
