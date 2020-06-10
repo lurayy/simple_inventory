@@ -1100,7 +1100,7 @@ def get_mulitple_purchase_items(self, request):
             if data_json['action'] == 'get':
                 if data_json['filter'] == 'item_on_default':
                     default = Place.objects.get(is_default=True)
-                    purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id']))
+                    purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id']))[data_json['start']:data_json['end']]
                     for purchase_item in purchase_items:
                         temp = {}
                         try:
