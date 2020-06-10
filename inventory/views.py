@@ -1098,7 +1098,7 @@ def get_mulitple_purchase_items(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == 'get':
-                if data_json['filter'] == 'item_for_place':
+                if data_json['filter'] == 'item_on_default':
                     default = Place.objects.get(is_default=True)
                     purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id']))
                     for purchase_item in purchase_items:

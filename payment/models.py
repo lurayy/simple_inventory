@@ -88,10 +88,24 @@ class Payment(models.Model):
 #     instance.gift_card.save()
 
 
-# @receiver(models.signal.post_save, sender=PurchaseOrder)
-# def handle_post_save_purchase_order(sender, instance, created, **kwargs):
-#     if instance.status.is_end:
-        
+@receiver(pre_save, sender=PurchaseOrder)
+def handle_post_save_purchase_order(sender, instance, *args, **kwargs):
+    print("pre save")
+
+    self.total_cost = 0
+    for item in self.items.filter(is_active=True):
+        self.total_cost = self.total_cost + item.purchase_price*(item.quantity)
+    if self.discount_type == "fixed":
+        self.paid_amount = self.total_cost - self.discount
+    else:
+        self.paid_amount = self.total_cost - self.total_cost*self.discount/100
+    
+    # if instance.id:
+    #     old = PurchaseOrder.objects.get(id= instance.id)
+    #     if old.status.is_end != instance.status.is_end:
+    #         if old.status.is_end == False and instance
+    #             print("Creating Payments")
+                
 
 
 

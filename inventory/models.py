@@ -31,18 +31,11 @@ class PurchaseOrder(models.Model):
     )
     discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='percent')
     discount = models.PositiveIntegerField(default=0)
-    status = models.ForeignKey(PurchaseOrderStatus, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.ForeignKey(PurchaseOrderStatus, on_delete=models.CASCADE)
     paid_amount = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
-        self.total_cost = 0
-        for item in self.items.filter(is_active=True):
-            self.total_cost = self.total_cost + item.purchase_price*(item.quantity)
-        if self.discount_type == "fixed":
-            self.paid_amount = self.total_cost - self.discount
-        else:
-            self.paid_amount = self.total_cost - self.total_cost*self.discount/100
         super(PurchaseOrder, self).save(*args, **kwargs)
         # settings = AccountingSettings.objects.all()[0]
         # remarks_str = "Purchase "+str(self.uuid)
@@ -74,6 +67,7 @@ class PurchaseOrder(models.Model):
 
 @receiver(models.signals.post_save, sender=PurchaseOrder)
 def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
+    print("post save")
     if instance.status.is_end == True:
         for item in instance.items.filter(is_active=True):
             item.status = "addedtocirculation"
