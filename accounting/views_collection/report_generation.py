@@ -15,14 +15,13 @@ from django.core import serializers
 # it is more efficient (faster) to sum the values of a list than to aggregate using Sum()
 # from django.db.models import Sum
 
-@require_http_methods(['POST'])
 @bind
 def generate_profit_loss_statement(self, request):
     response_json = {'status':False}
     # if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
     #     try:
-    json_str = request.body.decode(encoding='UTF-8')
-    data_json = json.loads(json_str)
+    # json_str = request.body.decode(encoding='UTF-8')
+    # data_json = json.loads(json_str)
     # if data_json['action'] == "get":
     #     if data_json['filter'] == "none":
     monthly_stats = MonthlyStats.objects.filter(is_active=True).order_by('-date')
