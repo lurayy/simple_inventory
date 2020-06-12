@@ -181,22 +181,23 @@ class Placement(models.Model):
     class Meta:
         unique_together = ('purchase_item', 'placed_on')
     
-    def save(self, *args, **kwargs):
-        self.item = self.purchase_item.item
-        super(Placement, self).save(*args, **kwargs)
-    
     def delete(self, *args, **kwargs):
         p_i = self.purchase_item
         place =Place.objects.get(is_default=True)
         stock = self.stock
         super(Placement, self).delete(*args, **kwargs)
-        new_placement = Placement.objects.create(purchase_item=p_i, stock=stock, placed_on=place)
+        try:
+            new_placement = Placement.objects.get(purchase_item = p_i, placed_on=place)
+        except: 
+            new_placement = Placement.objects.create(purchase_item=p_i, stock=0, placed_on=place)
+        new_placement.stock = new_placement.stock+stock
         new_placement.save()
         
 
 
 @receiver(pre_save, sender=Place)
 def place_pre_save_handler(sender, instance, *args, **kwargs):
+    instance.item = instance.purchase_item.item
     if instance.id:
         if (instance.is_default) and instance.id != Place.objects.get(is_default=True).id:
             if len(Place.objects.filter(is_default=True))>=1:
@@ -211,21 +212,17 @@ def place_pre_save_handler(sender, instance, *args, **kwargs):
 def placement_pre_save_handler(sender, instance, *args, **kwargs):
     if instance.id:
         if (instance.placed_on.is_default):
-            print("sad")
-            print(instance)
             if instance.stock > instance.purchase_item.stock:
-                print(instance.stock,  instance.purchase_item.stock)
                 raise Exception('Total placed stocked of this item is greater than the purchased item stock.')
         else:
-            print("triggered")
+            old = Placement.objects.get(id=instance.id)
             place = Place.objects.get(is_default=True)
             unassigned = Placement.objects.get(purchase_item=instance.purchase_item, placed_on = place)
-            if instance.stock > unassigned.stock:
+            if instance.stock > unassigned.stock+old.stock :
                 raise Exception('More stock is assiged than there is unassigned stock')
-            print("triggered")
-            unassigned.stock = unassigned.stock - instance.stock
+            unassigned.stock = unassigned.stock - instance.stock + old.stock
             unassigned.save()
-        
+
 
     if instance.id is None:
         if (instance.placed_on.is_default):
