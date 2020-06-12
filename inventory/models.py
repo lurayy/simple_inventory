@@ -197,7 +197,6 @@ class Placement(models.Model):
 
 @receiver(pre_save, sender=Place)
 def place_pre_save_handler(sender, instance, *args, **kwargs):
-    instance.item = instance.purchase_item.item
     if instance.id:
         if (instance.is_default) and instance.id != Place.objects.get(is_default=True).id:
             if len(Place.objects.filter(is_default=True))>=1:
@@ -210,6 +209,7 @@ def place_pre_save_handler(sender, instance, *args, **kwargs):
 
 @receiver(pre_save, sender=Placement)
 def placement_pre_save_handler(sender, instance, *args, **kwargs):
+    instance.item = instance.purchase_item.item
     if instance.id:
         if (instance.placed_on.is_default):
             if instance.stock > instance.purchase_item.stock:
@@ -222,8 +222,6 @@ def placement_pre_save_handler(sender, instance, *args, **kwargs):
                 raise Exception('More stock is assiged than there is unassigned stock')
             unassigned.stock = unassigned.stock - instance.stock + old.stock
             unassigned.save()
-
-
     if instance.id is None:
         if (instance.placed_on.is_default):
             if instance.stock > instance.purchase_item.stock:
@@ -238,6 +236,7 @@ def placement_pre_save_handler(sender, instance, *args, **kwargs):
                 raise Exception('You are trying to assign more stock to the place than there is. Error instance.stock < unassigned.stock ')
             unassigned.stock = unassigned.stock - instance.stock
             unassigned.save()
+
 
 @receiver(models.signals.pre_save, sender=PurchaseItem)
 def pre_save_handler(sender, instance, *args, **kwargs):
