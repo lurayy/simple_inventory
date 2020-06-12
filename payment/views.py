@@ -29,6 +29,8 @@ def add_new_gift_cards(self, request):
                 )
                 if data_json['category']:
                     gift_card.category = GiftCardCategory.objects.get(id=data_json['category_id'])
+                if data_json['is_limited']:
+                    gift_card.count_limit = data_json['count_limit']
                 gift_card.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
