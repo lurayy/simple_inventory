@@ -12,6 +12,37 @@ from user_handler.permission_check import bind, check_permission
 
 @require_http_methods(['POST'])
 @bind
+def add_new_gift_cards(self, request):
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        response_json = {'status':False, 'gift_cards':[]}
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] =="add":
+                gift_card = GiftCard.objects.create(
+                    name = data_json['name'],
+                    code = data_json['code'],
+                    discount_type = data_json['discount_type'],
+                    rate = data_json['rate'],
+                    is_limited = data_json['is_limited'],
+                    has_unique_codes = data_json['has_unique_codes']
+                )
+                if data_json['category']:
+                    gift_card.category = GiftCardCategory.objects.get(id=data_json['category_id'])
+                gift_card.save()
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+                
+
+
+@require_http_methods(['POST'])
+@bind
 def get_multiple_gift_cards(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         response_json = {'status':False, 'gift_cards':[]}

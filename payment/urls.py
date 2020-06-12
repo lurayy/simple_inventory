@@ -8,6 +8,7 @@ urlpatterns = [
     path('giftcard/validate', views.validate_gift_card, name='handle multiple gift cards delete'),
     path('giftcard/uniquecard/delete', views.delete_unique_cards, name='delete unique cards'),
     path('giftcard/update', views.update_gift_card, name="update gift card"),
+    path('giftcard/add', views.add_new_gift_cards, name="update gift card"),
 
     path('payment/methods/get', views.get_payment_methods, name='Payment methods'),    
     path('payment/do',views.apply_payment, name='apply payment')
