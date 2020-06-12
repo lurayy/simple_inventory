@@ -23,51 +23,51 @@ def generate_profit_loss_statement(self, request):
     #     try:
     json_str = request.body.decode(encoding='UTF-8')
     data_json = json.loads(json_str)
-    if data_json['action'] == "get":
-        if data_json['filter'] == "none":
-            monthly_stats = MonthlyStats.objects.filter(is_active=True).order_by('-date')
-            today =datetime.datetime.now()
-            
-            if today.year > monthly_stats[0].date.year:
-                print("run monthly status scripts")
+    # if data_json['action'] == "get":
+    #     if data_json['filter'] == "none":
+    monthly_stats = MonthlyStats.objects.filter(is_active=True).order_by('-date')
+    today =datetime.datetime.now()
+    
+    if today.year > monthly_stats[0].date.year:
+        print("run monthly status scripts")
 
-            tmp = {
-                'total_assets':0,
-                'total_liabilities':0,
-                'total_revenue':0,
-                'total_expense':0,
-                'total_draw':0,
-                'total_equity':0,
-                'profit':0,
-                'to_be_paid':0,
-                'to_pay':0
-            }
-            fields =  [
-                'total_assets',
-                'total_liabilities',
-                'total_revenue',
-                'total_expense',
-                'total_draw',
-                'total_equity',
-                'profit',
-                'to_be_paid',
-                'to_pay'
-            ]
-            
-            stats = serializers.serialize('json', monthly_stats)
-            stats = json.loads(stats)
-            for stat in stats:
-                for field in fields:
-                    tmp[field] = tmp[field] + stat['fields'][field]
-            response_json = {
-                'status':True,
-                'monthly_stats':stats,
-                'past_months':tmp,
-                'this_month':{},
-                'total':{} 
-            }
-            new_entries = LedgerEntry.objects.filter(is_active=True, created_at__range=[monthly_stats[0].date, today])
-            response_json['this_month'] = sum_from_legder_entries(new_entries, fields)
+    tmp = {
+        'total_assets':0,
+        'total_liabilities':0,
+        'total_revenue':0,
+        'total_expense':0,
+        'total_draw':0,
+        'total_equity':0,
+        'profit':0,
+        'to_be_paid':0,
+        'to_pay':0
+    }
+    fields =  [
+        'total_assets',
+        'total_liabilities',
+        'total_revenue',
+        'total_expense',
+        'total_draw',
+        'total_equity',
+        'profit',
+        'to_be_paid',
+        'to_pay'
+    ]
+    
+    stats = serializers.serialize('json', monthly_stats)
+    stats = json.loads(stats)
+    for stat in stats:
+        for field in fields:
+            tmp[field] = tmp[field] + stat['fields'][field]
+    response_json = {
+        'status':True,
+        'monthly_stats':stats,
+        'past_months':tmp,
+        'this_month':{},
+        'total':{} 
+    }
+    new_entries = LedgerEntry.objects.filter(is_active=True, created_at__range=[monthly_stats[0].date, today])
+    response_json['this_month'] = sum_from_legder_entries(new_entries, fields)
     return JsonResponse(response_json)
 
 
