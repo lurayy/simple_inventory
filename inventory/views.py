@@ -1024,11 +1024,11 @@ def assign_place(self, request):
                 placement.save()
                 response_json['status'] = True
             if data_json['action'] == 'delete':
-                placement = Placement.objects.get(id=int(data_json['placement_id']), placed_on = Place.objects.get(id=data_json['place_id'])  )
+                placement = Placement.objects.get(id=int(data_json['placement_id']))
                 placement.delete()
                 response_json['status'] = True
             if data_json['action'] == 'update':
-                placement = Placement.objects.get(id=int(data_json['placement_id']),placed_on = Place.objects.get(id=data_json['place_id']) )
+                placement = Placement.objects.get(id=int(data_json['placement_id']))
                 placement.stock = int(data_json['quantity'])
                 placement.save()
                 response_json['status'] = True
