@@ -10,6 +10,7 @@ from accounting.models import EntryType, AccountType, Account, LedgerEntry, Mont
 from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json
 import datetime
 from django.core import serializers
+import dateutil
 
 # didn't use aggregate sum coz Using cProfile profiler, I find that in my development environment, 
 # it is more efficient (faster) to sum the values of a list than to aggregate using Sum()
@@ -26,8 +27,12 @@ def generate_profit_loss_statement(self, request):
     #     if data_json['filter'] == "none":
     monthly_stats = MonthlyStats.objects.filter(is_active=True).order_by('-date')
     today =datetime.datetime.now()
-    
-    if today.year > monthly_stats[0].date.year:
+    if len(monthly_stats) >= 0 :
+        latest_calulcation_date = today - dateutil.relativedelta.relativedelta(months=1)
+    else:
+        latest_calulcation_date = monthly_stats[0].date
+
+    if today.year > latest_calulcation_date.year:
         print("run monthly status scripts")
 
     tmp = {
@@ -65,7 +70,7 @@ def generate_profit_loss_statement(self, request):
         'this_month':{},
         'total':{} 
     }
-    new_entries = LedgerEntry.objects.filter(is_active=True, created_at__range=[monthly_stats[0].date, today])
+    new_entries = LedgerEntry.objects.filter(is_active=True, created_at__range=[latest_calulcation_date, today])
     response_json['this_month'] = sum_from_legder_entries(new_entries, fields)
     return JsonResponse(response_json)
 
