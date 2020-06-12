@@ -137,6 +137,13 @@ class MonthlyStats(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+@receiver(pre_save, sender=MonthlyStats)
+def monthly_stats_post_save_handler(sender, instance, *args, **kwargs):
+    instance.profit = instance.revenue - total_expense
+
+
+
 class DefaultEntryType(models.Model):
     entry_type_for_credit_purchase_order_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_credits_cr')
     entry_type_for_pre_paid_purchase_order_cr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_order_pre_paid_cr')
