@@ -163,19 +163,6 @@ for _ in range(ITEM_COUNT):
     temp.save()
     print (f'{temp} created.')
 
-print('Ledger Entry Type')
-payemnts = ['credit','pre-paid','cash','transfer','bank']
-payment_methods = []
-for i in range(5):
-    e = PaymentMethod.objects.create(
-        header = payemnts[i],
-        name = payemnts[i]
-    )
-    e.save()
-    payment_methods.append(e)
-
-
-
 # print("--------------------------- Purchase Order -------------------------")
 # global_temp2 = PurchaseOrderStatus.objects.all()
 # global_temp = Vendor.objects.all()
@@ -315,10 +302,22 @@ for _ in range (GIFT_CARD_COUNT):
     print (temp.name)
 
 
+payemnts = ['credit','pre-paid','cash','transfer','bank']
+for i in range(5):
+    e = PaymentMethod.objects.create(
+        header = payemnts[i],
+        name = payemnts[i]
+    )
+    e.save()
+
+
+
+
+
 headers = [
         'assets','liabilities','revenue','expense','draw','equity'
     ]
-
+entries = {}
 headers_obj = []
 for header in headers:
     temp = EntryType.objects.create(
@@ -326,7 +325,8 @@ for header in headers:
         header = header,
     )
     temp.save()
-    # headers_obj.append(temp)
+    entries[header] = temp
+
 
 # for i in range(Ledger_Count):
 #     temp = LedgerEntry.objects.create(
@@ -359,8 +359,18 @@ for head in headers:
     )
 
 
-# from accounting.models import DefaultEntryType
+from accounting.models import DefaultEntryType
 
-# temp = DefaultEntryType.objects.create(
-    
-# )
+temp = DefaultEntryType.objects.create(
+    entry_type_for_credit_purchase_order_cr = entries['liabilities'],
+    entry_type_for_pre_paid_purchase_order_cr = entries['assets'],
+    entry_type_for_cash_purchase_order_cr = entries['assets'],
+    entry_type_for_transfer_purchase_order_cr = entries['assets'],
+    entry_type_for_bank_purchase_order_cr = entries['assets'],
+
+    entry_type_for_credit_invoice_cr = entries['assets'],
+    entry_type_for_pre_paid_invoice_cr = entries['revenue'],
+    entry_type_for_cash_invoice_cr = 
+    entry_type_for_transfer_invoice_cr = 
+    entry_type_for_bank_invoice_cr = 
+)

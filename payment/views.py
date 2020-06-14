@@ -141,7 +141,6 @@ def update_gift_card(self, request):
 
 
 
-
 @require_http_methods(['POST'])
 @bind
 def delete_unique_cards(self, request):
@@ -150,9 +149,9 @@ def delete_unique_cards(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            uuids = data_json['unique_card_id']
+            ids = data_json['ids']
             for uuid in uuids:
-                card = UniqueCard.objects.get(uuid=uuid)
+                card = UniqueCard.objects.get(id=id)
                 if card.is_used:
                     raise Exception("You cannot delete gift card that's already been used.")
                 else:
