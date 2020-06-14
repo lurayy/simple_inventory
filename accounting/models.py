@@ -103,6 +103,7 @@ class LedgerEntry(models.Model):
 @receiver(models.signals.post_save, sender=LedgerEntry)
 def ledger_entry_post_save(sender, instance, created, **kwargs):
     if created:
+        #updating account
         if instance.entry_type.is_credit:
             instance.account.credit = instance.account.credit + instance.payment.amount
         else:
@@ -112,6 +113,9 @@ def ledger_entry_post_save(sender, instance, created, **kwargs):
             else:
                 instance.account.credit = temp
         instance.account.save()
+
+        #updating monthly stats
+        # stat = MonthlyStats.objects.get()
 
 
 @receiver(pre_save, sender=LedgerEntry)
@@ -136,6 +140,10 @@ class MonthlyStats(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # class Meta:
+    #     unique_together = ['']
+
 
 
 @receiver(pre_save, sender=MonthlyStats)
