@@ -30,8 +30,6 @@ def add_new_gift_cards(self, request):
                 )
                 if data_json['category']:
                     gift_card.category = GiftCardCategory.objects.get(id=data_json['category'])
-                if data_json['is_limited']:
-                    gift_card.count_limit = data_json['count_limit']
                 gift_card.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
@@ -39,7 +37,6 @@ def add_new_gift_cards(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
 
                 
 @require_http_methods(['POST'])
@@ -51,10 +48,10 @@ def get_multiple_gift_cards(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             # GET Handler
+            start = int(data_json["start"])
+            end = int(data_json["end"])
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
-                    start = int(data_json["start"])
-                    end = int(data_json["end"])
                     response_json['status'] = True
                     response_json['gift_cards']  = gift_cards_to_json(GiftCard.objects.filter()[start:end])
                     return JsonResponse(response_json)
@@ -122,20 +119,20 @@ def update_gift_card(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            uuid = data_json['gift_card_uuid']
-            gift_card = GiftCard.objects.get(uuid=data_json['uuid'])
-            if gift_card.count_used > 1:
-                raise Exception("You cannot edit gift card that are already being used.")
-            gift_card.name = data_json['name']
-            gift_card.category = GiftCardCategory.objects.get(id=data_json['category']) 
-            gift_card.discount_type = data_json['discount_type']
-            gift_card.rate = data_json['rate']
-            gift_card.count_limit = data_json['count_limit']
-            gift_card.is_limited = data_json['is_limited']
-            gift_card.has_unique_codes = data_json['has_unique_codes']
-            gift_card.is_active = data_json['is_active']
-            gift_card.save()
-            response_json['status'] = True
+            if data_json['action'] == "update":
+                gift_card = GiftCard.objects.get(uuid= data_json['gift_card_uuid'])
+                if gift_card.count_used > 1:
+                    raise Exception("You cannot edit gift card that are already being used.")
+                gift_card.name = data_json['name']
+                gift_card.category = GiftCardCategory.objects.get(id=data_json['category']) 
+                gift_card.discount_type = data_json['discount_type']
+                gift_card.rate = data_json['rate']
+                gift_card.count_limit = data_json['count_limit']
+                gift_card.is_limited = data_json['is_limited']
+                gift_card.has_unique_codes = data_json['has_unique_codes']
+                gift_card.is_active = data_json['is_active']
+                gift_card.save()
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

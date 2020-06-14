@@ -165,58 +165,60 @@ for _ in range(ITEM_COUNT):
 
 print('Ledger Entry Type')
 payemnts = ['credit','pre-paid','cash','transfer','bank']
+payment_methods = []
 for i in range(5):
     e = PaymentMethod.objects.create(
         header = payemnts[i],
         name = payemnts[i]
     )
     e.save()
+    payment_methods.append(e)
 
 
 
-print("--------------------------- Purchase Order -------------------------")
-global_temp2 = PurchaseOrderStatus.objects.all()
-global_temp = Vendor.objects.all()
-for i in range(PURCHASE_ORDER_COUNT):
-    temp = PurchaseOrder.objects.create(
-        added_by = users[random.randint(0,len(users)-1)],
-        vendor = global_temp[random.randint(0, len(global_temp)-1)],
-        invoiced_on = fake.date_time(tzinfo=None, end_datetime=None),
-        completed_on = fake.date_time(tzinfo=None, end_datetime=None),
-        status = global_temp2[random.randint(0, len(global_temp2)-1)],
-        total_cost = 0
-    )
-    temp.save()
-    print (f'{i} of {PURCHASE_ORDER_COUNT}')
+# print("--------------------------- Purchase Order -------------------------")
+# global_temp2 = PurchaseOrderStatus.objects.all()
+# global_temp = Vendor.objects.all()
+# for i in range(PURCHASE_ORDER_COUNT):
+#     temp = PurchaseOrder.objects.create(
+#         added_by = users[random.randint(0,len(users)-1)],
+#         vendor = global_temp[random.randint(0, len(global_temp)-1)],
+#         invoiced_on = fake.date_time(tzinfo=None, end_datetime=None),
+#         completed_on = fake.date_time(tzinfo=None, end_datetime=None),
+#         status = global_temp2[random.randint(0, len(global_temp2)-1)],
+#         total_cost = 0
+#     )
+#     temp.save()
+#     print (f'{i} of {PURCHASE_ORDER_COUNT}')
 
-print("--------------------------- Purchase Order Item -------------------------")
-global_temp = Item.objects.all()
-STATUS_S = ['delivered', 'incomplete', 'addedtocirculation']
-global_temp2 = PurchaseOrder.objects.all()
-for i in range(PURCHASE_ORDER_COUNT-1):
-    purchase_order = global_temp2[i]
-    item_number = random.randint(0,10)
-    for _ in range(item_number):
-        temp = PurchaseItem.objects.create(
-            item = global_temp[random.randint(0, len(global_temp)-1)],
-            purchase_order = purchase_order,
-            quantity = random.randint(100, 400),
-            sold = 0,
-            non_discount_price = random.randint(500, 50000),
-            defective = random.randint(0, 100),
-            status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
-        )
-        temp.save()
-        temp.save()
-    purchase_order.save()
+# print("--------------------------- Purchase Order Item -------------------------")
+# global_temp = Item.objects.all()
+# STATUS_S = ['delivered', 'incomplete', 'addedtocirculation']
+# global_temp2 = PurchaseOrder.objects.all()
+# for i in range(PURCHASE_ORDER_COUNT-1):
+#     purchase_order = global_temp2[i]
+#     item_number = random.randint(0,10)
+#     for _ in range(item_number):
+#         temp = PurchaseItem.objects.create(
+#             item = global_temp[random.randint(0, len(global_temp)-1)],
+#             purchase_order = purchase_order,
+#             quantity = random.randint(100, 400),
+#             sold = 0,
+#             non_discount_price = random.randint(500, 50000),
+#             defective = random.randint(0, 100),
+#             status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
+#         )
+#         temp.save()
+#         temp.save()
+#     purchase_order.save()
 
 
-for order in PurchaseOrder.objects.all():
-    temp = PurchaseOrderStatus.objects.get(is_end=True)
-    order.status = temp
-    order.save()
-    order.save()
-    print(f'{order} changed to {order.status}')
+# for order in PurchaseOrder.objects.all():
+#     temp = PurchaseOrderStatus.objects.get(is_end=True)
+#     order.status = temp
+#     order.save()
+#     order.save()
+#     print(f'{order} changed to {order.status}')
 
 
 name = [
@@ -288,29 +290,29 @@ temp.save()
 #     invoice.status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
 #     invoice.save()
 
-# for i in range (CATEGORY):
-#     name = "category_"+str(i)
-#     temp = GiftCardCategory.objects.create(
-#         name= name
-#     )
-#     print(str(temp))
-#     temp.save()
+for i in range (CATEGORY):
+    name = "category_"+str(i)
+    temp = GiftCardCategory.objects.create(
+        name= name
+    )
+    print(str(temp))
+    temp.save()
 
-# category = GiftCardCategory.objects.all()
+category = GiftCardCategory.objects.all()
 
-# for _ in range (GIFT_CARD_COUNT):
-#     temp = GiftCard.objects.create(
-#         name = fake.last_name(),
-#         category = category[random.randint(0,len(category)-1)],
-#         code = fake.first_name(),
-#         rate = random.randint(0,50),
-#         count_limit = random.randint(5,100),
-#         is_limited = True,
-#         has_unique_codes = True,
-#         is_active = True
-#     )
-#     temp.save()
-#     print (temp.name)
+for _ in range (GIFT_CARD_COUNT):
+    temp = GiftCard.objects.create(
+        name = fake.last_name(),
+        category = category[random.randint(0,len(category)-1)],
+        code = fake.first_name(),
+        rate = random.randint(0,50),
+        count_limit = random.randint(5,100),
+        is_limited = True,
+        has_unique_codes = True,
+        is_active = True
+    )
+    temp.save()
+    print (temp.name)
 
 
 headers = [
@@ -357,3 +359,8 @@ for head in headers:
     )
 
 
+# from accounting.models import DefaultEntryType
+
+# temp = DefaultEntryType.objects.create(
+    
+# )

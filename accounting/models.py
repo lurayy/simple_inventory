@@ -7,7 +7,7 @@ import datetime
 from inventory.models import PurchaseOrder
 from payment.models import Payment, PaymentMethod
 from django.db.models import signals
-
+import django
 class EntryType(models.Model):
     name = models.CharField(max_length=255)
 
@@ -82,6 +82,7 @@ class LedgerEntry(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     entry_type = models.ForeignKey(EntryType, on_delete=models.CASCADE)
     remarks = models.TextField(null=True, blank=True)
+    date = models.DateField(default=django.utils.timezone.now)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -115,7 +116,27 @@ def ledger_entry_post_save(sender, instance, created, **kwargs):
         instance.account.save()
 
         #updating monthly stats
-        # stat = MonthlyStats.objects.get()
+        try:
+            stat = MonthlyStats.objects.filter(date__year = instance.date.year).filter(date__year = instance.date.month)
+            stat = stat[0]
+        except:
+            stat = MonthlyStats.objects.create(
+                date = instance.date
+            )
+        if instance.entry_type.header == "assets":
+            stat.total_assets = stat.total_assets + instance.amount
+        elif instance.entry_type.header == "liabilities":
+            stat.total_liabilities = stat.total_liabilities + instance.amount
+        elif instance.entry_type.header == "revenue ":
+            stat.total_revenue  = stat.total_revenue  + instance.amount
+        elif instance.entry_type.header == "expense":
+            stat.total_expense = stat.total_expense + instance.amount
+        elif instance.entry_type.header == "draw":
+            stat.total_draw = stat.total_draw + instance.amount
+        elif instance.entry_type.header == "equity":
+            stat.total_equity = stat.total_equity + instance.amount
+        stat.save()
+    
 
 
 @receiver(pre_save, sender=LedgerEntry)
@@ -141,13 +162,16 @@ class MonthlyStats(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # class Meta:
-    #     unique_together = ['']
+
 
 
 
 @receiver(pre_save, sender=MonthlyStats)
 def monthly_stats_post_save_handler(sender, instance, *args, **kwargs):
+    if not instance.id:
+        stat = MonthlyStats.objects.filter(date__year = instance.date.year).filter(date__year = instance.date.month)
+        if len(stat) > 0:
+            raise Exception("Duplicate montly stats.")
     instance.profit = instance.revenue - total_expense
 
 
@@ -200,6 +224,48 @@ class FreeEntryLedger(models.Model):
     
     def __str__(self):
         return f'{self.entry_for}'
+    
+    def save(self, *args, **kwargs):
+        if self.id:
+            raise Exception("Cannot update ledger entry.")
+        super(FreeEntryLedger, self).save(*args, **kwargs) 
+
+@receiver(models.signals.post_save, sender=FreeEntryLedger)
+def free_ledger_entry_post_save(sender, instance, created, **kwargs):
+    if created:
+        #updating account
+        if instance.entry_for.entry_type.is_credit:
+            instance.entry_for.account.credit = instance.entry_for.account.credit + instance.amount
+        else:
+            temp = instance.entry_for.account.credit - instance.amount
+            if temp < 0:
+                instance.entry_for.account.due = instance.entry_for.account.due + temp * -1
+            else:
+                instance.entry_for.account.credit = temp
+        instance.entry_for.account.save()
+
+        #updating monthly stats
+        try:
+            stat = MonthlyStats.objects.filter(date__year = instance.entry_for.date.year).filter(date__year = instance.entry_for.date.month)
+            stat = stat[0]
+        except:
+            stat = MonthlyStats.objects.create(
+                date = instance.entry_for.date
+            )
+        if instance.entry_for.entry_type.header == "assets":
+            stat.total_assets = stat.total_assets + instance.amount
+        elif instance.entry_for.entry_type.header == "liabilities":
+            stat.total_liabilities = stat.total_liabilities + instance.amount
+        elif instance.entry_for.entry_type.header == "revenue ":
+            stat.total_revenue  = stat.total_revenue  + instance.amount
+        elif instance.entry_for.entry_type.header == "expense":
+            stat.total_expense = stat.total_expense + instance.amount
+        elif instance.entry_for.entry_type.header == "draw":
+            stat.total_draw = stat.total_draw + instance.amount
+        elif instance.entry_for.entry_type.header == "equity":
+            stat.total_equity = stat.total_equity + instance.amount
+        stat.save()
+    
 
 
 @receiver(post_save, sender=Payment)
@@ -349,7 +415,7 @@ def pre_save_payment_handler(sender, instance, *args, **kwargs):
 #     print(instance.status.is_end)
 #     if instance.status.is_end:
 #         settings = AccountingSettings.objects.filter(is_active=True)[0]
-#         date = datetime.datetime.now()
+#         date = django.utils.timezone.now()
 #         remarks = str(instance.uuid) + str(date)
 #         if instance.discount_type == "percent":
 #             purchase_cost = instance.total_cost - instance.total_cost*0.01*instance.discount
