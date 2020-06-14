@@ -41,6 +41,7 @@ class GiftCard(models.Model):
             return False
 
 class UniqueCard(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     gift_card = models.ForeignKey(GiftCard, on_delete=models.CASCADE, related_name='unique_codes')
     code = models.CharField(max_length=10, unique=True)
     is_used = models.BooleanField(default=False)

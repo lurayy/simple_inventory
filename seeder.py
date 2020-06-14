@@ -359,18 +359,18 @@ for head in headers:
     )
 
 
-from accounting.models import DefaultEntryType
+# from accounting.models import DefaultEntryType
 
-temp = DefaultEntryType.objects.create(
-    entry_type_for_credit_purchase_order_cr = entries['liabilities'],
-    entry_type_for_pre_paid_purchase_order_cr = entries['assets'],
-    entry_type_for_cash_purchase_order_cr = entries['assets'],
-    entry_type_for_transfer_purchase_order_cr = entries['assets'],
-    entry_type_for_bank_purchase_order_cr = entries['assets'],
+# temp = DefaultEntryType.objects.create(
+#     entry_type_for_credit_purchase_order_cr = entries['liabilities'],
+#     entry_type_for_pre_paid_purchase_order_cr = entries['assets'],
+#     entry_type_for_cash_purchase_order_cr = entries['assets'],
+#     entry_type_for_transfer_purchase_order_cr = entries['assets'],
+#     entry_type_for_bank_purchase_order_cr = entries['assets'],
 
-    entry_type_for_credit_invoice_cr = entries['assets'],
-    entry_type_for_pre_paid_invoice_cr = entries['revenue'],
-    entry_type_for_cash_invoice_cr = 
-    entry_type_for_transfer_invoice_cr = 
-    entry_type_for_bank_invoice_cr = 
-)
+#     entry_type_for_credit_invoice_cr = entries['assets'],
+#     entry_type_for_pre_paid_invoice_cr = entries['revenue'],
+#     entry_type_for_cash_invoice_cr = 
+#     entry_type_for_transfer_invoice_cr = 
+#     entry_type_for_bank_invoice_cr = 
+# )

@@ -101,7 +101,7 @@ def delete_gift_cards(self, request):
             data_json = json.loads(json_str)
             uuids = data_json['gift_cards_uuid']
             for uuid in uuids:
-                gift_cards = GiftCard.objects.get(uuid=uuid)
+                gift_card = GiftCard.objects.get(uuid=uuid)
                 gift_card.is_active = False
                 gift_card.save()
             response_json['status'] = True
@@ -149,9 +149,9 @@ def delete_unique_cards(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            ids = data_json['ids']
+            uuids = data_json['uuids']
             for uuid in uuids:
-                card = UniqueCard.objects.get(id=id)
+                card = UniqueCard.objects.get(uuid = uuid)
                 if card.is_used:
                     raise Exception("You cannot delete gift card that's already been used.")
                 else:
