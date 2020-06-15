@@ -375,6 +375,11 @@ def delete_payment(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            if data_json['action'] == "delete":
+                for pay_id in data_json['payments_ids']:
+                    payment = Payment.objects.get(id=pay_id)
+                    payment.delete()
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -390,6 +395,16 @@ def update_payment(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            if data_json['action'] == "update":
+                payment = Payment.objects.get(id=data_json['payment_id'])
+                payment.amount=data_json['amount'],
+                payment.method= PaymentMethod.objects.get(id=data_json['method']),
+                payment.transaction_from = data_json['transaction_from'],
+                payment.transaction_id = data_json['transaction_id'],
+                payment.bank_name = data_json['bank_name'],
+                payment.remarks = data_json['remarks']
+                payment.save()
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
