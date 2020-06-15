@@ -21,12 +21,15 @@ class EntryType(models.Model):
     )
     header = models.CharField(max_length=20, choices=HEADER_CHOICE, default='assets')
     is_active = models.BooleanField(default=True)
-    is_credit = models.BooleanField(default=False)
+    is_add = models.BooleanField(default=True)
 
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.name} {self.header}'
+        return f'{self.name} {self.header} {self.is_add}'
+
+    class Meta:
+        unique_together = ['name', 'header', 'is_add']
 
 class AccountType(models.Model):
     name = models.CharField(max_length=255)
@@ -105,12 +108,12 @@ class LedgerEntry(models.Model):
 def ledger_entry_post_save(sender, instance, created, **kwargs):
     if created:
         #updating account
-        if instance.entry_type.is_credit:
+        if instance.entry_type.is_add:
             instance.account.credit = instance.account.credit + instance.payment.amount
         else:
             temp = instance.account.credit - instance.payment.amount
             if temp < 0:
-                instance.account.due = temp * -1
+                instance.account.due = instance.account.due - temp * -1
             else:
                 instance.account.credit = temp
         instance.account.save()
@@ -123,18 +126,32 @@ def ledger_entry_post_save(sender, instance, created, **kwargs):
             stat = MonthlyStats.objects.create(
                 date = instance.date
             )
+        # if instance.entry_type.is_add:
         if instance.entry_type.header == "assets":
-            stat.total_assets = stat.total_assets + instance.amount
+                stat.total_assets = stat.total_assets + instance.payment.amount
         elif instance.entry_type.header == "liabilities":
-            stat.total_liabilities = stat.total_liabilities + instance.amount
+            stat.total_liabilities = stat.total_liabilities + instance.payment.amount
         elif instance.entry_type.header == "revenue ":
-            stat.total_revenue  = stat.total_revenue  + instance.amount
+            stat.total_revenue  = stat.total_revenue  + instance.payment.amount
         elif instance.entry_type.header == "expense":
-            stat.total_expense = stat.total_expense + instance.amount
+            stat.total_expense = stat.total_expense + instance.payment.amount
         elif instance.entry_type.header == "draw":
-            stat.total_draw = stat.total_draw + instance.amount
+            stat.total_draw = stat.total_draw + instance.payment.amount
         elif instance.entry_type.header == "equity":
-            stat.total_equity = stat.total_equity + instance.amount
+            stat.total_equity = stat.total_equity + instance.payment.amount
+        # else: 
+        #     if instance.entry_type.header == "assets":
+        #             stat.total_assets = stat.total_assets - instance.payment.amount
+        #     elif instance.entry_type.header == "liabilities":
+        #         stat.total_liabilities = stat.total_liabilities - instance.payment.amount
+        #     elif instance.entry_type.header == "revenue ":
+        #         stat.total_revenue  = stat.total_revenue - instance.payment.amount
+        #     elif instance.entry_type.header == "expense":
+        #         stat.total_expense = stat.total_expense - instance.payment.amount
+        #     elif instance.entry_type.header == "draw":
+        #         stat.total_draw = stat.total_draw - instance.payment.amount
+        #     elif instance.entry_type.header == "equity":
+        #         stat.total_equity = stat.total_equity - instance.payment.amount
         stat.save()
     
 
@@ -145,8 +162,8 @@ def ledger_entry_pre_save(sender, instance, *args, **kwargs):
         raise Exception("You Cannot Use Closed Accounts For Transactions.")
 
 class MonthlyStats(models.Model):
-    total_assets = models.FloatField()
-    total_liabilities = models.FloatField()
+    total_assets = models.FloatField(default=0)
+    total_liabilities = models.FloatField(default=0)
     total_revenue = models.FloatField(default=0)
     total_expense = models.FloatField(default=0)
     total_draw = models.FloatField(default=0)
@@ -163,16 +180,13 @@ class MonthlyStats(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-
-
-
 @receiver(pre_save, sender=MonthlyStats)
 def monthly_stats_post_save_handler(sender, instance, *args, **kwargs):
     if not instance.id:
         stat = MonthlyStats.objects.filter(date__year = instance.date.year).filter(date__year = instance.date.month)
         if len(stat) > 0:
             raise Exception("Duplicate montly stats.")
-    instance.profit = instance.revenue - total_expense
+    instance.profit = instance.total_revenue - instance.total_expense
 
 
 
@@ -234,7 +248,7 @@ class FreeEntryLedger(models.Model):
 def free_ledger_entry_post_save(sender, instance, created, **kwargs):
     if created:
         #updating account
-        if instance.entry_for.entry_type.is_credit:
+        if instance.entry_for.entry_type.is_add:
             instance.entry_for.account.credit = instance.entry_for.account.credit + instance.amount
         else:
             temp = instance.entry_for.account.credit - instance.amount
@@ -252,19 +266,35 @@ def free_ledger_entry_post_save(sender, instance, created, **kwargs):
             stat = MonthlyStats.objects.create(
                 date = instance.entry_for.date
             )
-        if instance.entry_for.entry_type.header == "assets":
-            stat.total_assets = stat.total_assets + instance.amount
-        elif instance.entry_for.entry_type.header == "liabilities":
+            
+        # if instance.entry_type.is_add:
+        if instance.entry_type.header == "assets":
+                stat.total_assets = stat.total_assets + instance.amount
+        elif instance.entry_type.header == "liabilities":
             stat.total_liabilities = stat.total_liabilities + instance.amount
-        elif instance.entry_for.entry_type.header == "revenue ":
+        elif instance.entry_type.header == "revenue ":
             stat.total_revenue  = stat.total_revenue  + instance.amount
-        elif instance.entry_for.entry_type.header == "expense":
+        elif instance.entry_type.header == "expense":
             stat.total_expense = stat.total_expense + instance.amount
-        elif instance.entry_for.entry_type.header == "draw":
+        elif instance.entry_type.header == "draw":
             stat.total_draw = stat.total_draw + instance.amount
-        elif instance.entry_for.entry_type.header == "equity":
+        elif instance.entry_type.header == "equity":
             stat.total_equity = stat.total_equity + instance.amount
+        # else: 
+        #     if instance.entry_type.header == "assets":
+        #             stat.total_assets = stat.total_assets - instance.amount
+        #     elif instance.entry_type.header == "liabilities":
+        #         stat.total_liabilities = stat.total_liabilities - instance.amount
+        #     elif instance.entry_type.header == "revenue ":
+        #         stat.total_revenue  = stat.total_revenue - instance.amount
+        #     elif instance.entry_type.header == "expense":
+        #         stat.total_expense = stat.total_expense - instance.amount
+        #     elif instance.entry_type.header == "draw":
+        #         stat.total_draw = stat.total_draw - instance.amount
+        #     elif instance.entry_type.header == "equity":
+        #         stat.total_equity = stat.total_equity - instance.amount
         stat.save()
+    
     
 
 
@@ -286,22 +316,26 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_credit_invoice_cr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_credit_invoice_dr,
+                    date = django.utils.timezone.now()
                     )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_credit_purchase_order_cr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_credit_purchase_order_dr,
+                    date = django.utils.timezone.now()
                     )
         if instance.method.header == "pre-paid":
             if invoice:
@@ -309,22 +343,26 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_pre_paid_invoice_cr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_pre_paid_invoice_dr,
+                    date = django.utils.timezone.now()
                     )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_pre_paid_purchase_order_dr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_pre_paid_purchase_order_cr,
+                    date = django.utils.timezone.now()
                     )
         if instance.method.header == "cash":
             if invoice:
@@ -332,22 +370,26 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_cash_invoice_cr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_cash_invoice_dr,
+                    date = django.utils.timezone.now()
                     )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_cash_purchase_order_dr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_cash_purchase_order_cr,
+                    date = django.utils.timezone.now()
                     )
         if instance.method.header == "transfer":
             if invoice:
@@ -355,22 +397,26 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_transfer_invoice_cr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_transfer_invoice_dr,
+                    date = django.utils.timezone.now()
                     )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_transfer_purchase_order_dr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_transfer_purchase_order_cr,
+                    date = django.utils.timezone.now()
                     )
         if instance.method.header == "bank":
             if invoice:
@@ -378,23 +424,28 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_bank_invoice_cr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_sales_account,
                     entry_type = settings.entry_type_for_bank_invoice_dr,
+                    date = django.utils.timezone.now()
                     )
             else:
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_bank_purchase_order_dr,
+                    date = django.utils.timezone.now()
                     )
                 entry = LedgerEntry.objects.create(
                     payment = instance,
                     account = settings.default_purchase_account,
                     entry_type = settings.entry_type_for_bank_purchase_order_cr,
+                    date = django.utils.timezone.now()
                     )   
+
 
 @receiver(pre_save, sender=Payment)
 def pre_save_payment_handler(sender, instance, *args, **kwargs):

@@ -163,50 +163,6 @@ for _ in range(ITEM_COUNT):
     temp.save()
     print (f'{temp} created.')
 
-# print("--------------------------- Purchase Order -------------------------")
-# global_temp2 = PurchaseOrderStatus.objects.all()
-# global_temp = Vendor.objects.all()
-# for i in range(PURCHASE_ORDER_COUNT):
-#     temp = PurchaseOrder.objects.create(
-#         added_by = users[random.randint(0,len(users)-1)],
-#         vendor = global_temp[random.randint(0, len(global_temp)-1)],
-#         invoiced_on = fake.date_time(tzinfo=None, end_datetime=None),
-#         completed_on = fake.date_time(tzinfo=None, end_datetime=None),
-#         status = global_temp2[random.randint(0, len(global_temp2)-1)],
-#         total_cost = 0
-#     )
-#     temp.save()
-#     print (f'{i} of {PURCHASE_ORDER_COUNT}')
-
-# print("--------------------------- Purchase Order Item -------------------------")
-# global_temp = Item.objects.all()
-# STATUS_S = ['delivered', 'incomplete', 'addedtocirculation']
-# global_temp2 = PurchaseOrder.objects.all()
-# for i in range(PURCHASE_ORDER_COUNT-1):
-#     purchase_order = global_temp2[i]
-#     item_number = random.randint(0,10)
-#     for _ in range(item_number):
-#         temp = PurchaseItem.objects.create(
-#             item = global_temp[random.randint(0, len(global_temp)-1)],
-#             purchase_order = purchase_order,
-#             quantity = random.randint(100, 400),
-#             sold = 0,
-#             non_discount_price = random.randint(500, 50000),
-#             defective = random.randint(0, 100),
-#             status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
-#         )
-#         temp.save()
-#         temp.save()
-#     purchase_order.save()
-
-
-# for order in PurchaseOrder.objects.all():
-#     temp = PurchaseOrderStatus.objects.get(is_end=True)
-#     order.status = temp
-#     order.save()
-#     order.save()
-#     print(f'{order} changed to {order.status}')
-
 
 name = [
     "Draft",
@@ -317,16 +273,31 @@ for i in range(5):
 headers = [
         'assets','liabilities','revenue','expense','draw','equity'
     ]
-entries = {}
+entries_add = {}
 headers_obj = []
 for header in headers:
     temp = EntryType.objects.create(
         name = header,
         header = header,
+        is_add = True
     )
     temp.save()
-    entries[header] = temp
+    entries_add[header] = temp
 
+entries_sub = {}
+for header in headers:
+    temp = EntryType.objects.create(
+        name = header,
+        header = header,
+        is_add = False
+    )
+    temp.save()
+    entries_sub[header] = temp
+
+entries = {
+    'add': entries_add,
+    'sub': entries_sub
+}
 
 # for i in range(Ledger_Count):
 #     temp = LedgerEntry.objects.create(
@@ -359,18 +330,90 @@ for head in headers:
     )
 
 
-# from accounting.models import DefaultEntryType
+from accounting.models import DefaultEntryType
 
-# temp = DefaultEntryType.objects.create(
-#     entry_type_for_credit_purchase_order_cr = entries['liabilities'],
-#     entry_type_for_pre_paid_purchase_order_cr = entries['assets'],
-#     entry_type_for_cash_purchase_order_cr = entries['assets'],
-#     entry_type_for_transfer_purchase_order_cr = entries['assets'],
-#     entry_type_for_bank_purchase_order_cr = entries['assets'],
+temp = DefaultEntryType.objects.create(
+    entry_type_for_credit_purchase_order_cr = entries['add']['liabilities'],
+    entry_type_for_pre_paid_purchase_order_cr = entries['add']['liabilities'],
+    entry_type_for_cash_purchase_order_cr = entries['add']['liabilities'],
+    entry_type_for_transfer_purchase_order_cr =entries['add']['liabilities'],
+    entry_type_for_bank_purchase_order_cr =entries['add']['liabilities'],
 
-#     entry_type_for_credit_invoice_cr = entries['assets'],
-#     entry_type_for_pre_paid_invoice_cr = entries['revenue'],
-#     entry_type_for_cash_invoice_cr = 
-#     entry_type_for_transfer_invoice_cr = 
-#     entry_type_for_bank_invoice_cr = 
-# )
+    entry_type_for_credit_purchase_order_dr = entries['add']['assets'],
+    entry_type_for_pre_paid_purchase_order_dr = entries['add']['assets'],
+    entry_type_for_cash_purchase_order_dr = entries['add']['assets'],
+    entry_type_for_transfer_purchase_order_dr =entries['add']['assets'],
+    entry_type_for_bank_purchase_order_dr =entries['add']['assets'],
+
+
+    entry_type_for_credit_invoice_cr = entries['add']['assets'],
+    entry_type_for_pre_paid_invoice_cr = entries['add']['revenue'],
+    entry_type_for_cash_invoice_cr = entries['add']['revenue'],
+    entry_type_for_transfer_invoice_cr = entries['add']['revenue'],
+    entry_type_for_bank_invoice_cr = entries['add']['revenue'],
+
+    entry_type_for_credit_invoice_dr = entries['sub']['assets'],
+    entry_type_for_pre_paid_invoice_dr = entries['sub']['assets'],
+    entry_type_for_cash_invoice_dr = entries['sub']['assets'],
+    entry_type_for_transfer_invoice_dr = entries['sub']['assets'],
+    entry_type_for_bank_invoice_dr = entries['sub']['assets'],
+
+    default_purchase_account = Account.objects.get(account_type__header='assets'),
+    default_sales_account = Account.objects.get(account_type__header='revenue')
+)
+
+
+print("--------------------------- Purchase Order -------------------------")
+global_temp2 = PurchaseOrderStatus.objects.all()
+global_temp = Vendor.objects.all()
+for i in range(PURCHASE_ORDER_COUNT):
+    temp = PurchaseOrder.objects.create(
+        added_by = users[random.randint(0,len(users)-1)],
+        vendor = global_temp[random.randint(0, len(global_temp)-1)],
+        invoiced_on = fake.date_time(tzinfo=None, end_datetime=None),
+        completed_on = fake.date_time(tzinfo=None, end_datetime=None),
+        status = global_temp2[random.randint(0, len(global_temp2)-1)],
+        total_cost = 0
+    )
+    temp.save()
+    print (f'{i} of {PURCHASE_ORDER_COUNT}')
+
+print("--------------------------- Purchase Order Item -------------------------")
+global_temp = Item.objects.all()
+STATUS_S = ['delivered', 'incomplete', 'addedtocirculation']
+global_temp2 = PurchaseOrder.objects.all()
+for i in range(PURCHASE_ORDER_COUNT-1):
+    purchase_order = global_temp2[i]
+    item_number = random.randint(0,10)
+    for _ in range(item_number):
+        temp = PurchaseItem.objects.create(
+            item = global_temp[random.randint(0, len(global_temp)-1)],
+            purchase_order = purchase_order,
+            quantity = random.randint(100, 400),
+            sold = 0,
+            non_discount_price = random.randint(500, 50000),
+            defective = random.randint(0, 100),
+            status = STATUS_S[random.randint(0, len(STATUS_S)-1)]
+        )
+        temp.save()
+        temp.save()
+    purchase_order.save()
+
+
+for order in PurchaseOrder.objects.all():
+    temp = PurchaseOrderStatus.objects.get(is_end=True)
+    order.status = temp
+    order.save()
+    order.save()
+    print(f'{order} changed to {order.status}')
+
+
+from payment.models import Payment
+methods = PaymentMethod.objects.all()
+for order in PurchaseOrder.objects.all():
+    pay = Payment.objects.create(
+        purchase_order = order,
+        amount = order.paid_amount,
+        method = methods[random.randint(0, len(methods)-1)],
+    )
+    pay.save()
