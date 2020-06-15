@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from accounting.models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats
 from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json
-
+from payment.models import Payment, PaymentMethod
 
 
 @require_http_methods(['POST'])
@@ -75,7 +75,7 @@ def add_new_ledger_entry(self, request):
                     entry_type = EntryType.objects.get(id=data_json['ledger_entry_type_id']),
                     remarks = data_json['remarks'],
                     date = str_to_datetime(data_json['date']),
-                    amount = data_json['amount']
+                    payment = Payment.objects.get(id=data_json['payment_id']) 
                 )
                 response_json['ledger_entries'] = ledger_entries_to_json([entry])
                 response_json['status'] = True

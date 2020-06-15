@@ -2,6 +2,8 @@ from django.forms.models import model_to_dict
 from .models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats
 import dateutil.parser
 from .serializers import EntryTypeSerializer, AccountTypeSerializer, AccountSerializer, LedgerEntrySerializer, MonthlyStatsSerializer
+from payment.models import Payment, PaymentMethod
+from payment.utils import payment_methods_to_json
 
 def entry_types_to_json (models):
     data = []
@@ -50,5 +52,6 @@ def ledger_entries_to_json(models):
         temp['account_type_str'] = model.account.account_type.name
         temp['entry_type_str'] = model.entry_type.name
         temp['header_str'] = model.entry_type.header
+        temp['payment'] = payment_methods_to_json([model.payment])
         data.append(temp)
     return data
