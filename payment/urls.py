@@ -13,5 +13,9 @@ urlpatterns = [
     path('payment/methods/get', views.get_payment_methods, name='Payment methods'),    
     path('payment/do',views.apply_payment, name='apply payment'),
 
-    path('giftcards/categories/get', views.get_gift_card_categories)
+    path('giftcards/categories/get', views.get_gift_card_categories),
+
+    path('payment/add', views.create_payment),
+    path('payment/delete', views.delete_payment),
+    path('payment/update', views.update_payment)
 ]

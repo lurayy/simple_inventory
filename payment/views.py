@@ -8,7 +8,7 @@ from .utils import gift_card_categories_to_json, unique_cards_to_json, gift_card
 from .models import GiftCard, GiftCardCategory, UniqueCard, Payment, PaymentMethod
 from sales.models import Invoice
 from user_handler.permission_check import bind, check_permission
-
+from inventory.models import PurchaseOrder
 
 @require_http_methods(['POST'])
 @bind
@@ -313,3 +313,86 @@ def get_gift_card_categories(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+
+@require_http_methods(['POST'])
+@bind
+def create_payment(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "add":
+                if data_json['invoice']:
+                    payment = Payment.objects.create(
+                        invoice = Invoice.objects.get(id=data_json['invoice']),
+                        amount=data_json['amount'],
+                        method= PaymentMethod.objects.get(id=data_json['method']),
+                        transaction_from = data_json['transaction_from'],
+                        transaction_id = data_json['transaction_id'],
+                        bank_name = data_json['bank_name'],
+                        remarks = data_json['remarks']
+                    )
+                    payment.save()
+                elif data_json['purchase_order']:
+                    payment = Payment.objects.create(
+                        purchase_order = PurchaseOrder.objects.get(id=data_json['purchase_order']),
+                        amount= data_json['amount'],
+                        method= PaymentMethod.objects.get(id=data_json['method']),
+                        transaction_from = data_json['transaction_from'],
+                        transaction_id = data_json['transaction_id'],
+                        bank_name = data_json['bank_name'],
+                        remarks = data_json['remarks']
+                    )
+                else:
+                    payment = Payment.objects.create(
+                        amount=data_json['amount'],
+                        method= PaymentMethod.objects.get(id=data_json['method']),
+                        transaction_from = data_json['transaction_from'],
+                        transaction_id = data_json['transaction_id'],
+                        bank_name = data_json['bank_name'],
+                        remarks = data_json['remarks']
+                    )
+                    payment.save()
+                response_json['status'] = True
+                response_json['payment'] = payment_methods_to_json([payment])
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+@require_http_methods(['POST'])
+@bind
+def delete_payment(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def update_payment(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
