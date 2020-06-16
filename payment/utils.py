@@ -1,5 +1,5 @@
 from . models import UniqueCard, GiftCardCategory, GiftCard
-from .serializers import UniqueCardSerializer, GiftCardCategorySerializer, GiftCardSerializer, PaymentMethodSerializer
+from .serializers import UniqueCardSerializer, GiftCardCategorySerializer, GiftCardSerializer, PaymentMethodSerializer, PaymentSerializer
 
 def gift_cards_to_json(cards):
     data = []
@@ -34,5 +34,5 @@ def gift_card_to_json(card):
 def payment_methods_to_json(methods):
     data = []
     for method in methods:
-        data.append(PaymentMethodSerializer(method).data)
+        data.append(PaymentSerializer(method).data)
     return data
