@@ -11,6 +11,7 @@ from accounting.utils import accounts_to_json, entry_types_to_json, accounts_typ
 import datetime
 from django.core import serializers
 import dateutil
+from django.db.models import Sum
 
 # didn't use aggregate sum coz Using cProfile profiler, I find that in my development environment, 
 # it is more efficient (faster) to sum the values of a list than to aggregate using Sum()
@@ -97,3 +98,46 @@ def sum_from_legder_entries(entries, fields):
     total['profit'] = total['revenue'] - total['expense']
     return total
     # for account in Account.objects.filter(is_active = True, is_closed=False)
+
+
+
+
+@bind
+def generate_balance_sheet_statement(self, request):
+    response_json = {'status':False}
+    accounts = Account.objects.filter(is_active=True, is_closed=False)
+    headers = []
+    balance_sheet = {}
+    for header in AccountType.HEADER_CHOICE:
+        headers.append(header[0])
+        balance_sheet[header[0]] = {
+                'header':header[0],
+                'sub_headers':[],
+                'meta_data':{}
+            }
+
+    for account_type in AccountType.objects.filter(is_active=True):
+        temp = accounts.filter(account_type=account_type)
+        balance_sheet[account_type.header]['sub_headers'].append(
+                {
+                    'name':account_type.name,
+                    'header':account_type.header,
+                    'accounts':accounts_to_json(temp),
+                    'meta_data':{
+                        'count':len(temp),
+                        'sum_due': accounts.aggregate(Sum('due')),
+                        'sum_credit':accounts.aggregate(Sum('credit'))
+                    }
+                }
+            )
+
+    # for header in headers:
+    #     balance_sheet[header]['meta_data'] = {
+    #         'count':
+    #         'sum_due':
+    #         'sum_credit':
+
+    #     }
+
+    return JsonResponse(balance_sheet)
+

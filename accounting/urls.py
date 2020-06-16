@@ -14,5 +14,6 @@ urlpatterns = [
    path('ledger/entry/add', views.add_new_ledger_entry),
    path('ledger/entry/get', views.get_ledger_entry_details),
 
-   path('reports/profitloss', views.generate_profit_loss_statement)
+   path('reports/profitloss', views.generate_profit_loss_statement),
+   path('reports/balancesheet', views.generate_balance_sheet_statement),
 ]

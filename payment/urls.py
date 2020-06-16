@@ -10,12 +10,12 @@ urlpatterns = [
     path('giftcard/update', views.update_gift_card, name="update gift card"),
     path('giftcard/add', views.add_new_gift_cards, name="update gift card"),
 
-    path('payment/methods/get', views.get_payment_methods, name='Payment methods'),    
-    path('payment/do',views.apply_payment, name='apply payment'),
+    path('methods/get', views.get_payment_methods, name='Payment methods'),    
+    path('do',views.apply_payment, name='apply payment'),
 
     path('giftcards/categories/get', views.get_gift_card_categories),
 
-    path('payment/add', views.create_payment),
-    path('payment/delete', views.delete_payment),
-    path('payment/update', views.update_payment)
+    path('add', views.create_payment),
+    path('delete', views.delete_payment),
+    path('update', views.update_payment)
 ]
