@@ -133,9 +133,9 @@ def generate_balance_sheet_statement(self, request):
 
     # for header in headers:
     #     balance_sheet[header]['meta_data'] = {
-    #         'count':
-    #         'sum_due':
-    #         'sum_credit':
+    #         'count': len(balance_sheet[header]['sub_headers']),
+    #         'sum_due': sum( d['meta_deta']['sum_due'] for d in balance_sheet[header]['sub_headers']),
+    #         'sum_credit': sum( d['meta_deta']['sum_credit'] for d in balance_sheet[header]['sub_headers'])
 
     #     }
 

@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from .utils import gift_card_categories_to_json, unique_cards_to_json, gift_cards_to_json, gift_card_to_json, payment_methods_to_json
+from .utils import gift_card_categories_to_json, unique_cards_to_json, gift_cards_to_json, gift_card_to_json, payment_methods_to_json, payment_to_json
 from .models import GiftCard, GiftCardCategory, UniqueCard, Payment, PaymentMethod
 from sales.models import Invoice
 from user_handler.permission_check import bind, check_permission
@@ -358,7 +358,7 @@ def create_payment(self, request):
                     )
                     payment.save()
                 response_json['status'] = True
-                response_json['payment'] = payment_methods_to_json([payment])
+                response_json['payment'] = payment_to_json([payment])
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

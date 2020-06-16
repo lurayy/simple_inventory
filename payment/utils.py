@@ -31,7 +31,16 @@ def gift_card_to_json(card):
     data[0]['unique_cards'] = temp
     return data
 
+
+
 def payment_methods_to_json(methods):
+    data = []
+    for method in methods:
+        data.append(PaymentMethodSerializer(method).data)
+    return data
+
+
+def payment_to_json(methods):
     data = []
     for method in methods:
         data.append(PaymentSerializer(method).data)
