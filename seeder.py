@@ -358,8 +358,11 @@ temp = DefaultEntryType.objects.create(
     entry_type_for_transfer_invoice_dr = entries['sub']['assets'],
     entry_type_for_bank_invoice_dr = entries['sub']['assets'],
 
-    default_purchase_account = Account.objects.get(account_type__header='assets'),
-    default_sales_account = Account.objects.get(account_type__header='revenue')
+    default_purchase_account_on_dr = Account.objects.get(account_type__header='assets'),
+    default_sales_account_on_dr = Account.objects.get(account_type__header='revenue'),
+
+    default_purchase_account_on_cr = Account.objects.get(account_type__header='liabilities'),
+    default_sales_account_on_cr = Account.objects.get(account_type__header='assets')
 )
 
 

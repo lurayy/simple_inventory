@@ -70,12 +70,17 @@ def add_new_ledger_entry(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "add":
+                if data_json['bundle_id']:
+                    bundle_id = data_json['bundle_id']
+                else:
+                    bundle_id = uuid.uuid4
                 entry = LedgerEntry.objects.create(
                     account = Account.objects.get(id=data_json['account_id']),
                     entry_type = EntryType.objects.get(id=data_json['ledger_entry_type_id']),
                     remarks = data_json['remarks'],
                     date = str_to_datetime(data_json['date']),
-                    payment = Payment.objects.get(id=data_json['payment_id']) 
+                    payment = Payment.objects.get(id=data_json['payment_id']),
+                    bundle_id = bundle_id
                 )
                 response_json['ledger_entries'] = ledger_entries_to_json([entry])
                 response_json['status'] = True

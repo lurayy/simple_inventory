@@ -64,7 +64,6 @@ class Account(models.Model):
     is_active = models.BooleanField(default=True)
     is_closed = models.BooleanField(default=False)
 
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -217,11 +216,13 @@ class DefaultEntryType(models.Model):
     entry_type_for_cash_invoice_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_cash_dr')
     entry_type_for_transfer_invoice_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_transfer_dr')
     entry_type_for_bank_invoice_dr = models.ForeignKey(EntryType, on_delete=models.SET_NULL, null=True, blank=True, related_name='invoice_bank_dr')
-   
-    
 
-    default_purchase_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_purchases')
-    default_sales_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_sales')
+    default_purchase_account_on_cr = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_purchases_on_cr')
+    default_sales_account_on_cr = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_sales_on_cr')
+
+    default_purchase_account_on_dr = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_purchases_on_dr')
+    default_sales_account_on_dr = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='default_sales_on_dr')
+
 
     is_active = models.BooleanField(default=True)
 
@@ -318,28 +319,32 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                 if invoice:
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_sales_account,
+                        account = settings.default_sales_account_on_cr,
                         entry_type = settings.entry_type_for_credit_invoice_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_sales_account,
+                        account = settings.default_sales_account_on_dr,
                         entry_type = settings.entry_type_for_credit_invoice_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                 else:
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_cr,
                         entry_type = settings.entry_type_for_credit_purchase_order_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_dr,
                         entry_type = settings.entry_type_for_credit_purchase_order_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )
             if instance.method.header == "pre-paid":
                 if invoice:
@@ -347,26 +352,30 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                         payment = instance,
                         account = settings.default_sales_account,
                         entry_type = settings.entry_type_for_pre_paid_invoice_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
                         account = settings.default_sales_account,
                         entry_type = settings.entry_type_for_pre_paid_invoice_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                 else:
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_dr,
                         entry_type = settings.entry_type_for_pre_paid_purchase_order_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_cr,
                         entry_type = settings.entry_type_for_pre_paid_purchase_order_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )
             if instance.method.header == "cash":
                 if invoice:
@@ -374,26 +383,30 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                         payment = instance,
                         account = settings.default_sales_account,
                         entry_type = settings.entry_type_for_cash_invoice_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
                         account = settings.default_sales_account,
                         entry_type = settings.entry_type_for_cash_invoice_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                 else:
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_dr,
                         entry_type = settings.entry_type_for_cash_purchase_order_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_cr,
                         entry_type = settings.entry_type_for_cash_purchase_order_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )
             if instance.method.header == "transfer":
                 if invoice:
@@ -401,26 +414,30 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                         payment = instance,
                         account = settings.default_sales_account,
                         entry_type = settings.entry_type_for_transfer_invoice_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
                         account = settings.default_sales_account,
                         entry_type = settings.entry_type_for_transfer_invoice_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                 else:
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_dr,
                         entry_type = settings.entry_type_for_transfer_purchase_order_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_cr,
                         entry_type = settings.entry_type_for_transfer_purchase_order_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )
             if instance.method.header == "bank":
                 if invoice:
@@ -428,26 +445,30 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                         payment = instance,
                         account = settings.default_sales_account,
                         entry_type = settings.entry_type_for_bank_invoice_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
                         account = settings.default_sales_account,
                         entry_type = settings.entry_type_for_bank_invoice_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.invoice.invoice_number
                         )
                 else:
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_dr,
                         entry_type = settings.entry_type_for_bank_purchase_order_dr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )
                     entry = LedgerEntry.objects.create(
                         payment = instance,
-                        account = settings.default_purchase_account,
+                        account = settings.default_purchase_account_on_cr,
                         entry_type = settings.entry_type_for_bank_purchase_order_cr,
-                        date = django.utils.timezone.now()
+                        date = django.utils.timezone.now(),
+                        bundle_id = instance.purchase_order.uuid
                         )   
 
 

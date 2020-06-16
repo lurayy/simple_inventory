@@ -9,6 +9,7 @@ from .models import GiftCard, GiftCardCategory, UniqueCard, Payment, PaymentMeth
 from sales.models import Invoice
 from user_handler.permission_check import bind, check_permission
 from inventory.models import PurchaseOrder
+import uuid
 
 @require_http_methods(['POST'])
 @bind
@@ -334,7 +335,7 @@ def create_payment(self, request):
                         transaction_from = data_json['transaction_from'],
                         transaction_id = data_json['transaction_id'],
                         bank_name = data_json['bank_name'],
-                        remarks = data_json['remarks']
+                        remarks = data_json['remarks'],
                     )
                     payment.save()
                 elif data_json['purchase_order']:
