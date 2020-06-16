@@ -398,7 +398,6 @@ def update_payment(self, request):
             if data_json['action'] == "update":
                 payment = Payment.objects.get(id=data_json['payment_id'])
                 payment.amount=data_json['amount'],
-                payment.method= PaymentMethod.objects.get(id=data_json['method']),
                 payment.transaction_from = data_json['transaction_from'],
                 payment.transaction_id = data_json['transaction_id'],
                 payment.bank_name = data_json['bank_name'],
