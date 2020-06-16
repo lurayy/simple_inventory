@@ -125,19 +125,18 @@ def generate_balance_sheet_statement(self, request):
                     'accounts':accounts_to_json(temp),
                     'meta_data':{
                         'count':len(temp),
-                        'sum_due': accounts.aggregate(Sum('due')),
-                        'sum_credit':accounts.aggregate(Sum('credit'))
+                        'sum_due': temp.aggregate(Sum('due'))['due__sum'],
+                        'sum_credit':temp.aggregate(Sum('credit'))['credit__sum']
                     }
                 }
             )
 
-    # for header in headers:
-    #     balance_sheet[header]['meta_data'] = {
-    #         'count': len(balance_sheet[header]['sub_headers']),
-    #         'sum_due': sum( d['meta_deta']['sum_due'] for d in balance_sheet[header]['sub_headers']),
-    #         'sum_credit': sum( d['meta_deta']['sum_credit'] for d in balance_sheet[header]['sub_headers'])
-
-    #     }
+    for header in headers:
+        balance_sheet[header]['meta_data'] = {
+            'count': len(balance_sheet[header]['sub_headers']),
+            'sum_due': sum( d['meta_data']['sum_due'] for d in balance_sheet[header]['sub_headers']),
+            'sum_credit': sum( d['meta_data']['sum_credit'] for d in balance_sheet[header]['sub_headers'])
+        }
 
     return JsonResponse(balance_sheet)
 
