@@ -83,7 +83,6 @@ def add_new_ledger_entry(self, request):
                         payment = Payment.objects.get(id=entry['payment_id']),
                         bundle_id = bundle_id
                     )
-                    entry_model.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
