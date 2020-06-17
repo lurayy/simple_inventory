@@ -472,17 +472,19 @@ def handle_accounting_for_payment_post_save(sender, instance, created, **kwargs)
                         )   
 
 
-@receiver(pre_save, sender=Payment)
-def pre_save_payment_handler(sender, instance, *args, **kwargs):
-    if instance.id:
-        old = Payment.objects.get(id=instance.id)
-        if instance.amount != old.amount:
-            amount  = instance.amount - old.amount
-            for entry in LedgerEntry.objects.filter(payment = instance):
-                free = FreeEntryLedger.objects.create(
-                    entry_for = entry,
-                    amount = amount
-                )
+
+# For payment update
+# @receiver(pre_save, sender=Payment)
+# def pre_save_payment_handler(sender, instance, *args, **kwargs):
+#     if instance.id:
+#         old = Payment.objects.get(id=instance.id)
+#         if instance.amount != old.amount:
+#             amount  = instance.amount - old.amount
+#             for entry in LedgerEntry.objects.filter(payment = instance):
+#                 free = FreeEntryLedger.objects.create(
+#                     entry_for = entry,
+#                     amount = amount
+#                 )
 
 
 # @receiver(models.signals.post_save, sender=PurchaseOrder)
