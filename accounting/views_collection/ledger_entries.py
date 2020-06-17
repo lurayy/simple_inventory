@@ -9,7 +9,7 @@ from django.db import IntegrityError
 from accounting.models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats
 from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json
 from payment.models import Payment, PaymentMethod
-
+import uuid
 
 @require_http_methods(['POST'])
 @bind
