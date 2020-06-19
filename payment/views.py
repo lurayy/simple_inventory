@@ -326,40 +326,43 @@ def create_payment(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            payments_data = []
             if data_json['action'] == "add":
-                if data_json['invoice']:
-                    payment = Payment.objects.create(
-                        invoice = Invoice.objects.get(id=data_json['invoice']),
-                        amount=data_json['amount'],
-                        method= PaymentMethod.objects.get(id=data_json['method']),
-                        transaction_from = data_json['transaction_from'],
-                        transaction_id = data_json['transaction_id'],
-                        bank_name = data_json['bank_name'],
-                        remarks = data_json['remarks'],
-                    )
-                    payment.save()
-                elif data_json['purchase_order']:
-                    payment = Payment.objects.create(
-                        purchase_order = PurchaseOrder.objects.get(id=data_json['purchase_order']),
-                        amount= data_json['amount'],
-                        method= PaymentMethod.objects.get(id=data_json['method']),
-                        transaction_from = data_json['transaction_from'],
-                        transaction_id = data_json['transaction_id'],
-                        bank_name = data_json['bank_name'],
-                        remarks = data_json['remarks']
-                    )
-                else:
-                    payment = Payment.objects.create(
-                        amount=data_json['amount'],
-                        method= PaymentMethod.objects.get(id=data_json['method']),
-                        transaction_from = data_json['transaction_from'],
-                        transaction_id = data_json['transaction_id'],
-                        bank_name = data_json['bank_name'],
-                        remarks = data_json['remarks']
-                    )
-                    payment.save()
+                for payment in data_json['payments']:
+                    if payment['invoice']:
+                        temp = Payment.objects.create(
+                            invoice = Invoice.objects.get(id=payment['invoice']),
+                            amount=payment['amount'],
+                            method= PaymentMethod.objects.get(id=payment['method']),
+                            transaction_from = payment['transaction_from'],
+                            transaction_id = payment['transaction_id'],
+                            bank_name = payment['bank_name'],
+                            remarks = payment['remarks'],
+                        )
+                        payment.save()
+                    elif payment['purchase_order']:
+                        temp = Payment.objects.create(
+                            purchase_order = PurchaseOrder.objects.get(id=payment['purchase_order']),
+                            amount= payment['amount'],
+                            method= PaymentMethod.objects.get(id=payment['method']),
+                            transaction_from = payment['transaction_from'],
+                            transaction_id = payment['transaction_id'],
+                            bank_name = payment['bank_name'],
+                            remarks = payment['remarks']
+                        )
+                    else:
+                        temp = Payment.objects.create(
+                            amount=payment['amount'],
+                            method= PaymentMethod.objects.get(id=payment['method']),
+                            transaction_from = payment['transaction_from'],
+                            transaction_id = payment['transaction_id'],
+                            bank_name = payment['bank_name'],
+                            remarks = payment['remarks']
+                        )
+                        temp.save()
+                        payments_data.append(temp)
                 response_json['status'] = True
-                response_json['payment'] = payment_to_json([payment])
+                response_json['payments'] = payment_to_json(payments_data)
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

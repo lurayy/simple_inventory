@@ -9,7 +9,7 @@ from django.db import IntegrityError
 from accounting.models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
 from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json, free_entries_to_json
 from payment.models import Payment, PaymentMethod
-
+import uuid
 
 @require_http_methods(['POST'])
 @bind
@@ -74,15 +74,15 @@ def add_new_ledger_entry(self, request):
                     bundle_id = data_json['bundle_id']
                 else:
                     bundle_id = uuid.uuid4
-                entry = LedgerEntry.objects.create(
-                    account = Account.objects.get(id=data_json['account_id']),
-                    entry_type = EntryType.objects.get(id=data_json['ledger_entry_type_id']),
-                    remarks = data_json['remarks'],
-                    date = str_to_datetime(data_json['date']),
-                    payment = Payment.objects.get(id=data_json['payment_id']),
-                    bundle_id = bundle_id
-                )
-                response_json['ledger_entries'] = ledger_entries_to_json([entry])
+                for entry in data_json['entries']:
+                    entry_model = LedgerEntry.objects.create(
+                        account = Account.objects.get(id=entry['account_id']),
+                        entry_type = EntryType.objects.get(id=entry['ledger_entry_type_id']),
+                        remarks = entry['remarks'],
+                        date = str_to_datetime(entry['date']),
+                        payment = Payment.objects.get(id=entry['payment_id']),
+                        bundle_id = bundle_id
+                    )
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
