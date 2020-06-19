@@ -1,6 +1,8 @@
 from . models import UniqueCard, GiftCardCategory, GiftCard
 from .serializers import UniqueCardSerializer, GiftCardCategorySerializer, GiftCardSerializer, PaymentMethodSerializer, PaymentSerializer
 
+from accounting.models import FreeEntryLedger, LedgerEntry
+
 def gift_cards_to_json(cards):
     data = []
     for card in cards:
@@ -43,5 +45,10 @@ def payment_methods_to_json(methods):
 def payment_to_json(methods):
     data = []
     for method in methods:
-        data.append(PaymentSerializer(method).data)
+        temp = (PaymentSerializer(method).data)
+        temp['payment_method'] = payment_methods_to_json([method.method])
+        free_entry = FreeEntryLedger.objects.filter(entry_for__payment__id=method.id)
+        if len(free_entry):
+            temp['amount_correction_on_ledger'] = free_entry[0].amount
+        data.append(temp)
     return data

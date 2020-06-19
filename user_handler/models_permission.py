@@ -13,6 +13,7 @@ class CustomPermission(models.Model):
     get_account_details = models.BooleanField(default=True)
     add_new_account = models.BooleanField(default=True)
     get_multiple_accounts = models.BooleanField(default=True)
+    get_payments = models.BooleanField(default=True)
     update_payment = models.BooleanField(default=True)
     delete_payment = models.BooleanField(default=True)
     create_payment = models.BooleanField(default=True)
