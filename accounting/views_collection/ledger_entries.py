@@ -6,8 +6,8 @@ import json
 from inventory.utils import  str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from accounting.models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats
-from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json
+from accounting.models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
+from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json, free_entries_to_json
 from payment.models import Payment, PaymentMethod
 
 
@@ -107,11 +107,43 @@ def get_ledger_entry_details(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
-                response_json['ledger_entries'] = ledger_entries_to_json(LedgerEntry.objects.filter(is_active=True,id=data_json['ledger_entry_id'] ))
+                entry = LedgerEntry.objects.get(id=data_json['ledger_entry_id'])
+                response_json['ledger_entries'] = ledger_entries_to_json([entry])
+                respose_json['free_entries'] = free_entries_to_json(FreeEntryLedger.objects.filter(entry_for=entry))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def create_free_entry(self, request):
+    '''
+    url : api/v1/accouting/ledger/entry/get
+    {
+        "action":"get",
+        "ledger_entry_id":2
+    }
+    '''
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "create":
+                free_entry = FreeEntryLedger.objects.create(
+                    entry_for=LedgerEntry.objects.get(is_active=True, id=data_json['ledger_entry']),
+                    amount = data_json['amount'],
+                    remarks = data_json['remarks']
+                )
+                response_json['status']=True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
 

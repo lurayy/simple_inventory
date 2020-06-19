@@ -13,7 +13,10 @@ urlpatterns = [
    path('ledger/entries/get', views.get_multiple_ledger_entries),
    path('ledger/entry/add', views.add_new_ledger_entry),
    path('ledger/entry/get', views.get_ledger_entry_details),
+   path('ledger/entry/free/add', views.create_free_entry),
 
    path('reports/profitloss', views.generate_profit_loss_statement),
    path('reports/balancesheet', views.generate_balance_sheet_statement),
+
+
 ]

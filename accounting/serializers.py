@@ -1,6 +1,6 @@
 ''' Searializers module for models of api '''
 from rest_framework import serializers
-from .models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats
+from .models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
 from user_handler.models import Vendor
 
 class EntryTypeSerializer(serializers.ModelSerializer):
@@ -32,4 +32,11 @@ class MonthlyStatsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = MonthlyStats
+        fields= '__all__'
+
+
+class FreeEntrySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = FreeEntryLedger
         fields= '__all__'

@@ -2,6 +2,7 @@ from django.db import models
 
 class CustomPermission(models.Model):
     name = models.CharField(max_length=255)
+    create_free_entry = models.BooleanField(default=True)
     get_ledger_entry_details = models.BooleanField(default=True)
     add_new_ledger_entry = models.BooleanField(default=True)
     get_multiple_ledger_entries = models.BooleanField(default=True)
