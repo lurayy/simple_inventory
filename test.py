@@ -27,10 +27,9 @@ print()
 
 
 data = {
-    "action":"get",
-    "filter": "purchase_order",
-    "purchase_order":1
-}
+        "action":"get",
+        "ledger_entry_id":2
+    }
 
-sess = requests.post(base_url+'payment/get', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'accounting/ledger/entry/get', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

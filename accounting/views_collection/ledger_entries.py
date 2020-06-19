@@ -109,7 +109,7 @@ def get_ledger_entry_details(self, request):
             if data_json['action'] == "get":
                 entry = LedgerEntry.objects.get(id=data_json['ledger_entry_id'])
                 response_json['ledger_entries'] = ledger_entries_to_json([entry])
-                respose_json['free_entries'] = free_entries_to_json(FreeEntryLedger.objects.filter(entry_for=entry))
+                response_json['free_entries'] = free_entries_to_json(FreeEntryLedger.objects.filter(entry_for=entry))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:

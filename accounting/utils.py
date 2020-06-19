@@ -53,6 +53,7 @@ def ledger_entries_to_json(models):
         temp['entry_type_str'] = model.entry_type.name
         temp['header_str'] = model.entry_type.header
         temp['payment'] = payment_to_json([model.payment])
+        temp['entry_type'] = entry_types_to_json([model.entry_type])
         data.append(temp)
     return data
 

@@ -17,6 +17,4 @@ urlpatterns = [
 
    path('reports/profitloss', views.generate_profit_loss_statement),
    path('reports/balancesheet', views.generate_balance_sheet_statement),
-
-
 ]
