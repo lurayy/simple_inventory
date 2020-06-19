@@ -73,7 +73,7 @@ def add_new_ledger_entry(self, request):
                 if data_json['bundle_id']:
                     bundle_id = data_json['bundle_id']
                 else:
-                    bundle_id = uuid.uuid4
+                    bundle_id = uuid.uuid4()
                 for entry in data_json['entries']:
                     entry_model = LedgerEntry.objects.create(
                         account = Account.objects.get(id=entry['account_id']),
