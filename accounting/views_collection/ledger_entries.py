@@ -133,7 +133,7 @@ def create_free_entry(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "create":
+            if data_json['action'] == "add":
                 free_entry = FreeEntryLedger.objects.create(
                     entry_for=LedgerEntry.objects.get(is_active=True, id=data_json['ledger_entry']),
                     amount = data_json['amount'],
