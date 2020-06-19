@@ -27,9 +27,11 @@ print()
 
 
 data = {
-        "action":"get",
-        "ledger_entry_id":2
+        "action":"add",
+        "ledger_entry":2,
+        "amount":20,
+        "remarks":'asdf'
     }
 
-sess = requests.post(base_url+'accounting/ledger/entry/get', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'accounting/ledger/entry/free/add', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

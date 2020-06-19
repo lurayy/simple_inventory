@@ -271,31 +271,31 @@ def free_ledger_entry_post_save(sender, instance, created, **kwargs):
                 date = instance.entry_for.date
             )
 
-        if instance.entry_type.is_add:
-            if instance.entry_type.header == "assets":
+        if instance.entry_for.entry_type.is_add:
+            if instance.entry_for.entry_type.header == "assets":
                     stat.total_assets = stat.total_assets + instance.amount
-            elif instance.entry_type.header == "liabilities":
+            elif instance.entry_for.entry_type.header == "liabilities":
                 stat.total_liabilities = stat.total_liabilities + instance.amount
-            elif instance.entry_type.header == "revenue ":
+            elif instance.entry_for.entry_type.header == "revenue ":
                 stat.total_revenue  = stat.total_revenue  + instance.amount
-            elif instance.entry_type.header == "expense":
+            elif instance.entry_for.entry_type.header == "expense":
                 stat.total_expense = stat.total_expense + instance.amount
-            elif instance.entry_type.header == "draw":
+            elif instance.entry_for.entry_type.header == "draw":
                 stat.total_draw = stat.total_draw + instance.amount
-            elif instance.entry_type.header == "equity":
+            elif instance.entry_for.entry_type.header == "equity":
                 stat.total_equity = stat.total_equity + instance.amount
         else:
-            if instance.entry_type.header == "assets":
+            if instance.entry_for.entry_type.header == "assets":
                     stat.total_assets = stat.total_assets - instance.amount
-            elif instance.entry_type.header == "liabilities":
+            elif instance.entry_for.entry_type.header == "liabilities":
                 stat.total_liabilities = stat.total_liabilities - instance.amount
-            elif instance.entry_type.header == "revenue ":
+            elif instance.entry_for.entry_type.header == "revenue ":
                 stat.total_revenue  = stat.total_revenue - instance.amount
-            elif instance.entry_type.header == "expense":
+            elif instance.entry_for.entry_type.header == "expense":
                 stat.total_expense = stat.total_expense - instance.amount
-            elif instance.entry_type.header == "draw":
+            elif instance.entry_for.entry_type.header == "draw":
                 stat.total_draw = stat.total_draw - instance.amount
-            elif instance.entry_type.header == "equity":
+            elif instance.entry_for.entry_type.header == "equity":
                 stat.total_equity = stat.total_equity - instance.amount
         stat.save()
     
