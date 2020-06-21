@@ -80,10 +80,9 @@ class Payment(models.Model):
     refunded = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
-
-
     def __str__(self):
         return f'{self.method} {self.amount}'
+
 
 # @receiver(pre_delete, sender=UniqueCard)
 # def pre_delete_handler_unique_card(sender, instance, **kwargs):

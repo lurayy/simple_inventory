@@ -87,7 +87,6 @@ class LedgerEntry(models.Model):
 @receiver(models.signals.post_save, sender=LedgerEntry)
 def ledger_entry_post_save(sender, instance, created, **kwargs):
     if created:
-        #updating account
         if instance.is_add:
             instance.account.current_amount += instance.payment.amount
         else:
@@ -167,9 +166,9 @@ class AccountingSettings(models.Model):
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
-        if not self.pk and DefaultEntryType.objects.exists():
+        if not self.pk and AccountingSettings.objects.exists():
             raise Exception('There is can be only one AccountingSettings instance')
-        return super(DefaultEntryType, self).save(*args, **kwargs)
+        return super(AccountingSettings, self).save(*args, **kwargs)
 
 
 class FreeEntryLedger(models.Model):
@@ -219,6 +218,7 @@ def free_ledger_entry_post_save(sender, instance, created, **kwargs):
 #                 )
 
 def payemnt_entry_to_system(account, payment):
+    print("payment to system")
     settings = AccountingSettings.objects.filter(is_active=True)
     if len(settings) > 0:
         raise Exception("No Active Account Setting Defined. Please configure the account setting before using it.")
@@ -231,6 +231,47 @@ def payemnt_entry_to_system(account, payment):
             date = django.utils.timezone.now(),
             is_add = True
         )
+        if payment.method.header == 'credit':
+            entry_one = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_invoice_account_on_credit,
+            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            date = django.utils.timezone.now(),
+            is_add = settings.default_invoice_action_on_credit_is_add
+        )
+        elif payment.method.header == 'cash':
+            entry_one = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_invoice_account_on_cash,
+            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            date = django.utils.timezone.now(),
+            is_add =  settings.default_invoice_action_on_credit_is_add
+        )
+        elif payment.method.header == 'pre_paid':
+            entry_one = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_invoice_account_on_pre_paid,
+            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            date = django.utils.timezone.now(),
+            is_add =  settings.default_invoice_action_on_credit_is_add
+        )
+        elif payment.method.header == 'transfer':
+            entry_one = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_invoice_account_on_transfer,
+            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            date = django.utils.timezone.now(),
+            is_add =  settings.default_invoice_action_on_credit_is_add
+        )
+        elif payment.method.header == 'credit':
+            entry_one = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_invoice_account_on_bank,
+            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            date = django.utils.timezone.now(),
+            is_add =  settings.default_invoice_action_on_credit_is_add
+        )
+    
     elif payment.purchase_order:
         entry_one = LedgerEntry.objects.create(
             payment = payment,
@@ -239,44 +280,43 @@ def payemnt_entry_to_system(account, payment):
             date = django.utils.timezone.now(),
             is_add = True
         )
-        # if payment.method.header == 'credit':
-        #     entry_one = LedgerEntry.objects.create(
-        #     payment = payment,
-        #     account = settings.default_invoice_account_on_credit,
-        #     remarks = 'automated entry invoice '+str(payment.invoice.uuid),
-        #     date = django.utils.timezone.now(),
-        #     is_add = settings.default_invoice_action_on_credit_is_add
-        # )
-        # elif payment.method.header == 'cash':
-        #     entry_one = LedgerEntry.objects.create(
-        #     payment = payment,
-        #     account = settings.default_invoice_account_on_cash,
-        #     remarks = 'automated entry invoice '+str(payment.invoice.uuid),
-        #     date = django.utils.timezone.now(),
-        #     is_add =  settings.default_invoice_action_on_credit_is_add
-        # )
-        # elif payment.method.header == 'pre_paid':
-        #     entry_one = LedgerEntry.objects.create(
-        #     payment = payment,
-        #     account = settings.default_invoice_account_on_pre_paid,
-        #     remarks = 'automated entry invoice '+str(payment.invoice.uuid),
-        #     date = django.utils.timezone.now(),
-        #     is_add =  settings.default_invoice_action_on_credit_is_add
-        # )
-        # elif payment.method.header == 'transfer':
-        #     entry_one = LedgerEntry.objects.create(
-        #     payment = payment,
-        #     account = settings.default_invoice_account_on_transfer,
-        #     remarks = 'automated entry invoice '+str(payment.invoice.uuid),
-        #     date = django.utils.timezone.now(),
-        #     is_add =  settings.default_invoice_action_on_credit_is_add
-        # )
-        # if payment.method.header == 'credit':
-        #     entry_one = LedgerEntry.objects.create(
-        #     payment = payment,
-        #     account = settings.default_invoice_account_on_bank,
-        #     remarks = 'automated entry invoice '+str(payment.invoice.uuid),
-        #     date = django.utils.timezone.now(),
-        #     is_add =  settings.default_invoice_action_on_credit_is_add
-        # )
-
+        if payment.method.header == 'credit':
+            entry_two = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_purchase_account_on_credit,
+            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            date = django.utils.timezone.now(),
+            is_add = settings.default_purchase_action_on_credit_is_add
+        )
+        elif payment.method.header == 'cash':
+            entry_two = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_purchase_account_on_cash,
+            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            date = django.utils.timezone.now(),
+            is_add =  settings.default_purchase_action_on_credit_is_add
+        )
+        elif payment.method.header == 'pre_paid':
+            entry_two = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_purchase_account_on_pre_paid,
+            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            date = django.utils.timezone.now(),
+            is_add =  settings.default_purchase_action_on_credit_is_add
+        )
+        elif payment.method.header == 'transfer':
+            entry_two = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_purchase_account_on_transfer,
+            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            date = django.utils.timezone.now(),
+            is_add =  settings.default_purchase_action_on_credit_is_add
+        )
+        elif payment.method.header == 'credit':
+            entry_one = LedgerEntry.objects.create(
+            payment = payment,
+            account = settings.default_purchase_account_on_bank,
+            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            date = django.utils.timezone.now(),
+            is_add =  settings.default_purchase_action_on_credit_is_add
+        )

@@ -325,6 +325,7 @@ def create_payment(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            payment_models = []
             if data_json['action'] == "add":
                 for payment in data_json['payments']:
                     if payment['invoice']:
@@ -337,10 +338,12 @@ def create_payment(self, request):
                             bank_name = payment['bank_name'],
                             remarks = payment['remarks'],
                         )
+                        temp.save()
                         if "accounting" in settings.INSTALLED_APPS:
                             from accounting.models import Account, payemnt_entry_to_system
                             account = Account.objects.get(id = payment['account'])
                             payemnt_entry_to_system(account, temp)
+                        
                     elif payment['purchase_order']:
                         temp = Payment.objects.create(
                             purchase_order = PurchaseOrder.objects.get(id=payment['purchase_order']),
@@ -351,6 +354,7 @@ def create_payment(self, request):
                             bank_name = payment['bank_name'],
                             remarks = payment['remarks']
                         )
+                        temp.save()
                         if "accounting" in settings.INSTALLED_APPS:
                             from accounting.models import Account, payemnt_entry_to_system
                             account = Account.objects.get(id = payment['account'])
@@ -364,9 +368,10 @@ def create_payment(self, request):
                             bank_name = payment['bank_name'],
                             remarks = payment['remarks']
                         )
-                        temp.save()                    
+                        temp.save()  
+                    payment_models.append(temp)                 
                 response_json['status'] = True
-                # response_json['payments'] = payment_to_json(payments_data)
+                response_json['payments'] = payment_to_json(payment_models)
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
