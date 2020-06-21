@@ -6,7 +6,7 @@ import json
 from inventory.utils import  str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from accounting.models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
+from accounting.models import  AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
 from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json
 import datetime
 from django.core import serializers

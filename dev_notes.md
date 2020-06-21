@@ -16,3 +16,6 @@
 ## complete 
 - purchase_order/purchase_item
 - Vendors
+
+
+- Free entry is always added to the payment.amount.

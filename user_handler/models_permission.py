@@ -6,7 +6,6 @@ class CustomPermission(models.Model):
     get_ledger_entry_details = models.BooleanField(default=True)
     add_new_ledger_entry = models.BooleanField(default=True)
     get_multiple_ledger_entries = models.BooleanField(default=True)
-    get_multiple_ledger_entry_types = models.BooleanField(default=True)
     get_multiple_account_types = models.BooleanField(default=True)
     update_account = models.BooleanField(default=True)
     delete_accounts = models.BooleanField(default=True)

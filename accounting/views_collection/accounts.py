@@ -6,8 +6,13 @@ import json
 from inventory.utils import  str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from accounting.models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats
-from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json
+from accounting.models import  AccountType, Account, LedgerEntry, MonthlyStats
+from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_entries_to_json
+from user_handler.models import Vendor, Customer
+from inventory.utils import vendors_to_json
+from sales.utils import customers_to_json
+
+
 
 @require_http_methods(['POST'])
 @bind
@@ -53,6 +58,14 @@ def get_multiple_accounts(self, request):
                     response_json['status'] = True
                     # else:
                     #     raise Exception("This account has no child.")
+                if  data_json['filter'] == "vendor":
+                    accounts = Account.objects.filter(vendor__id = data_json['vendor'])
+                    response_json['accounts'] = accounts_to_json(accounts)
+                    response_json['status'] = True
+                if  data_json['filter'] == "customer":
+                    accounts = Account.objects.filter(customer__id = data_json['customer'])
+                    response_json['accounts'] = accounts_to_json(accounts)
+                    response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -85,10 +98,16 @@ def add_new_account(self, request):
                     account_type = AccountType.objects.get(id=data_json['account_type']),
                     name = data_json['name'],
                     opening_balance = data_json['opening_balance'],
-                    opening_date = str_to_datetime(data_json['opening_date'])
+                    opening_date = str_to_datetime(data_json['opening_date']),
                 )
                 if data_json['parent']:
                     account.parent = Account.objects.get(id=data_json['parent_id'], uuid=data_json['parent_uuid'])
+                if data_json['customer']:
+                    customer = Customer.objects.get(id=data_json['customer'])
+                    account.customer = customer
+                if data_json['vendor']:
+                    vendor = Vendor.objects.get(id=data_json['vendor'])
+                    account.vendor = vendor
                 account.save()
                 response_json['accounts'] = accounts_to_json([account])
                 response_json['status'] = True
@@ -123,6 +142,8 @@ def get_account_details(self, request):
                     'count_ledger_entry': len(LedgerEntry.objects.filter(account=account))
                 }
                 response_json['details'] = details
+                response_json['customer'] = customers_to_json([account.customer])
+                response_json['vendor'] = vendors_to_json([account.vendor])
                 response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -195,6 +216,13 @@ def update_account(self, request):
                 account.opening_date = data_json['opening_date']
                 if data_json['new_parent']:
                     account.parent = Account.objects.get(id=data_json['parent_id'], uuid=data_json['parent_uuid'])
+                account.save()
+                if data_json['customer']:
+                    customer = Customer.objects.get(id=data_json['customer'])
+                    account.customer = customer
+                if data_json['vendor']:
+                    vendor = Vendor.objects.get(id=data_json['vendor'])
+                    account.vendor = vendor
                 account.save()
             if data_json['action'] == 'close':
                 account.is_closed = True

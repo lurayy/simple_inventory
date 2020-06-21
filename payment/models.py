@@ -71,9 +71,7 @@ class PaymentMethod(models.Model):
 class Payment(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="payments", null=True, blank=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="payments", null=True, blank=True)
-
     amount = models.FloatField()
-
     method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, related_name="payments")
     transaction_from = models.CharField(max_length=255, null=True, blank=True)                                          # bank account/khali/esewa number
     transaction_id = models.CharField(max_length=255, null=True, blank=True)                                            # id 
@@ -81,6 +79,8 @@ class Payment(models.Model):
     remarks = models.CharField(max_length=255, blank=True, null=True)
     refunded = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+
+
 
     def __str__(self):
         return f'{self.method} {self.amount}'

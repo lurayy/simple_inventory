@@ -6,8 +6,8 @@ import json
 from inventory.utils import  str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from accounting.models import EntryType, AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
-from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json, free_entries_to_json
+from accounting.models import AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
+from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_entries_to_json, free_entries_to_json
 from payment.models import Payment, PaymentMethod
 import uuid
 
@@ -77,7 +77,7 @@ def add_new_ledger_entry(self, request):
                 for entry in data_json['entries']:
                     entry_model = LedgerEntry.objects.create(
                         account = Account.objects.get(id=entry['account_id']),
-                        entry_type = EntryType.objects.get(id=entry['ledger_entry_type_id']),
+                        is_add = data_json['is_add'],
                         remarks = entry['remarks'],
                         date = str_to_datetime(entry['date']),
                         payment = Payment.objects.get(id=entry['payment_id']),
