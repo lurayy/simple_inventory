@@ -108,8 +108,6 @@ class MonthlyStats(models.Model):
     total_equity = models.FloatField(default=0)
 
     profit = models.FloatField(default=0)
-    to_be_paid = models.FloatField(default=0)
-    to_pay = models.FloatField(default=0)
     date = models.DateTimeField(default=0)
 
     is_active = models.BooleanField(default=True)
@@ -125,6 +123,33 @@ def monthly_stats_post_save_handler(sender, instance, *args, **kwargs):
             raise Exception("Duplicate montly stats.")
     instance.profit = instance.total_revenue - instance.total_expense
 
+
+def get_stat(date):
+    monthly = MonthlyStats.objects.filter(date__year=date.year).filter(date__month=date.month)
+    if len(monthly) > 0:
+        return monthly[0]
+    else:
+        monthly = MonthlyStats.objects.create(date=date)
+        return monthly
+
+
+@receiver(models.signals.post_save, sender=LedgerEntry)
+def update_monthly_stat_entry_post_save(sender, instance, created, **kwargs):
+    if created:
+        stat = get_stat(instance.date)
+        if instance.account.account_type.header == "assets":
+            stat.total_assets += instance.payment.amount        
+        elif instance.account.account_type.header == "liabilities":
+            stat.total_liabilities += instance.payment.amount
+        elif instance.account.account_type.header == "revenue":
+            stat.total_revenue += instance.payment.amount
+        elif instance.account.account_type.header == "expense":
+            stat.total_expense += instance.payment.amount
+        elif instance.account.account_type.header == "draw":
+            stat.total_draw += instance.payment.amount
+        elif instance.account.account_type.header == "equity":
+            stat.total_equity += instance.payment.amount
+        stat.save()            
 
 
 # while purchase default expense 
@@ -217,6 +242,8 @@ def free_ledger_entry_post_save(sender, instance, created, **kwargs):
 #                     bundle_id
 #                 )
 
+
+# call this from views
 def payemnt_entry_to_system(account, payment):
     print("payment to system")
     settings = AccountingSettings.objects.filter(is_active=True)
@@ -320,3 +347,9 @@ def payemnt_entry_to_system(account, payment):
             date = django.utils.timezone.now(),
             is_add =  settings.default_purchase_action_on_credit_is_add
         )
+
+
+
+# assets , lib, equity, draw , exp, rev 
+# exp - rev = profit/loss
+# 

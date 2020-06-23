@@ -83,7 +83,6 @@ class Payment(models.Model):
     def __str__(self):
         return f'{self.method} {self.amount}'
 
-
 # @receiver(pre_delete, sender=UniqueCard)
 # def pre_delete_handler_unique_card(sender, instance, **kwargs):
 #     instance.gift_card.count_limit = instance.gift_card.count_limit - 1
