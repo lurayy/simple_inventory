@@ -247,7 +247,7 @@ def free_ledger_entry_post_save(sender, instance, created, **kwargs):
 def payemnt_entry_to_system(account, payment):
     print("payment to system")
     settings = AccountingSettings.objects.filter(is_active=True)
-    if len(settings) > 0:
+    if len(settings) == 0:
         raise Exception("No Active Account Setting Defined. Please configure the account setting before using it.")
     settings = settings[0]
     if payment.invoice:
