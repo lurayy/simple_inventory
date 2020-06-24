@@ -322,60 +322,60 @@ def get_gift_card_categories(self, request):
 def create_payment(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
-        # try:
-        json_str = request.body.decode(encoding='UTF-8')
-        data_json = json.loads(json_str)
-        payment_models = []
-        if data_json['action'] == "add":
-            for payment in data_json['payments']:
-                if payment['invoice']:
-                    temp = Payment.objects.create(
-                        invoice = Invoice.objects.get(id=payment['invoice']),
-                        amount=payment['amount'],
-                        method= PaymentMethod.objects.get(id=payment['method']),
-                        transaction_from = payment['transaction_from'],
-                        transaction_id = payment['transaction_id'],
-                        bank_name = payment['bank_name'],
-                        remarks = payment['remarks'],
-                    )
-                    temp.save()
-                    if "accounting" in settings.INSTALLED_APPS:
-                        from accounting.models import Account, payemnt_entry_to_system
-                        account = Account.objects.get(id = payment['account'])
-                        payemnt_entry_to_system(account, temp)
-                    
-                elif payment['purchase_order']:
-                    temp = Payment.objects.create(
-                        purchase_order = PurchaseOrder.objects.get(id=payment['purchase_order']),
-                        amount= payment['amount'],
-                        method= PaymentMethod.objects.get(id=payment['method']),
-                        transaction_from = payment['transaction_from'],
-                        transaction_id = payment['transaction_id'],
-                        bank_name = payment['bank_name'],
-                        remarks = payment['remarks']
-                    )
-                    temp.save()
-                    if "accounting" in settings.INSTALLED_APPS:
-                        from accounting.models import Account, payemnt_entry_to_system
-                        account = Account.objects.get(id = payment['account'])
-                        payemnt_entry_to_system(account, temp)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            payment_models = []
+            if data_json['action'] == "add":
+                for payment in data_json['payments']:
+                    if payment['invoice']:
+                        temp = Payment.objects.create(
+                            invoice = Invoice.objects.get(id=payment['invoice']),
+                            amount=payment['amount'],
+                            method= PaymentMethod.objects.get(id=payment['method']),
+                            transaction_from = payment['transaction_from'],
+                            transaction_id = payment['transaction_id'],
+                            bank_name = payment['bank_name'],
+                            remarks = payment['remarks'],
+                        )
+                        temp.save()
+                        if "accounting" in settings.INSTALLED_APPS:
+                            from accounting.models import Account, payemnt_entry_to_system
+                            account = Account.objects.get(id = payment['account'])
+                            payemnt_entry_to_system(account, temp)
+                        
+                    elif payment['purchase_order']:
+                        temp = Payment.objects.create(
+                            purchase_order = PurchaseOrder.objects.get(id=payment['purchase_order']),
+                            amount= payment['amount'],
+                            method= PaymentMethod.objects.get(id=payment['method']),
+                            transaction_from = payment['transaction_from'],
+                            transaction_id = payment['transaction_id'],
+                            bank_name = payment['bank_name'],
+                            remarks = payment['remarks']
+                        )
+                        temp.save()
+                        if "accounting" in settings.INSTALLED_APPS:
+                            from accounting.models import Account, payemnt_entry_to_system
+                            account = Account.objects.get(id = payment['account'])
+                            payemnt_entry_to_system(account, temp)
 
-                else:
-                    temp = Payment.objects.create(
-                        amount=payment['amount'],
-                        method= PaymentMethod.objects.get(id=payment['method']),
-                        transaction_from = payment['transaction_from'],
-                        transaction_id = payment['transaction_id'],
-                        bank_name = payment['bank_name'],
-                        remarks = payment['remarks']
-                    )
-                    temp.save()  
-                payment_models.append(temp)                 
-            response_json['status'] = True
-            response_json['payments'] = payment_to_json(payment_models)
-            return JsonResponse(response_json)
-        # except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
-        #     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+                    else:
+                        temp = Payment.objects.create(
+                            amount=payment['amount'],
+                            method= PaymentMethod.objects.get(id=payment['method']),
+                            transaction_from = payment['transaction_from'],
+                            transaction_id = payment['transaction_id'],
+                            bank_name = payment['bank_name'],
+                            remarks = payment['remarks']
+                        )
+                        temp.save()  
+                    payment_models.append(temp)                 
+                response_json['status'] = True
+                response_json['payments'] = payment_to_json(payment_models)
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
