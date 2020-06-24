@@ -254,7 +254,7 @@ def payemnt_entry_to_system(account, payment):
         entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = account,
-            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
             date = django.utils.timezone.now(),
             is_add = True
         )
@@ -262,7 +262,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_credit,
-            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
             date = django.utils.timezone.now(),
             is_add = settings.default_invoice_action_on_credit_is_add
         )
@@ -270,7 +270,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_cash,
-            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_credit_is_add
         )
@@ -278,7 +278,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_pre_paid,
-            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_credit_is_add
         )
@@ -286,7 +286,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_transfer,
-            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_credit_is_add
         )
@@ -294,7 +294,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_bank,
-            remarks = 'automated entry invoice '+str(payment.invoice.uuid),
+            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_credit_is_add
         )

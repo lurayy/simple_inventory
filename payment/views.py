@@ -359,7 +359,6 @@ def create_payment(self, request):
                             from accounting.models import Account, payemnt_entry_to_system
                             account = Account.objects.get(id = payment['account'])
                             payemnt_entry_to_system(account, temp)
-
                     else:
                         temp = Payment.objects.create(
                             amount=payment['amount'],

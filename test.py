@@ -38,7 +38,7 @@ data  = {
    "payments":[
       {
          "invoice":None,
-         "purchase_order":1,
+         "invoice":1,
          "account":4,
          "amount":2233,
          "method":1,
