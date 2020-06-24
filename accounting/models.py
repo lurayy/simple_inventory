@@ -210,7 +210,8 @@ class FreeEntryLedger(models.Model):
     def save(self, *args, **kwargs):
         if self.id:
             raise Exception("Cannot update ledger entry.")
-        super(FreeEntryLedger, self).save(*args, **kwargs) 
+        super(FreeEntryLedger, self).save(*args, **kwargs)
+
 
 @receiver(models.signals.post_save, sender=FreeEntryLedger)
 def free_ledger_entry_post_save(sender, instance, created, **kwargs):
@@ -222,6 +223,20 @@ def free_ledger_entry_post_save(sender, instance, created, **kwargs):
             instance.entry_for.account.current_amount -= instance.amount
         instance.entry_for.account.save()
 
+        stat = get_stat(instance.date)
+        if instance.entry_for.account.account_type.header == "assets":
+            stat.total_assets += instance.amount        
+        elif instance.entry_for.account.account_type.header == "liabilities":
+            stat.total_liabilities += instance.amount
+        elif instance.entry_for.account.account_type.header == "revenue":
+            stat.total_revenue += instance.amount
+        elif instance.entry_for.account.account_type.header == "expense":
+            stat.total_expense += instance.amount
+        elif instance.entry_for.account.account_type.header == "draw":
+            stat.total_draw += instance.amount
+        elif instance.entry_for.account.account_type.header == "equity":
+            stat.total_equity += instance.amount
+        stat.save()         
         #updating monthly stats
 
 
@@ -352,4 +367,13 @@ def payemnt_entry_to_system(account, payment):
 
 # assets , lib, equity, draw , exp, rev 
 # exp - rev = profit/loss
-# 
+
+
+def handle_payment_deletetion(payment):
+    ledgers = LedgerEntry.objects.filter(payment = payment)
+    for ledger in ledgers:
+        correction_entry = FreeEntryLedger.objects.create(
+            entry_for = ledger, 
+            amount = -1*ledger.payment.amount,
+            remarks = 'Correction for payment being deleted'
+        )

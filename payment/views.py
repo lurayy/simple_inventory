@@ -391,7 +391,13 @@ def delete_payment(self, request):
             if data_json['action'] == "delete":
                 for pay_id in data_json['payments_ids']:
                     payment = Payment.objects.get(id=pay_id)
-                    payment.delete()
+                    old = payment
+                    payment.is_active = False
+                    payment.save()
+                    if old.is_active == True and payment.is_active == False: 
+                        if "accounting" in settings.INSTALLED_APPS:
+                            from accounting.models import handle_payment_deletetion
+                            handle_payment_deletetion(payment)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:

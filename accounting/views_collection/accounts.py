@@ -102,6 +102,8 @@ def add_new_account(self, request):
                 )
                 if data_json['parent']:
                     account.parent = Account.objects.get(id=data_json['parent_id'], uuid=data_json['parent_uuid'])
+                if data_json['customer'] and data_json['vendor']:
+                    raise Exception('Account cannot have both vendor and customer as reference')
                 if data_json['customer']:
                     customer = Customer.objects.get(id=data_json['customer'])
                     account.customer = customer
