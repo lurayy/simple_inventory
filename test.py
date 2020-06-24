@@ -50,5 +50,5 @@ data  = {
    ]
 }
 
-sess = requests.post(base_url+'payment/add', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'accounting/reports/balancesheet', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

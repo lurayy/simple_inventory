@@ -7,7 +7,7 @@ from inventory.utils import  str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from accounting.models import  AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
-from accounting.utils import accounts_to_json, entry_types_to_json, accounts_types_to_json, ledger_entries_to_json
+from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_entries_to_json
 import datetime
 from django.core import serializers
 import dateutil
@@ -125,8 +125,7 @@ def generate_balance_sheet_statement(self, request):
                     'accounts':accounts_to_json(temp),
                     'meta_data':{
                         'count':len(temp),
-                        'sum_due': temp.aggregate(Sum('due'))['due__sum'],
-                        'sum_credit':temp.aggregate(Sum('credit'))['credit__sum']
+                        'sum_current_amount': temp.aggregate(Sum('current_amount'))['current_amount__sum'],
                     }
                 }
             )
@@ -134,8 +133,7 @@ def generate_balance_sheet_statement(self, request):
     for header in headers:
         balance_sheet[header]['meta_data'] = {
             'count': len(balance_sheet[header]['sub_headers']),
-            'sum_due': sum( d['meta_data']['sum_due'] for d in balance_sheet[header]['sub_headers']),
-            'sum_credit': sum( d['meta_data']['sum_credit'] for d in balance_sheet[header]['sub_headers'])
+            'sum_current_amount': sum( d['meta_data']['sum_current_amount'] for d in balance_sheet[header]['sub_headers']),
         }
 
     return JsonResponse(balance_sheet)
