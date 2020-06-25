@@ -186,6 +186,15 @@ temp.save()
 
 from payment.models import Payment
 methods = PaymentMethod.objects.all()
+
+headers = ['credit','pre-paid','cash', 'transfer','bank']
+for head in headers:
+    temp = PaymentMethod.objects.create(
+        name = head, 
+        header = head,
+    )
+
+methods = PaymentMethod.objects.all()
 for order in PurchaseOrder.objects.all():
     pay = Payment.objects.create(
         purchase_order = order,
