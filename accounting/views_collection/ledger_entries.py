@@ -129,21 +129,21 @@ def create_free_entry(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
-        try:
-            json_str = request.body.decode(encoding='UTF-8')
-            data_json = json.loads(json_str)
-            if data_json['action'] == "add":
-                free_entry = FreeEntryLedger.objects.create(
-                    entry_for=LedgerEntry.objects.get(is_active=True, id=data_json['ledger_entry']),
-                    amount = data_json['amount'],
-                    remarks = data_json['remarks']
-                )
-                response_json['status']=True
-            return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    else:
-        return JsonResponse({'status':False, "error":'You are not authorized.'})
+    # if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    #     try:
+    json_str = request.body.decode(encoding='UTF-8')
+    data_json = json.loads(json_str)
+    if data_json['action'] == "add":
+        free_entry = FreeEntryLedger.objects.create(
+            entry_for=LedgerEntry.objects.get(is_active=True, id=data_json['ledger_entry']),
+            amount = data_json['amount'],
+            remarks = data_json['remarks']
+        )
+        response_json['status']=True
+    return JsonResponse(response_json)
+    #     except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
+    #         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    # else:
+    #     return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 

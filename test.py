@@ -51,10 +51,12 @@ print()
 # }
 
 data  = {
-   'action':'get',
-   'filter':'none'
+   'action':'add',
+   'ledger_entry':1,
+   'amount':3,
+   'remarks':200
 }
 
 
-sess = requests.post(base_url+'accounting/reports/profitloss', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'accounting/ledger/entry/free/add', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

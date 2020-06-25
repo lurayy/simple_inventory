@@ -223,7 +223,7 @@ def free_ledger_entry_post_save(sender, instance, created, **kwargs):
             instance.entry_for.account.current_amount -= instance.amount
         instance.entry_for.account.save()
 
-        stat = get_stat(instance.date)
+        stat = get_stat(instance.entry_for.date)
         if instance.entry_for.account.account_type.header == "assets":
             stat.total_assets += instance.amount        
         elif instance.entry_for.account.account_type.header == "liabilities":
