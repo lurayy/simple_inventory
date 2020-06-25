@@ -33,22 +33,28 @@ print()
 #         "remarks":'asdf'
 #     }
 # data = {"action":"add","payments":[{"invoice":"","purchase_order":1,"account":1,"amount":2233,"method":"2","bank_name":"","transaction_from":"","transaction_id":"","remarks":""}]}
+# data  = {
+#    "action":"add",
+#    "payments":[
+#       {
+#          "invoice":None,
+#          "invoice":1,
+#          "account":4,
+#          "amount":2233,
+#          "method":1,
+#          "bank_name":"",
+#          "transaction_from":"",
+#          "transaction_id":"",
+#          "remarks":""
+#       }
+#    ]
+# }
+
 data  = {
-   "action":"add",
-   "payments":[
-      {
-         "invoice":None,
-         "invoice":1,
-         "account":4,
-         "amount":2233,
-         "method":1,
-         "bank_name":"",
-         "transaction_from":"",
-         "transaction_id":"",
-         "remarks":""
-      }
-   ]
+   'action':'get',
+   'filter':'none'
 }
 
-sess = requests.post(base_url+'accounting/reports/balancesheet', headers=headers, data=json.dumps(data), verify=False)
+
+sess = requests.post(base_url+'accounting/reports/profitloss', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

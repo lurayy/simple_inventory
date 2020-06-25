@@ -44,9 +44,7 @@ def generate_profit_loss_statement(self, request):
                         'total_expense':0,
                         'total_draw':0,
                         'total_equity':0,
-                        'profit':0,
-                        'to_be_paid':0,
-                        'to_pay':0
+                        'profit':0
                     }
                     fields =  [
                         'total_assets',
@@ -56,10 +54,7 @@ def generate_profit_loss_statement(self, request):
                         'total_draw',
                         'total_equity',
                         'profit',
-                        'to_be_paid',
-                        'to_pay'
                     ]
-                    
                     stats = serializers.serialize('json', monthly_stats)
                     stats = json.loads(stats)
                     for stat in stats:
@@ -83,7 +78,7 @@ def generate_profit_loss_statement(self, request):
 # show credits that are not paid 
 
 
-def sum_from_legder_entries(accounts, fields):
+def sum_from_legder_entries(entries, fields):
     entry_type_headers = [
             'assets','liabilities','revenue','expense','draw','equity'
         ]
@@ -99,7 +94,7 @@ def sum_from_legder_entries(accounts, fields):
         'equity':0,
     }
     for header in entry_type_headers:
-        for entry in entries.filter( entry_type__header = header ):
+        for entry in entries.filter( account__account_type__header = header ):
             corrections = FreeEntryLedger.objects.filter(entry_for = entry)
             total[header] = total[header] + entry.payment.amount + sum(e.amount for e in corrections)
     total['profit'] = total['revenue'] - total['expense']
@@ -112,7 +107,6 @@ def sum_from_legder_entries(accounts, fields):
 @bind
 def generate_balance_sheet_statement(self, request):
     response_json = {'status':False}
-    
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -129,7 +123,6 @@ def generate_balance_sheet_statement(self, request):
                                 'sub_headers':[],
                                 'meta_data':{}
                             }
-
                     for account_type in AccountType.objects.filter(is_active=True):
                         temp = accounts.filter(account_type=account_type)
                         balance_sheet[account_type.header]['sub_headers'].append(

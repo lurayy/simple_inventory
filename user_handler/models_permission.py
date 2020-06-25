@@ -2,6 +2,8 @@ from django.db import models
 
 class CustomPermission(models.Model):
     name = models.CharField(max_length=255)
+    generate_balance_sheet_statement = models.BooleanField(default=True)
+    generate_profit_loss_statement = models.BooleanField(default=True)
     create_free_entry = models.BooleanField(default=True)
     get_ledger_entry_details = models.BooleanField(default=True)
     add_new_ledger_entry = models.BooleanField(default=True)
