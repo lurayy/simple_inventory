@@ -125,6 +125,7 @@ def generate_balance_sheet_statement(self, request):
                             }
                     for account_type in AccountType.objects.filter(is_active=True):
                         temp = accounts.filter(account_type=account_type)
+                        x = temp.aggregate(Sum('current_amount'))['current_amount__sum']
                         balance_sheet[account_type.header]['sub_headers'].append(
                                 {
                                     'name':account_type.name,
@@ -132,11 +133,13 @@ def generate_balance_sheet_statement(self, request):
                                     'accounts':accounts_to_json(temp),
                                     'meta_data':{
                                         'count':len(temp),
-                                        'sum_current_amount': temp.aggregate(Sum('current_amount'))['current_amount__sum'],
+                                        'sum_current_amount': x if x else 0,
                                     }
                                 }
                             )
+                    print(headers)
                     for header in headers:
+                        print(header)
                         balance_sheet[header]['meta_data'] = {
                             'count': len(balance_sheet[header]['sub_headers']),
                             'sum_current_amount': sum( d['meta_data']['sum_current_amount'] for d in balance_sheet[header]['sub_headers']),

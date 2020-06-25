@@ -54,7 +54,7 @@ data  = {
    'action':'get',
    'filter': 'none'
 }
-base_url = "https://simpleim.herokuapp.com/api/v1/"
+# base_url = "https://simpleim.herokuapp.com/api/v1/"
 
 sess = requests.post(base_url+'accounting/reports/balancesheet', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)
