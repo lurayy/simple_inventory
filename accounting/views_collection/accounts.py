@@ -144,8 +144,10 @@ def get_account_details(self, request):
                     'count_ledger_entry': len(LedgerEntry.objects.filter(account=account))
                 }
                 response_json['details'] = details
-                response_json['customer'] = customers_to_json([account.customer])
-                response_json['vendor'] = vendors_to_json([account.vendor])
+                if account.customer:
+                    response_json['customer'] = customers_to_json([account.customer])
+                if account.vendor:
+                    response_json['vendor'] = vendors_to_json([account.vendor])
                 response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:

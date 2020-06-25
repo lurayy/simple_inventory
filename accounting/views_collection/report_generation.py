@@ -75,8 +75,10 @@ def generate_profit_loss_statement(self, request):
     response_json['this_month'] = sum_from_legder_entries(new_entries, fields)
     return JsonResponse(response_json)
 
+# show credits that are not paid 
 
-def sum_from_legder_entries(entries, fields):
+
+def sum_from_legder_entries(accounts, fields):
     entry_type_headers = [
             'assets','liabilities','revenue','expense','draw','equity'
         ]
