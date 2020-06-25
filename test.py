@@ -51,12 +51,10 @@ print()
 # }
 
 data  = {
-   'action':'add',
-   'ledger_entry':1,
-   'amount':3,
-   'remarks':200
+   'action':'get',
+   'filter': 'none'
 }
+base_url = "https://simpleim.herokuapp.com/api/v1/"
 
-
-sess = requests.post(base_url+'accounting/ledger/entry/free/add', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'accounting/reports/balancesheet', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

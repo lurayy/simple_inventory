@@ -142,7 +142,8 @@ def generate_balance_sheet_statement(self, request):
                             'sum_current_amount': sum( d['meta_data']['sum_current_amount'] for d in balance_sheet[header]['sub_headers']),
                         }
                 # elif data_json['filter']== "date":
-            return JsonResponse(balance_sheet)
+                    return JsonResponse(balance_sheet)
+            return JsonResponse(response_json)        
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
