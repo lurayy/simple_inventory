@@ -362,6 +362,8 @@ def payemnt_entry_to_system(account, payment):
             date = django.utils.timezone.now(),
             is_add =  settings.default_purchase_action_on_credit_is_add
         )
+        
+        
 
 
 
@@ -376,4 +378,20 @@ def handle_payment_deletetion(payment):
             entry_for = ledger, 
             amount = -1*ledger.payment.amount,
             remarks = 'Correction for payment being deleted'
+        )
+
+def handle_credit_for(credit, payment):
+    credit_entries = LedgerEntry.objects.filter(payment = credit)
+    for entry in credit_entries:
+        temp = FreeEntryLedger.objects.create(
+            entry_for = entry,
+            amount = -1*payment.amount,
+            remarks = " credit payment"
+        )
+        temp = LedgerEntry.objects.create(
+            payment = payment,
+            account = entry.account,
+            remarks = 'Automated Ledger Entry for credit payment '+str(entry.id),
+            date = django.utils.timezone.now(),
+            is_add = True
         )

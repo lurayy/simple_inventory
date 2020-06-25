@@ -51,10 +51,23 @@ print()
 # }
 
 data  = {
-   'action':'get',
-   'filter': 'none'
+   'action':'add',
+   'payments': [
+       {
+            'invoice':None,
+            'purchase_order':None,
+            'amount':333,
+            'method':3,
+            'transaction_from':5,
+            'transaction_id':531,
+            'bank_name':'asdf',
+            'remarks': 'asdf',
+            'credit_payment_for':5,
+            'account':8
+       }
+   ]
 }
 # base_url = "https://simpleim.herokuapp.com/api/v1/"
 
-sess = requests.post(base_url+'accounting/reports/balancesheet', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'payment/add', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

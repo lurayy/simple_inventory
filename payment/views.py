@@ -338,12 +338,7 @@ def create_payment(self, request):
                             bank_name = payment['bank_name'],
                             remarks = payment['remarks'],
                         )
-                        temp.save()
-                        if "accounting" in settings.INSTALLED_APPS:
-                            from accounting.models import Account, payemnt_entry_to_system
-                            account = Account.objects.get(id = payment['account'])
-                            payemnt_entry_to_system(account, temp)
-                        
+                        temp.save()                            
                     elif payment['purchase_order']:
                         temp = Payment.objects.create(
                             purchase_order = PurchaseOrder.objects.get(id=payment['purchase_order']),
@@ -355,10 +350,6 @@ def create_payment(self, request):
                             remarks = payment['remarks']
                         )
                         temp.save()
-                        if "accounting" in settings.INSTALLED_APPS:
-                            from accounting.models import Account, payemnt_entry_to_system
-                            account = Account.objects.get(id = payment['account'])
-                            payemnt_entry_to_system(account, temp)
                     else:
                         temp = Payment.objects.create(
                             amount=payment['amount'],
@@ -368,8 +359,20 @@ def create_payment(self, request):
                             bank_name = payment['bank_name'],
                             remarks = payment['remarks']
                         )
-                        temp.save()  
-                    payment_models.append(temp)                 
+                        temp.save()
+                    if "accounting" in settings.INSTALLED_APPS:
+                        from accounting.models import Account, payemnt_entry_to_system
+                        account = Account.objects.get(id = payment['account'])
+                        payemnt_entry_to_system(account, temp)
+                    if payment['credit_payment_for']:
+                        credit = Payment.objects.get(id = payment['credit_payment_for'])
+                        temp.remarks = payment['remarks'] + " / credit payemnt for "+ str(credit.id)
+                        temp.save()
+                        if "accounting" in settings.INSTALLED_APPS:
+                            from accounting.models import handle_credit_for
+                            handle_credit_for(credit, temp)
+                    payment_models.append(temp)   
+
                 response_json['status'] = True
                 response_json['payments'] = payment_to_json(payment_models)
                 return JsonResponse(response_json)
@@ -416,10 +419,10 @@ def update_payment(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 payment = Payment.objects.get(id=data_json['payment_id'])
-                payment.amount=data_json['amount'],
-                payment.transaction_from = data_json['transaction_from'],
-                payment.transaction_id = data_json['transaction_id'],
-                payment.bank_name = data_json['bank_name'],
+                # payment.amount=data_json['amount'],
+                payment.transaction_from = data_json['transaction_from']
+                payment.transaction_id = data_json['transaction_id']
+                payment.bank_name = data_json['bank_name']
                 payment.remarks = data_json['remarks']
                 payment.save()
                 response_json['status'] = True

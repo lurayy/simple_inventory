@@ -137,9 +137,7 @@ def generate_balance_sheet_statement(self, request):
                                     }
                                 }
                             )
-                    print(headers)
                     for header in headers:
-                        print(header)
                         balance_sheet[header]['meta_data'] = {
                             'count': len(balance_sheet[header]['sub_headers']),
                             'sum_current_amount': sum( d['meta_data']['sum_current_amount'] for d in balance_sheet[header]['sub_headers']),
