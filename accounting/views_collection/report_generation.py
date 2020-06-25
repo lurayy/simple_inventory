@@ -17,63 +17,68 @@ from django.db.models import Sum
 # it is more efficient (faster) to sum the values of a list than to aggregate using Sum()
 # from django.db.models import Sum
 
+@require_http_methods(['POST'])
 @bind
 def generate_profit_loss_statement(self, request):
     response_json = {'status':False}
-    # if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
-    #     try:
-    # json_str = request.body.decode(encoding='UTF-8')
-    # data_json = json.loads(json_str)
-    # if data_json['action'] == "get":
-    #     if data_json['filter'] == "none":
-    monthly_stats = MonthlyStats.objects.filter(is_active=True).order_by('-date')
-    today =datetime.datetime.now()
-    if len(monthly_stats) >= 0 :
-        latest_calulcation_date = today - dateutil.relativedelta.relativedelta(months=1)
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                if data_json['filter'] == "none":
+                    monthly_stats = MonthlyStats.objects.filter(is_active=True).order_by('-date')
+                    today =datetime.datetime.now()
+                    if len(monthly_stats) >= 0 :
+                        latest_calulcation_date = today - dateutil.relativedelta.relativedelta(months=1)
+                    else:
+                        latest_calulcation_date = monthly_stats[0].date
+
+                    if today.year > latest_calulcation_date.year:
+                        print("run monthly status scripts")
+
+                    tmp = {
+                        'total_assets':0,
+                        'total_liabilities':0,
+                        'total_revenue':0,
+                        'total_expense':0,
+                        'total_draw':0,
+                        'total_equity':0,
+                        'profit':0,
+                        'to_be_paid':0,
+                        'to_pay':0
+                    }
+                    fields =  [
+                        'total_assets',
+                        'total_liabilities',
+                        'total_revenue',
+                        'total_expense',
+                        'total_draw',
+                        'total_equity',
+                        'profit',
+                        'to_be_paid',
+                        'to_pay'
+                    ]
+                    
+                    stats = serializers.serialize('json', monthly_stats)
+                    stats = json.loads(stats)
+                    for stat in stats:
+                        for field in fields:
+                            tmp[field] = tmp[field] + stat['fields'][field]
+                    response_json = {
+                        'status':True,
+                        'monthly_stats':stats,
+                        'past_months':tmp,
+                        'this_month':{},
+                        'total':{} 
+                    }
+                    new_entries = LedgerEntry.objects.filter(is_active=True, created_at__range=[latest_calulcation_date, today])
+                    response_json['this_month'] = sum_from_legder_entries(new_entries, fields)
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
-        latest_calulcation_date = monthly_stats[0].date
-
-    if today.year > latest_calulcation_date.year:
-        print("run monthly status scripts")
-
-    tmp = {
-        'total_assets':0,
-        'total_liabilities':0,
-        'total_revenue':0,
-        'total_expense':0,
-        'total_draw':0,
-        'total_equity':0,
-        'profit':0,
-        'to_be_paid':0,
-        'to_pay':0
-    }
-    fields =  [
-        'total_assets',
-        'total_liabilities',
-        'total_revenue',
-        'total_expense',
-        'total_draw',
-        'total_equity',
-        'profit',
-        'to_be_paid',
-        'to_pay'
-    ]
-    
-    stats = serializers.serialize('json', monthly_stats)
-    stats = json.loads(stats)
-    for stat in stats:
-        for field in fields:
-            tmp[field] = tmp[field] + stat['fields'][field]
-    response_json = {
-        'status':True,
-        'monthly_stats':stats,
-        'past_months':tmp,
-        'this_month':{},
-        'total':{} 
-    }
-    new_entries = LedgerEntry.objects.filter(is_active=True, created_at__range=[latest_calulcation_date, today])
-    response_json['this_month'] = sum_from_legder_entries(new_entries, fields)
-    return JsonResponse(response_json)
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 # show credits that are not paid 
 
@@ -103,40 +108,49 @@ def sum_from_legder_entries(accounts, fields):
 
 
 
-
+@require_http_methods(['POST'])
 @bind
 def generate_balance_sheet_statement(self, request):
     response_json = {'status':False}
-    accounts = Account.objects.filter(is_active=True, is_closed=False)
-    headers = []
-    balance_sheet = {}
-    for header in AccountType.HEADER_CHOICE:
-        headers.append(header[0])
-        balance_sheet[header[0]] = {
-                'header':header[0],
-                'sub_headers':[],
-                'meta_data':{}
-            }
+    
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                if data_json['filter'] == "none":
+                    accounts = Account.objects.filter(is_active=True, is_closed=False)
+                    headers = []
+                    balance_sheet = {}
+                    for header in AccountType.HEADER_CHOICE:
+                        headers.append(header[0])
+                        balance_sheet[header[0]] = {
+                                'header':header[0],
+                                'sub_headers':[],
+                                'meta_data':{}
+                            }
 
-    for account_type in AccountType.objects.filter(is_active=True):
-        temp = accounts.filter(account_type=account_type)
-        balance_sheet[account_type.header]['sub_headers'].append(
-                {
-                    'name':account_type.name,
-                    'header':account_type.header,
-                    'accounts':accounts_to_json(temp),
-                    'meta_data':{
-                        'count':len(temp),
-                        'sum_current_amount': temp.aggregate(Sum('current_amount'))['current_amount__sum'],
-                    }
-                }
-            )
-
-    for header in headers:
-        balance_sheet[header]['meta_data'] = {
-            'count': len(balance_sheet[header]['sub_headers']),
-            'sum_current_amount': sum( d['meta_data']['sum_current_amount'] for d in balance_sheet[header]['sub_headers']),
-        }
-
-    return JsonResponse(balance_sheet)
-
+                    for account_type in AccountType.objects.filter(is_active=True):
+                        temp = accounts.filter(account_type=account_type)
+                        balance_sheet[account_type.header]['sub_headers'].append(
+                                {
+                                    'name':account_type.name,
+                                    'header':account_type.header,
+                                    'accounts':accounts_to_json(temp),
+                                    'meta_data':{
+                                        'count':len(temp),
+                                        'sum_current_amount': temp.aggregate(Sum('current_amount'))['current_amount__sum'],
+                                    }
+                                }
+                            )
+                    for header in headers:
+                        balance_sheet[header]['meta_data'] = {
+                            'count': len(balance_sheet[header]['sub_headers']),
+                            'sum_current_amount': sum( d['meta_data']['sum_current_amount'] for d in balance_sheet[header]['sub_headers']),
+                        }
+                # elif data_json['filter']== "date":
+            return JsonResponse(balance_sheet)
+        except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})

@@ -77,7 +77,7 @@ def add_new_ledger_entry(self, request):
                 for entry in data_json['entries']:
                     entry_model = LedgerEntry.objects.create(
                         account = Account.objects.get(id=entry['account_id']),
-                        is_add = data_json['is_add'],
+                        is_add = entry['is_add'],
                         remarks = entry['remarks'],
                         date = str_to_datetime(entry['date']),
                         payment = Payment.objects.get(id=entry['payment_id']),
