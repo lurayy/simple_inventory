@@ -48,6 +48,8 @@ class Account(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    credit = models.FloatField(default=0)
+
     def __str__(self):
         return f'{self.name} {self.current_amount}'
     
@@ -56,6 +58,13 @@ class Account(models.Model):
             self.current_amount = self.opening_balance
         if self.customer and self.vendor:
             raise Exception("Same Account cannot be use by both customer and vendor.")
+        entries = LedgerEntry.objects.filter(account = self, payment__method__header = "credit")
+        self.credit = 0
+        for entry in entries:
+            self.credit += entry.payment.amount
+            free_entires = FreeEntryLedger.objects.filter(entry_for = entry)
+            for e in free_entires:
+                self.credit += e.amount
         super(Account, self).save(*args, **kwargs)
 
 
