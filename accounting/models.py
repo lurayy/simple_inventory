@@ -363,9 +363,6 @@ def payemnt_entry_to_system(account, payment):
             is_add =  settings.default_purchase_action_on_credit_is_add
         )
         
-        
-
-
 
 # assets , lib, equity, draw , exp, rev 
 # exp - rev = profit/loss

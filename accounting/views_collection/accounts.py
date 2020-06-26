@@ -11,7 +11,7 @@ from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_en
 from user_handler.models import Vendor, Customer
 from inventory.utils import vendors_to_json
 from sales.utils import customers_to_json
-
+import django
 
 
 @require_http_methods(['POST'])
@@ -213,7 +213,7 @@ def update_account(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'])
+            account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'], is_active =True)
             if data_json['action'] == "update":
                 account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'])
                 account.name = data_json['name']
@@ -230,6 +230,13 @@ def update_account(self, request):
                 account.save()
             if data_json['action'] == 'close':
                 account.is_closed = True
+                account.closing_balance = account.current_amount
+                account.closing_date = django.utils.timezone.now()
+                account.save()
+            if data_json['action'] == 'open':
+                account.is_closed = False
+                account.closing_balance = 0
+                account.closing_date = None
                 account.save()
             response_json['status'] = True
             return JsonResponse(response_json)
