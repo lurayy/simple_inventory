@@ -366,7 +366,7 @@ def create_payment(self, request):
                         payemnt_entry_to_system(account, temp)
                     if payment['credit_payment_for']:
                         credit = Payment.objects.get(id = payment['credit_payment_for'])
-                        temp.remarks = payment['remarks'] + " / credit payemnt for "+ str(credit.id)
+                        temp.remarks = payment['remarks'] + " / credit payemnt for  "+ str(credit.id)
                         temp.save()
                         if "accounting" in settings.INSTALLED_APPS:
                             from accounting.models import handle_credit_for

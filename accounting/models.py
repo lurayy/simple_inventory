@@ -269,7 +269,7 @@ def payemnt_entry_to_system(account, payment):
         entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = account,
-            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
+            remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
             is_add = True
         )
@@ -277,7 +277,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_credit,
-            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
+            remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
             is_add = settings.default_invoice_action_on_credit_is_add
         )
@@ -285,7 +285,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_cash,
-            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
+            remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_credit_is_add
         )
@@ -293,7 +293,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_pre_paid,
-            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
+            remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_credit_is_add
         )
@@ -301,7 +301,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_transfer,
-            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
+            remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_credit_is_add
         )
@@ -309,7 +309,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_bank,
-            remarks = 'automated entry invoice '+str(payment.invoice.invoice_number),
+            remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_credit_is_add
         )
@@ -318,7 +318,7 @@ def payemnt_entry_to_system(account, payment):
         entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = account,
-            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
             is_add = True
         )
@@ -326,7 +326,7 @@ def payemnt_entry_to_system(account, payment):
             entry_two = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_purchase_account_on_credit,
-            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
             is_add = settings.default_purchase_action_on_credit_is_add
         )
@@ -334,7 +334,7 @@ def payemnt_entry_to_system(account, payment):
             entry_two = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_purchase_account_on_cash,
-            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
             is_add =  settings.default_purchase_action_on_credit_is_add
         )
@@ -342,7 +342,7 @@ def payemnt_entry_to_system(account, payment):
             entry_two = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_purchase_account_on_pre_paid,
-            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
             is_add =  settings.default_purchase_action_on_credit_is_add
         )
@@ -350,7 +350,7 @@ def payemnt_entry_to_system(account, payment):
             entry_two = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_purchase_account_on_transfer,
-            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
             is_add =  settings.default_purchase_action_on_credit_is_add
         )
@@ -358,7 +358,7 @@ def payemnt_entry_to_system(account, payment):
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_purchase_account_on_bank,
-            remarks = 'automated entry purchase order'+str(payment.purchase_order.uuid),
+            remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
             is_add =  settings.default_purchase_action_on_credit_is_add
         )
@@ -385,10 +385,12 @@ def handle_credit_for(credit, payment):
             amount = -1*payment.amount,
             remarks = " credit payment"
         )
-        temp = LedgerEntry.objects.create(
-            payment = payment,
-            account = entry.account,
-            remarks = 'Automated Ledger Entry for credit payment '+str(entry.id),
-            date = django.utils.timezone.now(),
-            is_add = True
-        )
+        x = LedgerEntry.objects.filter(payment = payment, account=entry.account, is_add=True)
+        if len(x) == 0:
+            temp = LedgerEntry.objects.create(
+                payment = payment,
+                account = entry.account,
+                remarks = 'Automated Ledger Entry for credit payment  '+str(entry.id),
+                date = django.utils.timezone.now(),
+                is_add = True
+            )
