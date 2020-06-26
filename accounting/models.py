@@ -329,7 +329,7 @@ def payemnt_entry_to_system(account, payment):
             account = account,
             remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
-            is_add = False
+            is_add = True
         )
         if payment.method.header == 'credit':
             entry_two = LedgerEntry.objects.create(
