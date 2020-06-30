@@ -125,6 +125,7 @@ def add_new_invoice(self, request):
                     status = stat[0],
                     total_amount = 0,
                     bill_amount=0,
+                    total_weight = data_json['total_weight'],
                     additional_discount= data_json['additional_discount']
                 )
                 invoice.save()
@@ -176,6 +177,7 @@ def update_invoice(self, request):
                 invoice.due_on = str_to_datetime(data_json['due_on'])
                 invoice.status = InvoiceStatus.objects.get(id=data_json['status'])  
                 invoice.additional_discount = float(data_json['additional_discount'])
+                invoice.total_weight = data_json['total_weight']
                 invoice.save()
                 response_json = {'status':True}
             return JsonResponse(response_json)

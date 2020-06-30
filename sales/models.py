@@ -37,6 +37,7 @@ class Invoice(models.Model):
     total_amount = models.FloatField()
     bill_amount = models.FloatField()
     paid_amount = models.FloatField()
+    total_weight = models.FloatField(default=0)
     tax_total = models.PositiveIntegerField()
     discount_total = models.PositiveIntegerField(default=0)
     additional_discount = models.PositiveIntegerField(default=0)
