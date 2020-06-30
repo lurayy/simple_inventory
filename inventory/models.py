@@ -24,7 +24,7 @@ class PurchaseOrder(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True)
     invoiced_on = models.DateTimeField()
     completed_on = models.DateTimeField(null=True, blank=True) 
-    total_cost = models.FloatField()
+    total_cost = models.FloatField(default=0)
     DISCOUNT = (
         ('percent', "percent"),
         ('fixed', "fixed")
@@ -156,8 +156,6 @@ class PurchaseItem(models.Model):
     def __str__(self):
         return f'{self.item} of {self.purchase_order}'
     
-
-
 
 class Place(models.Model):
     name = models.CharField(max_length=255)

@@ -87,7 +87,8 @@ def add_new_purchase_order(self,request):
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     completed_on = str_to_datetime(data_json['completed_on']),
                     third_party_invoice_number = data_json['third_party_invoice_number'],
-                    status = status          
+                    status = status   ,
+                    weight = data_json['weight']       
                 )
                 purchase_order.save()
                 response_json['status'] = True
@@ -153,6 +154,7 @@ def update_purchase_order(self, request):
                 purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
                 purchase_order.status = PurchaseOrderStatus.objects.get(id=int(data_json['status']))
                 purchase_order.third_party_invoice_number = data_json['third_party_invoice_number']
+                purchase_order.weight = data_json['weight']
                 purchase_order.save()
                 response_json = {'status':True}
             return JsonResponse(response_json)
@@ -491,7 +493,6 @@ def add_new_item(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            print(data_json)
             if data_json['action'] == "add":
                 item = Item.objects.create(
                     name = str(data_json['name']),
