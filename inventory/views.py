@@ -23,6 +23,8 @@ import cgi
 from user_handler.permission_check import bind, check_permission
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
+# if contition here
+from sales.models import SalesSetting 
 
 @require_http_methods(['POST'])
 @bind
@@ -1101,6 +1103,29 @@ def get_mulitple_purchase_items(self, request):
                 if data_json['filter'] == 'item_on_default':
                     default = Place.objects.get(is_default=True)
                     purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id']))[data_json['start']:data_json['end']]
+                    for purchase_item in purchase_items:
+                        temp = {}
+                        try:
+                            x = Placement.objects.get(placed_on=default, purchase_item=purchase_item)
+                            if (x.stock>0):
+                                temp = {
+                                    'purchase_order_id': purchase_item.purchase_order.uuid,
+                                    'id':purchase_item.id,
+                                    'price':purchase_item.purchase_price,
+                                    'vendor':str(purchase_item.purchase_order.vendor),
+                                    'stock':purchase_item.stock,
+                                    'on_default':x.stock
+                                }
+                                response_json['purchase_items'].append(temp)
+                        except:
+                            pass
+                    response_json['status'] = True
+                if data_json['filter'] == "barcode":
+                    item = Item.objects.get(barcode = data_json['barcode'])
+                    purchase_items = PurchaseItem.objects.filter(item__id = item.id )
+                    default = SalesSetting.objects.all()
+                    default = default[0].default_place_to_sold_from
+                    purchase_items= PurchaseItem.objects.filter(item__id= item.id )
                     for purchase_item in purchase_items:
                         temp = {}
                         try:

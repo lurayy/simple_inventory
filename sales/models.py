@@ -317,3 +317,6 @@ def export_data(data):
 #          }
 #       ]
 #    }
+
+class SalesSetting(models.Model):
+    default_place_to_sold_from = models.ForeignKey(Place, on_delete=models.PROTECT)

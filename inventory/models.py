@@ -112,7 +112,7 @@ class Item(models.Model):
     sales_price = models.FloatField()
     sold = models.PositiveIntegerField(default=0)
 
-    barcode = models.IntegerField(default=0)
+    barcode = models.IntegerField(unique=True)
 
     def __str__(self):
         return f'{self.name} {self.sales_price}'
