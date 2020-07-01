@@ -13,6 +13,7 @@ creds = {
 
 
 r = requests.post(log_in_url, data=creds)
+print(r.text)
 token = r.json()['token']
 r = requests.get(base_url+'user/verify')
 csrftoken = r.json()['x-csrftoken']
@@ -28,7 +29,7 @@ print()
 
 data = {
   'action' : 'get',
-  'barcode': 5065,
+  'barcode': 950,
   'filter': 'barcode',
 }
 # data = {
@@ -50,5 +51,5 @@ data = {
 # }
 
 
-sess = requests.post(base_url+'inventory/items/get', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'inventory/purchaseitems/get', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

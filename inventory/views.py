@@ -1135,12 +1135,15 @@ def get_mulitple_purchase_items(self, request):
                             x = Placement.objects.get(placed_on=default, purchase_item=purchase_item)
                             if (x.stock>0):
                                 temp = {
+                                    'item': items_to_json([item]),
                                     'purchase_order_id': purchase_item.purchase_order.uuid,
-                                    'id':purchase_item.id,
-                                    'price':purchase_item.purchase_price,
+                                    'purchase_item_id':purchase_item.id,
+                                    'price_from_purchase_item':purchase_item.purchase_price,
                                     'vendor':str(purchase_item.purchase_order.vendor),
                                     'stock':purchase_item.stock,
-                                    'on_default':x.stock
+                                    'on_default':x.stock,
+                                    'place_str': default.name,
+                                    'place_id':default.id 
                                 }
                                 response_json['purchase_items'].append(temp)
                         except:
