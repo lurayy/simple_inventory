@@ -50,5 +50,5 @@ data = {
 # }
 
 
-sess = requests.post(base_url+'inventory/purchaseitems/get', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'inventory/items/get', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

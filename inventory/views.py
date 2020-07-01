@@ -412,6 +412,11 @@ def get_multiple_items(self, request):
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)
+                if data_json['filter'] == "barcode":
+                    items = Item.objects.filter(is_active=True, barcode=data_json['barcode'])
+                    response_json['items'] = items_to_json(items)
+                    response_json['status'] = True
+                    return JsonResponse(response_json)
                 if data_json['filter'] == 'multiple':
                     items = Item.objects.filter(is_active=True)
                     if (data_json['filters']['is_applied_name']):
