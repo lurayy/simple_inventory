@@ -160,6 +160,7 @@ for _ in range(ITEM_COUNT):
         stock = 0,
         sold = 0,
         barcode = random.randint(0000, 9999),
+        weight = random.randint(0000, 9999),
         sales_price = fake.random_number(digits=None, fix_len=False)
     )
     temp.save()
