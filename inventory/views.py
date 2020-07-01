@@ -89,8 +89,7 @@ def add_new_purchase_order(self,request):
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     completed_on = str_to_datetime(data_json['completed_on']),
                     third_party_invoice_number = data_json['third_party_invoice_number'],
-                    status = status   ,
-                    weight = data_json['weight']       
+                    status = status
                 )
                 purchase_order.save()
                 response_json['status'] = True
@@ -156,7 +155,6 @@ def update_purchase_order(self, request):
                 purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
                 purchase_order.status = PurchaseOrderStatus.objects.get(id=int(data_json['status']))
                 purchase_order.third_party_invoice_number = data_json['third_party_invoice_number']
-                purchase_order.weight = data_json['weight']
                 purchase_order.save()
                 response_json = {'status':True}
             return JsonResponse(response_json)
