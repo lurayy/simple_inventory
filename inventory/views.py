@@ -587,7 +587,7 @@ def update_item(self, request):
                 item.description = data_json['description']
                 item.weight = data_json['weight']
                 item.sales_price = data_json['sales_price']
-                item.average_cost_price =  data_json['average_cost_price'],
+                item.average_cost_price =  data_json['average_cost_price']
                 item.barcode = data_json['barcode']
                 try:
                     if (data_json['product_image']):
