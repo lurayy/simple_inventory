@@ -479,8 +479,8 @@ def get_multiple_items(self, request):
                         temp_end = 9999999999999
                     if data_json['filters']['is_applied_sales_price_from'] == True or data_json['filters']['is_applied_sales_price_upto'] == True:
                         items = items.filter(sales_price__range = (temp_start, temp_end))
-                    if (data_json['filters']['is_applied_catagory']):
-                        items = items.filter(catagory__id = int(data_json['filters']['catagory']))
+                    if (data_json['filters']['is_applied_category']):
+                        items = items.filter(catagory__id = int(data_json['filters']['category']))
                     items = items[int(data_json['start']) : int(data_json['end'])]
                     return JsonResponse({'status':True, 'items':items_to_json(items)})
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
