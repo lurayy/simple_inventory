@@ -53,15 +53,24 @@ by 3rd party invoice no'''
                     orders = PurchaseOrder.objects.filter(is_active=True, status=status).order_by('-invoiced_on')[start:end]                
                 # filter using date, will have to do after front-end
                 if str(data_json['filter']).lower() == "date":
-                    start_date = str_to_datetime(str(data_json['start_date']))
-                    end_date = str_to_datetime(str(data_json['end_date']))
-                    orders = PurchaseOrder.objects.filter(is_active=True, invoiced_on__range = [start_date, end_date]).order_by('-invoiced_on')[start:end]
+                    
                 if str(data_json['filter']).lower() == "vendor":
                     vendor_obj = Vendor.objects.get(id=int(data_json['vendor']))
                     orders = PurchaseOrder.objects.filter(is_active=True, vendor=vendor_obj).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "added_by":
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
-                    orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end]            
+                    orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end]
+
+                if data_json['filter'] == "multiple":
+                    orders = PurchaseOrder.objects.filter(is_active=True)
+                    if data_json['filters']['date']:
+                        start_date = str_to_datetime(str(data_json['filters']['start_date']))
+                        end_date = str_to_datetime(str(data_json['filters']['end_date']))
+                        orders = orders.filter(invoiced_on__range = [start_date, end_date]).order_by('-invoiced_on')
+                    if data_json['filters']['vendor']:
+                        vendor_obj = Vendor.objects.get(id=int(data_json['filters']['vendor_id']))
+                        orders = orders.filter(vendor=vendor_obj).order_by('-invoiced_on')
+
                 response_json['purchase_orders'] = purchase_orders_to_json(orders)
                 response_json['status'] = True
             return JsonResponse(response_json)
