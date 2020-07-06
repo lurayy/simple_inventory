@@ -365,14 +365,17 @@ def create_payment(self, request):
                             from accounting.models import Account, payemnt_entry_to_system
                             account = Account.objects.get(id = payment['account'])
                             payemnt_entry_to_system(account, temp)
-                    if payment['credit_payment_for']:
-                        credit = Payment.objects.get(id = payment['credit_payment_for'])
-                        temp.remarks = payment['remarks'] + " / credit payemnt for  "+ str(credit.id)
-                        temp.save()
-                        if "accounting" in settings.INSTALLED_APPS:
-                            from accounting.models import handle_credit_for
-                            handle_credit_for(credit, temp)
-                    payment_models.append(temp)   
+                    try:
+                        if payment['credit_payment_for']:
+                            credit = Payment.objects.get(id = payment['credit_payment_for'])
+                            temp.remarks = payment['remarks'] + " / credit payemnt for  "+ str(credit.id)
+                            temp.save()
+                            if "accounting" in settings.INSTALLED_APPS:
+                                from accounting.models import handle_credit_for
+                                handle_credit_for(credit, temp)
+                    except:
+                        pass
+                    payment_models.append(temp)  
 
                 response_json['status'] = True
                 response_json['payments'] = payment_to_json(payment_models)
