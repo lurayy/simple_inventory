@@ -944,7 +944,7 @@ def delete_taxes(self, request):
 
 
 
-@require_http_methods(['POST'])
+@require_http_methods(['GET'])
 @bind
 def get_invoice_status(self, request):
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    

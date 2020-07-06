@@ -118,7 +118,17 @@ def get_ledger_entry_details(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
+# @require_http_methods(['POST'])
+# @bind
+# def update_ledger_entry(self, request):
+#     response_json = {'status':False}
+#     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+#         try:
+#             json_str = request.body.decode(encoding='UTF-8')
+#             data_json = json.loads(json_str)
+#             if data_json['action'] == "update":
+#                 entry = LedgerEntry.objects.get(id = data_json['ledger_entry_id'])
+                
 
 
 

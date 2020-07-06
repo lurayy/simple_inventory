@@ -376,6 +376,11 @@ def payemnt_entry_to_system(account, payment):
 # assets , lib, equity, draw , exp, rev 
 # exp - rev = profit/loss
 
+# def update_ledger(entry, amount):
+#     new_amount = entry.payment.amount - amount
+
+
+
 
 def handle_payment_deletetion(payment):
     ledgers = LedgerEntry.objects.filter(payment = payment)

@@ -7,6 +7,8 @@ urlpatterns = [
     path('invoice/update', views.update_invoice, name="status"),
     path('invoice/add', views.add_new_invoice, name='add'),
 
+    path('invoice/status/get',views.get_invoice_status),
+
     path('customers/get', views.get_multiple_customers, name=""),
     path('customer/update', views.update_customer, name=''),
     path('customers/delete', views.delete_customers, name="delete customers"),

@@ -23,7 +23,7 @@ headers = {
     'x-csrftoken': csrftoken
 }
 
-sess = requests.get(base_url+'user/current', headers=headers)
+sess = requests.get(base_url+'sales/invoice/status/get', headers=headers)
 print(sess.text)
 print()
 
@@ -51,5 +51,5 @@ data = {
 # }
 
 
-sess = requests.post(base_url+'inventory/purchaseitems/get', headers=headers, data=json.dumps(data), verify=False)
-print(sess.text)
+# sess = requests.post(base_url+'inventory/purchaseitems/get', headers=headers, data=json.dumps(data), verify=False)
+# print(sess.text)
