@@ -80,18 +80,22 @@ def get_multiple_invoices(self, request):
             data_json = json.loads(json_str)
             # GET Handler
             if str(data_json['action']) == "get":
-                start = data_json['start']
-                end = data_json['end']
                 response_json = {'status':False, 'sales':[]}
                 if str(data_json['filter']).lower() == "none":
+                    start = data_json['start']
+                    end = data_json['end']    
                     invoices = Invoice.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
                 # filter using date, will have to do after front-end
                 if str(data_json['filter']).lower() == "added_by":
+                    start = data_json['start']
+                    end = data_json['end']    
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
                     invoices = Invoice.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end] 
                 if data_json['filter'] == "invoice_number":
                     invoices = Invoice.objects.filter(is_active=True, invoice_number= data_json['invoice_number'])
                 if data_json['filter'] == "multiple":
+                    start = data_json['start']
+                    end = data_json['end']    
                     invoices = Invoice.objects.filter(is_active=True)
                     if data_json['filters']['date']:
                         start_date = str_to_datetime(str(data_json['start_date']))
