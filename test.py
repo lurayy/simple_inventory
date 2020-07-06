@@ -25,15 +25,17 @@ headers = {
 
 data = {
   'action': 'get',
-  'filter': 'added_by',
-  'added_by' : user_id
-}
-
-
-data = {
-  'action': 'get',
-  'filter': 'invoice_number',
-  'invoice_number' : 
+  'filter': 'multiple',
+  'filters': {
+    "date" : True/False
+        start_date
+        end_date
+    "vendor" : True/False
+      vendor_id
+    'status' : True/False
+      status_id
+      
+  }
 }
 
 # sess = requests.post(base_url+'inventory/purchaseitems/get', headers=headers, data=json.dumps(data), verify=False)

@@ -29,13 +29,6 @@ from sales.models import SalesSetting
 @require_http_methods(['POST'])
 @bind
 def get_multiple_purchase_orders(self, request):
-    '''
-    by date, 
-by vendor
-by status
-by 3rd party invoice no'''
-
-
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         response_json = {'status':False}
         try:
@@ -43,25 +36,20 @@ by 3rd party invoice no'''
             data_json = json.loads(json_str)
             # GET Handler
             if str(data_json['action']).lower() == "get":
-                start = int(data_json["start"])
-                end = int(data_json["end"])
+                orders = []
                 response_json = {'status':'', 'purchase_orders':[]}
                 if str(data_json['filter']).lower() == "none":
                     orders = PurchaseOrder.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
-                if str(data_json['filter']).lower() == "status":
-                    status = PurchaseOrderStatus.objects.get(id=data_json['status_id'])
-                    orders = PurchaseOrder.objects.filter(is_active=True, status=status).order_by('-invoiced_on')[start:end]                
-                # filter using date, will have to do after front-end
-                if str(data_json['filter']).lower() == "date":
-                    
-                if str(data_json['filter']).lower() == "vendor":
-                    vendor_obj = Vendor.objects.get(id=int(data_json['vendor']))
-                    orders = PurchaseOrder.objects.filter(is_active=True, vendor=vendor_obj).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "added_by":
+                    start = int(data_json["start"])
+                    end = int(data_json["end"])
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
                     orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end]
-
+                if data_json['filter'] == "third_party_invoice_number":
+                    order = PurchaseOrder.objects.filter(is_active=True, third_party_invoice_number = data_json['third_party_invoice_number'])
                 if data_json['filter'] == "multiple":
+                    start = int(data_json["start"])
+                    end = int(data_json["end"])
                     orders = PurchaseOrder.objects.filter(is_active=True)
                     if data_json['filters']['date']:
                         start_date = str_to_datetime(str(data_json['filters']['start_date']))
@@ -70,7 +58,10 @@ by 3rd party invoice no'''
                     if data_json['filters']['vendor']:
                         vendor_obj = Vendor.objects.get(id=int(data_json['filters']['vendor_id']))
                         orders = orders.filter(vendor=vendor_obj).order_by('-invoiced_on')
-
+                    if data_json['filters']['status']:
+                        status = PurchaseOrderStatus.objects.get(id=data_json['filters']['status_id'])
+                        orders = orders.filter(is_active=True, status=status).order_by('-invoiced_on')
+                    orders = orders[start:end]
                 response_json['purchase_orders'] = purchase_orders_to_json(orders)
                 response_json['status'] = True
             return JsonResponse(response_json)
