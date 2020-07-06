@@ -376,8 +376,29 @@ def payemnt_entry_to_system(account, payment):
 # assets , lib, equity, draw , exp, rev 
 # exp - rev = profit/loss
 
-# def update_ledger(entry, amount):
-#     new_amount = entry.payment.amount - amount
+def update_ledger(entry, amount):
+    new_amount = amount - entry.payment.amount
+    payment =  Payment.objects.create(
+        invoice = entry.payment.invoice,
+        purchase_order = entry.payment.purchase_order,
+        amount = new_amount,
+        method = entry.payment.method,
+        transaction_from = entry.payment.transaction_from,
+        transaction_id = entry.payment.transaction_id,
+        bank_name = entry.payment.bank_name,
+        remarks = entry.payment.remarks,
+        refunded = entry.payment.refunded,
+        is_active = entry.payment.is_active
+    )
+    new_entry = LedgerEntry.objects.create(
+        payment = payment,
+        account = entry.account,
+        remarks = "sub for ledger "+str(entry.id),
+        date = django.utils.timezone.now(),
+        is_add = entry.is_add,
+        bundle_id = entry.bundle_id
+    )
+    return new_entry
 
 
 

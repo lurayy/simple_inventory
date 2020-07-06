@@ -6,7 +6,7 @@ import json
 from inventory.utils import  str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from accounting.models import AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
+from accounting.models import AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger, update_ledger
 from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_entries_to_json, free_entries_to_json
 from payment.models import Payment, PaymentMethod
 import uuid
@@ -128,6 +128,10 @@ def get_ledger_entry_details(self, request):
 #             data_json = json.loads(json_str)
 #             if data_json['action'] == "update":
 #                 entry = LedgerEntry.objects.get(id = data_json['ledger_entry_id'])
+#                 new_entry = update_ledger(entry, data_json['amount'])
+#                 response_json['entries'] = ledger_entries_to_json([entry, new_entry])
+
+
                 
 
 
