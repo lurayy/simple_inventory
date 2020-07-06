@@ -6,8 +6,8 @@ import json
 from inventory.utils import  str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from accounting.models import AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger, update_ledger
-from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_entries_to_json, free_entries_to_json
+from accounting.models import AccountType, Account, LedgerEntry, MonthlyStats, update_ledger
+from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_entries_to_json
 from payment.models import Payment, PaymentMethod
 import uuid
 
@@ -110,7 +110,6 @@ def get_ledger_entry_details(self, request):
             if data_json['action'] == "get":
                 entry = LedgerEntry.objects.get(id=data_json['ledger_entry_id'])
                 response_json['ledger_entries'] = ledger_entries_to_json([entry])
-                response_json['free_entries'] = free_entries_to_json(FreeEntryLedger.objects.filter(entry_for=entry))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -118,18 +117,26 @@ def get_ledger_entry_details(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-# @require_http_methods(['POST'])
-# @bind
-# def update_ledger_entry(self, request):
-#     response_json = {'status':False}
-#     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
-#         try:
-#             json_str = request.body.decode(encoding='UTF-8')
-#             data_json = json.loads(json_str)
-#             if data_json['action'] == "update":
-#                 entry = LedgerEntry.objects.get(id = data_json['ledger_entry_id'])
-#                 new_entry = update_ledger(entry, data_json['amount'])
-#                 response_json['entries'] = ledger_entries_to_json([entry, new_entry])
+
+@require_http_methods(['POST'])
+@bind
+def update_ledger_entry(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "update":
+                entry = LedgerEntry.objects.get(id = data_json['ledger_entry_id'])
+                new_entry = update_ledger(entry, data_json['amount'])
+                response_json['entries'] = ledger_entries_to_json([entry, new_entry])
+                response_json['status'] = True
+            return response_json
+        except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+     
 
 
                 

@@ -6,7 +6,7 @@ import json
 from inventory.utils import  str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from accounting.models import  AccountType, Account, LedgerEntry, MonthlyStats, FreeEntryLedger
+from accounting.models import  AccountType, Account, LedgerEntry, MonthlyStats
 from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_entries_to_json
 import datetime
 from django.core import serializers
@@ -95,8 +95,7 @@ def sum_from_legder_entries(entries, fields):
     }
     for header in entry_type_headers:
         for entry in entries.filter( account__account_type__header = header ):
-            corrections = FreeEntryLedger.objects.filter(entry_for = entry)
-            total[header] = total[header] + entry.payment.amount + sum(e.amount for e in corrections)
+            total[header] = total[header] + entry.payment.amount
     total['profit'] = total['revenue'] - total['expense']
     return total
     # for account in Account.objects.filter(is_active = True, is_closed=False)

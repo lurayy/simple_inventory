@@ -1,7 +1,7 @@
 from django.forms.models import model_to_dict 
-from .models import  AccountType, Account, LedgerEntry, MonthlyStats
+from .models import  AccountType, Account, MonthlyStats
 import dateutil.parser
-from .serializers import  AccountTypeSerializer, AccountSerializer, LedgerEntrySerializer, MonthlyStatsSerializer, FreeEntrySerializer
+from .serializers import  AccountTypeSerializer, AccountSerializer, LedgerEntrySerializer, MonthlyStatsSerializer
 from payment.models import Payment, PaymentMethod
 from payment.utils import payment_to_json
 
@@ -44,9 +44,3 @@ def ledger_entries_to_json(models):
         data.append(temp)
     return data
 
-def free_entries_to_json(models):
-    data = []
-    for model in models:
-        temp  = FreeEntrySerializer(model).data
-        data.append(temp)
-    return data

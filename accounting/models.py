@@ -62,9 +62,6 @@ class Account(models.Model):
         self.credit = 0
         for entry in entries:
             self.credit += entry.payment.amount
-            free_entires = FreeEntryLedger.objects.filter(entry_for = entry)
-            for e in free_entires:
-                self.credit += e.amount
         super(Account, self).save(*args, **kwargs)
 
 
@@ -205,47 +202,47 @@ class AccountingSettings(models.Model):
         return super(AccountingSettings, self).save(*args, **kwargs)
 
 
-class FreeEntryLedger(models.Model):
-    entry_for = models.ForeignKey(LedgerEntry, on_delete=models.CASCADE)
-    amount = models.FloatField()
-    remarks = models.TextField()
+# class FreeEntryLedger(models.Model):
+#     entry_for = models.ForeignKey(LedgerEntry, on_delete=models.CASCADE)
+#     amount = models.FloatField()
+#     remarks = models.TextField()
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
     
-    def __str__(self):
-        return f'{self.entry_for}'
+#     def __str__(self):
+#         return f'{self.entry_for}'
     
-    def save(self, *args, **kwargs):
-        if self.id:
-            raise Exception("Cannot update ledger entry.")
-        super(FreeEntryLedger, self).save(*args, **kwargs)
+#     def save(self, *args, **kwargs):
+#         if self.id:
+#             raise Exception("Cannot update ledger entry.")
+#         super(FreeEntryLedger, self).save(*args, **kwargs)
 
 
-@receiver(models.signals.post_save, sender=FreeEntryLedger)
-def free_ledger_entry_post_save(sender, instance, created, **kwargs):
-    if created:
-        #updating account
-        if instance.entry_for.is_add:
-            instance.entry_for.account.current_amount += instance.amount
-        else:
-            instance.entry_for.account.current_amount -= instance.amount
-        instance.entry_for.account.save()
+# @receiver(models.signals.post_save, sender=FreeEntryLedger)
+# def free_ledger_entry_post_save(sender, instance, created, **kwargs):
+#     if created:
+#         #updating account
+#         if instance.entry_for.is_add:
+#             instance.entry_for.account.current_amount += instance.amount
+#         else:
+#             instance.entry_for.account.current_amount -= instance.amount
+#         instance.entry_for.account.save()
 
-        stat = get_stat(instance.entry_for.date)
-        if instance.entry_for.account.account_type.header == "assets":
-            stat.total_assets += instance.amount        
-        elif instance.entry_for.account.account_type.header == "liabilities":
-            stat.total_liabilities += instance.amount
-        elif instance.entry_for.account.account_type.header == "revenue":
-            stat.total_revenue += instance.amount
-        elif instance.entry_for.account.account_type.header == "expense":
-            stat.total_expense += instance.amount
-        elif instance.entry_for.account.account_type.header == "draw":
-            stat.total_draw += instance.amount
-        elif instance.entry_for.account.account_type.header == "equity":
-            stat.total_equity += instance.amount
-        stat.save()         
+#         stat = get_stat(instance.entry_for.date)
+#         if instance.entry_for.account.account_type.header == "assets":
+#             stat.total_assets += instance.amount        
+#         elif instance.entry_for.account.account_type.header == "liabilities":
+#             stat.total_liabilities += instance.amount
+#         elif instance.entry_for.account.account_type.header == "revenue":
+#             stat.total_revenue += instance.amount
+#         elif instance.entry_for.account.account_type.header == "expense":
+#             stat.total_expense += instance.amount
+#         elif instance.entry_for.account.account_type.header == "draw":
+#             stat.total_draw += instance.amount
+#         elif instance.entry_for.account.account_type.header == "equity":
+#             stat.total_equity += instance.amount
+#         stat.save()         
         #updating monthly stats
 
 
@@ -377,7 +374,8 @@ def payemnt_entry_to_system(account, payment):
 # exp - rev = profit/loss
 
 def update_ledger(entry, amount):
-    new_amount = amount - entry.payment.amount
+    new_amount = amount
+
     payment =  Payment.objects.create(
         invoice = entry.payment.invoice,
         purchase_order = entry.payment.purchase_order,
@@ -393,7 +391,7 @@ def update_ledger(entry, amount):
     new_entry = LedgerEntry.objects.create(
         payment = payment,
         account = entry.account,
-        remarks = "sub for ledger "+str(entry.id),
+        remarks = "correction for ledger :"+str(entry.id),
         date = django.utils.timezone.now(),
         is_add = entry.is_add,
         bundle_id = entry.bundle_id
@@ -406,26 +404,9 @@ def update_ledger(entry, amount):
 def handle_payment_deletetion(payment):
     ledgers = LedgerEntry.objects.filter(payment = payment)
     for ledger in ledgers:
-        correction_entry = FreeEntryLedger.objects.create(
-            entry_for = ledger, 
-            amount = -1*ledger.payment.amount,
-            remarks = 'Correction for payment being deleted'
-        )
+        update_ledger(ledger, (-1*amount) )
 
 def handle_credit_for(credit, payment):
     credit_entries = LedgerEntry.objects.filter(payment = credit)
     for entry in credit_entries:
-        temp = FreeEntryLedger.objects.create(
-            entry_for = entry,
-            amount = -1*payment.amount,
-            remarks = " credit payment"
-        )
-        x = LedgerEntry.objects.filter(payment = payment, account=entry.account, is_add=True)
-        if len(x) == 0:
-            temp = LedgerEntry.objects.create(
-                payment = payment,
-                account = entry.account,
-                remarks = 'Automated Ledger Entry for credit payment  '+str(entry.id),
-                date = django.utils.timezone.now(),
-                is_add = True
-            )
+       pass
