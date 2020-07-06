@@ -69,6 +69,7 @@ def add_new_ledger_entry(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            print(data_json)
             if data_json['action'] == "add":
                 if data_json['bundle_id']:
                     bundle_id = data_json['bundle_id']
