@@ -360,10 +360,11 @@ def create_payment(self, request):
                             remarks = payment['remarks']
                         )
                         temp.save()
-                    if "accounting" in settings.INSTALLED_APPS:
-                        from accounting.models import Account, payemnt_entry_to_system
-                        account = Account.objects.get(id = payment['account'])
-                        payemnt_entry_to_system(account, temp)
+                    if payment['invoice'] or payment['purchase_order']:
+                        if "accounting" in settings.INSTALLED_APPS:
+                            from accounting.models import Account, payemnt_entry_to_system
+                            account = Account.objects.get(id = payment['account'])
+                            payemnt_entry_to_system(account, temp)
                     if payment['credit_payment_for']:
                         credit = Payment.objects.get(id = payment['credit_payment_for'])
                         temp.remarks = payment['remarks'] + " / credit payemnt for  "+ str(credit.id)
