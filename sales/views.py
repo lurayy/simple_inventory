@@ -80,6 +80,8 @@ def get_multiple_invoices(self, request):
             data_json = json.loads(json_str)
             # GET Handler
             if str(data_json['action']) == "get":
+                start = data_json['start']
+                end = data_json['end']
                 response_json = {'status':False, 'sales':[]}
                 if str(data_json['filter']).lower() == "none":
                     invoices = Invoice.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
@@ -100,6 +102,7 @@ def get_multiple_invoices(self, request):
                         invoices = invoices.filter(customer=customer_obj).order_by('-invoiced_on')
                     if data_json['filters']['status']:
                         invoices = invoices.filter(status__id=str(data_json['status_id']).lower()).order_by('-invoiced_on')
+                    invoices = invoices[start:end]
                 response_json['invoices'] = invoices_to_json(invoices)
                 response_json['status'] = True
                 return JsonResponse(response_json)

@@ -23,33 +23,18 @@ headers = {
     'x-csrftoken': csrftoken
 }
 
-sess = requests.get(base_url+'sales/invoice/status/get', headers=headers)
-print(sess.text)
-print()
+data = {
+  'action': 'get',
+  'filter': 'added_by',
+  'added_by' : user_id
+}
+
 
 data = {
-  'action' : 'get',
-  'barcode': 950,
-  'filter': 'barcode',
+  'action': 'get',
+  'filter': 'invoice_number',
+  'invoice_number' : 
 }
-# data = {
-#   "action": "add",
-#   "payments": [
-#     {
-#       "credit_payment_for": 6,
-#       "invoice": None,
-#       "purchase_order": 1,
-#       "account": 5,
-#       "amount": 2500,
-#       "method": 1,
-#       "bank_name": "",
-#       "transaction_from": "",
-#       "transaction_id": "",
-#       "remarks": ""
-#     }
-#   ]
-# }
-
 
 # sess = requests.post(base_url+'inventory/purchaseitems/get', headers=headers, data=json.dumps(data), verify=False)
 # print(sess.text)

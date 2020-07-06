@@ -29,6 +29,13 @@ from sales.models import SalesSetting
 @require_http_methods(['POST'])
 @bind
 def get_multiple_purchase_orders(self, request):
+    '''
+    by date, 
+by vendor
+by status
+by 3rd party invoice no'''
+
+
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         response_json = {'status':False}
         try:
