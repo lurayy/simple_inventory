@@ -23,27 +23,32 @@ headers = {
     'x-csrftoken': csrftoken
 }
 
+# data = {
+#   'action': 'get',
+#   'filter': 'multiple',
+#   'filters': {
+#     "date" : True/False
+#         start_date
+#         end_date
+#     "vendor" : True/False
+#       vendor_id
+#     'status' : True/False
+#       status_id
+#   }
+#   start 
+#   end
+# }
+
+# {
+#   'action':'get',
+#   'filter': 'third_party_invoice_number',
+#   "third_party_invoice_number" : __
+# }
+
 data = {
-  'action': 'get',
-  'filter': 'multiple',
-  'filters': {
-    "date" : True/False
-        start_date
-        end_date
-    "vendor" : True/False
-      vendor_id
-    'status' : True/False
-      status_id
-  }
-  start 
-  end
+  'action' : 'get',
+  'filter' : 'invoice_number',
+  'invoice_number' : '78935eaa-642f-5ba0cb43e301'
 }
-
-{
-  'action':'get',
-  'filter': 'third_party_invoice_number',
-  "third_party_invoice_number" : __
-}
-
-# sess = requests.post(base_url+'inventory/purchaseitems/get', headers=headers, data=json.dumps(data), verify=False)
-# print(sess.text)
+sess = requests.post(base_url+'sales/invoices/get', headers=headers, data=json.dumps(data), verify=False)
+print(sess.text)

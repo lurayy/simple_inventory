@@ -92,7 +92,10 @@ def get_multiple_invoices(self, request):
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
                     invoices = Invoice.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end] 
                 if data_json['filter'] == "invoice_number":
-                    invoices = Invoice.objects.filter(is_active=True, invoice_number= data_json['invoice_number'])
+                    try:
+                        invoices = Invoice.objects.filter(is_active=True, invoice_number= data_json['invoice_number'])
+                    except:
+                        invoices = []
                 if data_json['filter'] == "multiple":
                     start = data_json['start']
                     end = data_json['end']    
