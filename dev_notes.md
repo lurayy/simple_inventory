@@ -108,6 +108,3 @@ Search filter for accounts :
   start : 
   end : 
 }
-
-
-
