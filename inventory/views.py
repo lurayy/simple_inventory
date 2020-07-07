@@ -39,6 +39,8 @@ def get_multiple_purchase_orders(self, request):
                 orders = []
                 response_json = {'status':'', 'purchase_orders':[]}
                 if str(data_json['filter']).lower() == "none":
+                    start = int(data_json["start"])
+                    end = int(data_json["end"])
                     orders = PurchaseOrder.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
                 if str(data_json['filter']).lower() == "added_by":
                     start = int(data_json["start"])

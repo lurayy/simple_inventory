@@ -34,8 +34,15 @@ data = {
       vendor_id
     'status' : True/False
       status_id
-      
   }
+  start 
+  end
+}
+
+{
+  'action':'get',
+  'filter': 'third_party_invoice_number',
+  "third_party_invoice_number" : __
 }
 
 # sess = requests.post(base_url+'inventory/purchaseitems/get', headers=headers, data=json.dumps(data), verify=False)
