@@ -101,9 +101,12 @@ def get_multiple_invoices(self, request):
                     end = data_json['end']    
                     invoices = Invoice.objects.filter(is_active=True)
                     if data_json['filters']['date']:
-                        start_date = str_to_datetime(str(data_json['filters']['start_date']))
-                        end_date = str_to_datetime(str(data_json['filters']['end_date']))
-                        invoices =  invoices.filter(invoiced_on__range = [start_date, end_date]).order_by('-invoiced_on')
+                        if data_json['filters']['start_date']:
+                            start_date = str_to_datetime(str(data_json['filters']['start_date']))
+                            invoices = invoices.filter(invoiced_on__gte = start_date).order_by('-invoiced_on')
+                        if data_json['filters']['end_date']:
+                            end_date = str_to_datetime(str(data_json['filters']['end_date']))
+                            invoices = invoices.filter(invoiced_on__lte = end_date).order_by('-invoiced_on')
                     if data_json['filters']['customer']:
                         customer_obj = Customer.objects.get(is_active=True, id=int(data_json['filters']['customer_id']))
                         invoices = invoices.filter(customer=customer_obj).order_by('-invoiced_on')
