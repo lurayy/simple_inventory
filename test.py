@@ -23,27 +23,6 @@ headers = {
     'x-csrftoken': csrftoken
 }
 
-# data = {
-#   'action': 'get',
-#   'filter': 'multiple',
-#   'filters': {
-#     "date" : True/False
-#         start_date
-#         end_date
-#     "vendor" : True/False
-#       vendor_id
-#     'status' : True/False
-#       status_id
-#   }
-#   start 
-#   end
-# }
-
-# {
-#   'action':'get',
-#   'filter': 'third_party_invoice_number',
-#   "third_party_invoice_number" : __
-# }
 
 data = {
   'action' : 'get',

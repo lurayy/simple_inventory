@@ -54,9 +54,12 @@ def get_multiple_purchase_orders(self, request):
                     end = int(data_json["end"])
                     orders = PurchaseOrder.objects.filter(is_active=True)
                     if data_json['filters']['date']:
-                        start_date = str_to_datetime(str(data_json['filters']['start_date']))
-                        end_date = str_to_datetime(str(data_json['filters']['end_date']))
-                        orders = orders.filter(invoiced_on__range = [start_date, end_date]).order_by('-invoiced_on')
+                        if data_json['filters']['start_date']:
+                            start_date = str_to_datetime(str(data_json['filters']['start_date']))
+                            orders = orders.filter(invoiced_on__gte = start_date).order_by('-invoiced_on')
+                        if data_json['filters']['end_date']:
+                            end_date = str_to_datetime(str(data_json['filters']['end_date']))
+                            orders = orders.filter(invoiced_on__lte = end_date).order_by('-invoiced_on')
                     if data_json['filters']['vendor']:
                         vendor_obj = Vendor.objects.get(id=int(data_json['filters']['vendor_id']))
                         orders = orders.filter(vendor=vendor_obj).order_by('-invoiced_on')

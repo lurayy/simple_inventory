@@ -53,27 +53,38 @@ def get_multiple_accounts(self, request):
                     response_json['status'] = True
                 if data_json['filter'] == "account":
                     account=Account.objects.get(id=data_json['account_id'])
-                    childs = account.childs.all().filter(is_active=True)
+                    childs = account.childs.all().filter(is_active=True)[start:end]
                     response_json['accounts'] = accounts_to_json(childs)
                     response_json['status'] = True
                     # else:
                     #     raise Exception("This account has no child.")
                 if  data_json['filter'] == "vendor":
-                    accounts = Account.objects.filter(vendor__id = data_json['vendor'])
+                    accounts = Account.objects.filter(vendor__id = data_json['vendor'])[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if  data_json['filter'] == "customer":
-                    accounts = Account.objects.filter(customer__id = data_json['customer'])
+                    accounts = Account.objects.filter(customer__id = data_json['customer'])[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
-                
-                # if data_json['filter'] == "multiple":
-                #     accounts = Account.objects.filter(is_active=True)
-                #     if data_json['filters']['closed']:
-                #         accounts = Account.objects.filter(is_active=True, is_closed=False).order_by('id')
-                    
-
-
+                if data_json['filter'] == "multiple":
+                    accounts = Account.objects.filter(is_active=True)
+                    if data_json['filters']['status']:
+                        accounts = accounts.filter(is_active=True, is_closed=data_json['closed']).order_by('id')
+                    if data_json['filters']['name']:
+                        accounts = accounts.filter(is_active=True, name__contains=data_json['name']).order_by('id')
+                    if data_json['filters']['vendor']:
+                        accounts = accounts.filter(vendor__id = data_json['vendor']).order_by('id')
+                    if data_json['filters']['customer']:
+                        accounts = accounts.filter(customer__id = data_json['customer']).order_by('id')
+                    if data_json['filters']['current_amount']:
+                        accounts = accounts.filter(current_amount__range = [data_json['current_amount_from'], data_json['current_amount_upto']]).order_by('id')
+                    if data_json['filters']['credits']:
+                        accounts = accounts.filter(credit__range = [ data_json['credits_from'], data_json['credits_upto']]).order_by('id')
+                    if data_json['filters']['parent']:
+                        accounts = accounts.filter(is_active=True, parent=None).order_by('id')
+                    accounts = accounts[start:end]
+                    response_json['accounts'] = accounts_to_json(accounts)
+                    response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

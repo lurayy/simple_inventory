@@ -19,3 +19,95 @@
 
 
 - Free entry is always added to the payment.amount.
+
+
+
+Search filter for accounts : 
+
+# non filter
+{
+  action : get,
+  filter : none,
+  start : 
+  end :
+}
+
+# gives closed account
+{
+  action : get,
+  filter : closed
+  start : 
+  end 
+}
+
+# name
+{
+  action  :get,
+  filter : name,
+  name : 
+  start 
+  end 
+}
+
+# Get only parent 
+{
+  action : get ,
+  filter : parent,
+  start 
+  end 
+}
+
+# get child 
+{
+  action : get ,
+  filter : account,
+  account_id : 
+  start :0 
+  end : 0
+}
+
+# vendor 
+{
+  action : get 
+  filter : vendor,
+  vendor : vendor_id
+  start
+  end
+
+}
+
+# customer 
+{
+  action : get,
+  filter : customer,
+  customer : customer_id,
+  start : 
+  end : 
+}
+
+
+# multiple 
+{
+  action : get ,
+  fliter : multiple,
+  filters : {
+    status: True/False
+      closed : True/False,
+    name: False/name_keyword,
+    vendor : False/vendor_id,
+    customer  : False/customer_id,
+    current_amount  : True/False,
+        current_amount_from : 
+        current_amount_upto:
+    credits  :True/False,
+        credits_from
+        credits_upto
+    parent : True/False
+  }
+
+  start : 
+  end : 
+}
+
+
+
