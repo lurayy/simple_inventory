@@ -103,6 +103,9 @@ Search filter for accounts :
         credits_from
         credits_upto
     parent : True/False
+
+    account_type : False/account_type_id,
+    header : False/header_str
   }
 
   start : 

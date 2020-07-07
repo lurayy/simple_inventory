@@ -77,11 +77,21 @@ def get_multiple_accounts(self, request):
                     if data_json['filters']['customer']:
                         accounts = accounts.filter(customer__id = data_json['customer']).order_by('id')
                     if data_json['filters']['current_amount']:
-                        accounts = accounts.filter(current_amount__range = [data_json['current_amount_from'], data_json['current_amount_upto']]).order_by('id')
+                        if data_json['filters']['current_amount_from']:
+                            accounts = accounts.filter(current_amount__gte = data_json['filters']['current_amount_from']).order_by('id')
+                        if data_json['filters']['current_amount_upto']:
+                            accounts = accounts.filter(current_amount__lte = data_json['filters']['current_amount_upto']).order_by('id')
                     if data_json['filters']['credits']:
-                        accounts = accounts.filter(credit__range = [ data_json['credits_from'], data_json['credits_upto']]).order_by('id')
+                        if data_json['filters']['credits_from']:
+                            accounts = accounts.filter(credits__gte = data_json['filters']['credits_from']).order_by('id')
+                        if data_json['filters']['credits_upto']:
+                            accounts = accounts.filter(credits__lte = data_json['filters']['credits_upto']).order_by('id')                            
                     if data_json['filters']['parent']:
                         accounts = accounts.filter(is_active=True, parent=None).order_by('id')
+                    if data_json['filters']['account_type']:
+                        accounts = accounts.filter(account_type__id = data_json['account_type'])
+                    if data_json['filters']['header']:
+                        accounts = account.filter(account_type__header = data_json['header'])
                     accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
