@@ -24,7 +24,7 @@
 
 Search filter for accounts : 
 
-# non filter
+### non filter
 {
   action : get,
   filter : none,
@@ -32,7 +32,7 @@ Search filter for accounts :
   end :
 }
 
-# gives closed account
+### gives closed account
 {
   action : get,
   filter : closed
@@ -40,7 +40,7 @@ Search filter for accounts :
   end 
 }
 
-# name
+### name
 {
   action  :get,
   filter : name,
@@ -49,7 +49,7 @@ Search filter for accounts :
   end 
 }
 
-# Get only parent 
+### Get only parent 
 {
   action : get ,
   filter : parent,
@@ -57,7 +57,7 @@ Search filter for accounts :
   end 
 }
 
-# get child 
+### get child 
 {
   action : get ,
   filter : account,
@@ -66,7 +66,7 @@ Search filter for accounts :
   end : 0
 }
 
-# vendor 
+### vendor 
 {
   action : get 
   filter : vendor,
@@ -76,7 +76,7 @@ Search filter for accounts :
 
 }
 
-# customer 
+### customer 
 {
   action : get,
   filter : customer,
@@ -86,7 +86,7 @@ Search filter for accounts :
 }
 
 
-# multiple 
+### multiple 
 {
   action : get ,
   fliter : multiple,
@@ -121,7 +121,7 @@ Search filter for accounts :
   end :
 }
 
-# account : 
+### account : 
 {
   action : get,
   filter : account,
@@ -130,7 +130,7 @@ Search filter for accounts :
   account_id : account_id
 }
 
-# multiple 
+### multiple 
 {
   action : get,
   start : 
@@ -148,5 +148,52 @@ Search filter for accounts :
       amount_from 
       amount_upto
     payment_method :  False/payment_method_id
+  }
+}
+
+# Gift cards : 
+{
+  action : get,
+  filter :none
+  start : 
+  end : 
+}
+
+{
+  action  : get 
+  filter : name
+  name  
+  start 
+  end
+}
+
+{
+  action : get
+  filter : code
+  code : 
+  start : 
+  end : 
+}
+
+{
+  action : get
+  filter : multiple
+  start 
+  end 
+  filters : {
+    name : False/name
+  category : False/category_id
+  code : False/code_name,
+  discount_type : False/percent
+  apply_limited : True/False
+    is_liimited :True/False
+  apply_has_unique_codes : bool  
+    has_unique_codes  : bool
+  rate : bool
+    rate_from
+    rate_upto
+  count_used  :bool
+    count_used_from
+    count_used_upto
   }
 }

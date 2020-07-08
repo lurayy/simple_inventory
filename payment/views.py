@@ -56,14 +56,14 @@ def get_multiple_gift_cards(self, request):
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
                     response_json['status'] = True
-                    response_json['gift_cards']  = gift_cards_to_json(GiftCard.objects.filter()[start:end])
+                    response_json['gift_cards']  = gift_cards_to_json(GiftCard.objects.filter(is_active = True)[start:end])
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'name':
-                    response_json['gift_cards'] = gift_cards_to_json(GiftCard.objects.filter(name__icontains=str(data_json['name']).lower())[start:end])
+                    response_json['gift_cards'] = gift_cards_to_json(GiftCard.objects.filter(is_active = True, name__icontains=str(data_json['name']).lower())[start:end])
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'code':
-                    response_json['gift_cards'] = gift_cards_to_json(GiftCard.objects.filter(code__icontains=str(data_json['name']).lower())[start:end])
+                    response_json['gift_cards'] = gift_cards_to_json(GiftCard.objects.filter(is_active = True, code__icontains=str(data_json['name']).lower())[start:end])
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
                     gift_cards = GiftCard.objects.filter(is_active= True)
@@ -75,6 +75,10 @@ def get_multiple_gift_cards(self, request):
                         gift_cards = gift_cards.filters(code__icontains = data_json['filters']['code'])
                     if data_json['filters']['discount_type']:
                         gift_cards = gift_cards.filter(discount_type = data_json['filters']['discount_type'])
+                    if data_json['filters']['apply_limited']:
+                        gift_cards = gift_cards.filter(is_limited = data_json['filters']['is_limited'])
+                    if data_json['filters']['apply_has_unique_codes']:
+                        gift_cards = gift_cards.filter(has_unique_codes = data_json['filters']['has_unique_codes'])
                     if data_json['filters']['rate']:
                         if data_json['filters']['rate_from']:
                             gift_cards = gift_cards.filter(rate__gte = data_json['filters']['rate_from'])
