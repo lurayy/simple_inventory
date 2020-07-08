@@ -757,7 +757,7 @@ def get_multiple_discounts(self, request):
                     discounts = Discount.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
                     response_json['discounts'] = discounts_to_json(discounts)
                     response_json['status'] = True
-                if data_json['filter']['multiple']:
+                if data_json['filter'] == "multiple":
                     discounts = Discount.objects.filter(is_active=True)
                     if data_json['filters']['name']:
                         discounts = discounts.filters(name__icontains = data_json['filters']['name'])
@@ -773,6 +773,7 @@ def get_multiple_discounts(self, request):
                     discounts = discounts[data_json['start']:data_json['end']]
                     response_json['discounts'] = discounts_to_json(discounts)
                     response_json['status'] = True
+            print('here')
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -905,7 +906,7 @@ def get_multiple_taxes(self, request):
                     taxes = Tax.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
                     response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
-                if data_json['filter']['multiple']:
+                if data_json['filter'] == "multiple":
                     taxes = Tax.objects.filter(is_active=True)
                     if data_json['filters']['name']:
                         taxes = taxes.filters(name__icontains = data_json['filters']['name'])

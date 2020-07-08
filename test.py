@@ -24,11 +24,35 @@ headers = {
 }
 
 
+# data = {
+#   "action": "get",
+#   "filter": "multiple",
+#   "filters": {
+#     "name": False,
+#     "category": False,
+#     "code": False,
+#     "discount_type": False,
+#     "apply_limited": False,
+#     "is_limited": False,
+#     "apply_has_unique_codes": True,
+#     "has_unique_codes": True,
+#     "rate": False,
+#     "rate_from": "",
+#     "rate_upto": "",
+#     "count_used": False,
+#     "count_used_from": "",
+#     "count_used_upto": ""
+#   },
+#   "start": 0,
+#   "end": 25
+# }
+
 data = {
-  'action' : 'get',
-  "filter" : "none",
-  'start' : 0,
-  "end" : 25
+  "action":"get",
+  "filter":"none",
+  "start":0,
+  "end":25
 }
-sess = requests.post(base_url+'payment/giftcards/get', headers=headers, data=json.dumps(data), verify=False)
+
+sess = requests.post(base_url+'sales/discounts/get', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

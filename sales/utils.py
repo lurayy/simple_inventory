@@ -31,6 +31,7 @@ def invoice_items_to_json(items):
 def discounts_to_json(discounts):
     data = []
     for discount in discounts:
+        print(discount)
         temp = DiscountSerializer(discount).data
         data.append(temp)
     return data
