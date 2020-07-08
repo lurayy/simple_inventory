@@ -44,7 +44,7 @@ def get_multiple_accounts(self, request):
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if data_json['filter'] == "name":
-                    accounts = Account.objects.filter(is_active=True, name__contains=data_json['name']).order_by('id')[start:end]
+                    accounts = Account.objects.filter(is_active=True, name__icontains=data_json['name']).order_by('id')[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if data_json['filter'] == "parent":
@@ -72,7 +72,7 @@ def get_multiple_accounts(self, request):
                     if data_json['filters']['status']:
                         accounts = accounts.filter(is_active=True, is_closed=data_json['filters']['closed'])
                     if data_json['filters']['name']:
-                        accounts = accounts.filter(is_active=True, name__contains=data_json['filters']['name'])
+                        accounts = accounts.filter(is_active=True, name__icontains=data_json['filters']['name'])
                     if data_json['filters']['vendor']:
                         accounts = accounts.filter(vendor__id = data_json['filters']['vendor'])
                     if data_json['filters']['customer']:

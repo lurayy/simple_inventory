@@ -65,6 +65,29 @@ def get_multiple_gift_cards(self, request):
                 if data_json['filter'] == 'code':
                     response_json['gift_cards'] = gift_cards_to_json(GiftCard.objects.filter(code__icontains=str(data_json['name']).lower())[start:end])
                     response_json['status'] = True
+                if data_json['filter'] == "multiple":
+                    gift_cards = GiftCard.objects.filter(is_active= True)
+                    if data_json['filters']['name']:
+                        gift_cards = gift_cards.filter(name__icontains = data_json['filters']['name'])
+                    if data_json['filters']['category']:
+                        gift_cards = gift_cards.filter(category__id = data_json['filters']['category'])
+                    if data_json['filters']['code']:
+                        gift_cards = gift_cards.filters(code__icontains = data_json['filters']['code'])
+                    if data_json['filters']['discount_type']:
+                        gift_cards = gift_cards.filter(discount_type = data_json['filters']['discount_type'])
+                    if data_json['filters']['rate']:
+                        if data_json['filters']['rate_from']:
+                            gift_cards = gift_cards.filter(rate__gte = data_json['filters']['rate_from'])
+                        if data_json['filters']['rate_upto']:
+                            gift_cards = gift_cards.filter(rate__lte = data_json['filters']['rate_upto'])
+                    if data_json['filters']['count_used']:
+                        if data_json['filters']['count_used_from']:
+                            gift_cards = gift_cards.filter(count_used__gte = data_json['filters']['count_used_from'])
+                        if data_json['filters']['count_used_upto']:
+                            gift_cards = gift_cards.filter(count_used__lte = data_json['filters']['count_used_upto'])
+                    gift_cards = gift_cards[data_json['start']: data_json['end']]
+                    response_json['gift_cards']  = gift_cards_to_json(gift_cards)
+                    response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
