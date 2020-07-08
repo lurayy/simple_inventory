@@ -70,9 +70,9 @@ def get_multiple_accounts(self, request):
                 if data_json['filter'] == "multiple":
                     accounts = Account.objects.filter(is_active=True)
                     if data_json['filters']['status']:
-                        accounts = accounts.filter(is_active=True, is_closed=data_json['closed']).order_by('id')
+                        accounts = accounts.filter(is_active=True, is_closed=data_json['filters']['closed']).order_by('id')
                     if data_json['filters']['name']:
-                        accounts = accounts.filter(is_active=True, name__contains=data_json['name']).order_by('id')
+                        accounts = accounts.filter(is_active=True, name__contains=data_json['filters']['name']).order_by('id')
                     if data_json['filters']['vendor']:
                         accounts = accounts.filter(vendor__id = data_json['filters']['vendor']).order_by('id')
                     if data_json['filters']['customer']:
@@ -90,9 +90,9 @@ def get_multiple_accounts(self, request):
                     if data_json['filters']['parent']:
                         accounts = accounts.filter(is_active=True, parent=None).order_by('id')
                     if data_json['filters']['account_type']:
-                        accounts = accounts.filter(account_type__id = data_json['account_type'])
+                        accounts = accounts.filter(account_type__id = data_json['filters']['account_type'])
                     if data_json['filters']['header']:
-                        accounts = account.filter(account_type__header = data_json['header'])
+                        accounts = account.filter(account_type__header = data_json['filters']['header'])
                     accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
