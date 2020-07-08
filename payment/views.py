@@ -72,7 +72,7 @@ def get_multiple_gift_cards(self, request):
                     if data_json['filters']['category']:
                         gift_cards = gift_cards.filter(category__id = data_json['filters']['category'])
                     if data_json['filters']['code']:
-                        gift_cards = gift_cards.filters(code__icontains = data_json['filters']['code'])
+                        gift_cards = gift_cards.filter(code__icontains = data_json['filters']['code'])
                     if data_json['filters']['discount_type']:
                         gift_cards = gift_cards.filter(discount_type = data_json['filters']['discount_type'])
                     if data_json['filters']['apply_limited']:
