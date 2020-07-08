@@ -26,8 +26,9 @@ headers = {
 
 data = {
   'action' : 'get',
-  'filter' : 'invoice_number',
-  'invoice_number' : '78935eaa-642f-5ba0cb43e301'
+  "filter" : "none",
+  'start' : 0,
+  "end" : 25
 }
-sess = requests.post(base_url+'sales/invoices/get', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'payment/giftcards/get', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

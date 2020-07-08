@@ -29,7 +29,7 @@ class GiftCard(models.Model):
     count_limit = models.PositiveIntegerField(blank=True, null=True)
     is_limited = models.BooleanField(default=True)
     has_unique_codes = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.name}  {self.code}'
