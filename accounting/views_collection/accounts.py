@@ -59,7 +59,8 @@ def get_multiple_accounts(self, request):
                     # else:
                     #     raise Exception("This account has no child.")
                 if  data_json['filter'] == "vendor":
-                    accounts = Account.objects.filter(vendor__id = data_json['vendor'])[start:end]
+                    vendor = Vendor.objects.get(id=data_json['vendor'])
+                    accounts = Account.objects.filter(vendor = vendor)[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if  data_json['filter'] == "customer":
@@ -73,9 +74,9 @@ def get_multiple_accounts(self, request):
                     if data_json['filters']['name']:
                         accounts = accounts.filter(is_active=True, name__contains=data_json['name']).order_by('id')
                     if data_json['filters']['vendor']:
-                        accounts = accounts.filter(vendor__id = data_json['vendor']).order_by('id')
+                        accounts = accounts.filter(vendor__id = data_json['filters']['vendor']).order_by('id')
                     if data_json['filters']['customer']:
-                        accounts = accounts.filter(customer__id = data_json['customer']).order_by('id')
+                        accounts = accounts.filter(customer__id = data_json['filters']['customer']).order_by('id')
                     if data_json['filters']['current_amount']:
                         if data_json['filters']['current_amount_from']:
                             accounts = accounts.filter(current_amount__gte = data_json['filters']['current_amount_from']).order_by('id')
