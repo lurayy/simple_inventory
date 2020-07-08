@@ -760,9 +760,9 @@ def get_multiple_discounts(self, request):
                 if data_json['filter'] == "multiple":
                     discounts = Discount.objects.filter(is_active=True)
                     if data_json['filters']['name']:
-                        discounts = discounts.filters(name__icontains = data_json['filters']['name'])
+                        discounts = discounts.filter(name__icontains = data_json['filters']['name'])
                     if data_json['filters']['discount_type']:
-                        discounts = discounts.filters(discount_type = data_json['filters']['discount_type'])
+                        discounts = discounts.filter(discount_type = data_json['filters']['discount_type'])
                     if data_json['filters']['code']:
                         discounts = discounts.filter(code__icontains = data_json['filters']['code'])
                     if data_json['filters']['rate']:
@@ -909,9 +909,9 @@ def get_multiple_taxes(self, request):
                 if data_json['filter'] == "multiple":
                     taxes = Tax.objects.filter(is_active=True)
                     if data_json['filters']['name']:
-                        taxes = taxes.filters(name__icontains = data_json['filters']['name'])
+                        taxes = taxes.filter(name__icontains = data_json['filters']['name'])
                     if data_json['filters']['tax_type']:
-                        taxes = taxes.filters(tax_type = data_json['filters']['tax_type'])
+                        taxes = taxes.filter(tax_type = data_json['filters']['tax_type'])
                     if data_json['filters']['code']:
                         taxes = taxes.filter(code__icontains = data_json['filters']['code'])
                     if data_json['filters']['rate']:
