@@ -36,7 +36,7 @@ def get_multiple_accounts(self, request):
                 start = int(data_json["start"])
                 end = int(data_json["end"])
                 if data_json['filter'] == "none":
-                    accounts = Account.objects.filter(is_active=True, is_closed=False).order_by('id')[start:end]
+                    accounts = Account.objects.filter(is_active=True).order_by('id')[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if data_json['filter'] == "closed":
