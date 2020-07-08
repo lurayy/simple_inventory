@@ -48,10 +48,5 @@ def payment_to_json(methods):
     for method in methods:
         temp = (PaymentSerializer(method).data)
         temp['payment_method'] = payment_methods_to_json([method.method])
-        if "accounting" in settings.INSTALLED_APPS:
-            from accounting.models import FreeEntryLedger                            
-            free_entry = FreeEntryLedger.objects.filter(entry_for__payment__id=method.id)
-            if len(free_entry):
-                temp['amount_correction_on_ledger'] = free_entry[0].amount
         data.append(temp)
     return data
