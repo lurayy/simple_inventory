@@ -197,3 +197,51 @@ Search filter for accounts :
     count_used_upto
   }
 }
+
+
+# Tax 
+{
+  action : get
+  filter : none
+  start 
+  end 
+}
+
+{
+  action  :get 
+  filter : multiple
+  filters : {
+    name : False/str
+    tax_type  : False/str
+    code : False/str
+    rate : bool
+      rate_from : float
+      rate_upto : float
+  }
+  start 
+  end 
+}
+
+
+# Discount 
+{
+  action : get
+  filter : none
+  start 
+  end 
+}
+
+{
+  action  :get 
+  filter : multiple
+  filters : {
+    name : False/str
+    discount_type  : False/str
+    code : False/str
+    rate : bool
+      rate_from : float
+      rate_upto : float
+  }
+  start 
+  end 
+}

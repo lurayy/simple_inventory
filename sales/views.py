@@ -757,7 +757,23 @@ def get_multiple_discounts(self, request):
                     discounts = Discount.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
                     response_json['discounts'] = discounts_to_json(discounts)
                     response_json['status'] = True
-                    return JsonResponse(response_json)
+                if data_json['filter']['multiple']:
+                    discounts = Discount.objects.filter(is_active=True)
+                    if data_json['filters']['name']:
+                        discounts = discounts.filters(name__icontains = data_json['filters']['name'])
+                    if data_json['filters']['discount_type']:
+                        discounts = discounts.filters(discount_type = data_json['filters']['discount_type'])
+                    if data_json['filters']['code']:
+                        discounts = discounts.filter(code__icontains = data_json['filters']['code'])
+                    if data_json['filters']['rate']:
+                        if data_json['filters']['rate_from']:
+                            discounts = discounts.filter(rate__gte = data_json['filters']['rate_from'])
+                        if data_json['filters']['rate_upto']:
+                            discounts = discounts.filter(rate__lte = data_json['filters']['rate_upto'])
+                    discounts = discounts[data_json['start']:data_json['end']]
+                    response_json['discounts'] = discounts_to_json(discounts)
+                    response_json['status'] = True
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
@@ -887,6 +903,22 @@ def get_multiple_taxes(self, request):
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
                     taxes = Tax.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    response_json['taxes'] = taxes_to_json(taxes)
+                    response_json['status'] = True
+                if data_json['filter']['multiple']:
+                    taxes = Tax.objects.filter(is_active=True)
+                    if data_json['filters']['name']:
+                        taxes = taxes.filters(name__icontains = data_json['filters']['name'])
+                    if data_json['filters']['tax_type']:
+                        taxes = taxes.filters(tax_type = data_json['filters']['tax_type'])
+                    if data_json['filters']['code']:
+                        taxes = taxes.filter(code__icontains = data_json['filters']['code'])
+                    if data_json['filters']['rate']:
+                        if data_json['filters']['rate_from']:
+                            taxes = taxes.filter(rate__gte = data_json['filters']['rate_from'])
+                        if data_json['filters']['rate_upto']:
+                            taxes = taxes.filter(rate__lte = data_json['filters']['rate_upto'])
+                    taxes = taxes[data_json['start']:data_json['end']]
                     response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
                 return JsonResponse(response_json)
