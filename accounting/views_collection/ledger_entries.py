@@ -62,11 +62,11 @@ def get_multiple_ledger_entries(self, request):
                         entries = entries.filter(is_add = data['filters']['is_add']).order_by('date')
                     if data_json['filters']['amount']:
                         if data_json['filters']['amount_from']:
-                            entries = entries.filter(payment__amount__gte = data_json['amount_from']).order_by('date')
+                            entries = entries.filter(payment__amount__gte = data_json['filters']['amount_from']).order_by('date')
                         if data_json['filters']['amount_upto']:
-                            entries = entries.filter(payment__amount__lte = data_json['amount_upto']).order_by('date')
+                            entries = entries.filter(payment__amount__lte = data_json['filters']['amount_upto']).order_by('date')
                     if data_json['filters']['payment_method']:
-                        entries = entries.filter(payment__method__id = data_json['payment_method']).order_by('date')
+                        entries = entries.filter(payment__method__id = data_json['filters']['payment_method']).order_by('date')
                     entries = entries[start:end]
                     response_json['ledger_entries'] = ledger_entries_to_json(entries)
                     response_json['status'] = True
