@@ -111,3 +111,42 @@ Search filter for accounts :
   start : 
   end : 
 }
+
+
+# ledger entires filter : 
+{
+  'action' : get,
+  filter : none
+  start : 
+  end :
+}
+
+# account : 
+{
+  action : get,
+  filter : account,
+  start : 
+  end : 
+  account_id : account_id
+}
+
+# multiple 
+{
+  action : get,
+  start : 
+  end : 
+  filter : multiple 
+  filters : {
+    account : False/account_id,
+    date : True/False,
+      start_date,
+      end_date,
+    bundle_id : false/bundle_id,
+    apply_is_add: True/False
+        is_add : True/False
+    amount : 
+      amount_from 
+      amount_upto
+    payment_method :  False/payment_method_id
+  }
+}

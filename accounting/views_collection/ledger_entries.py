@@ -43,6 +43,33 @@ def get_multiple_ledger_entries(self, request):
                     entries =  LedgerEntry.objects.filter(is_active=True, account=Account.objects.get(id=data_json['account_id'])).order_by('date')[data_json['start']:data_json['end']]
                     response_json['ledger_entries'] = ledger_entries_to_json(entries)
                     response_json['status'] = True
+                if data_json['filter'] == "multiple":
+                    start = data_json['start']
+                    end = data_json['end']
+                    entries = LedgerEntry.objects.filter(is_active = True)
+                    if data_json['filters']['account']:
+                        entries = entries.filter(account__id = data_json['account']).order_by('date')
+                    if data_json['filters']['date']:
+                        if data_json['filters']['start_date']:
+                            start_date = str_to_datetime(str(data_json['filters']['start_date']))
+                            entries = entries.filter(date__gte = start_date).order_by('date')
+                        if data_json['filters']['end_date']:
+                            end_date = str_to_datetime(str(data_json['filters']['end_date']))
+                            entries = entries.filter(date__lte = end_date).order_by('date')
+                    if data_json['filters']['bundle_id']:
+                        entries = entries.filter(bundle_id__contains = data_json['bundle_id']).order_by('date')
+                    if data_json['filters']['apply_is_add']:
+                        entries = entries.filter(is_add = data['filters']['is_add']).order_by('date')
+                    if data_json['filters']['amount']:
+                        if data_json['filters']['amount_from']:
+                            entries = entries.filter(payment__amount__gte = data_json['amount_from']).order_by('date')
+                        if data_json['filters']['amount_upto']:
+                            entries = entries.filter(payment__amount__lte = data_json['amount_upto']).order_by('date')
+                    if data_json['filters']['payment_method']:
+                        entries = entries.filter(payment__method__id = data_json['payment_method']).order_by('date')
+                    entries = entries[start:end]
+                    response_json['ledger_entries'] = ledger_entries_to_json(entries)
+                    response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
