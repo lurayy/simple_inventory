@@ -68,27 +68,29 @@ def get_multiple_accounts(self, request):
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
-                    accounts = Account.objects.filter(is_active=True)
+                    accounts = Account.objects.filter(is_active=True).order_by('id')
                     if data_json['filters']['status']:
-                        accounts = accounts.filter(is_active=True, is_closed=data_json['filters']['closed']).order_by('id')
+                        accounts = accounts.filter(is_active=True, is_closed=data_json['filters']['closed'])
                     if data_json['filters']['name']:
-                        accounts = accounts.filter(is_active=True, name__contains=data_json['filters']['name']).order_by('id')
+                        accounts = accounts.filter(is_active=True, name__contains=data_json['filters']['name'])
                     if data_json['filters']['vendor']:
-                        accounts = accounts.filter(vendor__id = data_json['filters']['vendor']).order_by('id')
+                        accounts = accounts.filter(vendor__id = data_json['filters']['vendor'])
                     if data_json['filters']['customer']:
-                        accounts = accounts.filter(customer__id = data_json['filters']['customer']).order_by('id')
+                        accounts = accounts.filter(customer__id = data_json['filters']['customer'])
                     if data_json['filters']['current_amount']:
                         if data_json['filters']['current_amount_from']:
-                            accounts = accounts.filter(current_amount__gte = data_json['filters']['current_amount_from']).order_by('id')
+                            accounts = accounts.filter(current_amount__gte = data_json['filters']['current_amount_from'])
                         if data_json['filters']['current_amount_upto']:
-                            accounts = accounts.filter(current_amount__lte = data_json['filters']['current_amount_upto']).order_by('id')
+                            accounts = accounts.filter(current_amount__lte = data_json['filters']['current_amount_upto'])
                     if data_json['filters']['credits']:
                         if data_json['filters']['credits_from']:
-                            accounts = accounts.filter(credits__gte = data_json['filters']['credits_from']).order_by('id')
+                            accounts = accounts.filter(credits__gte = data_json['filters']['credits_from'])
                         if data_json['filters']['credits_upto']:
-                            accounts = accounts.filter(credits__lte = data_json['filters']['credits_upto']).order_by('id')                            
+                            accounts = accounts.filter(credits__lte = data_json['filters']['credits_upto'])                            
                     if data_json['filters']['parent']:
-                        accounts = accounts.filter(is_active=True, parent=None).order_by('id')
+                        accounts = accounts.filter(is_active=True, parent=None)
+                    if data_json['filters']['children']:
+                        accounts = accounts.filter(parent__id = data_json['filters']['parent_id'])
                     if data_json['filters']['account_type']:
                         accounts = accounts.filter(account_type__id = data_json['filters']['account_type'])
                     if data_json['filters']['header']:
