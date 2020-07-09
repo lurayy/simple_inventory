@@ -1,13 +1,13 @@
 import requests
 import json
 
-base_url = 'http://localhost:8000/api/v1/'
-# base_url = "https://simpleim.herokuapp.com/api/v1/"
+# base_url = 'http://localhost:8000/api/v1/'
+base_url = "https://simpleim.herokuapp.com/api/v1/"
 
 log_in_url = base_url+'user/auth'
 
 creds = {
-    'username':'lurayy',
+    'username':'admin',
     'password':'pass'
 }
 
@@ -47,12 +47,33 @@ headers = {
 #   "end": 25
 # }
 
+# data = {
+#   "action":"get",
+#   "filter":"none",
+#   "start":0,
+#   "end":25
+# }
+
 data = {
-  "action":"get",
-  "filter":"none",
-  "start":0,
-  "end":25
+  "action": "get",
+  "filter": "multiple",
+  "filters": {
+    "account": 4,
+    "date": False,
+    "start_date": None,
+    "end_date": None,
+    "bundle_id": None,
+    "apply_is_add": False,
+    "is_add": False,
+    "amount": False,
+    "amount_from": "",
+    "amount_upto": "",
+    "payment_method": False
+  },
+  "start": 0,
+  "end": 25
 }
 
-sess = requests.post(base_url+'sales/discounts/get', headers=headers, data=json.dumps(data), verify=False)
+
+sess = requests.post(base_url+'accounting/ledger/entries/get', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

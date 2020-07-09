@@ -59,7 +59,7 @@ def get_multiple_ledger_entries(self, request):
                     if data_json['filters']['bundle_id']:
                         entries = entries.filter(bundle_id__icontains = data_json['filters']['bundle_id']).order_by('date')
                     if data_json['filters']['apply_is_add']:
-                        entries = entries.filter(is_add = data['filters']['is_add']).order_by('date')
+                        entries = entries.filter(is_add = data_json['filters']['is_add']).order_by('date')
                     if data_json['filters']['amount']:
                         if data_json['filters']['amount_from']:
                             entries = entries.filter(payment__amount__gte = data_json['filters']['amount_from']).order_by('date')
