@@ -48,7 +48,7 @@ def get_multiple_ledger_entries(self, request):
                     end = data_json['end']
                     entries = LedgerEntry.objects.filter(is_active = True)
                     if data_json['filters']['account']:
-                        entries = entries.filter(account__id = data_json['account']).order_by('date')
+                        entries = entries.filter(account__id = data_json['filters']['account']).order_by('date')
                     if data_json['filters']['date']:
                         if data_json['filters']['start_date']:
                             start_date = str_to_datetime(str(data_json['filters']['start_date']))
