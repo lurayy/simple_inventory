@@ -11,6 +11,7 @@ from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_en
 from payment.models import Payment, PaymentMethod
 import uuid
 
+
 @require_http_methods(['POST'])
 @bind
 def get_multiple_ledger_entries(self, request):

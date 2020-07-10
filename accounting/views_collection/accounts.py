@@ -188,6 +188,36 @@ def get_account_details(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
+# @require_http_methods(['POST'])
+# @bind
+# def get_transactions(self, request):
+#     '''
+#     url : api/v1/accounting/accounting/account/get
+#     {
+#         "action":"get",
+#         "account_id":1,
+#         "account_uuid":"a9140902-7863-40f6-b01a-ec5045d38c97"
+#     }
+#     '''
+#     response_json = {'status':False}
+#     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+#         response_json = {'status':False}
+#         try:
+#             json_str = request.body.decode(encoding='UTF-8')
+#             data_json = json.loads(json_str)
+#             if data_json['action'] == 'get':
+#                 account = Account.objects.get(id=data_json['account_id'])
+#                 ledger_entires = LedgerEntry.objects.filter(account = account)
+#                 ledger_entires = ledger_entires[data_json['start'] : data_json['end']]
+#                 bundles = {}
+#                 for entry in ledger_entires:
+#                     for bundles
+#                     bunlde_entries = LedgerEntry.objects.filter(bundle_id = entry.bundle_id)
+#                     bundles[]
+                    
+
+
+
 
 @require_http_methods(['POST'])
 @bind
