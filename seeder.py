@@ -11,7 +11,6 @@ from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, I
 from sales.models import Invoice, InvoiceItem, InvoiceStatus
 from payment.models import GiftCard, UniqueCard, GiftCardCategory
 from user_handler.models_permission import CustomPermission
-from accounting.models import LedgerEntry, Account
 from payment.models import PaymentMethod
 
 USER_COUNT = 2
@@ -204,3 +203,5 @@ for order in PurchaseOrder.objects.all():
         method = methods[random.randint(0, len(methods)-1)],
     )
     pay.save()
+
+from accounting.models import Account, AccountType
