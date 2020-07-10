@@ -204,9 +204,10 @@ def get_transactions(self, request):
                 bundles = {}
                 for entry in ledger_entires:
                     bunlde_entries = LedgerEntry.objects.filter(bundle_id = entry.bundle_id)
-                    if bundles[entry.bundle_id]: 
+                    try:
+                        x = bundles[entry.bundle_id]: 
                         pass
-                    else:
+                    except:
                         bundles[entry.bundle_id] = ledger_entries_to_json(bunlde_entries)
                 response_json['entries'] = bundles
                 response_json['status'] = True
