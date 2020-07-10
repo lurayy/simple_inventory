@@ -211,7 +211,7 @@ def get_transactions(self, request):
                         bundles[entry.bundle_id] = ledger_entries_to_json(bunlde_entries)
                 response_json['entries'] = bundles
                 response_json['status'] = True
-            return JsonResponse(respose_json)
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
