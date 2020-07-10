@@ -1,8 +1,8 @@
 import requests
 import json
 
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = "https://simpleim.herokuapp.com/api/v1/"
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = "https://simpleim.herokuapp.com/api/v1/"
 
 log_in_url = base_url+'user/auth'
 
@@ -74,6 +74,13 @@ data = {
   "end": 25
 }
 
-
-sess = requests.post(base_url+'accounting/ledger/entries/get', headers=headers, data=json.dumps(data), verify=False)
+data = {
+  'action' : 'get',
+  'filter' : 'none',
+  'accont_id' : 7,
+  'account_uuid': "df44354a-d2e5-4b21-ac4f-e456d5c2aea1",
+  'start' : 0,
+  'end' : 25
+}
+sess = requests.post(base_url+'accounting/account/get', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

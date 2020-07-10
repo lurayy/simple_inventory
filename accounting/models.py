@@ -36,7 +36,6 @@ class Account(models.Model):
     opening_date = models.DateTimeField()
     closing_date = models.DateTimeField(blank=True, null=True)
     current_amount = models.FloatField(default=0)
-
     parent = models.ForeignKey('Account', on_delete=models.SET_NULL, blank=True, null=True, related_name='childs')
 
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
