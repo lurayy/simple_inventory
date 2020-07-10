@@ -150,6 +150,7 @@ def get_ledger_entry_details(self, request):
 @bind
 def update_ledger_entry(self, request):
     response_json = {'status':False}
+    print(here)
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -159,17 +160,11 @@ def update_ledger_entry(self, request):
                 new_entry = update_ledger(entry, data_json['amount'])
                 response_json['entries'] = ledger_entries_to_json([entry, new_entry])
                 response_json['status'] = True
-            return response_json
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-     
-
-
-                
-
-
 
 # @require_http_methods(['POST'])
 # @bind
