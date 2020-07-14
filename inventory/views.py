@@ -41,12 +41,12 @@ def get_multiple_purchase_orders(self, request):
                 if str(data_json['filter']).lower() == "none":
                     start = int(data_json["start"])
                     end = int(data_json["end"])
-                    orders = PurchaseOrder.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
+                    orders = PurchaseOrder.objects.filter(is_active=True).order_by('-invoiced_on')
                 if str(data_json['filter']).lower() == "added_by":
                     start = int(data_json["start"])
                     end = int(data_json["end"])
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
-                    orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end]
+                    orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')
                 if data_json['filter'] == "third_party_invoice_number":
                     order = PurchaseOrder.objects.filter(is_active=True, third_party_invoice_number = data_json['third_party_invoice_number'])
                 if data_json['filter'] == "multiple":
@@ -66,7 +66,10 @@ def get_multiple_purchase_orders(self, request):
                     if data_json['filters']['status']:
                         status = PurchaseOrderStatus.objects.get(id=data_json['filters']['status_id'])
                         orders = orders.filter(is_active=True, status=status).order_by('-invoiced_on')
-                    orders = orders[start:end]
+                
+                response_json['count'] = len(orders)
+                orders = orders[start:end]
+                
                 response_json['purchase_orders'] = purchase_orders_to_json(orders)
                 response_json['status'] = True
             return JsonResponse(response_json)
@@ -247,7 +250,9 @@ def get_multiple_vendors(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    vendors = Vendor.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    vendors = Vendor.objects.filter(is_active=True).order_by('id')
+                    response_json['count'] = len(vendors)
+                    vendors = vendors[int(data_json['start']):int(data_json['end'])]
                     response_json['vendors'] = vendors_to_json(vendors)
                     response_json['status'] = True
                 if data_json['filter'] == 'name':
@@ -410,17 +415,23 @@ def get_multiple_items(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
-                    items = Item.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    items = Item.objects.filter(is_active=True).order_by('id')
+                    response_json['count'] = len(items)
+                    items = items[int(data_json['start']):int(data_json['end'])]
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'category':
-                    items = items = Item.objects.filter(is_active=True, catagory = ItemCatagory.objects.get(id=data_json['category_id'])).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    items = items = Item.objects.filter(is_active=True, catagory = ItemCatagory.objects.get(id=data_json['category_id'])).order_by('id')
+                    response_json['count'] = len(items)
+                    items = items[int(data_json['start']):int(data_json['end'])]
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == "name":
-                    items = Item.objects.filter(is_active=True, name__icontains = str(data_json['name']).lower() ).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    items = Item.objects.filter(is_active=True, name__icontains = str(data_json['name']).lower() ).order_by('id')
+                    response_json['count'] = len(items)
+                    items = items[int(data_json['start']):int(data_json['end'])]
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)
@@ -493,6 +504,7 @@ def get_multiple_items(self, request):
                         items = items.filter(sales_price__range = (temp_start, temp_end))
                     if (data_json['filters']['is_applied_category']):
                         items = items.filter(catagory__id = int(data_json['filters']['category']))
+                    response_json['count'] = len(items)
                     items = items[int(data_json['start']) : int(data_json['end'])]
                     return JsonResponse({'status':True, 'items':items_to_json(items)})
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -684,11 +696,15 @@ def get_multiple_item_catagories(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    catagroies = ItemCatagory.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    catagroies = ItemCatagory.objects.filter(is_active=True).order_by('id')
+                    response_json['count'] = len(catagroies)
+                    catagroies = catagroies[int(data_json['start']):int(data_json['end'])]
                     response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
                     response_json['status'] = True
                 if data_json['filter'] == 'parent':
-                    catagroies = ItemCatagory.objects.filter(is_active=True, parent=None).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    catagroies = ItemCatagory.objects.filter(is_active=True, parent=None).order_by('id')
+                    response_json['count'] = len(catagroies)
+                    catagroies = catagroies[int(data_json['start']):int(data_json['end'])]
                     response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
                     response_json['status'] = True
                 if data_json['filter'] == "category":
@@ -884,7 +900,9 @@ def get_multiple_places(self, request):
                     response_json['status'] = True
                 else:
                     response_json= {'places':[]}
-                    places = Place.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    places = Place.objects.filter(is_active=True).order_by('id')
+                    response_json['count'] = len(places)
+                    places = places[int(data_json['start']):int(data_json['end'])]
                     for place in places:
                         response_json['places'].append({
                             'id':place.id,
@@ -1071,13 +1089,19 @@ def get_placements(self, request):
                 start = data_json['start']
                 end = data_json['end']
                 if data_json['filter'] == 'none':
-                    placements = Placement.objects.filter(is_active=True).order_by('-id')[start:end]
+                    placements = Placement.objects.filter(is_active=True).order_by('-id')
+                    response_json['count'] = len(placements)
+                    placements = placements[start:end]
                     request_json['placements'] = placements_to_json(placements)
                 if data_json['filter'] == 'item':
-                    placements = Placement.objects.filter(is_active=True, item=data_json['item'])[start:end]
+                    placements = Placement.objects.filter(is_active=True, item=data_json['item'])
+                    response_json['count'] = len(placements)
+                    placements = placements[start:end]
                     request_json['placements'] = placements_to_json(placements)
                 if data_json['filter'] == 'place':
-                    placements = Placement.objects.filter(is_active=True, placed_on=data_json['place'])[start:end]
+                    placements = Placement.objects.filter(is_active=True, placed_on=data_json['place'])
+                    response_json['count'] = len(placements)
+                    placements = placements[start:end]
                     request_json['placements'] = placements_to_json(placements)    
             request_json['status'] = True
             return JsonResponse(request_json)
@@ -1117,7 +1141,9 @@ def get_mulitple_purchase_items(self, request):
             if data_json['action'] == 'get':
                 if data_json['filter'] == 'item_on_default':
                     default = Place.objects.get(is_default=True)
-                    purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id']))[data_json['start']:data_json['end']]
+                    purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id']))
+                    response_json['count'] = len(purchase_items)
+                    purchase_items = purchase_items[data_json['start']:data_json['end']]
                     for purchase_item in purchase_items:
                         temp = {}
                         try:

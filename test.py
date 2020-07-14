@@ -77,10 +77,8 @@ headers = {
 data = {
   'action' : 'get',
   'filter' : 'none',
-  'account_id' : 1,
-  'account_uuid': "df44354a-d2e5-4b21-ac4f-e456d5c2aea1",
   'start' : 0,
   'end' : 25
 }
-sess = requests.post(base_url+'accounting/account/transactions/get', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'inventory/items/get', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)
