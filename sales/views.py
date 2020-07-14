@@ -92,7 +92,9 @@ def get_multiple_invoices(self, request):
                     start = data_json['start']
                     end = data_json['end']    
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
-                    invoices = Invoice.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')[start:end] 
+                    invoices = Invoice.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')
+                    response_json['count'] = len(invoices)
+                    invoices = invoices[start:end]
                 if data_json['filter'] == "invoice_number":
                     try:
                         invoices = Invoice.objects.filter(is_active=True, invoice_number= data_json['invoice_number'])
@@ -114,7 +116,9 @@ def get_multiple_invoices(self, request):
                         invoices = invoices.filter(customer=customer_obj).order_by('-invoiced_on')
                     if data_json['filters']['status']:
                         invoices = invoices.filter(status__id=str(data_json['filters']['status_id']).lower()).order_by('-invoiced_on')
+                    response_json['count'] = len(invoices)
                     invoices = invoices[start:end]
+
                 response_json['invoices'] = invoices_to_json(invoices)
                 response_json['status'] = True
                 return JsonResponse(response_json)
@@ -290,12 +294,16 @@ def get_multiple_customers(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == "name":
-                    customers = Customer.objects.filter(is_active=True, first_name__icontains=str(data_json['name']).lower() ).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    customers = Customer.objects.filter(is_active=True, first_name__icontains=str(data_json['name']).lower() ).order_by('id')
+                    response_json['count'] = len(customers)
+                    customers = customers[int(data_json['start']):int(data_json['end'])]
                     response_json['customers'] = customers_to_json(customers)
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 else:
-                    customers = Customer.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    customers = Customer.objects.filter(is_active=True).order_by('id')
+                    response_json['count'] = len(customers)
+                    customers = customers[int(data_json['start']):int(data_json['end'])]
                     response_json['customers'] = customers_to_json(customers)
                     response_json['status'] = True
                     return JsonResponse(response_json)
@@ -756,7 +764,9 @@ def get_multiple_discounts(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    discounts = Discount.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    discounts = Discount.objects.filter(is_active=True).order_by('id')
+                    response_json['count'] = len(discounts)
+                    discounts = discounts[int(data_json['start']):int(data_json['end'])]
                     response_json['discounts'] = discounts_to_json(discounts)
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
@@ -772,6 +782,7 @@ def get_multiple_discounts(self, request):
                             discounts = discounts.filter(rate__gte = data_json['filters']['rate_from'])
                         if data_json['filters']['rate_upto']:
                             discounts = discounts.filter(rate__lte = data_json['filters']['rate_upto'])
+                    response_json['count'] = len(discounts)
                     discounts = discounts[data_json['start']:data_json['end']]
                     response_json['discounts'] = discounts_to_json(discounts)
                     response_json['status'] = True
@@ -905,7 +916,9 @@ def get_multiple_taxes(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    taxes = Tax.objects.filter(is_active=True).order_by('id')[int(data_json['start']):int(data_json['end'])]
+                    taxes = Tax.objects.filter(is_active=True).order_by('id')
+                    response_json['count'] = len(taxes)
+                    taxes = taxes[int(data_json['start']):int(data_json['end'])]
                     response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
@@ -921,6 +934,7 @@ def get_multiple_taxes(self, request):
                             taxes = taxes.filter(rate__gte = data_json['filters']['rate_from'])
                         if data_json['filters']['rate_upto']:
                             taxes = taxes.filter(rate__lte = data_json['filters']['rate_upto'])
+                    response_json['count'] = len(taxes)
                     taxes = taxes[data_json['start']:data_json['end']]
                     response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
