@@ -57,17 +57,20 @@ def get_multiple_gift_cards(self, request):
                 if data_json['filter'] == "none":
                     response_json['status'] = True
                     x = GiftCard.objects.filter(is_active = True)
+                    response_json['count'] = len(x)
                     x = x[start:end]
                     response_json['gift_cards']  = gift_cards_to_json(x)
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'name':
                     x = GiftCard.objects.filter(is_active = True, name__icontains=str(data_json['name']).lower())
+                    response_json['count'] = len(x)
                     x = x[start:end]
                     response_json['gift_cards'] = gift_cards_to_json(x)
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'code':
                     x = GiftCard.objects.filter(is_active = True, code__icontains=str(data_json['name']).lower())
+                    response_json['count'] = len(x)
                     x = x[start:end]
                     response_json['gift_cards'] = gift_cards_to_json(x)
                     response_json['status'] = True

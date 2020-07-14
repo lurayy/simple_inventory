@@ -786,7 +786,6 @@ def get_multiple_discounts(self, request):
                     discounts = discounts[data_json['start']:data_json['end']]
                     response_json['discounts'] = discounts_to_json(discounts)
                     response_json['status'] = True
-            print('here')
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
