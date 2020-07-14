@@ -36,35 +36,49 @@ def get_multiple_accounts(self, request):
                 start = int(data_json["start"])
                 end = int(data_json["end"])
                 if data_json['filter'] == "none":
-                    accounts = Account.objects.filter(is_active=True).order_by('id')[start:end]
+                    accounts = Account.objects.filter(is_active=True).order_by('id')
+                    response_json['count'] = len(accounts)
+                    accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if data_json['filter'] == "closed":
-                    accounts = Account.objects.filter(is_active=True, is_closed=True).order_by('id')[start:end]
+                    accounts = Account.objects.filter(is_active=True, is_closed=True).order_by('id')
+                    response_json['count'] = len(accounts)
+                    accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if data_json['filter'] == "name":
-                    accounts = Account.objects.filter(is_active=True, name__icontains=data_json['name']).order_by('id')[start:end]
+                    accounts = Account.objects.filter(is_active=True, name__icontains=data_json['name']).order_by('id')
+                    response_json['count'] = len(accounts)
+                    accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if data_json['filter'] == "parent":
-                    accounts = Account.objects.filter(is_active=True, parent=None).order_by('id')[start:end]
+                    accounts = Account.objects.filter(is_active=True, parent=None).order_by('id')
+                    response_json['count'] = len(accounts)
+                    accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if data_json['filter'] == "account":
                     account=Account.objects.get(id=data_json['account_id'])
-                    childs = account.childs.all().filter(is_active=True)[start:end]
+                    childs = account.childs.all().filter(is_active=True)
+                    response_json['count'] = len(childs)
+                    childs = childs[start:end]
                     response_json['accounts'] = accounts_to_json(childs)
                     response_json['status'] = True
                     # else:
                     #     raise Exception("This account has no child.")
                 if  data_json['filter'] == "vendor":
                     vendor = Vendor.objects.get(id=data_json['vendor'])
-                    accounts = Account.objects.filter(vendor = vendor)[start:end]
+                    accounts = Account.objects.filter(vendor = vendor)
+                    response_json['count'] = len(accounts)
+                    accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if  data_json['filter'] == "customer":
-                    accounts = Account.objects.filter(customer__id = data_json['customer'])[start:end]
+                    accounts = Account.objects.filter(customer__id = data_json['customer'])
+                    response_json['count'] = len(accounts)
+                    accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
@@ -95,6 +109,7 @@ def get_multiple_accounts(self, request):
                         accounts = accounts.filter(account_type__id = data_json['filters']['account_type'])
                     if data_json['filters']['header']:
                         accounts = account.filter(account_type__header = data_json['filters']['header'])
+                    response_json['count'] = len(accounts)    
                     accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)
                     response_json['status'] = True
@@ -200,6 +215,7 @@ def get_transactions(self, request):
             if data_json['action'] == 'get':
                 account = Account.objects.get(id=data_json['account_id'])
                 ledger_entires = LedgerEntry.objects.filter(account = account)
+                response_json['count'] = len(ledger_entires)
                 ledger_entires = ledger_entires[data_json['start'] : data_json['end']]
                 bundles = {}
                 for entry in ledger_entires:

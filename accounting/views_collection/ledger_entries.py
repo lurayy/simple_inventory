@@ -38,10 +38,15 @@ def get_multiple_ledger_entries(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
-                    response_json['ledger_entries'] = ledger_entries_to_json(LedgerEntry.objects.filter(is_active=True).order_by('date')[data_json['start']:data_json['end']])
+                    entries = LedgerEntry.objects.filter(is_active=True).order_by('date')
+                    response_json['count'] = len(entries)
+                    entries = entries[data_json['start']:data_json['end']]
+                    response_json['ledger_entries'] = ledger_entries_to_json()
                     response_json['status'] = True
                 if data_json['filter'] == "account":
-                    entries =  LedgerEntry.objects.filter(is_active=True, account=Account.objects.get(id=data_json['account_id'])).order_by('date')[data_json['start']:data_json['end']]
+                    entries =  LedgerEntry.objects.filter(is_active=True, account=Account.objects.get(id=data_json['account_id'])).order_by('date')
+                    response_json = len(entries)
+                    entries = entries[data_json['start']:data_json['end']]
                     response_json['ledger_entries'] = ledger_entries_to_json(entries)
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
@@ -68,6 +73,7 @@ def get_multiple_ledger_entries(self, request):
                             entries = entries.filter(payment__amount__lte = data_json['filters']['amount_upto']).order_by('date')
                     if data_json['filters']['payment_method']:
                         entries = entries.filter(payment__method__id = data_json['filters']['payment_method']).order_by('date')
+                    response_json['count'] = len(entries)
                     entries = entries[start:end]
                     response_json['ledger_entries'] = ledger_entries_to_json(entries)
                     response_json['status'] = True
