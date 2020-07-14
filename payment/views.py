@@ -56,14 +56,20 @@ def get_multiple_gift_cards(self, request):
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
                     response_json['status'] = True
-                    response_json['gift_cards']  = gift_cards_to_json(GiftCard.objects.filter(is_active = True)[start:end])
+                    x = GiftCard.objects.filter(is_active = True)
+                    x = x[start:end]
+                    response_json['gift_cards']  = gift_cards_to_json(x)
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'name':
-                    response_json['gift_cards'] = gift_cards_to_json(GiftCard.objects.filter(is_active = True, name__icontains=str(data_json['name']).lower())[start:end])
+                    x = GiftCard.objects.filter(is_active = True, name__icontains=str(data_json['name']).lower())
+                    x = x[start:end]
+                    response_json['gift_cards'] = gift_cards_to_json(x)
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'code':
-                    response_json['gift_cards'] = gift_cards_to_json(GiftCard.objects.filter(is_active = True, code__icontains=str(data_json['name']).lower())[start:end])
+                    x = GiftCard.objects.filter(is_active = True, code__icontains=str(data_json['name']).lower())
+                    x = x[start:end]
+                    response_json['gift_cards'] = gift_cards_to_json(x)
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
                     gift_cards = GiftCard.objects.filter(is_active= True)
@@ -89,6 +95,7 @@ def get_multiple_gift_cards(self, request):
                             gift_cards = gift_cards.filter(count_used__gte = data_json['filters']['count_used_from'])
                         if data_json['filters']['count_used_upto']:
                             gift_cards = gift_cards.filter(count_used__lte = data_json['filters']['count_used_upto'])
+                    response_json['count'] = len(gift_cards)
                     gift_cards = gift_cards[data_json['start']: data_json['end']]
                     response_json['gift_cards']  = gift_cards_to_json(gift_cards)
                     response_json['status'] = True
