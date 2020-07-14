@@ -84,7 +84,9 @@ def get_multiple_invoices(self, request):
                 if str(data_json['filter']).lower() == "none":
                     start = data_json['start']
                     end = data_json['end']    
-                    invoices = Invoice.objects.filter(is_active=True).order_by('-invoiced_on')[start:end]
+                    invoices = Invoice.objects.filter(is_active=True).order_by('-invoiced_on')
+                    response_json['count'] = len(invoices)
+                    invoices = invoices[start:end]
                 # filter using date, will have to do after front-end
                 if str(data_json['filter']).lower() == "added_by":
                     start = data_json['start']
