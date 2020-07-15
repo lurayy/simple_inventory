@@ -31,7 +31,7 @@ class CustomPermission(models.Model):
     get_multiple_gift_cards = models.BooleanField(default=True)
     get_current_user = models.BooleanField(default=True)
     s_user = models.BooleanField(default=True)
-    users = models.BooleanField(default=True)
+    get_multiple_user = models.BooleanField(default=True)
     user_creation = models.BooleanField(default=True)
     user_logout = models.BooleanField(default=True)
     update_purchase_item = models.BooleanField(default=True)

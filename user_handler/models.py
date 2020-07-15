@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.dispatch import receiver
 from .models_permission import CustomPermission
+import random
 
 class CustomUserBase(AbstractUser):
     '''Base Custom UserClass'''
@@ -13,6 +14,22 @@ class CustomUserBase(AbstractUser):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+
+def image_directory_path(instance, filename):
+    return 'image/user_{0}/image_{1}.jpg'.format(instance.user.username, random.randint(0,100))
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(CustomUserBase, on_delete=models.CASCADE)
+    address = models.TextField()
+    phone_number = models.CharField(max_length=15)
+    phone_number2 = models.CharField(max_length=15)
+    profile_image = models.ImageField(upload_to= image_directory_path, null=True, blank=True)
+    post = models.CharField(max_length=255)
+
+    def __str__(self):
+        return str(self.user)
 
 
 class Vendor(models.Model):
