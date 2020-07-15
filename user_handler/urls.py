@@ -13,8 +13,14 @@ urlpatterns = [
     path('add', views.user_creation, name='Create New User'),
     path('list', views.get_multiple_user, name="get user data"),
     path('update', views.update_user),
-    path('roles/get', views.get_multiple_roles),
     path('delete', views.delete_user),
+
+    path('roles/get', views.get_multiple_roles),
+    path('role/get', views.get_role_details),
+    path('role/valid', views.valid_power),
+    path('role/add',views.add_new_role),
+    path('role/assign', views.assign_role),
+    path('role/delete', views.delete_role),
 
     path('current', views.get_current_user, name='get current user data'),    
 ]

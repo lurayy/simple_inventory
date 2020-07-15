@@ -19,6 +19,9 @@ from .serializers import CustomPermissionSerializer, ProfileSerializer
 from .permission_check import bind, check_permission
 from .models_permission import CustomPermission
 
+from django.db.models import Q
+
+
 def csrf(request):
     return JsonResponse({'x-csrftoken': get_token(request)})
 
@@ -92,7 +95,7 @@ def get_multiple_user(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
-                    users = CustomUserBase.objects.filter(is_active = True)
+                    users = CustomUserBase.objects.filter()
                     response_json['count'] = len(users)
                     users = users[data_json['start']:data_json['end']]
                     users_json = []
@@ -106,7 +109,7 @@ def get_multiple_user(self, request):
                     response_json['status'] = True
                     response_json['users'] = users_json
                 if data_json['filter'] == "id":
-                    user = CustomUserBase.objects.filter(id=data_json['user_id'])
+                    users = CustomUserBase.objects.filter(id=data_json['user_id'])
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -116,6 +119,46 @@ def get_multiple_user(self, request):
                         users_json.append(user_json)
                     response_json['status'] = True
                     response_json['users'] = users_json
+
+
+                if data_json['filter'] == "name":
+                    users = CustomUserBase.objects.filter(Q(username__icontains = data_json['name'])|Q(first_name__icontains = data_json['name'])|Q(last_name__icontains = data_json['name']))
+                    for user in users:
+                        user_json = user_data(user)
+                        try:
+                            user_json['profile'] = ProfileSerializer(Profile.objects.get(user = user)).data
+                        except Exception as e:
+                            user_json['profile'] = None
+                        users_json.append(user_json)
+                    response_json['status'] = True
+                    response_json['users'] = users_json
+                
+                if data_json['filter'] == "role":
+                    users = CustomUserBase.objects.filter(role__id = data_json['role_id'] )
+                    for user in users:
+                        user_json = user_data(user)
+                        try:
+                            user_json['profile'] = ProfileSerializer(Profile.objects.get(user = user)).data
+                        except Exception as e:
+                            user_json['profile'] = None
+                        users_json.append(user_json)
+                    response_json['status'] = True
+                    response_json['users'] = users_json
+
+                if data_json['filter'] == "status":
+                    users = CustomUserBase.objects.filter(is_active = data_json['is_active'] )
+                    for user in users:
+                        user_json = user_data(user)
+                        try:
+                            user_json['profile'] = ProfileSerializer(Profile.objects.get(user = user)).data
+                        except Exception as e:
+                            user_json['profile'] = None
+                        users_json.append(user_json)
+                    response_json['status'] = True
+                    response_json['users'] = users_json
+
+
+                
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -219,6 +262,24 @@ def delete_user(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
+def get_current_user(request):
+    try:
+        data = {'token':request.headers['Authorization'].split(' ')[1]}
+        valid_data = VerifyJSONWebTokenSerializer().validate(data)
+        user = valid_data['user']
+        response_json = {
+            'status':True,
+            'user':{
+                'first_name':user.first_name,
+                'last_name':user.last_name,
+                'email':user.email,
+                'role_str':str(user.role),
+                'username':user.username
+            }
+        }
+        return JsonResponse( response_json)
+    except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
 @require_http_methods(['POST'])
@@ -242,21 +303,125 @@ def get_multiple_roles(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-def get_current_user(request):
-    try:
-        data = {'token':request.headers['Authorization'].split(' ')[1]}
-        valid_data = VerifyJSONWebTokenSerializer().validate(data)
-        user = valid_data['user']
-        response_json = {
-            'status':True,
-            'user':{
-                'first_name':user.first_name,
-                'last_name':user.last_name,
-                'email':user.email,
-                'role_str':str(user.role),
-                'username':user.username
-            }
-        }
-        return JsonResponse( response_json)
-    except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+@require_http_methods(['POST'])
+@bind
+def get_role_details(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                roles = CustomPermission.objects.filter(id=data_json['role_id'])
+                response_json['roles'] = []
+                for role in roles:
+                    response_json['roles'].append(CustomPermissionSerializer(role).data)
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def valid_power(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                powers = CustomPermission._meta.get_fields()
+                response_json['valid_powers'] = []
+                for power in powers:
+                    x = (power.name)
+                    if x == "id":
+                        pass
+                    elif x == "role_users":
+                        pass
+                    elif x == "name":
+                        pass
+                    else:
+                        response_json['valid_powers'].append(x)
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+@require_http_methods(['POST'])
+@bind
+def add_new_role(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "add":
+                print("here")
+                with open('user_handler/temp.py','w') as f:
+                    print("write")
+                    f.write('from user_handler.models_permission import CustomPermission')
+                    f.write('\n')
+                    f.write('def tes():\n')
+                    f.write('   role = CustomPermission.objects.create( name = "'+data_json['name']+'",\n')
+                    for i in range (len(data_json['values'])):
+                        f.write('      '+data_json['powers'][i]+' = '+str(data_json['values'][i])+',\n')
+                    f.write('   )')
+                from .temp import tes
+                tes()
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+@require_http_methods(['POST'])
+@bind
+def assign_role(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "assign":
+                user = CustomUserBase.objects.get(id = data_json['user_id'])
+                role = CustomPermission.objects.get(id = data_json['role_id'])
+                user.role = role
+                user.save()
+                response_json['status'] = True
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def delete_role(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "delete":
+                role = CustomPermission.objects.get(id=data_json['role_id'])
+                role.delete()
+                response_json['status'] = True
+                return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+

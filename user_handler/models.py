@@ -10,7 +10,7 @@ class CustomUserBase(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_destroyed = models.BooleanField(default=False)
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
-    role = models.ForeignKey(CustomPermission, on_delete=models.CASCADE, related_name='role_users', null=True, blank=True)
+    role = models.ForeignKey(CustomPermission, on_delete=models.PROTECT, related_name='role_users', null=True, blank=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

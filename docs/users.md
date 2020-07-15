@@ -45,6 +45,34 @@
 }
 ```
 
+- name 
+```
+{
+    action : get,
+    filter : name
+    name : __str__
+}
+```
+
+- role  
+```
+{
+    action  : get,
+    filter : role,
+    role_id : __id__
+}
+```
+
+- Status
+```
+{
+    action  : get,
+    filter  : status,
+    is_active : bool
+}
+```
+
+
 ### 3. Update user 
 - /api/v1/user/update
 - POST
@@ -95,5 +123,53 @@
 ```
 {
     action : get
+}
+```
+
+### 6. Get role : 
+- /api/v1/user/role/get
+- POST
+```
+{
+    action : get,
+    role_id : __id__
+}
+```
+
+### 7. Get list of valid powers
+- /api/v1/user/role/valid
+```
+{
+    action : get
+}
+```
+
+### 8. Create New Role: 
+- api/v1/user/role/add
+```
+{
+    action : add,
+    name : 
+    powers : []
+    value : [__bool__, ...]
+}
+```
+
+### 9. Delete Role : 
+- api/v1/user/role/delete
+```
+{
+    action  : delete,
+    role_id  : id
+}
+```
+
+### 10. Assign Role : 
+- /api/v1/user/role/assign
+```
+{
+    action  : assign 
+    user_id : id,
+    role_id : id
 }
 ```
