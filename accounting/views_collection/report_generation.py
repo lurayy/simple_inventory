@@ -141,6 +141,8 @@ def generate_balance_sheet_statement(self, request):
                             'count': len(balance_sheet[header]['sub_headers']),
                             'sum_current_amount': sum( d['meta_data']['sum_current_amount'] for d in balance_sheet[header]['sub_headers']),
                         }
+                    balance_sheet['liabilities']['net_profit'] = balance_sheet['revenue']['meta_data']['sum_current_amount']*-1-balance_sheet['expense']['meta_data']['sum_current_amount']
+                    print(balance_sheet['liabilities']['net_profit'])
                 # elif data_json['filter']== "date":
                     return JsonResponse(balance_sheet)
             return JsonResponse(response_json)        
