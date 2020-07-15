@@ -22,11 +22,11 @@ def image_directory_path(instance, filename):
 
 class Profile(models.Model):
     user = models.OneToOneField(CustomUserBase, on_delete=models.CASCADE)
-    address = models.TextField()
-    phone_number = models.CharField(max_length=15)
-    phone_number2 = models.CharField(max_length=15)
+    address = models.TextField(null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
+    phone_number2 = models.CharField(max_length=15, null=True, blank=True)
     profile_image = models.ImageField(upload_to= image_directory_path, null=True, blank=True)
-    post = models.CharField(max_length=255)
+    post = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return str(self.user)

@@ -80,5 +80,5 @@ data = {
   'start' : 0,
   'end' : 25
 }
-sess = requests.post(base_url+'user/list', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'user/roles/get', headers=headers, data=json.dumps(data), verify=False)
 print(sess.text)

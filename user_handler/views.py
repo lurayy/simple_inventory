@@ -52,7 +52,7 @@ def user_creation(request):
                 new_user = CustomUserBase.objects.create_user(str(data_json['username']), str(data_json['email']), str(data_json['password']))
                 new_user.first_name = str(data_json['first_name'])
                 new_user.last_name = str(data_json['last_name'])
-                role = CustomPermission.objects.get(id = data_json['custom_permission_id'])
+                role = CustomPermission.objects.get(id = data_json['role_id'])
                 new_user.role = role
                 new_user.save()
                 if data_json['profile']:
@@ -70,6 +70,8 @@ def user_creation(request):
                         data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
                         profile.profile_image = data
                         profile.save()
+                else:
+                    profile = Profile.objects.create(user = new_user)
                 response_json['status'] = True
             return JsonResponse(response_json)
     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
@@ -94,6 +96,17 @@ def get_multiple_user(self, request):
                     response_json['count'] = len(users)
                     users = users[data_json['start']:data_json['end']]
                     users_json = []
+                    for user in users:
+                        user_json = user_data(user)
+                        try:
+                            user_json['profile'] = ProfileSerializer(Profile.objects.get(user = user)).data
+                        except Exception as e:
+                            user_json['profile'] = None
+                        users_json.append(user_json)
+                    response_json['status'] = True
+                    response_json['users'] = users_json
+                if data_json['filter'] == "id":
+                    user = CustomUserBase.objects.filter(id=data_json['user_id'])
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -129,92 +142,104 @@ def user_data(user):
 
 
 
+
 @require_http_methods(['POST'])
-def users(request):
-    '''Deletes non-super users'''
-    '''
-    futher query : 
-    {
-        'action':'get',
-        'start':11,
-        'end':20
-    }
-    '''
-    if request.method == 'POST':
+@bind
+def update_user(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if str(data_json['action']).lower() == "get":
-                response_json = {'status':'', 'users':[]}
-                response_json['users'] = get_users_data(int(data_json['start']), int(data_json['end']))
-                response_json['status'] = True
-                return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    response_json = {'status':'', 'users':[]}
-    response_json['users'] = get_users_data(0,10)
-    response_json['status'] = True
-    return JsonResponse(response_json)
-
-
-# for geting single user details and modify
-@login_required
-def s_user(request):
-    '''POST json format: 
-    {
-        'action':'delete'/'revive'
-        'user_id':'4',
-        'uuid':'c4971e44-a4d8-4675-ad27-e7b3fd24332a',
-    }
-    for modify:
-    {
-        'action':'edit',
-        'user_id':'4',
-        'uuid':'c4971e44-a4d8-4675-ad27-e7b3fd24332a',
-        'first_name'
-        'last_name'
-        'email'
-        'username'
-        'user_type'
-    }
-    '''
-    users_json = []
-    if request.method == 'POST':
-        json_str = request.body.decode(encoding='UTF-8')
-        data_json = json.loads(json_str)   
-        try:
-            if data_json['action'] == "get":
-                user = CustomUserBase.objects.get(id=data_json['user_id'])
-                user_json = {'id':'', 'name':'', 'status':'','username':'', 'uuid':''}
-                user_json['id'] = str(user.id)
-                user_json['name'] = f'{user.first_name} {user.last_name}'
-                user_json['first_name'] = user.first_name
-                user_json['last_name'] = user.last_name
-                user_json['username'] = str(user.username)
-                user_json['is_active'] = user.is_active
-                user_json['email'] = str(user.email)
-                user_json['uuid'] = str(user.uuid)
-                user_json['role'] = (user.role.id)
-                user_json['role_str'] = str(user.role)
-                user_json['roles_given'] = CustomPermissionSerializer(user.role).data
-                user_json['status'] = True
-                return JsonResponse(user_json)
-            else:
-                user = CustomUserBase.objects.get(id=int(data_json['user_id']))
-                if str(data_json['action']).lower() == 'delete':
-                    user.is_active = False
-                if str(data_json['action']).lower() == 'revive':
-                    user.is_active = True
-                if str(data_json['action']) == "edit":
-                    user.first_name = data_json['first_name']
-                    user.last_name = data_json['last_name']
+            data = {'token':request.headers['Authorization']}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+            user = CustomUserBase.objects.get(id = user.id)
+            profile = Profile.objects.get(user = user)
+            if data_json['action'] == "update":
+                if data_json['email']:
                     user.email = data_json['email']
-                    user.username = data_json['username']
-                    user.user_type = data_json['user_type']
+                if data_json['first_name']:
+                    user.first_name = data_json['first_name']
+                if data_json['last_name']:
+                    user.last_name = data_json['last_name']
+                if data_json['password']:
+                    user.set_password(data_json['password'])
+                if data_json['profile']:
+                    if data_json['profile']['address']:
+                        profile.address = data_json['profile']['address']
+                    if data_json['profile']['phone_number']:
+                        profile.phone_number = data_json['profile']['phone_number']
+                    if data_json['profile']['phone_number2']:
+                        profile.phone_number2 = data_json['profile']['phone_number2']
+                    if data_json['profile']['post']:
+                        profile.post = data_json['profile']['post']
+                    if (data_json['profile']['profile_image']):
+                        data = data_json['profile']['profile_image'][0]['base64']
+                        format, imgstr = data.split(';base64,') 
+                        ext = format.split('/')[-1] 
+                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+                        profile.profile_image = data
+                    profile.save()
                 user.save()
-                return JsonResponse({'status':True, 'msg':f'Change is made to {user.username}. Change Type: {data_json["action"]}'})
-        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
+                response_json['status'] = True    
+            elif data_json['action'] == "deactivate":
+                user.is_active = False
+                user.save()
+                response_json['status'] = True    
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def delete_user(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "deactivate":
+                user = CustomUserBase.objects.get(id = data_json['user_id'])
+                user.is_active = False
+                user.save()
+                response_json['status'] = True
+            elif data_json['action'] == "activate":
+                user = CustomUserBase.objects.get(id = data_json['user_id'])
+                user.is_active = True
+                user.save()
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+
+@require_http_methods(['POST'])
+@bind
+def get_multiple_roles(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                roles = CustomPermission.objects.filter()
+                response_json['roles'] = []
+                for role in roles:
+                    response_json['roles'].append(CustomPermissionSerializer(role).data)
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
 def get_current_user(request):

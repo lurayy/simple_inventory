@@ -1,117 +1,99 @@
+# User Handler 
 
-#### 1. loginUser(data)
-- call url : apiv1/users/login
-- POST data format : 
-``` 
-{
-    username: "USERNAME",
-    password: "PASSWORD"
-}
-```
-- Retrun data: 
-If login is successful: 
+### 1. Create user 
+- /api/v1/user/add
+- POST
 ```
 {
-    status: true
-}
-```
-If login failed:
-```
-{
-    status:false,
-    msg : "msg"
-}
-```
-
-#### 2. logOut()
-- call url: 'apiv1/users/logout'
-- No data needed
-- Response : redirection to login
-
-#### 3. createUser(data)
-- call url: 'apiv1/users/create'
-- only manager can all this url
-- POST Format: 
-```
-{
-    username: "USERNAME",
-    password: "password",
-    first_name: ,
-    last_name: ,
-    user_type: ,            #can only be staff or manager
+    action : add,
+    username : __str__,
+    email : __str__,
+    password : __str__,
+    first_name : 
+    last_name :
+    role_id : __id__,
+    profile : null / {
+        address : 
+        phone_number : 
+        phone_number2 :
+        post :
+        profile_image : null / {}
+    }
 }
 ```
 
-#### 4. getUsers(data)
-- call url: 'apiv1/users/get'
-- POST format:
+### 2. User Listing 
+- /api/v1/user/list
+- POST
 ```
 {
-    action: 'get',
-    start: 0,
-    end: 20
-}
-```
-- Success response 
-```
-{
-    status: true,
-    users: [
-        {
-            id:
-            name:
-            status:
-            username:
-            uuid:
-        },
-        {
-            id:
-            name:
-            status:
-            username:
-            uuid:
-        }
-        ...
-    ]
+    action : get
+    filter : none
+    start : 
+    end : 
 }
 ```
 
-#### 5. getUser(data)
-- call url: 'apiv1/users/get/0'
-- POST format for getting info:
+#### To get single user data  : 
+- /api/v1/user/list
+- POST
 ```
 {
-    action: "get",
-    user_id: 
-    uuid:
-}
-```
-- POST format for deleting/reviving user
-```
-{
-    action: delete/revive
-    user_id:
-    uuid:
+    action : get,
+    filter : id,
+    user_id
 }
 ```
 
-#### 6. updateUser(data)
-- call url: 'apiv1/users/get/0'
-- POST format for modifying/updating user's data:
+### 3. Update user 
+- /api/v1/user/update
+- POST
 ```
 {
-    action: 'edit',
-    user_id: '4',
-    uuid: 'c4971e44-a4d8-4675-ad27-e7b3fd24332a',      
-    first_name:
-    last_name:
-    email:
-    username:
-    user_type:
+    action : update,
+    email : null/__str__,
+    first_name: null/str
+    last_name : null /str
+    password : null/__nwe_password__
+    profile : null / {
+        address :  null/ str
+        phone_number : null/str
+        phone_number2 : null/str
+        post : null/str
+        profile_image : null / {}
+    }
 }
 ```
 
-#### 7. getCurrentUser()
-- call url: 'apiv1/users/current'
-- No post data is needed
-- give data related to the loggedin user 
+#### self deactivate : 
+```
+{
+    action : deactivate
+}
+```
+
+### 4. Activate / Delete user 
+- /api/v1/user/delete
+- POST
+```
+{
+    action : deactivate
+    user_id : 
+}
+```
+
+```
+{
+    action : activate
+    user_id : 
+}
+```
+
+### 5. Get Roles : 
+- /api/v1/user/roles/get
+- POST
+```
+{
+    action : get
+}
+```
