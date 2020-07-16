@@ -52,6 +52,11 @@ def user_token(request):
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
+
+
+
+
+
         return JsonResponse({'token':token})
     except:
         return JsonResponse({'status':False, "error":'Wrong username or password.'})
@@ -66,6 +71,20 @@ def user_token(request):
 
 def user_logout(request):
     return JsonResponse({'status':True})
+
+
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+
 
 
 @login_required
@@ -151,7 +170,7 @@ def get_multiple_user(self, request):
                         except Exception as e:
                             user_json['profile'] = None
                     response_json['status'] = True
-                    response_json['users'] = user_json
+                    response_json['users'] = [user_json]
 
 
                 if data_json['filter'] == "name":
