@@ -38,30 +38,34 @@ def check(user):
     else:
         return False
 
+
+
 @require_http_methods(['POST'])
-def login(request):
-    # try:
-    json_str = request.body.decode(encoding='UTF-8')
-    data_json = json.loads(json_str)
-    username = str(data_json['username'])
-    password = str(data_json['password'])
-    user = authenticate(username = username, password = password)
-    print(user)
-    # user = CustomUserBase.objects.get(username = username, password = password)
-    # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-    # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-    # payload = jwt_payload_handler(user)
-    # token = jwt_encode_handler(payload)
-    # logout()
-    token = "asdf"
-    return JsonResponse({'token':token})
-    #     except:
-    #         return JsonResponse({'status':False, "error":'Wrong username or password.'})
-    # except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
-    #     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+def user_token(request):
+    try:
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        username = str(data_json['username'])
+        password = str(data_json['password'])
+        user = authenticate(username = username, password = password)
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+        payload = jwt_payload_handler(user)
+        token = jwt_encode_handler(payload)
+        return JsonResponse({'token':token})
+    except:
+        return JsonResponse({'status':False, "error":'Wrong username or password.'})
+
+# @require_http_methods(['POST'])
+# def user_logout(request):
+#     try:
+#         json_str = request.body.decode(encoding='UTF-8')
+#         data_json = json.loads(json_str)
+        
 
 
-
+def user_logout(request):
+    return JsonResponse({'status':True})
 
 
 @login_required
@@ -111,8 +115,6 @@ def user_creation(self, request):
         if (new_user):
             new_user.delete()
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
-
 
 
 @require_http_methods(['POST'])

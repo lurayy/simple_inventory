@@ -3,7 +3,7 @@ from . import views
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 
 urlpatterns = [
-    path('auth', obtain_jwt_token),
+    path('auth', views.user_token),
     path('refresh', refresh_jwt_token),
 
     path('verify', views.csrf, name = 'get csrf token'),
@@ -20,8 +20,7 @@ urlpatterns = [
     path('role/assign', views.assign_role),
     path('role/delete', views.delete_role),
 
-    # path('logout'),
-    # path('')
+    path('logout', views.user_logout),
 
     path('current', views.get_current_user, name='get current user data'),    
 ]

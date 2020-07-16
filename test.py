@@ -12,7 +12,7 @@ creds = {
 }
 
 
-r = requests.post(log_in_url, data=creds)
+r = requests.post(log_in_url, data= json.dumps(creds))
 print(r.text)
 token = r.json()['token']
 r = requests.get(base_url+'user/verify')
