@@ -42,7 +42,7 @@ def user_logout(request):
 
 @require_http_methods(['POST'])
 @bind
-def user_creation(request):
+def user_creation(self, request):
     '''Creates new  non-super user'''
     response_json = {}
     new_user = None
@@ -51,14 +51,12 @@ def user_creation(request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)    
             if data_json['action'] == "add":
-                user =  CustomUserBase.objects.get(id=request.user.id)
                 new_user = CustomUserBase.objects.create_user(str(data_json['username']), str(data_json['email']), str(data_json['password']))
                 new_user.first_name = str(data_json['first_name'])
                 new_user.last_name = str(data_json['last_name'])
                 role = CustomPermission.objects.get(id = data_json['role_id'])
                 new_user.role = role
                 new_user.save()
-
                 if data_json['profile']:
                     profile = Profile.objects.create(
                         user = new_user,

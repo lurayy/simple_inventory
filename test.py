@@ -74,23 +74,34 @@ headers = {
 #   "end": 25
 # }
 
-data = {
-  'action' : 'get'
-}
-sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
-roles = sess.json()
+# data = {
+#   'action' : 'get'
+# }
+# sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
+# roles = sess.json()
+
+# res = {
+#   'action' : 'add',
+#   'name' : '2ndrole',
+#   'powers' : roles['valid_powers'],
+#   'values': []
+# }
+
+# for i in range(len(roles['valid_powers'])):
+#   res['values'].append(True)
+
+# print(res)
 
 res = {
   'action' : 'add',
-  'name' : '2ndrole',
-  'powers' : roles['valid_powers'],
-  'values': []
+  'username' : 'someuser',
+  'email'  : 'main@m.com',
+  'password' : 'password',
+  'first_name' : 'name',
+  'last_name' : 'name2',
+  'role_id' : 1,
+  'profile' : None
 }
 
-for i in range(len(roles['valid_powers'])):
-  res['values'].append(True)
-
-print(res)
-
-sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
+sess = requests.post(base_url+'user/add', headers=headers, data=json.dumps(res), verify=False)
 print(sess.text)
