@@ -15,7 +15,7 @@ from django.middleware.csrf import get_token
 
 from django.template import Context
 from django.core.files.base import ContentFile
-
+import base64
 
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from .serializers import CustomPermissionSerializer, ProfileSerializer
