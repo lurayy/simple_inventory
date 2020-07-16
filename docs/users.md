@@ -175,9 +175,6 @@
 ```
 
 ### 11. Logout Notification 
-- api/v1/user/logout
-```
-{
-    action : logout
-}
-```
+- api/v1/user/logtime
+- GET
+[Must be call after user logs out or after deleting token]
