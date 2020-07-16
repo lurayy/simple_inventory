@@ -8,8 +8,6 @@ urlpatterns = [
 
     path('verify', views.csrf, name = 'get csrf token'),
 
-    path('login',obtain_jwt_token),
-
     path('add', views.user_creation, name='Create New User'),
     path('list', views.get_multiple_user, name="get user data"),
     path('update', views.update_user),

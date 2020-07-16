@@ -12,6 +12,7 @@ from .forms import UserForm, LoginForm
 from .models import CustomUserBase, Profile
 import json
 from django.middleware.csrf import get_token
+from django.contrib.auth import authenticate
 
 from django.template import Context
 from django.core.files.base import ContentFile
@@ -23,6 +24,7 @@ from .permission_check import bind, check_permission
 from .models_permission import CustomPermission
 
 from django.db.models import Q
+from rest_framework_jwt.settings import api_settings
 
 
 def csrf(request):
@@ -35,6 +37,32 @@ def check(user):
         return True
     else:
         return False
+
+@require_http_methods(['POST'])
+def login(request):
+    # try:
+    json_str = request.body.decode(encoding='UTF-8')
+    data_json = json.loads(json_str)
+    username = str(data_json['username'])
+    password = str(data_json['password'])
+    user = authenticate(username = username, password = password)
+    print(user)
+    # user = CustomUserBase.objects.get(username = username, password = password)
+    # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+    # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+    # payload = jwt_payload_handler(user)
+    # token = jwt_encode_handler(payload)
+    # logout()
+    token = "asdf"
+    return JsonResponse({'token':token})
+    #     except:
+    #         return JsonResponse({'status':False, "error":'Wrong username or password.'})
+    # except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+    #     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+
+
 
 @login_required
 def user_logout(request):
@@ -95,12 +123,13 @@ def get_multiple_user(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            users_json = []
+            user_json = []
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
                     users = CustomUserBase.objects.filter()
                     response_json['count'] = len(users)
                     users = users[data_json['start']:data_json['end']]
-                    users_json = []
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -110,6 +139,7 @@ def get_multiple_user(self, request):
                         users_json.append(user_json)
                     response_json['status'] = True
                     response_json['users'] = users_json
+
                 if data_json['filter'] == "id":
                     users = CustomUserBase.objects.filter(id=data_json['user_id'])
                     for user in users:
@@ -118,7 +148,6 @@ def get_multiple_user(self, request):
                             user_json['profile'] = ProfileSerializer(Profile.objects.get(user = user)).data
                         except Exception as e:
                             user_json['profile'] = None
-                        users_json.append(user_json)
                     response_json['status'] = True
                     response_json['users'] = user_json
 
@@ -158,10 +187,7 @@ def get_multiple_user(self, request):
                         users_json.append(user_json)
                     response_json['status'] = True
                     response_json['users'] = users_json
-
-
-                
-            return JsonResponse(response_json)
+                return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:

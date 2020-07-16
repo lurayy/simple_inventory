@@ -23,6 +23,17 @@ headers = {
     'x-csrftoken': csrftoken
 }
 
+r = requests.get(base_url+'user/current', headers=headers)
+print(r.text)
+
+data = {
+  'action' : 'get',
+  'filter' : 'id',
+  'user_id' : 1
+}
+
+r = requests.post(base_url+'user/list', headers = headers, data= json.dumps(data))
+print(r.text)
 
 # data = {
 #   "action": "get",
@@ -92,16 +103,5 @@ headers = {
 
 # print(res)
 
-res = {
-  'action' : 'add',
-  'username' : 'someuser',
-  'email'  : 'main@m.com',
-  'password' : 'password',
-  'first_name' : 'name',
-  'last_name' : 'name2',
-  'role_id' : 1,
-  'profile' : None
-}
-
-sess = requests.post(base_url+'user/add', headers=headers, data=json.dumps(res), verify=False)
-print(sess.text)
+# sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
+# print(sess.text)
