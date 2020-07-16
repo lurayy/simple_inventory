@@ -22,5 +22,7 @@ urlpatterns = [
 
     path('logtime', views.log_logout_time),
 
+    path('logs/get', views.get_logs),
+
     path('current', views.get_current_user, name='get current user data'),    
 ]

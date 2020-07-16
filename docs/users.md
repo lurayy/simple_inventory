@@ -178,3 +178,22 @@
 - api/v1/user/logtime
 - GET
 [Must be call after user logs out or after deleting token]
+
+### 12. Get activity logs
+- api/v1/user/logs/get
+- POST
+```
+{
+  'action' : 'get',
+  'start' : 0,
+  'end' : 25,
+  'filter' : 'multiple'/ "None",
+  'filters':{
+    'date':None,
+        'start_date' :
+        'end_date' :
+    'user':1/None,
+    'action' : "LOGIN"/ LOGOUT/ None
+  }
+}
+```

@@ -17,9 +17,9 @@ from django.contrib.auth import authenticate
 from django.template import Context
 from django.core.files.base import ContentFile
 import base64
-
+from inventory.utils import str_to_datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
-from .serializers import CustomPermissionSerializer, ProfileSerializer
+from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer
 from .permission_check import bind, check_permission
 from .models_permission import CustomPermission
 
@@ -66,7 +66,6 @@ def user_token(request):
 
 def log_logout_time(request):
     try:
-        print("here")
         data = {'token':request.headers['Authorization'].split(' ')[1]}
         valid_data = VerifyJSONWebTokenSerializer().validate(data)
         user = valid_data['user']
@@ -410,8 +409,6 @@ def valid_power(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
-
 @require_http_methods(['POST'])
 @bind
 def add_new_role(self, request):
@@ -421,7 +418,6 @@ def add_new_role(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "add":
-                print("here")
                 with open('user_handler/temp.py','w') as f:
                     print("write")
                     f.write('from user_handler.models_permission import CustomPermission')
@@ -479,3 +475,44 @@ def delete_role(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+@require_http_methods(['POST'])
+@bind
+def get_logs(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                activites = UserActivities.objects.all()
+                if data_json['filter'] == "multiple":
+                    if data_json['filters']['user']:
+                        activites = activites.filter( user__id = data_json['filters']['user'])
+                    if data_json['filters']['action']:
+                        activites = activites.filter( action = data_json['filters']['action'])
+                        if data_json['filters']['date']:
+                            if data_json['filters']['start_date']:
+                                start_date = str_to_datetime(str(data_json['filters']['start_date']))
+                                activites = activites.filter(log_time__gte = start_date).order_by('-log_time')
+                            if data_json['filters']['end_date']:
+                                end_date = str_to_datetime(str(data_json['filters']['end_date']))
+                                activites = activites.filter(log_time__lte = end_date).order_by('-log_time')
+                else:
+                    pass
+                response_json['count'] = len(activites)
+                activites = activites[data_json['start'] : data_json['end']]
+                response_json['logs'] = []
+                for activity in activites:
+                    response_json['logs'].append(UserActivitySerializer(activity).data)
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+                   
+                   
+                    

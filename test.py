@@ -40,6 +40,26 @@ print(r.text)
 r = requests.get(base_url+'user/logtime', headers = headers)
 print(r.text)
 
+
+
+
+data = {
+  'action' : 'get',
+  'start' : 0,
+  'end' : 25,
+  'filter' : 'multiple',
+  'filters':{
+    'date':None,
+    'user':1,
+    'action' : "LOGIN"
+  }
+}
+
+
+r = requests.post(base_url+'user/logs/get', headers = headers, data= json.dumps(data))
+print(r.text)
+
+
 # data = {
 #   "action": "get",
 #   "filter": "multiple",
