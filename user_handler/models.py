@@ -106,3 +106,13 @@ class Discount(models.Model):
 
     def __str__(self):
         return f'{self.name} {self.code} {self.rate}'
+
+
+# class ActivitiesLog(models.Model):
+#     user = models.ForeignKey(CustomUserBase, on_delete=models.CASCADE)
+#     datetime = models.DateTimeField(auto_now=True)
+#     login_IP = models.GenericIPAddressField(null=True, blank=True)
+
+#     LOGIN_STATUS = (('LOGGEDIN', 'LoggedIn'),
+#                            ('LOGGEDOUT', 'LoggedOut'))
+#     status = models.CharField(max_length=1, default=SUCCESS, choices=LOGIN_STATUS, null=True, blank=True)

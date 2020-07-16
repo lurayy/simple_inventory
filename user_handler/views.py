@@ -66,11 +66,11 @@ def user_creation(request):
                         phone_number2 = data_json['profile']['phone_number2'],
                         post = data_json['profile']['post']
                     )
-                    if (data_json['profile']['profile_image']):
-                        data = data_json['profile']['profile_image'][0]['base64']
+                    if data_json['profile']['profile_image']:
+                        data = data_json['profile']['profile_image']
                         format, imgstr = data.split(';base64,') 
                         ext = format.split('/')[-1] 
-                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+                        data = ContentFile(base64.b64decode(imgstr), name='profile_img.' + ext)
                         profile.profile_image = data
                         profile.save()
                 else:
@@ -217,11 +217,11 @@ def update_user(self, request):
                         profile.phone_number2 = data_json['profile']['phone_number2']
                     if data_json['profile']['post']:
                         profile.post = data_json['profile']['post']
-                    if (data_json['profile']['profile_image']):
-                        data = data_json['profile']['profile_image'][0]['base64']
+                    if data_json['profile']['profile_image']:
+                        data = data_json['profile']['profile_image']
                         format, imgstr = data.split(';base64,') 
                         ext = format.split('/')[-1] 
-                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+                        data = ContentFile(base64.b64decode(imgstr), name='profile_img.' + ext)
                         profile.profile_image = data
                     profile.save()
                 user.save()
@@ -382,7 +382,6 @@ def add_new_role(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
 
 
 @require_http_methods(['POST'])

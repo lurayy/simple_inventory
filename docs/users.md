@@ -173,3 +173,11 @@
     role_id : id
 }
 ```
+
+### 11. Logout Notification 
+- api/v1/user/logout
+```
+{
+    action : logout
+}
+```

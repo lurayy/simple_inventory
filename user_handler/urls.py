@@ -22,5 +22,8 @@ urlpatterns = [
     path('role/assign', views.assign_role),
     path('role/delete', views.delete_role),
 
+    # path('logout'),
+    # path('')
+
     path('current', views.get_current_user, name='get current user data'),    
 ]
