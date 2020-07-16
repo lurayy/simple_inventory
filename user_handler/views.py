@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .exceptions import  EmptyValueException
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .forms import UserForm, LoginForm
-from .models import CustomUserBase, Profile
+from .models import CustomUserBase, Profile, UserActivities
 import json
 from django.middleware.csrf import get_token
 from django.contrib.auth import authenticate
@@ -26,6 +26,7 @@ from .models_permission import CustomPermission
 from django.db.models import Q
 from rest_framework_jwt.settings import api_settings
 
+import django
 
 def csrf(request):
     return JsonResponse({'x-csrftoken': get_token(request)})
@@ -52,25 +53,32 @@ def user_token(request):
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
-
-
-
-
-
+        UserActivities.objects.create(
+            user = user,
+            ip = get_client_ip(request),
+            log_time = django.utils.timezone.now(),
+            action = "LOGIN"
+        )
         return JsonResponse({'token':token})
     except:
         return JsonResponse({'status':False, "error":'Wrong username or password.'})
 
-# @require_http_methods(['POST'])
-# def user_logout(request):
-#     try:
-#         json_str = request.body.decode(encoding='UTF-8')
-#         data_json = json.loads(json_str)
-        
 
-
-def user_logout(request):
-    return JsonResponse({'status':True})
+def log_logout_time(request):
+    try:
+        print("here")
+        data = {'token':request.headers['Authorization'].split(' ')[1]}
+        valid_data = VerifyJSONWebTokenSerializer().validate(data)
+        user = valid_data['user']
+        UserActivities.objects.create(
+                user = user,
+                ip = get_client_ip(request),
+                log_time = django.utils.timezone.now(),
+                action = "LOGOUT"
+            )    
+        return JsonResponse({'status':True})
+    except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
 

@@ -1,8 +1,8 @@
 import requests
 import json
 
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = "https://simpleim.herokuapp.com/api/v1/"
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = "https://simpleim.herokuapp.com/api/v1/"
 
 log_in_url = base_url+'user/auth'
 
@@ -33,6 +33,11 @@ data = {
 }
 
 r = requests.post(base_url+'user/list', headers = headers, data= json.dumps(data))
+print(r.text)
+
+
+
+r = requests.get(base_url+'user/logtime', headers = headers)
 print(r.text)
 
 # data = {

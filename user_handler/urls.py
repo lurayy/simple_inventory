@@ -20,7 +20,7 @@ urlpatterns = [
     path('role/assign', views.assign_role),
     path('role/delete', views.delete_role),
 
-    path('logout', views.user_logout),
+    path('logtime', views.log_logout_time),
 
     path('current', views.get_current_user, name='get current user data'),    
 ]

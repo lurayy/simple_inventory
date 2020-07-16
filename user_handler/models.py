@@ -109,19 +109,10 @@ class Discount(models.Model):
 
 
 
-# class UserLoginActivity(models.Model):
-#     SUCCESS = 'S'
-#     FAILED = 'F'
-
-#     LOGIN_STATUS = ((SUCCESS, 'Success'),
-#                            (FAILED, 'Failed'))
-
-#     user = models.ForeignKey(CustomUserBase, on_delete=models.CASCADE)
-#     login_IP = models.GenericIPAddressField(null=True, blank=True)
-#     login_datetime = models.DateTimeField(auto_now=True)
-#     status = models.CharField(max_length=1, default=SUCCESS, choices=LOGIN_STATUS, null=True, blank=True)
-#     user_agent_info = models.CharField(max_length=255)
-
-#     class Meta:
-#         verbose_name = 'user_login_activity'
-#         verbose_name_plural = 'user_login_activities'
+class UserActivities(models.Model):
+    LOGIN_STATUS = (('LOGIN', 'Login'),
+                           ('LOGOUT', 'Logout'))
+    user = models.ForeignKey(CustomUserBase, on_delete=models.CASCADE)
+    ip = models.GenericIPAddressField(null=True, blank=True)
+    log_time = models.DateTimeField()
+    action = models.CharField(max_length=6, choices=LOGIN_STATUS, null=True, blank=True)
