@@ -58,6 +58,7 @@ def user_creation(request):
                 role = CustomPermission.objects.get(id = data_json['role_id'])
                 new_user.role = role
                 new_user.save()
+
                 if data_json['profile']:
                     profile = Profile.objects.create(
                         user = new_user,
@@ -118,7 +119,7 @@ def get_multiple_user(self, request):
                             user_json['profile'] = None
                         users_json.append(user_json)
                     response_json['status'] = True
-                    response_json['users'] = users_json
+                    response_json['users'] = user_json
 
 
                 if data_json['filter'] == "name":
@@ -422,5 +423,3 @@ def delete_role(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
-
