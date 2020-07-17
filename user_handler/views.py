@@ -452,6 +452,40 @@ def add_new_role(self, request):
 
 @require_http_methods(['POST'])
 @bind
+def update_role(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "update":
+                with open('user_handler/temp.py','w') as f:
+                    print("write")
+                    f.write('from user_handler.models_permission import CustomPermission')
+                    f.write('\n')
+                    f.write('def tes():\n')
+                    f.write('   role = CustomPermission.objects.get(id = '+str(data_json['role_id'])+')\n')
+                    f.write('   role.name = "'+data_json['name']+'"\n')
+                    f.write('   role.description = "'+data_json['description']+'"\n')
+                    for i in range (len(data_json['values'])):
+                        f.write('   role.'+data_json['powers'][i]+' = '+str(data_json['values'][i])+'\n')
+                    f.write('   role.save()')
+                from .temp import tes
+                tes()
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+
+
+
+@require_http_methods(['POST'])
+@bind
 def assign_role(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):

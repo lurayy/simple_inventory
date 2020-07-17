@@ -33,6 +33,7 @@ class CustomPermission(models.Model):
     get_current_user = models.BooleanField(default=True)
     get_logs = models.BooleanField(default=True)
     log_logout_time = models.BooleanField(default=True)
+    update_role = models.BooleanField(default=True)
     delete_role = models.BooleanField(default=True)
     assign_role = models.BooleanField(default=True)
     add_new_role = models.BooleanField(default=True)

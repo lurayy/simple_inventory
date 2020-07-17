@@ -197,3 +197,17 @@
   }
 }
 ```
+
+### 13. Role Update:
+- api/v1/user/role/update
+- POST 
+```
+{
+    action : update,
+    role_id :
+    name : 
+    description
+    powers : [],
+    values : []
+}
+``` 

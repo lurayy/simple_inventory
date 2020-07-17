@@ -107,8 +107,6 @@ class Discount(models.Model):
     def __str__(self):
         return f'{self.name} {self.code} {self.rate}'
 
-
-
 class UserActivities(models.Model):
     LOGIN_STATUS = (('LOGIN', 'Login'),
                            ('LOGOUT', 'Logout'))

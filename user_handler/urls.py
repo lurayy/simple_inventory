@@ -19,6 +19,7 @@ urlpatterns = [
     path('role/add',views.add_new_role),
     path('role/assign', views.assign_role),
     path('role/delete', views.delete_role),
+    path('role/update', views.update_role),
 
     path('logtime', views.log_logout_time),
 
