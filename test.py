@@ -26,15 +26,15 @@ headers = {
 r = requests.get(base_url+'user/current', headers=headers)
 print(r.text)
 
-data = {
-  'action' : 'get',
-  'filter' : 'none',
-  'start' : 1,
-  'end' : 2
-}
+# data = {
+#   'action' : 'get',
+#   'filter' : 'none',
+#   'start' : 1,
+#   'end' : 2
+# }
 
-r = requests.post(base_url+'inventory/items/get', headers = headers, data= json.dumps(data))
-print(r.text)
+# r = requests.post(base_url+'inventory/items/get', headers = headers, data= json.dumps(data))
+# print(r.text)
 
 
 
@@ -135,14 +135,13 @@ print(r.text)
 # sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
 # print(sess.text)
 
-# print(headers)
-# data = {
-#   'action' : 'update',
-#   'first_name' : "ss",
-#   'last_name': None,
-#   'password' : None,
-#   'profile' : None
-# }
+data = {
+  'action' : 'update',
+  'first_name' : "ss",
+  'last_name': None,
+  'password' : None,
+  'profile' : None
+}
 
-# sess = requests.post(base_url+'user/update', headers=headers, data=json.dumps(data))
-# print(sess.text)
+sess = requests.post(base_url+'user/update', headers=headers, data=json.dumps(data))
+print(sess.text)

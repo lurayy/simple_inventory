@@ -246,7 +246,7 @@ def update_user(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            data = {'token':request.headers['Authorization']}
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
             valid_data = VerifyJSONWebTokenSerializer().validate(data)
             user = valid_data['user']
             user = CustomUserBase.objects.get(id = user.id)
