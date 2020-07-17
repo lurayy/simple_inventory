@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 import json
 import datetime
 from user_handler.models import Vendor, CustomUserBase
-from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus, ItemCatagory
+from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus, ItemCatagory, ItemImage
 from .utils import purchase_orders_to_json, purchase_items_to_json, str_to_datetime, vendors_to_json, items_to_json, item_catagories_to_json, places_to_json, placements_to_json,items_to_json_with_selection
 from .exceptions import  EmptyValueException
 from django.core.exceptions import ObjectDoesNotExist
@@ -534,21 +534,17 @@ def add_new_item(self, request):
                 )
                 item.save()
                 try:
-                    if (data_json['product_image']):
-                        data = data_json['product_image'][0]['base64']
-                        format, imgstr = data.split(';base64,') 
-                        ext = format.split('/')[-1] 
-                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-                        item.product_image = data
-                except Exception as exp:
-                    return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-                try:
-                    if (data_json['thumbnail_image']):
-                        data = data_json['thumbnail_image'][0]['base64']
-                        format, imgstr = data.split(';base64,') 
-                        ext = format.split('/')[-1] 
-                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-                        item.thumbnail_image = data
+                    if (data_json['product_images']):
+                        for image_data in data_json['product_images']:
+                            data = image_data['base64']
+                            format, imgstr = data.split(';base64,') 
+                            ext = format.split('/')[-1] 
+                            data = ContentFile(base64.b64decode(imgstr), name='image.' + ext)
+                            ItemImage.objects.create(
+                                category = data['category'],
+                                item = item,
+                                image = data
+                            )
                 except Exception as exp:
                     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 item.save()
@@ -614,26 +610,22 @@ def update_item(self, request):
                 item.average_cost_price =  data_json['average_cost_price']
                 item.barcode = data_json['barcode']
                 try:
-                    if (data_json['product_image']):
-                        data = data_json['product_image'][0]['base64']
-                        format, imgstr = data.split(';base64,') 
-                        ext = format.split('/')[-1] 
-                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-                        item.product_image = data
-                except Exception as exp:
-                    return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-                try:
-                    if (data_json['thumbnail_image']):
-                        data = data_json['thumbnail_image'][0]['base64']
-                        format, imgstr = data.split(';base64,') 
-                        ext = format.split('/')[-1] 
-                        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-                        item.thumbnail_image = data
+                    if (data_json['product_images']):
+                        for image_data in data_json['product_images']:
+                            data = image_data['base64']
+                            format, imgstr = data.split(';base64,') 
+                            ext = format.split('/')[-1] 
+                            data = ContentFile(base64.b64decode(imgstr), name='image.' + ext)
+                            ItemImage.objects.create(
+                                category = data['category'],
+                                item = item,
+                                image = data
+                            )
                 except Exception as exp:
                     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 item.save()
                 response_json = {'status':True}
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:

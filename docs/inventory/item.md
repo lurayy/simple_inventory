@@ -37,10 +37,20 @@
 - POST data format:
 ```
     {
-        action:'add',
-        name: "klj"
-        sales_price: 50000
-        catagory: 1             <- catagory id
+        name,
+        sales_price
+        category
+        description
+        weight
+        average_cost_price
+        barcode 
+        product_image : [
+            {
+                base64 :
+                category : THUMBNAIL/PRODUCT
+            }
+            ...
+        ]
     }
 ```
 
