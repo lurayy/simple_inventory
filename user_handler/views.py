@@ -90,10 +90,6 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-
-
-
-
 @login_required
 def user_logout(request):
     '''User logout function'''
@@ -256,8 +252,6 @@ def update_user(self, request):
             user = CustomUserBase.objects.get(id = user.id)
             profile = Profile.objects.get(user = user)
             if data_json['action'] == "update":
-                if data_json['email']:
-                    user.email = data_json['email']
                 if data_json['first_name']:
                     user.first_name = data_json['first_name']
                 if data_json['last_name']:

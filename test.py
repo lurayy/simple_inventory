@@ -28,17 +28,16 @@ print(r.text)
 
 data = {
   'action' : 'get',
-  'filter' : 'id',
-  'user_id' : 1
+  'filter' : 'none',
+  'start' : 1,
+  'end' : 2
 }
 
-r = requests.post(base_url+'user/list', headers = headers, data= json.dumps(data))
+r = requests.post(base_url+'inventory/items/get', headers = headers, data= json.dumps(data))
 print(r.text)
 
 
 
-r = requests.get(base_url+'user/logtime', headers = headers)
-print(r.text)
 
 
 
@@ -111,27 +110,39 @@ print(r.text)
 # }
 
 
-data = {
-  'action' : 'get'
-}
+# data = {
+#   'action' : 'get'
+# }
 
-sess = requests.post(base_url+'user/roles/get', headers=headers, data=json.dumps(data), verify=False)
+# sess = requests.post(base_url+'user/roles/get', headers=headers, data=json.dumps(data), verify=False)
 
-sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
-roles = sess.json()
+# sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
+# roles = sess.json()
 
-res = {
-  'action' : 'add',
-  'name' : '2ndrole',
-  'description' : "asdfasdfasdfasdf",
-  'powers' : roles['valid_powers'],
-  'values': []
-}
+# res = {
+#   'action' : 'add',
+#   'name' : '2ndrole',
+#   'description' : "asdfasdfasdfasdf",
+#   'powers' : roles['valid_powers'],
+#   'values': []
+# }
 
-for i in range(len(roles['valid_powers'])):
-  res['values'].append(True)
+# for i in range(len(roles['valid_powers'])):
+#   res['values'].append(True)
 
-print(res)
+# print(res)
 
-sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
-print(sess.text)
+# sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
+# print(sess.text)
+
+# print(headers)
+# data = {
+#   'action' : 'update',
+#   'first_name' : "ss",
+#   'last_name': None,
+#   'password' : None,
+#   'profile' : None
+# }
+
+# sess = requests.post(base_url+'user/update', headers=headers, data=json.dumps(data))
+# print(sess.text)

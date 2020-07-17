@@ -79,7 +79,6 @@
 ```
 {
     action : update,
-    email : null/__str__,
     first_name: null/str
     last_name : null /str
     password : null/__nwe_password__

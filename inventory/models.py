@@ -91,21 +91,11 @@ class ItemCatagory(models.Model):
         return self.name
 
 
-def product_directory_path(instance, filename):
-    return 'product_image/product_{0}/image_{0}.jpg'.format(instance.name)
-
-
-def thumbnail_directory_path(instance, filename):
-    return 'product_image/product_{0}/thumbnail_{0}.jpg'.format(instance.name)
-
-
 class Item(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
     average_cost_price = models.FloatField(default=0)
-    product_image =  models.ImageField(null = True, upload_to = product_directory_path, blank = True)
-    thumbnail_image = models.ImageField(null = True, upload_to =  thumbnail_directory_path, blank = True)
     is_active = models.BooleanField(default=True)
     catagory = models.ForeignKey(ItemCatagory, on_delete=models.SET_NULL, null=True, blank=True, related_name='items')
     stock = models.PositiveIntegerField(default=0)
@@ -125,6 +115,18 @@ class Item(models.Model):
     
     class Meta:
         unique_together = ['name', 'catagory', 'sales_price']
+
+
+def image_path(instance, filename):
+    return 'product_image/product_{0}/image_{1}_{2}.jpg'.format(instance.item.name, instance.category, instance.id)
+
+class ItemImage(models.Model):
+    CATEGORIES = (('THUMBNAIL', 'Thumbnail'),
+                    ('PRODUCT', 'Product'))
+    category = models.CharField(max_length=15, choices=CATEGORIES, default='THUMBNAIL')
+    image = models.ImageField(null = True, upload_to = image_path, blank = True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+
 
 
 def qrcode_directory_path(instance, filename):

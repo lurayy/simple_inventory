@@ -1,8 +1,9 @@
-from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, ItemCatagory, PurchaseOrderStatus
+from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, ItemCatagory, PurchaseOrderStatus, ItemImage
 from django.forms.models import model_to_dict 
 from user_handler.models import Vendor, CustomUserBase
-from .serializers import PurchaseOrderSerializer, PurchaseItemSerializer, VendorSerializer, ItemSerializer, PlaceSerializer,ItemCatagorySerializer, PlacementSerializer
+from .serializers import PurchaseOrderSerializer, PurchaseItemSerializer, VendorSerializer, ItemSerializer, PlaceSerializer,ItemCatagorySerializer, PlacementSerializer, ItemImageSerializer
 import dateutil.parser
+
 
 def purchase_orders_to_json(models):
     data = []
@@ -48,6 +49,10 @@ def items_to_json(items):
     for item in items:
         temp = ItemSerializer(item).data
         temp['catagory_str'] = str(item.catagory)
+        temp['images'] = []
+        for image in ItemImage.objects.filter(item = item):
+            temp['images'].append(ItemImageSerializer(image).data)
+        # for 
         # temp['product_image'] = item.product_image.url()
         # print(item.product_thumbnail_image.url())
         # print(item.product_image.__url)
