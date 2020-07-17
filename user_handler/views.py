@@ -26,6 +26,11 @@ import datetime
 from django.db.models import Q
 from rest_framework_jwt.settings import api_settings
 
+from django.core.mail import send_mail
+
+from django.conf import settings
+from django.template.loader import get_template 
+
 import django
 
 def csrf(request):
@@ -558,6 +563,19 @@ def get_logs(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
+def send_email(code, email):
+    template = get_template('password_reset_email.html')
+    data = {
+        'code' : code
+    }
+    html = template.render(data)
+    res = send_mail("Password Reset for Mandala ERP", " DO ", settings.EMAIL_HOST_USER, [email], html_message=html)
+    if res:
+        return True
+    else:
+        raise Exception("Email can't be sent through.")
+
+
 def forget_password(request):
     try:
         json_str = request.body.decode(encoding='UTF-8')
@@ -572,7 +590,9 @@ def forget_password(request):
             code.delete()
         except:
             pass
-        create_unique_code(request, email)
+        code = create_unique_code(request, email)
+        print(code)
+        send_email(code, email)
         return JsonResponse({'status': True, 'msg': 'A code has been sent to your email. Please use the code to login.'})
     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -591,10 +611,7 @@ def create_unique_code(request, email):
         )
     else:
         create_unique_code(request)
-
-def send_email(code):
-    print(code)
-
+    return code
 
 
 def is_code_valid(code):
@@ -614,8 +631,6 @@ def validate_code(request):
         return JsonResponse(is_code_valid(data_json['code']))
     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-     
-
 
 def reset_password(request):
     try: 

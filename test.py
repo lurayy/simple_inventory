@@ -12,8 +12,8 @@ data = {
 }
 
 
-# r = requests.post(base_url+'user/password/forget', data= json.dumps(data))
-# print(r.text)
+r = requests.post(base_url+'user/password/forget', data= json.dumps(data))
+print(r.text)
 
 
 # r = requests.post(base_url+'user/password/code/validate', data= json.dumps(data))
@@ -21,8 +21,8 @@ data = {
 
 
 
-r = requests.post(base_url+'user/password/reset', data= json.dumps(data))
-print(r.text)
+# r = requests.post(base_url+'user/password/reset', data= json.dumps(data))
+# print(r.text)
 
 
 
