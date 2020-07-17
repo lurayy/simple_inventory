@@ -560,6 +560,11 @@ def get_logs(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-                   
-                   
-                    
+
+
+# def forget_password(request):
+#     try:
+#         json_str = request.body.decode(encoding='UTF-8')
+#         data_json = json.loads(json_str)
+#         email = 
+            
