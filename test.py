@@ -1,30 +1,59 @@
 import requests
 import json
 
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = "https://simpleim.herokuapp.com/api/v1/"
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = "https://simpleim.herokuapp.com/api/v1/"
 
-log_in_url = base_url+'user/auth'
 
-creds = {
-    'username':'admin',
-    'password':'pass'
+data = {
+  'email' : "rabbit.bonex@gmail.com",
+  'code' : '610407',
+  'password' : 'newpass'
 }
 
 
-r = requests.post(log_in_url, data= json.dumps(creds))
-print(r.text)
-token = r.json()['token']
-r = requests.get(base_url+'user/verify')
-csrftoken = r.json()['x-csrftoken']
+# r = requests.post(base_url+'user/password/forget', data= json.dumps(data))
+# print(r.text)
 
-headers = {
-    'authorization': 'JWT '+token,
-    'x-csrftoken': csrftoken
-}
 
-r = requests.get(base_url+'user/current', headers=headers)
+# r = requests.post(base_url+'user/password/code/validate', data= json.dumps(data))
+# print(r.text)
+
+
+
+r = requests.post(base_url+'user/password/reset', data= json.dumps(data))
 print(r.text)
+
+
+
+# log_in_url = base_url+'user/auth'
+
+# creds = {
+#     'username':'admin',
+#     'password':'pass'
+# }
+
+
+# r = requests.post(log_in_url, data= json.dumps(creds))
+# print(r.text)
+# token = r.json()['token']
+# r = requests.get(base_url+'user/verify')
+# csrftoken = r.json()['x-csrftoken']
+
+# headers = {
+#     'authorization': 'JWT '+token,
+#     'x-csrftoken': csrftoken
+# }
+
+# r = requests.get(base_url+'user/current', headers=headers)
+# print(r.text)
+
+
+
+
+
+
+
 
 # data = {
 #   'action' : 'get',
@@ -110,31 +139,31 @@ print(r.text)
 # }
 
 
-data = {
-  'action' : 'get'
-}
+# data = {
+#   'action' : 'get'
+# }
 
-sess = requests.post(base_url+'user/roles/get', headers=headers, data=json.dumps(data), verify=False)
+# sess = requests.post(base_url+'user/roles/get', headers=headers, data=json.dumps(data), verify=False)
 
-sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
-roles = sess.json()
+# sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
+# roles = sess.json()
 
-res = {
-  'action' : 'update',
-  'name' : '2ndrole',
-  'description' : "asdfasdfasdfasdf",
-  'role_id' : 1,
-  'powers' : roles['valid_powers'],
-  'values': []
-}
+# res = {
+#   'action' : 'add',
+#   'name' : 'new_role_man',
+#   'description' : "asdfasdfasdfasdf",
+#   'role_id' : 1,
+#   'powers' : roles['valid_powers'],
+#   'values': []
+# }
 
-for i in range(len(roles['valid_powers'])):
-  res['values'].append(True)
+# for i in range(len(roles['valid_powers'])):
+#   res['values'].append(True)
 
-# print(res)
+# # print(res)
 
-sess = requests.post(base_url+'user/role/update', headers=headers, data=json.dumps(res), verify=False)
-print(sess.text)
+# sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
+# print(sess.text)
 
 # data = {
 #   'action' : 'update',

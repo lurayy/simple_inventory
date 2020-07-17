@@ -14,6 +14,9 @@ class CustomUserBase(AbstractUser):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+    
+    class Meta(object):
+        unique_together = ('email',)
 
 
 def image_directory_path(instance, filename):
@@ -114,3 +117,12 @@ class UserActivities(models.Model):
     ip = models.GenericIPAddressField(null=True, blank=True)
     log_time = models.DateTimeField()
     action = models.CharField(max_length=6, choices=LOGIN_STATUS, null=True, blank=True)
+
+class PasswordResetCode(models.Model):
+    code = models.CharField(max_length=6)
+    timestamp = models.DateTimeField()
+    ip = models.GenericIPAddressField(null=True, blank=True)
+    email = models.EmailField()
+
+    class Meta():
+        unique_together=('code','email')

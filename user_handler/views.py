@@ -9,11 +9,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from .exceptions import  EmptyValueException
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .forms import UserForm, LoginForm
-from .models import CustomUserBase, Profile, UserActivities
+from .models import CustomUserBase, Profile, UserActivities, PasswordResetCode
 import json
 from django.middleware.csrf import get_token
 from django.contrib.auth import authenticate
-
+import random
 from django.template import Context
 from django.core.files.base import ContentFile
 import base64
@@ -22,7 +22,7 @@ from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer
 from .permission_check import bind, check_permission
 from .models_permission import CustomPermission
-
+import datetime
 from django.db.models import Q
 from rest_framework_jwt.settings import api_settings
 
@@ -480,10 +480,6 @@ def update_role(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-
-
-
-
 @require_http_methods(['POST'])
 @bind
 def assign_role(self, request):
@@ -562,9 +558,76 @@ def get_logs(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-# def forget_password(request):
-#     try:
-#         json_str = request.body.decode(encoding='UTF-8')
-#         data_json = json.loads(json_str)
-#         email = 
-            
+def forget_password(request):
+    try:
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        email = data_json['email']
+        try:
+            user = CustomUserBase.objects.get(email = email)
+        except:
+            return JsonResponse({'status': False, 'error': 'You are not registed. Please sign up or contact admin.'})
+        try:
+            code = PasswordResetCode.objects.get(email = email)
+            code.delete()
+        except:
+            pass
+        create_unique_code(request, email)
+        return JsonResponse({'status': True, 'msg': 'A code has been sent to your email. Please use the code to login.'})
+    except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+def create_unique_code(request, email):
+    code = random.randint(0, 999999)
+    code = str(code).zfill(6)
+    x = PasswordResetCode.objects.filter(code = code)
+    if len(x) <=0:
+        PasswordResetCode.objects.create(
+            code = code,
+            timestamp = django.utils.timezone.now(),
+            ip = get_client_ip(request),
+            email = email
+        )
+    else:
+        create_unique_code(request)
+
+def send_email(code):
+    print(code)
+
+
+
+def is_code_valid(code):
+    try:
+        code = PasswordResetCode.objects.get(code = code)
+    except:
+        return {'status':False, 'error' : 'Invalid Code.'}
+    if code.timestamp + datetime.timedelta(minutes = 30) < django.utils.timezone.now():
+        code.delete()
+        return {'status':False, 'error' : 'Time Expired, please re-issue the code.'}
+    return {'status':True}
+
+def validate_code(request):
+    try:
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        return JsonResponse(is_code_valid(data_json['code']))
+    except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+     
+
+
+def reset_password(request):
+    try: 
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        x = is_code_valid(data_json['code'])
+        if not x['status']:
+            return JsonResponse(x)
+        code = PasswordResetCode.objects.get(code = data_json['code'])
+        user = CustomUserBase.objects.get(email = code.email)
+        user.set_password(data_json['password'])
+        user.save()
+        return JsonResponse({'status':True})
+    except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

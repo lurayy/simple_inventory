@@ -25,5 +25,9 @@ urlpatterns = [
 
     path('logs/get', views.get_logs),
 
+    path('password/forget', views.forget_password),
+    path('password/code/validate', views.validate_code),
+    path('password/reset', views.reset_password ),
+
     path('current', views.get_current_user, name='get current user data'),    
 ]
