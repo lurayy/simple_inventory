@@ -22,6 +22,7 @@ with open('user_handler/models_permission.py','w') as out_to:
     out_to.write('\n')
     out_to.write('class CustomPermission(models.Model):\n')
     out_to.write('    name = models.CharField(max_length=255)\n')
+    out_to.write('    description = models.TextField()\n')
     for name in function_names:
         out_to.write('    '+name+' = models.BooleanField(default=True)\n')
     out_to.write('    def __str__(self):\n')

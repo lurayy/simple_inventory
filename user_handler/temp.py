@@ -1,6 +1,6 @@
 from user_handler.models_permission import CustomPermission
 def tes():
-   role = CustomPermission.objects.create( name = "2ndrole",
+   role = CustomPermission.objects.create( name = "2ndrole", description = "asdfasdfasdfasdf",
       generate_balance_sheet_statement = True,
       generate_profit_loss_statement = True,
       update_ledger_entry = True,
@@ -29,6 +29,10 @@ def tes():
       get_gift_card_details = True,
       get_multiple_gift_cards = True,
       get_current_user = True,
+      get_logs = True,
+      log_logout_time = True,
+      delete_role = True,
+      assign_role = True,
       add_new_role = True,
       valid_power = True,
       get_role_details = True,
@@ -37,6 +41,7 @@ def tes():
       update_user = True,
       get_multiple_user = True,
       user_creation = True,
+      user_token = True,
       update_purchase_item = True,
       get_purchase_item_details = True,
       delete_purchase_items = True,

@@ -350,7 +350,15 @@ def get_multiple_roles(self, request):
                 roles = CustomPermission.objects.filter()
                 response_json['roles'] = []
                 for role in roles:
-                    response_json['roles'].append(CustomPermissionSerializer(role).data)
+                    data = CustomPermissionSerializer(role).data
+                    response_json['roles'].append(
+                        {
+                            'id': data.pop('id'),
+                            'name': data.pop('name'),
+                            'discription' : data.pop('description'),
+                            'powers' : data
+                        }
+                    )
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -372,8 +380,17 @@ def get_role_details(self, request):
                 roles = CustomPermission.objects.filter(id=data_json['role_id'])
                 response_json['roles'] = []
                 for role in roles:
-                    response_json['roles'].append(CustomPermissionSerializer(role).data)
+                    data = CustomPermissionSerializer(role).data
+                    response_json['roles'].append(
+                        {
+                            'id': data.pop('id'),
+                            'name': data.pop('name'),
+                            'discription' : data.pop('description'),
+                            'powers' : data
+                        }
+                    )
                 response_json['status'] = True
+            print(response_json)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -400,6 +417,8 @@ def valid_power(self, request):
                         pass
                     elif x == "name":
                         pass
+                    elif x == "description":
+                        pass
                     else:
                         response_json['valid_powers'].append(x)
                 response_json['status'] = True
@@ -423,7 +442,7 @@ def add_new_role(self, request):
                     f.write('from user_handler.models_permission import CustomPermission')
                     f.write('\n')
                     f.write('def tes():\n')
-                    f.write('   role = CustomPermission.objects.create( name = "'+data_json['name']+'",\n')
+                    f.write('   role = CustomPermission.objects.create( name = "'+data_json['name']+'", description = "'+data_json['description']+'",\n')
                     for i in range (len(data_json['values'])):
                         f.write('      '+data_json['powers'][i]+' = '+str(data_json['values'][i])+',\n')
                     f.write('   )')
