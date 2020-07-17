@@ -150,7 +150,8 @@
 {
     action : add,
     name : 
-    powers : []
+    powers : [],
+    description : __str__,
     value : [__bool__, ...]
 }
 ```
