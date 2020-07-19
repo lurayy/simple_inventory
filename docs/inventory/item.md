@@ -69,12 +69,18 @@
 - call url: 'apiv1/inventory/item'
 - POST data format:
 ```
-    {
-        'action':'edit',
-        item_id: 1
-        name: "klj"
-        is_active:True,
-        catagory: 1
-    }
+{
+    action : update,
+    item_id
+    name 
+    category : 
+    is_active : 
+    description
+    weight 
+    sales_price
+    average_cost_price
+    barcode
+    product_images : [{base64 : __base64__, category}, {base64 : __base64__, category},]    <-------- new images to be added
+    remove_image : [__image_id__, image_id__]
+}
 ```
-

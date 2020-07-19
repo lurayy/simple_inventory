@@ -1,9 +1,9 @@
 import requests
 import json
 
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = "https://simpleim.herokuapp.com/api/v1/"
-base_url = "https://erp.mandalaitsolutions.com/api/v1/"
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = "https://simpleim.herokuapp.com/api/v1/"
+# base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # data = {
 #   'email' : "rabbit.bonex@gmail.com",
@@ -23,8 +23,6 @@ base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # r = requests.post(base_url+'user/password/reset', data= json.dumps(data))
 # print(r.text)
-
-
 
 log_in_url = base_url+'user/auth'
 

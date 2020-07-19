@@ -323,9 +323,13 @@ def get_current_user(request):
                 'last_name':user.last_name,
                 'email':user.email,
                 'role_str':str(user.role),
-                'username':user.username
+                'username':user.username,
+                'powers' : CustomPermissionSerializer(user.role).data
             }
         }
+        response_json['user']['powers'].pop('id')
+        response_json['user']['powers'].pop('name')
+        response_json['user']['powers'].pop('description')
         return JsonResponse( response_json)
     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -548,7 +552,12 @@ def get_logs(self, request):
                 activites = activites[data_json['start'] : data_json['end']]
                 response_json['logs'] = []
                 for activity in activites:
-                    response_json['logs'].append(UserActivitySerializer(activity).data)
+                    x = UserActivitySerializer(activity).data
+                    x['username'] = activity.user.username
+                    x['first_name'] = activity.user.first_name
+                    x['last_name'] = activity.user.last_name
+                    x['email'] = activity.user.email
+                    response_json['logs'].append(x)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:

@@ -623,6 +623,10 @@ def update_item(self, request):
                             )
                 except Exception as exp:
                     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+                if data_json['remove_image']:
+                    for id in data_json['remove_image']:
+                        x = ItemImage.objects.get(id = id)
+                        x.delete()
                 item.save()
                 response_json = {'status':True}
             return JsonResponse(response_json)
