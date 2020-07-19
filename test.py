@@ -1,19 +1,19 @@
 import requests
 import json
 
-base_url = 'http://localhost:8000/api/v1/'
-# base_url = "https://simpleim.herokuapp.com/api/v1/"
+# base_url = 'http://localhost:8000/api/v1/'
+base_url = "https://simpleim.herokuapp.com/api/v1/"
+base_url = "https://erp.mandalaitsolutions.com/api/v1/"
+
+# data = {
+#   'email' : "rabbit.bonex@gmail.com",
+#   'code' : '610407',
+#   'password' : 'newpass'
+# }
 
 
-data = {
-  'email' : "rabbit.bonex@gmail.com",
-  'code' : '610407',
-  'password' : 'newpass'
-}
-
-
-r = requests.post(base_url+'user/password/forget', data= json.dumps(data))
-print(r.text)
+# r = requests.post(base_url+'user/password/forget', data= json.dumps(data))
+# print(r.text)
 
 
 # r = requests.post(base_url+'user/password/code/validate', data= json.dumps(data))
@@ -26,27 +26,27 @@ print(r.text)
 
 
 
-# log_in_url = base_url+'user/auth'
+log_in_url = base_url+'user/auth'
 
-# creds = {
-#     'username':'admin',
-#     'password':'pass'
-# }
+creds = {
+    'username':'admin',
+    'password':'pass'
+}
 
 
-# r = requests.post(log_in_url, data= json.dumps(creds))
-# print(r.text)
-# token = r.json()['token']
-# r = requests.get(base_url+'user/verify')
-# csrftoken = r.json()['x-csrftoken']
+r = requests.post(log_in_url, data= json.dumps(creds))
+print(r.text)
+token = r.json()['token']
+r = requests.get(base_url+'user/verify')
+csrftoken = r.json()['x-csrftoken']
 
-# headers = {
-#     'authorization': 'JWT '+token,
-#     'x-csrftoken': csrftoken
-# }
+headers = {
+    'authorization': 'JWT '+token,
+    'x-csrftoken': csrftoken
+}
 
-# r = requests.get(base_url+'user/current', headers=headers)
-# print(r.text)
+r = requests.get(base_url+'user/current', headers=headers)
+print(r.text)
 
 
 
@@ -71,21 +71,21 @@ print(r.text)
 
 
 
-# data = {
-#   'action' : 'get',
-#   'start' : 0,
-#   'end' : 25,
-#   'filter' : 'multiple',
-#   'filters':{
-#     'date':None,
-#     'user':1,
-#     'action' : "LOGIN"
-#   }
-# }
+data = {
+  'action' : 'get',
+  'start' : 0,
+  'end' : 25,
+  'filter' : 'multiple',
+  'filters':{
+    'date':None,
+    'user':1,
+    'action' : "LOGIN"
+  }
+}
 
 
-# r = requests.post(base_url+'user/logs/get', headers = headers, data= json.dumps(data))
-# print(r.text)
+r = requests.post(base_url+'user/logs/get', headers = headers, data= json.dumps(data))
+print(r.text)
 
 
 # # data = {

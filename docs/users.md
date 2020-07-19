@@ -87,8 +87,8 @@
         phone_number : null/str
         phone_number2 : null/str
         post : null/str
-        profile_image : null / {}
-    }
+        profile_image : null / {} / remove  <---- null for no change/ {} - to update image / remove to remove exsisting image
+     }
 }
 ```
 

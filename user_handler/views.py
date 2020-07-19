@@ -85,8 +85,6 @@ def log_logout_time(request):
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
 
-
-
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
@@ -94,13 +92,6 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
-
-@login_required
-def user_logout(request):
-    '''User logout function'''
-    logout(request)
-    return HttpResponseRedirect('/login')
-
 
 @require_http_methods(['POST'])
 @bind
@@ -273,11 +264,14 @@ def update_user(self, request):
                     if data_json['profile']['post']:
                         profile.post = data_json['profile']['post']
                     if data_json['profile']['profile_image']:
-                        data = data_json['profile']['profile_image']
-                        format, imgstr = data.split(';base64,') 
-                        ext = format.split('/')[-1] 
-                        data = ContentFile(base64.b64decode(imgstr), name='profile_img.' + ext)
-                        profile.profile_image = data
+                        if data_json['profile']['profile_image'] == "remove":
+                            profile.profile_image = None
+                        else:
+                            data = data_json['profile']['profile_image']
+                            format, imgstr = data.split(';base64,') 
+                            ext = format.split('/')[-1] 
+                            data = ContentFile(base64.b64decode(imgstr), name='profile_img.' + ext)
+                            profile.profile_image = data
                     profile.save()
                 user.save()
                 response_json['status'] = True    

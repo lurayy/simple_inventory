@@ -60,4 +60,4 @@ class PlacementSerializer(serializers.ModelSerializer):
 class ItemImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemImage
-        exclude = ('id','item')
+        exclude = ('item')
