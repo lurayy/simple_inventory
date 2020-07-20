@@ -517,7 +517,7 @@ def get_multiple_items(self, request):
 @bind
 def add_new_item(self, request):
     response_json = {'status':False}
-    
+    item = False
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -540,17 +540,20 @@ def add_new_item(self, request):
                             format, imgstr = data.split(';base64,') 
                             ext = format.split('/')[-1] 
                             data = ContentFile(base64.b64decode(imgstr), name='image.' + ext)
-                            ItemImage.objects.create(
-                                category = data['category'],
+                            x = ItemImage.objects.create(
+                                category = image_data['category'],
                                 item = item,
-                                image = data
                             )
+                            x.image = data
+                            x.save()
                 except Exception as exp:
                     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 item.save()
                 response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            if item:
+                item.delete()
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})

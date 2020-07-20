@@ -1,8 +1,8 @@
 import requests
 import json
 
-base_url = 'http://localhost:8000/api/v1/'
-# base_url = "https://simpleim.herokuapp.com/api/v1/"
+# base_url = 'http://localhost:8000/api/v1/'
+base_url = "https://simpleim.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # data = {
@@ -69,21 +69,21 @@ print(r.text)
 
 
 
-data = {
-  'action' : 'get',
-  'start' : 0,
-  'end' : 25,
-  'filter' : 'multiple',
-  'filters':{
-    'date':None,
-    'user':1,
-    'action' : "LOGIN"
-  }
-}
+# data = {
+#   'action' : 'get',
+#   'start' : 0,
+#   'end' : 25,
+#   'filter' : 'multiple',
+#   'filters':{
+#     'date':None,
+#     'user':1,
+#     'action' : "LOGIN"
+#   }
+# }
 
 
-r = requests.post(base_url+'user/logs/get', headers = headers, data= json.dumps(data))
-print(r.text)
+# r = requests.post(base_url+'user/logs/get', headers = headers, data= json.dumps(data))
+# print(r.text)
 
 
 # # data = {
@@ -174,3 +174,26 @@ print(r.text)
 # sess = requests.post(base_url+'user/update', headers=headers, data=json.dumps(data))
 # print(sess.text)
 # # 
+
+with open('image.txt', 'r') as fi:
+    x = fi.readline()
+
+data = {
+  'action' : 'add',
+  'name' : "item123423422",
+  'sales_price' : 2234,
+  'catagory' : 1,
+  'description' : '',
+  'weight' : 2,
+  'average_cost_price' : 2342343,
+  'barcode' : 234323423,
+  'product_images' : [
+    {
+      'category' : "Thumbnail",
+      'base64': x
+    }
+  ]  
+}
+
+sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
+print(sess.text)
