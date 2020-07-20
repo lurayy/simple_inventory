@@ -211,3 +211,32 @@
     values : []
 }
 ``` 
+
+
+### 14. Password Reset Process
+i. Initiate : 
+- /api/v1/user/password/forget
+```
+{
+    email : __valid_email__
+}
+```
+
+A unique code is then mailed to the given email if the user is registered, if not an error response is sent.
+
+ii. Check code validity : 
+- /api/v1/user/password/code/validate
+```
+{
+    code : 
+}
+```
+
+iii. Reset password
+- /api/v1/user/password/reset
+```
+{
+    code : 
+    password : 
+}
+```
