@@ -207,6 +207,24 @@ def get_multiple_user(self, request):
                         users_json.append(user_json)
                     response_json['status'] = True
                     response_json['users'] = users_json
+                
+                if data_json['filter'] == "multiple":
+                    users = CustomUserBase.objects.all()
+                    if data_json['filters']['name']:
+                        users = users.filter(Q(username__icontains = data_json['filters']['name'])|Q(first_name__icontains = data_json['filters']['name'])|Q(last_name__icontains = data_json['filters']['name']))
+                    if data_json['filters']['role']:
+                        users = users.filter(role__id = data_json['filters']['role_id'] )
+                    if data_json['filters']['status']:
+                        users = CustomUserBase.objects.filter(is_active = data_json['filters']['is_active'])
+                    for user in users:
+                        user_json = user_data(user)
+                        try:
+                            user_json['profile'] = ProfileSerializer(Profile.objects.get(user = user)).data
+                        except Exception as e:
+                            user_json['profile'] = None
+                        users_json.append(user_json)
+                    response_json['status'] = True
+                    response_json['users'] = users_json
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
