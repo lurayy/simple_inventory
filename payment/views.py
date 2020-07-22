@@ -582,6 +582,8 @@ def redeeme_gift_card(self, request):
                         payment.transaction_id = redeeme.id
                         payment.save()
                 if payment:
+                    # account = 
+                    # payemnt_entry_to_system(value, payment)
                     response_json['payment'] = payment_to_json([payment])
                 if invoice:
                     invoice.save()
