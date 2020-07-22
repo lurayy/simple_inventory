@@ -20,6 +20,7 @@ class CustomPermission(models.Model):
     update_payment = models.BooleanField(default=True)
     delete_payment = models.BooleanField(default=True)
     create_payment = models.BooleanField(default=True)
+    redeeme_gift_card = models.BooleanField(default=True)
     get_gift_card_categories = models.BooleanField(default=True)
     apply_payment = models.BooleanField(default=True)
     get_payment_methods = models.BooleanField(default=True)

@@ -5,15 +5,15 @@ base_url = 'http://localhost:8000/api/v1/'
 # base_url = "https://simpleim.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
-data = {
-  'email' : "rabbit.bonex@gmail.com",
-  'code' : '610407',
-  'password' : 'newpass'
-}
+# data = {
+#   'email' : "rabbit.bonex@gmail.com",
+#   'code' : '610407',
+#   'password' : 'newpass'
+# }
 
 
-r = requests.post(base_url+'user/password/forget', data= json.dumps(data))
-print(r.text)
+# r = requests.post(base_url+'user/password/forget', data= json.dumps(data))
+# print(r.text)
 
 
 # r = requests.post(base_url+'user/password/code/validate', data= json.dumps(data))
@@ -175,35 +175,47 @@ print(r.text)
 # print(sess.text)
 # # 
 
-with open('image.txt', 'r') as fi:
-    x = fi.readline()
+# with open('image.txt', 'r') as fi:
+#     x = fi.readline()
+
+# data = {
+#   'action' : 'add',
+#   'name' : "item123423422",
+#   'sales_price' : 2234,
+#   'catagory' : 1,
+#   'description' : '',
+#   'weight' : 2,
+#   'average_cost_price' : 2342343,
+#   'barcode' : 234323423,
+#   'product_images' : [
+#     {
+#       'category' : "Thumbnail",
+#       'base64': x
+#     },
+#     {
+#       'category' : "Product",
+#       'base64': x
+#     }
+#   ]  
+# }
+
+# data = {
+#   'action': 'get',
+#   'filter'  : 'none',
+#   'start' : 0,
+#   'end': 25
+# }
+# sess = requests.post(base_url + 'inventory/items/get', headers=headers, data=json.dumps(data))
+# print(sess.text)
+
 
 data = {
-  'action' : 'add',
-  'name' : "item123423422",
-  'sales_price' : 2234,
-  'catagory' : 1,
-  'description' : '',
-  'weight' : 2,
-  'average_cost_price' : 2342343,
-  'barcode' : 234323423,
-  'product_images' : [
-    {
-      'category' : "Thumbnail",
-      'base64': x
-    },
-    {
-      'category' : "Product",
-      'base64': x
-    }
-  ]  
+  'code' : 'NEFBF64780',
+  'invoice' : None,
+  'action' : 'redeeme',
+  'customer' : 1,
+  'invoice':1
 }
 
-data = {
-  'action': 'get',
-  'filter'  : 'none',
-  'start' : 0,
-  'end': 25
-}
-sess = requests.post(base_url + 'inventory/items/get', headers=headers, data=json.dumps(data))
+sess = requests.post(base_url+'payment/giftcard/redeeme', headers=headers, data=json.dumps(data))
 print(sess.text)

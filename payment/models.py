@@ -40,6 +40,10 @@ class GiftCard(models.Model):
         else:
             return False
 
+    class Meta:
+        unique_together = ('code',)
+
+
 class UniqueCard(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     gift_card = models.ForeignKey(GiftCard, on_delete=models.CASCADE, related_name='unique_codes')
@@ -149,3 +153,14 @@ def delete_unique_cards(gift_card,count):
         card = cards[i]
         card.delete()
 
+
+class GiftCardRedeem(models.Model):
+    card = models.ForeignKey(GiftCard, on_delete=models.CASCADE)
+    unique_card = models.ForeignKey(UniqueCard, on_delete=models.CASCADE, null=True, blank = True)
+    value = models.FloatField(default=0)
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, null=True, blank = True)
+    invoice = models.ForeignKey(Invoice, on_delete= models.CASCADE, null=True, blank = True)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+
+class Settings(models.Model):
+    default_gitf_card_payment_method = models.ForeignKey(PaymentMethod, on_delete=models.PROTECT)

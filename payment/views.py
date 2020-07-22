@@ -5,13 +5,14 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from .utils import gift_card_categories_to_json, unique_cards_to_json, gift_cards_to_json, gift_card_to_json, payment_methods_to_json, payment_to_json
-from .models import GiftCard, GiftCardCategory, UniqueCard, Payment, PaymentMethod
+from .models import GiftCard, GiftCardCategory, UniqueCard, Payment, PaymentMethod, GiftCardRedeem, Settings
 from sales.models import Invoice
 from user_handler.permission_check import bind, check_permission
 from inventory.models import PurchaseOrder
 import uuid
 from django.conf import settings
 from django.utils.timezone import now
+from user_handler.models import Customer
 
 @require_http_methods(['POST'])
 @bind
@@ -498,3 +499,97 @@ def get_payments(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
    
+
+
+
+# default payment method for gift cards 
+
+@require_http_methods(['POST'])
+@bind
+def redeeme_gift_card(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "redeeme":
+                code = data_json['code']
+                if data_json['invoice']:
+                    invoice = Invoice.objects.get(id = data_json['invoice'])
+                else:
+                    invoice = None
+                unique = False
+                try: 
+                    unique = UniqueCard.objects.get(code = code)
+                except:
+                    unique = False
+                value = unique.gift_card.rate
+                if unique.gift_card.discount_type == "percentage":
+                    if not invoice:
+                        raise Exception("Cannot redeeme gift card with discount in percentage without a invoice.")
+                    value = invoice.bill_amount*value/100
+                if unique:
+                    if unique.is_used:
+                        raise Exception("This gift card is already redeemed.")
+                    if not unique.is_active:
+                        raise Exception("This gift card is not yet been activated. Please content the vendor of the gift card or the support.")
+                    if invoice:
+                        payment = Payment.objects.create(
+                            invoice = invoice,
+                            amount = value,
+                            method = Settings.objects.all()[0].default_gitf_card_payment_method,
+                            transaction_from = "Gift card "+str(unique.code)
+                        )
+                    else:
+                        payment = None
+                    redeeme = GiftCardRedeem.objects.create(
+                        card = unique.gift_card,
+                        unique_card = unique,
+                        invoice = invoice,
+                        value = value,
+                        payment = payment,
+                        customer = Customer.objects.get(id=data_json['customer'])
+                    )
+                    if payment:
+                        payment.transaction_id = redeeme.id
+                        payment.save()
+                else:
+                    card = GiftCard.objects.get(code = code)
+                    if card.has_unique_codes:
+                        raise Exception("This gift is not to be used a coupon. [has unique codes]")
+                    if card.is_used_out:
+                        raise Exception("This limited coupon has already reached it's limits.")
+                    if not card.is_active:
+                        raise Exception("This gift card is not active so cannot be redeemed.")
+                    if invoice:
+                        payment = Payment.objects.create(
+                            invoice = invoice,
+                            amount = value,
+                            method = Settings.objects.filter(is_active=True)[0].default_gitf_card_payment_method,
+                            transaction_from = "Gift card "+str(unique.code)
+                        )
+                    else:
+                        payment = None
+                    redeeme = GiftCardRedeem.objects.create(
+                        card = card,
+                        unique_card = unique,
+                        invoice = invoice,
+                        value = value,
+                        payment = payment,
+                        customer = Customer.objects.get(id=data_json['id'])
+                    )
+                    if payment:
+                        payment.transaction_id = redeeme.id
+                        payment.save()
+                if payment:
+                    response_json['payment'] = payment_to_json([payment])
+                if invoice:
+                    invoice.save()
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+   
+
