@@ -1080,7 +1080,7 @@ def assign_place(self, request):
 @require_http_methods(['POST'])
 @bind
 def get_placements(self, request):
-    request_json = {'status':False}
+    response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -1092,19 +1092,19 @@ def get_placements(self, request):
                     placements = Placement.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(placements)
                     placements = placements[start:end]
-                    request_json['placements'] = placements_to_json(placements)
+                    response_json['placements'] = placements_to_json(placements)
                 if data_json['filter'] == 'item':
                     placements = Placement.objects.filter(is_active=True, item=data_json['item'])
                     response_json['count'] = len(placements)
                     placements = placements[start:end]
-                    request_json['placements'] = placements_to_json(placements)
+                    response_json['placements'] = placements_to_json(placements)
                 if data_json['filter'] == 'place':
                     placements = Placement.objects.filter(is_active=True, placed_on=data_json['place'])
                     response_json['count'] = len(placements)
                     placements = placements[start:end]
-                    request_json['placements'] = placements_to_json(placements)    
-            request_json['status'] = True
-            return JsonResponse(request_json)
+                    response_json['placements'] = placements_to_json(placements)    
+                response_json['status'] = True
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:

@@ -591,5 +591,18 @@ def redeeme_gift_card(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-   
+
+
+
+# @require_http_methods(['POST'])
+# @bind
+# def redeeme_history(self, request):
+#     response_json = {'status':False}
+#     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+#         try:
+#             json_str = request.body.decode(encoding='UTF-8')
+#             data_json = json.loads(json_str)
+#             if data_json['action'] == "get":
+#                 history = GiftCardRedeem.objects.all()
+
 

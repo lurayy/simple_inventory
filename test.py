@@ -209,13 +209,24 @@ print(r.text)
 # print(sess.text)
 
 
+# data = {
+#   'code' : 'NEFBF64780',
+#   'action' : 'redeeme',
+#   'customer' : 1,
+#   'invoice':1
+# }
+
+# sess = requests.post(base_url+'payment/giftcard/redeeme', headers=headers, data=json.dumps(data))
+# print(sess.text)
+
 data = {
-  'code' : 'NEFBF64780',
-  'invoice' : None,
-  'action' : 'redeeme',
-  'customer' : 1,
-  'invoice':1
+  'action':'get',
+  'filter' : 'none',
+  'start':0,
+  'end': 25
 }
 
-sess = requests.post(base_url+'payment/giftcard/redeeme', headers=headers, data=json.dumps(data))
+
+
+sess = requests.post(base_url+'inventory/placements/get', headers=headers, data=json.dumps(data))
 print(sess.text)
