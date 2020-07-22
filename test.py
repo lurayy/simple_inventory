@@ -5,15 +5,15 @@ base_url = 'http://localhost:8000/api/v1/'
 # base_url = "https://simpleim.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
-# data = {
-#   'email' : "rabbit.bonex@gmail.com",
-#   'code' : '610407',
-#   'password' : 'newpass'
-# }
+data = {
+  'email' : "rabbit.bonex@gmail.com",
+  'code' : '610407',
+  'password' : 'newpass'
+}
 
 
-# r = requests.post(base_url+'user/password/forget', data= json.dumps(data))
-# print(r.text)
+r = requests.post(base_url+'user/password/forget', data= json.dumps(data))
+print(r.text)
 
 
 # r = requests.post(base_url+'user/password/code/validate', data= json.dumps(data))

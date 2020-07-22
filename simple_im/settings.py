@@ -223,9 +223,14 @@ JWT_AUTH = {
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'erp.temp98@gmail.com'
-EMAIL_HOST_PASSWORD = 'p@ssw0rd98'
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = 'af0e3f81bcbe90'
+EMAIL_HOST_PASSWORD = '5f482ca89b5e92'
+EMAIL_PORT = '2525'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'erp.temp98@gmail.com'
+# EMAIL_HOST_PASSWORD = 'p@ssw0rd98'
