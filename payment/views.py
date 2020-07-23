@@ -494,7 +494,7 @@ def get_payments(self, request):
                     payments = Payment.objects.filter(is_active=True, purchase_order=PurchaseOrder.objects.get(is_active=True, id=data_json['purchase_order']))
                     response_json['payments'] = payment_to_json(payments)
                     response_json['status'] = True
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
