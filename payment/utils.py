@@ -1,6 +1,6 @@
-from . models import UniqueCard, GiftCardCategory, GiftCard
-from .serializers import UniqueCardSerializer, GiftCardCategorySerializer, GiftCardSerializer, PaymentMethodSerializer, PaymentSerializer
-
+from . models import UniqueCard, GiftCardCategory, GiftCard, GiftCardRedeem
+from .serializers import UniqueCardSerializer, GiftCardCategorySerializer, GiftCardSerializer, PaymentMethodSerializer, PaymentSerializer, GiftCardRedeemSerializer
+from sales.serializers import InvoiceSerializer
 from django.conf import settings
 from django.utils.timezone import now
 
@@ -48,5 +48,21 @@ def payment_to_json(methods):
     for method in methods:
         temp = (PaymentSerializer(method).data)
         temp['payment_method'] = payment_methods_to_json([method.method])
+        data.append(temp)
+    return data
+
+
+
+def gift_card_redeeme_to_json(methods):
+    data = []
+    for method in methods:
+        temp = (GiftCardRedeemSerializer(method).data)
+        temp['gift_card'] = GiftCardSerializer(method.card).data
+        if method.card:
+            temp['unique_card'] = UniqueCardSerializer(method.unique_card).data
+        if method.invoice:
+            temp['invoice_data'] = InvoiceSerializer(method.invoice).data
+        if method.payment:
+            temp['payment_data'] = PaymentSerializer(method.payment).data
         data.append(temp)
     return data

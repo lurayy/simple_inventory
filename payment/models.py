@@ -6,6 +6,7 @@ from django.db.models import signals
 from sales.models import Invoice
 from inventory.models import PurchaseOrder
 from user_handler.models import Customer, Vendor
+import django
 
 class GiftCardCategory(models.Model):
     name = models.CharField(max_length=255)
@@ -161,6 +162,8 @@ class GiftCardRedeem(models.Model):
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE, null=True, blank = True)
     invoice = models.ForeignKey(Invoice, on_delete= models.CASCADE, null=True, blank = True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    date = models.DateField(default=django.utils.timezone.now)
+
 
 class Settings(models.Model):
     default_gitf_card_payment_method = models.ForeignKey(PaymentMethod, on_delete=models.PROTECT)

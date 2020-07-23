@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from .utils import gift_card_categories_to_json, unique_cards_to_json, gift_cards_to_json, gift_card_to_json, payment_methods_to_json, payment_to_json
+from .utils import gift_card_categories_to_json, unique_cards_to_json, gift_cards_to_json, gift_card_to_json, payment_methods_to_json, payment_to_json, gift_card_redeeme_to_json
 from .models import GiftCard, GiftCardCategory, UniqueCard, Payment, PaymentMethod, GiftCardRedeem, Settings
 from sales.models import Invoice
 from user_handler.permission_check import bind, check_permission
@@ -13,6 +13,7 @@ import uuid
 from django.conf import settings
 from django.utils.timezone import now
 from user_handler.models import Customer
+from inventory.utils import  str_to_datetime
 
 @require_http_methods(['POST'])
 @bind
@@ -510,6 +511,8 @@ def redeeme_gift_card(self, request):
     response_json = {'status':False}
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
+            redeeme = None
+            payment = None
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "redeeme":
@@ -524,6 +527,10 @@ def redeeme_gift_card(self, request):
                 except:
                     unique = False
                 value = unique.gift_card.rate
+                try:
+                    default_method = Settings.objects.filter()[0].default_gitf_card_payment_method
+                except:
+                    raise Exception("Default payment method for gift card is not defined. Please setup the payment settings properly.")
                 if unique.gift_card.discount_type == "percentage":
                     if not invoice:
                         raise Exception("Cannot redeeme gift card with discount in percentage without a invoice.")
@@ -537,7 +544,7 @@ def redeeme_gift_card(self, request):
                         payment = Payment.objects.create(
                             invoice = invoice,
                             amount = value,
-                            method = Settings.objects.all()[0].default_gitf_card_payment_method,
+                            method = default_method,
                             transaction_from = "Gift card "+str(unique.code)
                         )
                     else:
@@ -550,6 +557,8 @@ def redeeme_gift_card(self, request):
                         payment = payment,
                         customer = Customer.objects.get(id=data_json['customer'])
                     )
+                    unique.is_used = True
+                    unique.save()
                     if payment:
                         payment.transaction_id = redeeme.id
                         payment.save()
@@ -565,7 +574,7 @@ def redeeme_gift_card(self, request):
                         payment = Payment.objects.create(
                             invoice = invoice,
                             amount = value,
-                            method = Settings.objects.filter(is_active=True)[0].default_gitf_card_payment_method,
+                            method = default_method,
                             transaction_from = "Gift card "+str(unique.code)
                         )
                     else:
@@ -581,30 +590,67 @@ def redeeme_gift_card(self, request):
                     if payment:
                         payment.transaction_id = redeeme.id
                         payment.save()
+                    card.count_used = card.count_used + 1
+                    card.save()
                 if payment:
-                    # account = 
-                    # payemnt_entry_to_system(value, payment)
+                    if data_json['account']:
+                        from simple_im.settings import INSTALLED_APPS
+                        if 'accounting' in INSTALLED_APPS:
+                            from accounting.models import Account, payemnt_entry_to_system
+                            account = Account.objects.get(id = data_json['account'])
+                            payemnt_entry_to_system(account, payment)
+                        else:
+                            raise Exception('You need to install and setup the accounting module to use the accounting features.')
                     response_json['payment'] = payment_to_json([payment])
                 if invoice:
                     invoice.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            if payment:
+                payment.delete()
+            if redeeme:
+                redeeme.delete()
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
-
-# @require_http_methods(['POST'])
-# @bind
-# def redeeme_history(self, request):
-#     response_json = {'status':False}
-#     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
-#         try:
-#             json_str = request.body.decode(encoding='UTF-8')
-#             data_json = json.loads(json_str)
-#             if data_json['action'] == "get":
-#                 history = GiftCardRedeem.objects.all()
-
+@require_http_methods(['POST'])
+@bind
+def redeeme_history(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            history = []
+            if data_json['action'] == "get":
+                history = GiftCardRedeem.objects.filter()
+                if data_json['filter'] == "multiple":
+                    if data_json['filters']['gift_card']:
+                        history = history.filter(card__id =  data_json['filters']['gift_card'])
+                    if data_json['filters']['unique_card']:
+                        history = history.filter(unique_card__id = data_json['filters']['unique_card'])
+                    if data_json['filters']['value']:
+                        if data_json['filters']['value']['from']:
+                            history = history.filter(value__gte = data_json['filters']['value']['from'])
+                        if data_json['filters']['value']['upto']:
+                            history = history.filter(value__lte = data_json['filters']['value']['upto'])
+                    if data_json['filters']['invoice']:
+                        history = history.filter(invoice__id = data_json['filters']['invoice'])
+                    if data_json['filters']['customer']:
+                        history = history.filter(customer__id = data_json['filters']['customer'])
+                    if data_json['filters']['date']:
+                        if data_json['filters']['date']['from']:
+                            history = history.filter(date__gte = str_to_datetime(data_json['filters']['date']['from']))
+                        if data_json['filters']['date']['upto']:
+                            history = history.filter(date__lte = str_to_datetime(data_json['filters']['date']['upto']))
+                history = history[data_json['start']:data_json['end']]
+                response_json['redeeme_history'] = gift_card_redeeme_to_json(history)
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
 

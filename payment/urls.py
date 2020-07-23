@@ -16,6 +16,8 @@ urlpatterns = [
     path('giftcards/categories/get', views.get_gift_card_categories),
 
     path('giftcard/redeeme', views.redeeme_gift_card),
+    
+    path('giftcard/redeeme/history', views.redeeme_history),
 
     path('add', views.create_payment),
     path('delete', views.delete_payment),

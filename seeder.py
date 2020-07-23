@@ -124,6 +124,7 @@ for _ in range(DISCOUNT_COUNT):
     temp.save()
     print (f'{temp} created.')
 
+
 print("--------------------------- PurchaseOrderStatus -------------------------")
 temp = PurchaseOrderStatus.objects.create(
     name = "Completed",
@@ -165,6 +166,10 @@ for _ in range(ITEM_COUNT):
     temp.save()
     print (f'{temp} created.')
 
+temp = Place.objects.create(
+    name = 'Default',
+    is_default = True
+)
 
 name = [
     "Draft",
@@ -205,3 +210,6 @@ for order in PurchaseOrder.objects.all():
     pay.save()
 
 from accounting.models import Account, AccountType
+
+
+
