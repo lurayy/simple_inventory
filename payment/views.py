@@ -415,10 +415,9 @@ def create_payment(self, request):
                     except:
                         pass
                     payment_models.append(temp)  
-
                 response_json['status'] = True
                 response_json['payments'] = payment_to_json(payment_models)
-                return JsonResponse(response_json)
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
@@ -500,9 +499,6 @@ def get_payments(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
    
-
-
-
 # default payment method for gift cards 
 
 @require_http_methods(['POST'])
@@ -526,16 +522,16 @@ def redeeme_gift_card(self, request):
                     unique = UniqueCard.objects.get(code = code)
                 except:
                     unique = False
-                value = unique.gift_card.rate
                 try:
                     default_method = Settings.objects.filter()[0].default_gitf_card_payment_method
                 except:
                     raise Exception("Default payment method for gift card is not defined. Please setup the payment settings properly.")
-                if unique.gift_card.discount_type == "percentage":
-                    if not invoice:
-                        raise Exception("Cannot redeeme gift card with discount in percentage without a invoice.")
-                    value = invoice.bill_amount*value/100
                 if unique:
+                    value = unique.gift_card.rate
+                    if unique.gift_card.discount_type == "percentage":
+                        if not invoice:
+                            raise Exception("Cannot redeeme gift card with discount in percentage without a invoice.")
+                        value = invoice.bill_amount*value/100
                     if unique.is_used:
                         raise Exception("This gift card is already redeemed.")
                     if not unique.is_active:
@@ -564,6 +560,11 @@ def redeeme_gift_card(self, request):
                         payment.save()
                 else:
                     card = GiftCard.objects.get(code = code)
+                    value = card.rate
+                    if card.discount_type == "percentage":
+                        if not invoice:
+                            raise Exception("Cannot redeeme gift card with discount in percentage without a invoice.")
+                        value = invoice.bill_amount*value/100
                     if card.has_unique_codes:
                         raise Exception("This gift is not to be used a coupon. [has unique codes]")
                     if card.is_used_out:

@@ -209,16 +209,16 @@ r = requests.get(base_url+'user/current', headers=headers)
 # print(sess.text)
 
 
-# data = {
-#   'code' : 'FX5D671AA2',
-#   'action' : 'redeeme',
-#   'customer' : 1,
-#   'invoice':1,
-#   'account':2
-# }
+data = {
+  'code' : 'FX522',
+  'action' : 'redeeme',
+  'customer' : 1,
+  'invoice':None,
+  'account':None
+}
 
-# sess = requests.post(base_url+'payment/giftcard/redeeme', headers=headers, data=json.dumps(data))
-# print(sess.text)
+sess = requests.post(base_url+'payment/giftcard/redeeme', headers=headers, data=json.dumps(data))
+print(sess.text)
 
 # data = {
 #   'action':'get',
@@ -232,23 +232,23 @@ r = requests.get(base_url+'user/current', headers=headers)
 # sess = requests.post(base_url+'inventory/placements/get', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
-data = {
-  'action' : 'get',
-  'filter' : "multiple",
-  'filters' : {
-    'gift_card' : 1,
-    'unique_card' : None,
-    'value': {
-      'from': 0,
-      'upto' : 10,
-    },
-    'invoice' : None,
-    'customer' : None,
-    'date' : None
-  },
-  'start' :0,
-  'end' : 2
-}
+# data = {
+#   'action' : 'get',
+#   'filter' : "multiple",
+#   'filters' : {
+#     'gift_card' : 1,
+#     'unique_card' : None,
+#     'value': {
+#       'from': 0,
+#       'upto' : 10,
+#     },
+#     'invoice' : None,
+#     'customer' : None,
+#     'date' : None
+#   },
+#   'start' :0,
+#   'end' : 2
+# }
 
-sess = requests.post(base_url+'payment/giftcard/redeeme/history', headers=headers, data=json.dumps(data))
-print(sess.text)
+# sess = requests.post(base_url+'payment/giftcard/redeeme/history', headers=headers, data=json.dumps(data))
+# print(sess.text)
