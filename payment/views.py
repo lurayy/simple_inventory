@@ -345,11 +345,19 @@ def get_gift_card_categories(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            category = []
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
                     category = GiftCardCategory.objects.filter(is_active=True)
-                    response_json['gift_card_categories'] = gift_card_categories_to_json(category)
-                    response_json['status'] = True
+                if data_json['filter'] == "multiple":
+                    category = GiftCardCategory.objects.filter()
+                    if data_json['filters']['name']:
+                        category = category.filter(name__icontains = data_json['name'])
+                    if data_json['filters']['status']:
+                        category = category.filter(is_active = data_json['filters']['status']['is_active'])
+                category = category[data_json['start']:data_json['end']]
+                response_json['gift_card_categories'] = gift_card_categories_to_json(category)
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -655,3 +663,89 @@ def redeeme_history(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+
+
+@require_http_methods(['POST'])
+@bind
+def add_new_gift_card_category(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "add":
+                category = GiftCardCategory.objects.create(
+                    name = data_json['name']
+                )
+                data_json['category'] = gift_card_categories_to_json([category])
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def update_gift_card_category(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "update":
+                category = GiftCardCategory.objects.get(id = data_json['gift_card_category'])
+                if data_json['name']:
+                    category.name = data_json['name']
+                if data_json['is_active']:
+                    category.is_active = data_json['is_active']
+                category.save()
+                data_json['category'] = gift_card_categories_to_json([category])
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+       
+
+@require_http_methods(['POST'])
+@bind
+def delete_gift_card_category(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "delete":
+                for category in data_json['gift_card_categories']:
+                    x = GiftCardCategory.objects.get(id = category)
+                    x.is_active = False
+                    x.save()
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+       
+
+@require_http_methods(['POST'])
+@bind
+def get_gift_card_category(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                category = GiftCardCategory.objects.get(id = data_json['gift_card_category'])
+                data_json['category'] = gift_card_categories_to_json([category])
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+       
