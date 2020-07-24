@@ -352,7 +352,7 @@ def get_gift_card_categories(self, request):
                 if data_json['filter'] == "multiple":
                     category = GiftCardCategory.objects.filter()
                     if data_json['filters']['name']:
-                        category = category.filter(name__icontains = data_json['name'])
+                        category = category.filter(name__icontains = data_json['filters']['name'])
                     if data_json['filters']['status']:
                         category = category.filter(is_active = data_json['filters']['status']['is_active'])
                 response_json['count'] = len(category)

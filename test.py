@@ -1,8 +1,8 @@
 import requests
 import json
 
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = "https://simpleim.herokuapp.com/api/v1/"
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = "https://simpleim.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # data = {
@@ -220,12 +220,24 @@ r = requests.get(base_url+'user/current', headers=headers)
 # sess = requests.post(base_url+'payment/giftcard/redeeme', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
+# data = {
+#   'action':'get',
+#   'filter' : 'none',
+#   'start' : 0,
+#   'end' : 25
+# }
+
 data = {
-  'action':'get',
-  'filter' : 'none',
-  'start' : 0,
-  'end' : 25
-}
+  "action":"get",
+  "filter":"multiple",
+  "filters":{
+    "name":"ano",
+    "status":None
+    },
+    "start":0,
+    "end":25
+  }
+
 sess = requests.post(base_url+'payment/giftcards/categories/get', headers=headers, data=json.dumps(data))
 print(sess.text)
 
