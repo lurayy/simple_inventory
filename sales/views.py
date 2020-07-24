@@ -458,7 +458,7 @@ def get_customer_categories(self, request):
                 x = CustomerCategory.objects.filter(is_active=True)
                 response_json = {
                     'status':True,
-                    'customerCategories': categories_to_json(x)
+                    'customerCategories': categories_to_json(x),
                     'count' : len(x)
                 }
             return JsonResponse(response_json)
