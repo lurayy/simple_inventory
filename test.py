@@ -1,8 +1,8 @@
 import requests
 import json
 
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = "https://simpleim.herokuapp.com/api/v1/"
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = "https://simpleim.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # data = {
@@ -220,35 +220,32 @@ r = requests.get(base_url+'user/current', headers=headers)
 # sess = requests.post(base_url+'payment/giftcard/redeeme', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
-# # data = {
-#   'action':'get',
-#   'filter' : 'none',
-#   'start':0,
-#   'end': 25
-# }
-
-
-
-# sess = requests.post(base_url+'inventory/placements/get', headers=headers, data=json.dumps(data))
-# print(sess.text)
-
 data = {
-  'action' : 'get',
-  'filter' : "multiple",
-  'filters' : {
-    'gift_card' : 1,
-    'unique_card' : None,
-    'value': {
-      'from': 0,
-      'upto' : 10,
-    },
-    'invoice' : None,
-    'customer' : None,
-    'date' : None
-  },
-  'start' :0,
-  'end' : 2
+  'action':'get',
+  'filter' : 'none',
+  'gift_card_category': 1
 }
 
-sess = requests.post(base_url+'payment/giftcard/redeeme/history', headers=headers, data=json.dumps(data))
+sess = requests.post(base_url+'payment/giftcards/category/get', headers=headers, data=json.dumps(data))
 print(sess.text)
+
+# data = {
+#   'action' : 'get',
+#   'filter' : "multiple",
+#   'filters' : {
+#     'gift_card' : 1,
+#     'unique_card' : None,
+#     'value': {
+#       'from': 0,
+#       'upto' : 10,
+#     },
+#     'invoice' : None,
+#     'customer' : None,
+#     'date' : None
+#   },
+#   'start' :0,
+#   'end' : 2
+# }
+
+# sess = requests.post(base_url+'payment/giftcard/redeeme/history', headers=headers, data=json.dumps(data))
+# print(sess.text)

@@ -741,7 +741,7 @@ def get_gift_card_category(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 category = GiftCardCategory.objects.get(id = data_json['gift_card_category'])
-                data_json['category'] = gift_card_categories_to_json([category])
+                response_json['category'] = gift_card_categories_to_json([category])
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
