@@ -382,8 +382,6 @@ def get_multiple_roles(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
-
 @require_http_methods(['POST'])
 @bind
 def get_role_details(self, request):
