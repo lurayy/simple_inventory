@@ -375,6 +375,7 @@ def get_multiple_roles(self, request):
                         }
                     )
                 response_json['status'] = True
+                response_json['count'] = len(roles)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

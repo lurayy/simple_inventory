@@ -355,6 +355,7 @@ def get_gift_card_categories(self, request):
                         category = category.filter(name__icontains = data_json['name'])
                     if data_json['filters']['status']:
                         category = category.filter(is_active = data_json['filters']['status']['is_active'])
+                response_json['count'] = len(category)
                 category = category[data_json['start']:data_json['end']]
                 response_json['gift_card_categories'] = gift_card_categories_to_json(category)
                 response_json['status'] = True
@@ -654,6 +655,7 @@ def redeeme_history(self, request):
                             history = history.filter(date__gte = str_to_datetime(data_json['filters']['date']['from']))
                         if data_json['filters']['date']['upto']:
                             history = history.filter(date__lte = str_to_datetime(data_json['filters']['date']['upto']))
+                response_json['count'] = len(history)
                 history = history[data_json['start']:data_json['end']]
                 response_json['redeeme_history'] = gift_card_redeeme_to_json(history)
                 response_json['status'] = True
