@@ -173,7 +173,8 @@ def update_purchase_order(self, request):
                 purchase_order.status = PurchaseOrderStatus.objects.get(id=int(data_json['status']))
                 purchase_order.third_party_invoice_number = data_json['third_party_invoice_number']
                 purchase_order.save()
-                response_json = {'status':True}
+                response_json['status'] = True
+                response_json['purchase_order'] = purchase_orders_to_json([purchase_order])
             return JsonResponse(response_json)
         except(ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -296,7 +297,7 @@ def add_new_vendor(self, request):
                 )
                 vendor.save()
                 response_json['vendors'] = vendors_to_json([vendor])
-                response_json = {'status':True}
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -379,7 +380,8 @@ def update_vendor(self, request):
                 vendor.address = str(data_json['address'])
                 vendor.is_active = (data_json['is_active'])
                 vendor.save()
-                response_json = {'status':True}
+                response_json['vendors'] = vendors_to_json([vendor])
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -551,6 +553,7 @@ def add_new_item(self, request):
                 except Exception as exp:
                     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 item.save()
+                response_json['item'] = items_to_json([item])
                 response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -740,6 +743,7 @@ def add_new_item_catagory(self, request):
                     parent = parent
                 )
                 catagory.save()
+                response_json['item_category'] = item_catagories_to_json([catagory])
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
