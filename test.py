@@ -24,31 +24,35 @@ base_url = 'http://localhost:8000/api/v1/'
 # r = requests.post(base_url+'user/password/reset', data= json.dumps(data))
 # print(r.text)
 
-log_in_url = base_url+'user/auth'
+# log_in_url = base_url+'user/auth'
 
-creds = {
-    'username':'admin',
-    'password':'pass'
-}
+# creds = {
+#     'username':'admin',
+#     'password':'pass'
+# }
 
 
-r = requests.post(log_in_url, data= json.dumps(creds))
+# r = requests.post(log_in_url, data= json.dumps(creds))
 # print(r.text)
-token = r.json()['token']
-r = requests.get(base_url+'user/verify')
-csrftoken = r.json()['x-csrftoken']
+# token = r.json()['token']
+# r = requests.get(base_url+'user/verify')
+# csrftoken = r.json()['x-csrftoken']
 
+token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTk1ODQzMTA1LCJlbWFpbCI6IiIsIm9yaWdfaWF0IjoxNTk1ODQzMDQ1fQ.CKglNlJx429keGzEsyc5i0j3VSzWock-BaD26lWmiXQ"
 headers = {
-    'authorization': 'JWT '+token,
-    'x-csrftoken': csrftoken
+    'authorization': 'JWT '+token
 }
 
 r = requests.get(base_url+'user/current', headers=headers)
+print(r.text)
+
+
+# data = {
+#   'token' : token
+# }
+
+# r = requests.post(base_url+'user/refresh', headers= headers, data = json.dumps(data))
 # print(r.text)
-
-
-
-
 
 
 
@@ -263,27 +267,27 @@ r = requests.get(base_url+'user/current', headers=headers)
 # print(sess.text)
 
 
-data = {
-  'action' : 'get'
-}
+# data = {
+#   'action' : 'get'
+# }
 
-data =  {
-  'action' : 'export',
-  'filters' : {
-    'name' : None,
-    'weight' : None,
-    'average_cost_price': {
-      'from' : 0,
-      'upto' : None
-    },
-    'stock': None,
-    'sales_price': None,
-    'category' : None,
-    'sold' : None
-  },
-  'start': 0,
-  'end' : 25,
-  'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
-}
-sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data =  {
+#   'action' : 'export',
+#   'filters' : {
+#     'name' : None,
+#     'weight' : None,
+#     'average_cost_price': {
+#       'from' : 0,
+#       'upto' : None
+#     },
+#     'stock': None,
+#     'sales_price': None,
+#     'category' : None,
+#     'sold' : None
+#   },
+#   'start': 0,
+#   'end' : 25,
+#   'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
+# }
+# sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
+# print(sess.text)
