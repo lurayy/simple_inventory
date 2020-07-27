@@ -94,6 +94,13 @@ class Payment(models.Model):
 #     instance.gift_card.save()
 
 
+@receiver(models.signals.post_save, sender=Payment)
+def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
+    if instance.purchase_order:
+        instance.purchase_order.save()
+
+
+
 @receiver(pre_save, sender=GiftCard)
 def pre_save_handler_gift_card(sender, instance, *args, **kwargs):
     if not instance.id:

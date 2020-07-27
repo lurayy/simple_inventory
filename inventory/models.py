@@ -32,6 +32,7 @@ class PurchaseOrder(models.Model):
     discount_type = models.CharField(max_length=10, choices=DISCOUNT, default='percent')
     discount = models.PositiveIntegerField(default=0)
     status = models.ForeignKey(PurchaseOrderStatus, on_delete=models.CASCADE)
+    bill_amount = models.FloatField(default=0)
     paid_amount = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)
 
@@ -40,10 +41,19 @@ class PurchaseOrder(models.Model):
         for item in self.items.filter(is_active=True):
             self.total_cost = self.total_cost + item.purchase_price*(item.quantity)
         if self.discount_type == "fixed":
-            self.paid_amount = self.total_cost - self.discount
+            self.bill_amount = self.total_cost - self.discount
         else:
-            self.paid_amount = self.total_cost - self.total_cost*self.discount/100
+            self.bill_amount = self.total_cost - self.total_cost*self.discount/100
+        
+        from django.conf import settings
+        if 'payment' in settings.INSTALLED_APPS:
+            self.paid_amount = 0
+            from payment.models import Payment
+            payments = Payment.objects.filter(purchase_order__id = self.id, refunded=False, is_active=True)
+            for payment in payments:
+                self.paid_amount = self.paid_amount + payment.amount
 
+        print("here")
         super(PurchaseOrder, self).save(*args, **kwargs)
         # settings = AccountingSettings.objects.all()[0]
         # remarks_str = "Purchase "+str(self.uuid)
@@ -74,12 +84,10 @@ class PurchaseOrder(models.Model):
 
 @receiver(models.signals.post_save, sender=PurchaseOrder)
 def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
-    print("post save")
     if instance.status.is_end == True:
         for item in instance.items.filter(is_active=True):
             item.status = "addedtocirculation"
             item.save()
-
 
 class ItemCatagory(models.Model):
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)

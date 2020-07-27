@@ -23,8 +23,10 @@ import cgi
 from user_handler.permission_check import bind, check_permission
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
-# if contition here
-from sales.models import SalesSetting 
+
+from django.conf import settings
+if 'sales' in settings.INSTALLED_APPS:
+    from sales.models import SalesSetting 
 
 @require_http_methods(['POST'])
 @bind
