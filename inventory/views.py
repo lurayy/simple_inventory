@@ -1265,7 +1265,6 @@ def get_purchase_item_details(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)    
             if data_json['action'] == 'get':
-                print(data_json)
                 if data_json['filter'] == 'uuid':
                     purchase_item = PurchaseItem.objects.get(uuid=data_json['uuid'])
                     return JsonResponse({'status':True, 'purchase_item':  purchase_items_to_json([purchase_item])})
@@ -1434,7 +1433,6 @@ def export_inventory(self, request):
                 fields = (data_json['selected_fields'])
                 selected_fields = []
                 for key in fields:
-                    print(key)
                     if key not in sensative:
                         selected_fields.append(key)
                 data = items_to_json_with_selection(items, selected_fields)
