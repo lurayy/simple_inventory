@@ -55,3 +55,33 @@ Solution : Add invoice
   'end' : 2
 }
 ```
+
+## 3. Export Items : 
+- /inventory/items/export
+```
+data =  {
+  'action' : 'export',
+  'filters' : {
+    'name' : None, / __str__,
+    'weight' : None, / __int__,
+    'average_cost_price':  None / {
+      'from' : 0,
+      'upto' : None
+    },
+    'stock': None, / {'from' :  , 'upto':  }
+    'sales_price': None / {'from' :  , 'upto':  },
+    'category' : None / __id__,
+    'sold' : None / {'from' :  , 'upto':  }
+  },
+  'start': 0,
+  'end' : 25,
+  'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
+}
+```
+
+- To get fields that can be selected 
+```
+{
+  action : get
+}
+```
