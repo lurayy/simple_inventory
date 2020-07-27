@@ -24,21 +24,21 @@ base_url = 'http://localhost:8000/api/v1/'
 # r = requests.post(base_url+'user/password/reset', data= json.dumps(data))
 # print(r.text)
 
-# log_in_url = base_url+'user/auth'
+log_in_url = base_url+'user/auth'
 
-# creds = {
-#     'username':'admin',
-#     'password':'pass'
-# }
+creds = {
+    'username':'admin',
+    'password':'pass'
+}
 
 
-# r = requests.post(log_in_url, data= json.dumps(creds))
-# print(r.text)
-# token = r.json()['token']
-# r = requests.get(base_url+'user/verify')
-# csrftoken = r.json()['x-csrftoken']
+r = requests.post(log_in_url, data= json.dumps(creds))
+print(r.text)
+token = r.json()['token']
+r = requests.get(base_url+'user/verify')
+csrftoken = r.json()['x-csrftoken']
 
-token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTk1ODQzMTA1LCJlbWFpbCI6IiIsIm9yaWdfaWF0IjoxNTk1ODQzMDQ1fQ.CKglNlJx429keGzEsyc5i0j3VSzWock-BaD26lWmiXQ"
+# token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTk1ODQzMTA1LCJlbWFpbCI6IiIsIm9yaWdfaWF0IjoxNTk1ODQzMDQ1fQ.CKglNlJx429keGzEsyc5i0j3VSzWock-BaD26lWmiXQ"
 headers = {
     'authorization': 'JWT '+token
 }
@@ -291,3 +291,12 @@ print(r.text)
 # }
 # sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
 # print(sess.text)
+
+data = {
+    'action' : 'get',
+    'filters' : {
+        'date' : None
+    }
+}
+sess = requests.post(base_url+'accounting/summary', headers = headers, data=json.dumps(data))
+print(sess.text)

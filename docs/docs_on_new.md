@@ -63,7 +63,10 @@ data =  {
   'action' : 'export',
   'filters' : {
     'name' : None, / __str__,
-    'weight' : None, / __int__,
+    'weight' : None, / {
+      'from' : 0,
+      'upto' : None
+    },
     'average_cost_price':  None / {
       'from' : 0,
       'upto' : None
