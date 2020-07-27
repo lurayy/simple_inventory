@@ -88,3 +88,22 @@ data =  {
   action : get
 }
 ```
+
+
+## 4. Dashboard data
+
+#### a. Accounting : 
+- /accounting/summary
+```
+{
+  action : get,
+  filters : {
+    date : None / {
+      'from' : ,
+      'upto' : ,
+    }
+  }
+}
+```
+
+- Return profit, expense and revenue.
