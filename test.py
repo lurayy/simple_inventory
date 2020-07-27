@@ -33,7 +33,7 @@ creds = {
 
 
 r = requests.post(log_in_url, data= json.dumps(creds))
-print(r.text)
+# print(r.text)
 token = r.json()['token']
 r = requests.get(base_url+'user/verify')
 csrftoken = r.json()['x-csrftoken']
@@ -227,19 +227,19 @@ r = requests.get(base_url+'user/current', headers=headers)
 #   'end' : 25
 # }
 
-data = {
-  "action":"get",
-  "filter":"multiple",
-  "filters":{
-    "name":"ano",
-    "status":None
-    },
-    "start":0,
-    "end":25
-  }
+# data = {
+#   "action":"get",
+#   "filter":"multiple",
+#   "filters":{
+#     "name":"ano",
+#     "status":None
+#     },
+#     "start":0,
+#     "end":25
+#   }
 
-sess = requests.post(base_url+'payment/giftcards/categories/get', headers=headers, data=json.dumps(data))
-print(sess.text)
+# sess = requests.post(base_url+'payment/giftcards/categories/get', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # data = {
 #   'action' : 'get',
@@ -261,3 +261,29 @@ print(sess.text)
 
 # sess = requests.post(base_url+'payment/giftcard/redeeme/history', headers=headers, data=json.dumps(data))
 # print(sess.text)
+
+
+data = {
+  'action' : 'get'
+}
+
+data =  {
+  'action' : 'export',
+  'filters' : {
+    'name' : None,
+    'weight' : None,
+    'average_cost_price': {
+      'from' : 0,
+      'upto' : None
+    },
+    'stock': None,
+    'sales_price': None,
+    'category' : None,
+    'sold' : None
+  },
+  'start': 0,
+  'end' : 25,
+  'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
+}
+sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
+print(sess.text)

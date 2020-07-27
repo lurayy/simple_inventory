@@ -1373,115 +1373,82 @@ def purchase_order_statuss(self, request):
 @require_http_methods(['POST'])
 @bind
 def export_inventory(self, request):
-    sensative = ['purchaseitem', 'invoiceitem', 'product_image', 'thumbnail_image', 'id', 'item_placements']
+    sensative = ['purchaseitem', 'invoiceitem', 'product_image', 'thumbnail_image', 'id', 'item_placements', 'is_active']
     if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
         try:
+            response_json = {'status':False}
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
-                model = str(data_json['model']).lower()
                 x = []
-                if model == 'item':
-                    temp = Item._meta.get_fields(include_hidden=True)
-                    for t in temp:
-                        if t.name not in sensative:
-                            x.append(t.name)
-                    return JsonResponse({'status':True,"fields":x})
+                temp = Item._meta.get_fields(include_hidden=True)
+                for t in temp:
+                    if t.name not in sensative:
+                        x.append(t.name)
+                return JsonResponse({'status':True,"fields":x})
             if (data_json['action'] == 'export' ):
                 items = Item.objects.filter(is_active=True)
-                model = str(data_json['model']).lower()
-                if data_json['model'] == 'item':
-                    if (data_json['filter']['is_applied_name']):
-                        if(data_json['filter']['exact_name']):
-                            items = items.filter(name=str(data_json['filter']['name']))
-                        else:
-                            items = items.filter(name__icontains=str(data_json['filter']['name']))
-                
-                    if(data_json['filter']['is_applied_weight_from']):
-                        temp_start = data_json['filter']['weight_from']
-                    else:
-                        temp_start = 0
-                    if (data_json['filter']['is_applied_weight_upto']):
-                        temp_end = data_json['filter']['weight_upto']
-                    else:
-                        temp_end = 9999999999999
-                    if data_json['filter']['is_applied_weight_from'] == True or data_json['filter']['is_applied_weight_upto'] == True:
-                        items = items.filter(weight__range = (temp_start, temp_end))
- 
-                    if(data_json['filter']['is_applied_average_cost_price_from']):
-                        temp_start = data_json['filter']['average_cost_price_from']
-                    else:
-                        temp_start = 0
-                    if (data_json['filter']['is_applied_average_cost_price_upto']):
-                        temp_end = data_json['filter']['average_cost_price_upto']
-                    else:
-                        temp_end = 9999999999999
-                    if data_json['filter']['is_applied_average_cost_price_from'] == True or data_json['filter']['is_applied_average_cost_price_upto'] == True:
-                        items = items.filter(average_cost_price__range = (temp_start, temp_end))
 
-                    if(data_json['filter']['is_applied_stock_from']):
-                        temp_start = data_json['filter']['stock_from']
-                    else:
-                        temp_start = 0
-                    if (data_json['filter']['is_applied_stock_upto']):
-                        temp_end = data_json['filter']['stock_upto']
-                    else:
-                        temp_end = 9999999999999
-                    if data_json['filter']['is_applied_stock_from'] == True or data_json['filter']['is_applied_stock_upto'] == True:
-                        items = items.filter(stock__range = (temp_start, temp_end))
- 
+                if (data_json['filters']['name']):
+                    items = items.filter(name__icontains=str(data_json['filters']['name']))
 
-                    if(data_json['filter']['is_applied_sold_from']):
-                        temp_start = data_json['filter']['sold_from']
-                    else:
-                        temp_start = 0
-                    if (data_json['filter']['is_applied_sold_upto']):
-                        temp_end = data_json['filter']['sold_upto']
-                    else:
-                        temp_end = 9999999999999
-                    if data_json['filter']['is_applied_sold_from'] == True or data_json['filter']['is_applied_stock_upto'] == True:
-                        items = items.filter(sold__range = (temp_start, temp_end))
- 
-
-
-                    if(data_json['filter']['is_applied_sales_price_from']):
-                        temp_start = data_json['filter']['sales_price_from']
-                    else:
-                        temp_start = 0
-                    if (data_json['filter']['is_applied_sales_price_upto']):
-                        temp_end = data_json['filter']['sales_price_upto']
-                    else:
-                        temp_end = 9999999999999
-                    if data_json['filter']['is_applied_sales_price_from'] == True or data_json['filter']['is_applied_sales_price_upto'] == True:
-                        items = items.filter(sales_price__range = (temp_start, temp_end))
- 
-
-                    if (data_json['filter']['is_applied_catagory']):
-                        items = items.filter(catagory__id = int(data_json['filter']['catagory']))
+                if data_json['filters']['weight']:
+                    if data_json['filters']['weight']['from']:
+                        items = items.filter(weight__gte = data_json['filters']['weight']['from'])
+                    if data_json['filters']['weight']['upto']:
+                        items = items.filter(weight__lte = data_json['filters']['weight']['upto'])
                     
-                    if (data_json['showItems']):
-                        items = items[int(data_json['start']) : int(data_json['end'])]
-                        return JsonResponse({'status':True, 'items':items_to_json(items)})
+                if data_json['filters']['average_cost_price']:
+                    if data_json['filters']['average_cost_price']['from']:
+                        items = items.filter(average_cost_price__gte = data_json['filters']['average_cost_price']['from'])
+                    if data_json['filters']['average_cost_price']['upto']:
+                        items = items.filter(average_cost_price__lte = data_json['filters']['average_cost_price']['upto'])
 
-                    fields = (data_json['filter']['fields'])
-                    selected_fields = []
-                    for key in fields:
-                        if key not in sensative:
-                            if fields[key] == True:
-                                selected_fields.append(key)
-                    data = items_to_json_with_selection(items, selected_fields)
-                    pdf = export_data(data,selected_fields)
-                    if pdf:
-                        response = HttpResponse(pdf, content_type='application/pdf')
-                        filename = "export_data"
-                        content = "inline; filename='%s'" %(filename)
-                        download = request.GET.get("download")
-                        if download:
-                            content = "attachment; filename='%s'" %(filename)
-                        response['Content-Disposition'] = content
-                        return response
-                    return HttpResponse("Not found")
+    
+                if data_json['filters']['stock']:
+                    if data_json['filters']['stock']['from']:
+                        items = items.filter(stock__gte = data_json['filters']['stock']['from'])
+                    if data_json['filters']['stock']['upto']:
+                        items = items.filter(stock__lte = data_json['filters']['stock']['upto'])
 
+                if data_json['filters']['sold']:
+                    if data_json['filters']['sold']['from']:
+                        items = items.filter(sold__gte = data_json['filters']['sold']['from'])
+                    if data_json['filters']['sold']['upto']:
+                        items = items.filter(sold__lte = data_json['filters']['sold']['upto'])
+
+                if data_json['filters']['sales_price']:
+                    if data_json['filters']['sales_price']['from']:
+                        items = items.filter(sales_price__gte = data_json['filters']['sales_price']['from'])
+                    if data_json['filters']['sales_price']['upto']:
+                        items = items.filter(sales_price__lte = data_json['filters']['sold']['upto'])
+              
+                if (data_json['filters']['category']):
+                    items = items.filter(catagory__id = int(data_json['filters']['catagory']))
+                
+                response_json['count'] = len(items)
+                items = items[int(data_json['start']) : int(data_json['end'])]
+                response_json['items'] = items_to_json(items)
+                # return JsonResponse(response_json)
+
+                fields = (data_json['selected_fields'])
+                selected_fields = []
+                for key in fields:
+                    print(key)
+                    if key not in sensative:
+                        selected_fields.append(key)
+                data = items_to_json_with_selection(items, selected_fields)
+                pdf = export_data(data,selected_fields)
+                if pdf:
+                    response = HttpResponse(pdf, content_type='application/pdf')
+                    filename = "export_data"
+                    content = "inline; filename='%s'" %(filename)
+                    download = request.GET.get("download")
+                    if download:
+                        content = "attachment; filename='%s'" %(filename)
+                    response['Content-Disposition'] = content
+                    return response
+                return HttpResponse("Not found")
             return JsonResponse({'status':True})
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

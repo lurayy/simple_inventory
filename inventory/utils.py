@@ -52,10 +52,6 @@ def items_to_json(items):
         temp['images'] = []
         for image in ItemImage.objects.filter(item = item):
             temp['images'].append(ItemImageSerializer(image).data)
-        # for 
-        # temp['product_image'] = item.product_image.url()
-        # print(item.product_thumbnail_image.url())
-        # print(item.product_image.__url)
         data.append(temp)
     return data
 

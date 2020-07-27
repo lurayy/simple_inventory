@@ -71,7 +71,6 @@ class PurchaseOrder(models.Model):
         #         amount = self.purchase_cost
         #     )
         #     cr_entry.save()
-            
 
 @receiver(models.signals.post_save, sender=PurchaseOrder)
 def post_save_handler_purchase_order(sender, instance, *args, **kwargs):

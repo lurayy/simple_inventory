@@ -39,7 +39,7 @@ urlpatterns = [
 
     path('placements/get', views.get_placements, name = 'placements'),
 
-    path('export',views.export_inventory, name='Export data'),   
+    path('items/export',views.export_inventory, name='Export data'),   
 
     path('purchaseitems/get',views.get_mulitple_purchase_items, name="purchae items"),
     path('purchaseitem/add',views.add_new_purchase_item, name="purchae items"),
