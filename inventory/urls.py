@@ -46,4 +46,6 @@ urlpatterns = [
     path('purchaseitems/delete',views.delete_purchase_items, name="purchae items"),
     path('purchaseitem/get',views.get_purchase_item_details, name="purchae items"),
     path('purchaseitem/update',views.update_purchase_item, name="purchae items"),
+
+    path('summary', views.dashboard_report)
 ]

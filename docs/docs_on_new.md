@@ -105,5 +105,19 @@ data =  {
   }
 }
 ```
+- return profit, expense and revenue.
 
-- Return profit, expense and revenue.
+#### b. Inventory :
+- /inventory/summary
+```
+ {
+    'action' : 'get',
+    'filters' : {
+        'low_items' : {
+            'start' : 0,
+            'end' : 25
+        }
+    }
+}
+```
+- returns count of active items, total sold, list of low stock items in order and list of most sold items in order

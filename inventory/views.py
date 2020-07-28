@@ -23,6 +23,7 @@ import cgi
 from user_handler.permission_check import bind, check_permission
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
+from django.db.models import Sum
 
 from django.conf import settings
 if 'sales' in settings.INSTALLED_APPS:
@@ -1481,3 +1482,38 @@ def export_data(data, fields):
     html = template.render(data)
     pdf = render_to_pdf('export_items_data', data)
     return pdf
+
+
+@require_http_methods(['POST'])
+@bind
+def dashboard_report(self,request):
+    response_json = {'status':False}        
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        try:
+            response_json['summary'] = {
+                'active_items' : 0,
+                'sold' : 0
+            }
+            if data_json['action'] == "get":
+                items = Item.objects.filter(is_active = True)
+                response_json['summary']['active_items'] = len(items)
+                response_json['summary']['sold'] = items.aggregate(Sum('sold'))['sold__sum']
+                temp = items.filter().order_by('-stock')
+                response_json['summary']['low_stock_items'] = {
+                    'items' : items_to_json(temp[data_json['filters']['low_items']['start']:data_json['filters']['low_items']['end']]),
+                    'count' : len(temp)
+                }
+                temp = items.filter().order_by('sold')
+                response_json['summary']['most_sold_items'] = {
+                    'items' : items_to_json(temp[data_json['filters']['most_sold_items']['start']:data_json['filters']['most_sold_items']['end']]),
+                    'count' : len(temp)
+                }
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+

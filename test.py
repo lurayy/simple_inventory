@@ -295,8 +295,14 @@ print(r.text)
 data = {
     'action' : 'get',
     'filters' : {
-        'date' : None
+        'low_items' : {
+            'start' : 0,
+            'end' : 25
+        },'most_sold_items' : {
+            'start' : 0,
+            'end' : 25
+        },
     }
 }
-sess = requests.post(base_url+'accounting/summary', headers = headers, data=json.dumps(data))
+sess = requests.post(base_url+'inventory/summary', headers = headers, data=json.dumps(data))
 print(sess.text)
