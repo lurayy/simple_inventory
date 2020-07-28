@@ -294,6 +294,8 @@ def add_new_vendor(self, request):
                     phone1 = str(data_json['phone1']),
                     phone2 = str(data_json['phone2']),
                     address = str(data_json['address']),
+                    country = data_json['country'],
+                    company = data_json['company'],
                     added_by = user
                 )
                 vendor.save()
@@ -380,6 +382,8 @@ def update_vendor(self, request):
                 vendor.phone2 = str(data_json['phone2'])
                 vendor.address = str(data_json['address'])
                 vendor.is_active = (data_json['is_active'])
+                vendor.country = data_json['country']
+                vendor.company = data_json['company']
                 vendor.save()
                 response_json['vendors'] = vendors_to_json([vendor])
                 response_json['status'] = True

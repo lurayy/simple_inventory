@@ -61,7 +61,9 @@
         "tax_number": "974",
         "phone1": "+1 (149) 119-4092",
         "phone2": "+1 (381) 765-8778",
-        "address": "Qui in at culpa unde"
+        "address": "Qui in at culpa unde",
+        "country" : __country__,
+        "company" : __company__
     }
 ```
 
@@ -92,6 +94,8 @@
         "phone1": "+1 (149) 119-4092",
         "phone2": "+1 (381) 765-8778",
         "address": "Qui in at culpa unde",
-        "is_active":true
+        "is_active":true,
+        "country" : __country__,
+        "company" : __company__
     }
 ```
