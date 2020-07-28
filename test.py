@@ -292,17 +292,17 @@ print(r.text)
 # sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
+import datetime
 data = {
     'action' : 'get',
     'filters' : {
-        'low_items' : {
-            'start' : 0,
-            'end' : 25
-        },'most_sold_items' : {
-            'start' : 0,
-            'end' : 25
+        'date' : {
+            'start' : str(datetime.datetime.now() - datetime.timedelta(days = 2)),
+            'end' : str(datetime.datetime.now()+ datetime.timedelta(days = 2))
         },
+        'delta' : 1
     }
 }
-sess = requests.post(base_url+'inventory/summary', headers = headers, data=json.dumps(data))
+sess = requests.post(base_url+'sales/summary', headers = headers, data=json.dumps(data))
+print("here")
 print(sess.text)

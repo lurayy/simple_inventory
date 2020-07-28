@@ -32,7 +32,7 @@ def dashboard_report(self,request):
                     if data_json['filters']['date']['from']:
                         stats = stats.filter(created_at__gte = str_to_datetime(data_json['filters']['date']['from']))
                     if data_json['filters']['date']['upto']:
-                        stats = stats.filter(created_at__gte = str_to_datetime(data_json['filters']['date']['upto']))
+                        stats = stats.filter(created_at__lte = str_to_datetime(data_json['filters']['date']['upto']))
                 for stat in stats:
                     response_json['summary']['profit'] = response_json['summary']['profit'] + stat.profit
                     response_json['summary']['revenue'] = response_json['summary']['revenue'] + stat.total_revenue

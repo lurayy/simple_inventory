@@ -38,5 +38,6 @@ urlpatterns = [
     path('tax/update', views.update_tax),
     path('tax/add', views.add_new_tax),
 
-    path('export',views.export_sales_data, name="export data related to sales")
+    path('export',views.export_sales_data, name="export data related to sales"),
+    path('summary', views.dashboard_report)
 ]

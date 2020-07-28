@@ -1,5 +1,5 @@
 from .models import Invoice, InvoiceItem, InvoiceStatus
-from inventory.models import Place, Placement, Item, PurchaseItem
+from inventory.models import Place, Placement, Item, PurchaseItem, PurchaseOrder
 from inventory.utils import str_to_datetime 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
@@ -12,8 +12,9 @@ from user_handler.models import Tax, Discount
 from user_handler.models import Customer, CustomUserBase, Tax, Discount, CustomerCategory
 from .serializers import InvoiceStatusSerializer
 from user_handler.permission_check import bind, check_permission
-
+import datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
+from django.db.models import Sum
 
 
 @require_http_methods(['POST'])
@@ -1055,3 +1056,52 @@ def export_data(data, fields):
     html = template.render(data)
     pdf = render_to_pdf('export_items_data', data)
     return pdf
+
+
+@require_http_methods(['POST'])
+@bind
+def dashboard_report(self,request):
+    response_json = {'status':False}        
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        json_str = request.body.decode(encoding='UTF-8')
+        data_json = json.loads(json_str)
+        try:
+            if data_json['action'] == "get":
+                invoice = Invoice.objects.filter(is_active = True)
+                order = PurchaseOrder.objects.filter(is_active = True)
+                delta = data_json['filters']['delta']
+                if data_json['filters']['date']['start']:
+                    start = str_to_datetime(data_json['filters']['date']['start'])
+                    invoice = invoice.filter(invoiced_on__gte = start)
+                    order = order.filter(invoiced_on__gte = start)
+                if data_json['filters']['date']['end']:
+                    end = str_to_datetime(data_json['filters']['date']['end'])
+                    invoice = invoice.filter(invoiced_on__lte = end)
+                    order = order.filter(invoiced_on__lte = end)
+                true_end = end
+                end = start
+                loop = True
+                print(invoice)
+                print(true_end.date() , end.date())
+                while loop:
+                    temp_res = {'purchase': 0, 'sales':0, 'profit':0}
+                    start = end
+                    end = end +  datetime.timedelta(days = delta)
+                    t_invoice = invoice.filter(invoiced_on__range = (start, end))
+                    t_order = order.filter(invoiced_on__range = (start, end))
+                    print("----------------------------------------------")
+                    print(t_invoice)
+                    temp_res['purchase'] = order.aggregate(Sum('bill_amount'))['bill_amount__sum']
+                    temp_res['sales'] = invoice.aggregate(Sum('bill_amount'))['bill_amount__sum']
+                    temp_res['profit'] = temp_res['sales'] - temp_res['purchase']
+                    response_json[str(start)] = temp_res
+                    print(true_end , end)
+                    if true_end.date() == end.date():
+                        loop = False
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+

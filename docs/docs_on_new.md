@@ -125,3 +125,18 @@ data =  {
 }
 ```
 - returns count of active items, total sold, list of low stock items in order and list of most sold items in order
+
+#### c. Sales
+- sales/summary
+```
+{
+    'action' : 'get',
+    'filters' : {
+        'date' : {
+            'start' : __datetime__,
+            'end' :  __datetime__)
+        },
+        'delta' : __int__     [in days]
+    }
+}
+```
