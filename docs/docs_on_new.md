@@ -114,9 +114,13 @@ data =  {
     'action' : 'get',
     'filters' : {
         'low_items' : {
-            'start' : 0,
-            'end' : 25
-        }
+            'start' : __int__,
+            'end' : __int__
+        },
+        'most_sold_items' : {
+            'start' : __int__,
+            'end' : __int__
+        },
     }
 }
 ```
