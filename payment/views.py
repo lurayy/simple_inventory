@@ -18,7 +18,10 @@ from inventory.utils import  str_to_datetime
 @require_http_methods(['POST'])
 @bind
 def add_new_gift_cards(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -47,7 +50,10 @@ def add_new_gift_cards(self, request):
 @require_http_methods(['POST'])
 @bind
 def get_multiple_gift_cards(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False, 'gift_cards':[]}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -116,7 +122,10 @@ def get_multiple_gift_cards(self, request):
 @bind
 def get_gift_card_details(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -137,7 +146,10 @@ def get_gift_card_details(self, request):
 @bind
 def delete_gift_cards(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -157,7 +169,10 @@ def delete_gift_cards(self, request):
 @bind
 def update_gift_card(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -187,7 +202,10 @@ def update_gift_card(self, request):
 @bind
 def delete_unique_cards(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -208,7 +226,10 @@ def delete_unique_cards(self, request):
 @bind
 def validate_gift_card(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -264,7 +285,10 @@ def validate_gift_card(self, request):
 @bind
 def get_payment_methods(self, request):
     response_json = {'status':'', 'payment_methods':''}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:  
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -284,7 +308,10 @@ def get_payment_methods(self, request):
 @bind
 def apply_payment(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -341,7 +368,10 @@ def apply_payment(self, request):
 @bind
 def get_gift_card_categories(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -369,7 +399,10 @@ def get_gift_card_categories(self, request):
 @bind
 def create_payment(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -442,7 +475,10 @@ def create_payment(self, request):
 @bind
 def delete_payment(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -468,7 +504,10 @@ def delete_payment(self, request):
 @bind
 def update_payment(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -493,7 +532,10 @@ def update_payment(self, request):
 @bind
 def get_payments(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -518,7 +560,10 @@ def get_payments(self, request):
 @bind
 def redeeme_gift_card(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             redeeme = None
             payment = None
@@ -633,7 +678,10 @@ def redeeme_gift_card(self, request):
 @bind
 def redeeme_history(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -675,7 +723,10 @@ def redeeme_history(self, request):
 @bind
 def add_new_gift_card_category(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -696,7 +747,10 @@ def add_new_gift_card_category(self, request):
 @bind
 def update_gift_card_category(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -720,7 +774,10 @@ def update_gift_card_category(self, request):
 @bind
 def delete_gift_card_category(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -741,7 +798,10 @@ def delete_gift_card_category(self, request):
 @bind
 def get_gift_card_category(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)

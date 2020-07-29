@@ -32,7 +32,10 @@ if 'sales' in settings.INSTALLED_APPS:
 @require_http_methods(['POST'])
 @bind
 def get_multiple_purchase_orders(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -85,7 +88,10 @@ def get_multiple_purchase_orders(self, request):
 @require_http_methods(['POST'])
 @bind
 def add_new_purchase_order(self,request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -140,7 +146,10 @@ def get_purchase_order_details(self, request):
     }
     '''
     response_json = {'status':False, 'p_order':{}, 'p_items':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -160,7 +169,10 @@ def get_purchase_order_details(self, request):
 @bind
 def update_purchase_order(self, request):
     response_json = {'status':False, 'p_order':{}, 'p_items':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -195,7 +207,10 @@ def delete_purchase_orders(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -248,7 +263,10 @@ def get_multiple_vendors(self, request):
     }
     '''
     response_json = {'status':False, 'vendors':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -276,7 +294,10 @@ def get_multiple_vendors(self, request):
 @bind
 def add_new_vendor(self, request):
     response_json = {'status':False, 'vendors':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -319,7 +340,10 @@ def delete_vendors(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -346,7 +370,10 @@ def get_vendor_details(self, request):
     
     '''
     response_json = {'status':'', 'vendors':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -366,7 +393,10 @@ def get_vendor_details(self, request):
 @bind
 def update_vendor(self, request):
     response_json = {'status':False, 'vendors':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -418,7 +448,10 @@ def get_multiple_items(self, request):
     }
     '''
     response_json = {'status':False, 'items':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -527,7 +560,10 @@ def get_multiple_items(self, request):
 def add_new_item(self, request):
     response_json = {'status':False}
     item = False
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -588,7 +624,10 @@ def get_item_details(self, request):
     }
     '''
     response_json = {'status':'', 'items':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -609,7 +648,10 @@ def get_item_details(self, request):
 @require_http_methods(['POST'])
 @bind
 def update_item(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):            
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)            
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -664,7 +706,10 @@ def delete_items(self, request):
         ]
     }
     '''
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -704,7 +749,10 @@ def get_multiple_item_catagories(self, request):
     }
     '''
     response_json = {'status':'False'}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -738,7 +786,10 @@ def get_multiple_item_catagories(self, request):
 @bind
 def add_new_item_catagory(self, request):
     response_json = {'status':'False'}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]): 
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check) 
         try:   
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -791,7 +842,10 @@ def get_item_catagory_details(self, request):
     }
     '''
     response_json = {'status':'', 'items':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -814,7 +868,10 @@ def get_item_catagory_details(self, request):
 @bind
 def update_item_category(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -849,7 +906,10 @@ def delete_item_catagories(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -888,7 +948,10 @@ def get_multiple_places(self, request):
     '''
     response_json = {'status':'False','placements':[]}
 
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -935,7 +998,10 @@ def get_multiple_places(self, request):
 @require_http_methods(['POST'])
 @bind
 def add_new_place(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -965,7 +1031,10 @@ def update_place(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -989,7 +1058,10 @@ def update_place(self, request):
 @bind
 def get_single_place(self,request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -1019,7 +1091,10 @@ def delete_places(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -1060,7 +1135,10 @@ def assign_place(self, request):
     }
     '''    
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -1096,7 +1174,10 @@ def assign_place(self, request):
 @bind
 def get_placements(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -1149,7 +1230,10 @@ def get_mulitple_purchase_items(self, request):
     }
     '''
     response_json = {'status':False, 'purchase_items':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -1212,7 +1296,10 @@ def get_mulitple_purchase_items(self, request):
 @bind
 def add_new_purchase_item(self, request):
     response_json = {'status':False, 'purchase_items':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -1275,7 +1362,10 @@ def get_purchase_item_details(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)    
@@ -1292,7 +1382,10 @@ def get_purchase_item_details(self, request):
 @require_http_methods(['POST'])
 @bind
 def update_purchase_item(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)
         try:
@@ -1341,7 +1434,10 @@ def delete_purchase_items(self, request):
         }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -1368,7 +1464,10 @@ def delete_purchase_items(self, request):
 @require_http_methods(['POST'])
 @bind
 def purchase_order_statuss(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             statuss = PurchaseOrderStatus.objects.all()
             data = []
@@ -1389,7 +1488,10 @@ def purchase_order_statuss(self, request):
 @bind
 def export_inventory(self, request):
     sensative = ['purchaseitem', 'invoiceitem', 'product_image', 'thumbnail_image', 'id', 'item_placements', 'is_active']
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             response_json = {'status':False}
             json_str = request.body.decode(encoding='UTF-8')
@@ -1497,7 +1599,10 @@ def export_data(data, fields):
 @bind
 def dashboard_report(self,request):
     response_json = {'status':False}        
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)
         try:

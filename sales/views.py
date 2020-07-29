@@ -74,7 +74,10 @@ def get_multiple_invoices(self, request):
     by invoice number,
     by status
     '''
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -132,7 +135,10 @@ def get_multiple_invoices(self, request):
 @require_http_methods(['POST'])
 @bind
 def add_new_invoice(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -182,7 +188,10 @@ def update_invoice(self, request):
 
     }
     '''
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -215,7 +224,10 @@ def update_invoice(self, request):
 @require_http_methods(['POST'])
 @bind
 def get_invoice_details(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -243,7 +255,10 @@ def delete_invoices(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -290,7 +305,10 @@ def get_multiple_customers(self, request):
         address: "lk"
     }
     '''
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -319,7 +337,10 @@ def get_multiple_customers(self, request):
 @require_http_methods(['POST'])
 @bind
 def add_new_customer(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -358,7 +379,10 @@ def delete_customers(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -402,7 +426,10 @@ def update_customer(self, request):
     }
     '''
     response_json = {'status':False, 'customers':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -433,7 +460,10 @@ def update_customer(self, request):
 @bind
 def get_customer_details(self, request):
     response_json = {'status':False, 'customers':[]}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -453,7 +483,10 @@ def get_customer_details(self, request):
 @bind
 def get_customer_categories(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try: 
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -475,7 +508,10 @@ def get_customer_categories(self, request):
 @bind
 def update_customer_categories(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try: 
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -496,7 +532,10 @@ def update_customer_categories(self, request):
 @bind
 def get_customer_category(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try: 
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -518,7 +557,10 @@ def get_customer_category(self, request):
 @bind
 def add_customer_categories(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try: 
             response_json['status'] = True
             json_str = request.body.decode(encoding='UTF-8')
@@ -538,7 +580,10 @@ def add_customer_categories(self, request):
 @bind
 def delete_customer_categories(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -582,7 +627,10 @@ def add_new_invoice_item(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -659,7 +707,10 @@ def update_invoice_item(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -717,7 +768,10 @@ def update_invoice_item(self, request):
 @bind
 def get_invoice_item_details(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)        
@@ -742,7 +796,10 @@ def delete_invoice_items(self, request):
         }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -764,7 +821,10 @@ def delete_invoice_items(self, request):
 @bind
 def get_multiple_discounts(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -803,7 +863,10 @@ def get_multiple_discounts(self, request):
 @bind
 def add_new_discount(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -828,7 +891,10 @@ def add_new_discount(self, request):
 @bind
 def update_discount(self, request):
     response_json =  {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -850,7 +916,10 @@ def update_discount(self, request):
 @bind
 def get_discount_details(self, request):
     response_json =  {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)        
@@ -870,7 +939,10 @@ def get_discount_details(self, request):
 @bind
 def delete_discount(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -891,7 +963,10 @@ def delete_discount(self, request):
 @bind
 def add_new_tax(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -914,7 +989,10 @@ def add_new_tax(self, request):
 @bind
 def get_multiple_taxes(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -955,7 +1033,10 @@ def get_multiple_taxes(self, request):
 @bind
 def update_tax(self, request):
     response_json =  {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -979,7 +1060,10 @@ def update_tax(self, request):
 @bind
 def get_tax_details(self, request):
     response_json =  {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -998,7 +1082,10 @@ def get_tax_details(self, request):
 @bind
 def delete_taxes(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -1019,7 +1106,10 @@ def delete_taxes(self, request):
 @require_http_methods(['GET'])
 @bind
 def get_invoice_status(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):    
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
         statuss = InvoiceStatus.objects.all()
         data = []
         for status in statuss:
@@ -1033,7 +1123,10 @@ def get_invoice_status(self, request):
 @require_http_methods(['POST'])
 @bind
 def export_sales_data(self, request):
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         return JsonResponse({'status':True}) 
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -1067,7 +1160,10 @@ def export_data(data, fields):
 @bind
 def dashboard_report(self,request):
     response_json = {'status':False}        
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)
         try:

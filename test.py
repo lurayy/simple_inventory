@@ -313,5 +313,6 @@ data = {
     'end' : 25,
     'filter' : 'none'
 }
-sess = requests.get(base_url+'user/settings/get', headers = headers)
+sess = requests.post(base_url+'inventory/items/get', headers = headers, data=json.dumps(data))
+# sess = requests.get(base_url+'user/settings/get', headers = headers)
 print(sess.text)

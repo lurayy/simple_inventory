@@ -139,7 +139,10 @@ def user_creation(self, request):
 @bind
 def get_multiple_user(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -256,7 +259,10 @@ def user_data(user):
 @bind
 def update_user(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -308,7 +314,10 @@ def update_user(self, request):
 @bind
 def delete_user(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -357,7 +366,10 @@ def get_current_user(request):
 @bind
 def get_multiple_roles(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -386,7 +398,10 @@ def get_multiple_roles(self, request):
 @bind
 def get_role_details(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -416,7 +431,10 @@ def get_role_details(self, request):
 @bind
 def valid_power(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -446,7 +464,10 @@ def valid_power(self, request):
 @bind
 def add_new_role(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -474,7 +495,10 @@ def add_new_role(self, request):
 @bind
 def update_role(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -504,7 +528,10 @@ def update_role(self, request):
 @bind
 def assign_role(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -525,7 +552,10 @@ def assign_role(self, request):
 @bind
 def delete_role(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -545,7 +575,10 @@ def delete_role(self, request):
 @bind
 def get_logs(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
@@ -667,14 +700,14 @@ def reset_password(request):
     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
-
-
-
 @require_http_methods(['GET'])
 @bind
 def get_settings(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         try:
             settings = Setting.objects.filter(is_active=True)[0]
             response_json['settings'] = SettingSerializer(settings).data

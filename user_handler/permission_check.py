@@ -10,8 +10,8 @@ def check_permission(f_name, token):
         user = valid_data['user']
         permissions = CustomPermissionSerializer(user.role).data
         if permissions[f_name]:
-            return True
+            return {'status':True}
         else:
             return False
-    except:
-        return False
+    except Exception as exp:
+        return ({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

@@ -27,7 +27,10 @@ def get_multiple_accounts(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -134,7 +137,10 @@ def add_new_account(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -179,7 +185,10 @@ def get_account_details(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -207,7 +216,10 @@ def get_account_details(self, request):
 @bind
 def get_transactions(self, request):
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -249,7 +261,10 @@ def delete_accounts(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
@@ -288,7 +303,10 @@ def update_account(self, request):
     }
     '''
     response_json = {'status':False}
-    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
         response_json = {'status':False}
         try:
             json_str = request.body.decode(encoding='UTF-8')
