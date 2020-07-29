@@ -202,7 +202,7 @@ def update_invoice(self, request):
                 invoice.additional_discount = float(data_json['additional_discount'])
                 invoice.total_weight = data_json['total_weight']
                 invoice.save()
-                response_json = {'status':True}
+                response_json['stauts'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -337,7 +337,7 @@ def add_new_customer(self, request):
                 )
                 customer.save()
                 response_json['customers'] = customers_to_json([customer])
-                response_json = {'status':True}
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})  
@@ -418,7 +418,7 @@ def update_customer(self, request):
                 customer.is_active = (data_json['is_active'])
                 customer.category = CustomerCategory.objects.get(id=data_json['category'])
                 customer.save()
-                response_json = {'status':True}
+                response_json['stauts'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -603,7 +603,7 @@ def add_new_invoice_item(self, request):
                 invoice_item.save()
                 invoice_item.invoice.save()
                 invoice_item.invoice.save()
-                response_json = {'status':True}
+                response_json['stauts'] = True
             if data_json['action'] == "add_multiple":
                 for invoice_item_json in data_json['invoice_items']:
                     try:
@@ -627,7 +627,7 @@ def add_new_invoice_item(self, request):
                         invoice_item.invoice.save()
                     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
                         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-                response_json = {'status':True}
+                response_json['stauts'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -681,7 +681,7 @@ def update_invoice_item(self, request):
                 invoice_item.save()
                 invoice_item.save()
                 invoice_item.invoice.save()
-                response_json = {'status':True}
+                response_json['stauts'] = True
                 return JsonResponse(response_json)
             if data_json['action'] == "update_multiple":
                 for invoice_item_json in data_json['invoice_items']:
@@ -705,7 +705,7 @@ def update_invoice_item(self, request):
                     invoice_item.save()
                     invoice_item.save()
                     invoice_item.invoice.save()
-                    response_json = {'status':True}
+                    response_json['stauts'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -813,13 +813,12 @@ def add_new_discount(self, request):
                 )
                 discount.save()
                 response_json['discounts'] = discounts_to_json([discount])
-                response_json = {'status':True}
+                response_json['stauts'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
 
 
 @require_http_methods(['POST'])
@@ -902,7 +901,7 @@ def add_new_tax(self, request):
                 )
                 tax.save()
                 response_json['taxes'] = taxes_to_json([tax])
-                response_json = {'status':True}
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
