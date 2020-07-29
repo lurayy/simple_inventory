@@ -148,6 +148,7 @@ def add_new_invoice(self, request):
                     status = InvoiceStatus.objects.get(id= data_json['invoice_status']),
                     total_amount = 0,
                     bill_amount=0,
+                    weight_unit = data_json['weight_unit'],
                     total_weight = data_json['total_weight'],
                     additional_discount= data_json['additional_discount']
                 )
@@ -201,6 +202,7 @@ def update_invoice(self, request):
                 invoice.status = InvoiceStatus.objects.get(id=data_json['status'])  
                 invoice.additional_discount = float(data_json['additional_discount'])
                 invoice.total_weight = data_json['total_weight']
+                invoice.weight_unit = data_json['weight_unit']
                 invoice.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
