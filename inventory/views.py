@@ -1525,4 +1525,3 @@ def dashboard_report(self,request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-

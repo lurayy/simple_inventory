@@ -321,3 +321,6 @@ def export_data(data):
 
 class SalesSetting(models.Model):
     default_place_to_sold_from = models.ForeignKey(Place, on_delete=models.PROTECT)
+    default_vat_tax = models.ForeignKey(Tax, on_delete=models.PROTECT)
+
+    is_active = models.BooleanField(default=True)

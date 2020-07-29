@@ -30,4 +30,6 @@ urlpatterns = [
     path('password/reset', views.reset_password ),
 
     path('current', views.get_current_user, name='get current user data'),    
+    
+    path('settings/get', views.get_settings)
 ]

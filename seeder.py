@@ -6,9 +6,9 @@ import datetime
 
 import random
 from faker import Faker
-from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount, CustomerCategory
+from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount, CustomerCategory, Setting
 from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, Item, PurchaseItem, Place, Placement
-from sales.models import Invoice, InvoiceItem, InvoiceStatus
+from sales.models import Invoice, InvoiceItem, InvoiceStatus, SalesSetting
 from payment.models import GiftCard, UniqueCard, GiftCardCategory
 from user_handler.models_permission import CustomPermission
 from payment.models import PaymentMethod
@@ -112,6 +112,11 @@ for _ in range(TAX_COUNT):
     temp.save()
     print (f'{temp} created.')
 
+vat = Tax.objects.create(
+    name = 'VAT',
+    rate = 13,
+    tax_type = 'percent'
+)
 
 print("--------------------------- Discount -------------------------")
 for _ in range(DISCOUNT_COUNT):
@@ -211,5 +216,14 @@ for order in PurchaseOrder.objects.all():
 
 from accounting.models import Account, AccountType
 
+SalesSetting.objects.create(
+    default_place_to_sold_from = Place.objects.get(name='Default'),
+    default_vat_tax = vat
+)
 
 
+Setting.objects.create(
+    default_weight_unit = "kg",
+    organization = "Mandala IT",
+    stock_low_notification_on = 10
+)

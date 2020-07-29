@@ -1,4 +1,4 @@
-from .models import Invoice, InvoiceItem, InvoiceStatus
+from .models import Invoice, InvoiceItem, InvoiceStatus, SalesSetting
 from inventory.models import Place, Placement, Item, PurchaseItem, PurchaseOrder
 from inventory.utils import str_to_datetime 
 from django.core.exceptions import ObjectDoesNotExist
@@ -918,11 +918,13 @@ def get_multiple_taxes(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            print(data_json)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
                     taxes = Tax.objects.filter(is_active=True).order_by('id')
                     response_json['count'] = len(taxes)
                     taxes = taxes[int(data_json['start']):int(data_json['end'])]
+                    response_json['default_vat'] = taxes_to_json([SalesSetting.objects.filter(is_active=True)[0].default_vat_tax])
                     response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
@@ -940,6 +942,7 @@ def get_multiple_taxes(self, request):
                             taxes = taxes.filter(rate__lte = data_json['filters']['rate_upto'])
                     response_json['count'] = len(taxes)
                     taxes = taxes[data_json['start']:data_json['end']]
+                    response_json['default_vat'] = taxes_to_json([SalesSetting.objects.filter(is_active=True)[0].default_vat_tax])
                     response_json['taxes'] = taxes_to_json(taxes)
                     response_json['status'] = True
                 return JsonResponse(response_json)

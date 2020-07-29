@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .exceptions import  EmptyValueException
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .forms import UserForm, LoginForm
-from .models import CustomUserBase, Profile, UserActivities, PasswordResetCode
+from .models import CustomUserBase, Profile, UserActivities, PasswordResetCode, Setting
 import json
 from django.middleware.csrf import get_token
 from django.contrib.auth import authenticate
@@ -19,7 +19,7 @@ from django.core.files.base import ContentFile
 import base64
 from inventory.utils import str_to_datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
-from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer
+from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer, SettingSerializer
 from .permission_check import bind, check_permission
 from .models_permission import CustomPermission
 import datetime
@@ -666,3 +666,21 @@ def reset_password(request):
         return JsonResponse({'status':True})
     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+
+
+
+
+@require_http_methods(['GET'])
+@bind
+def get_settings(self, request):
+    response_json = {'status':False}
+    if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        try:
+            settings = Setting.objects.filter(is_active=True)[0]
+            response_json['settings'] = SettingSerializer(settings).data
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})

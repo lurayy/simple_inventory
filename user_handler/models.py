@@ -128,3 +128,12 @@ class PasswordResetCode(models.Model):
 
     class Meta():
         unique_together=('code','email')
+
+
+class Setting(models.Model):
+    default_weight_unit = models.CharField(max_length=25)
+    organization = models.CharField(max_length=255)
+    stock_low_notification_on = models.PositiveIntegerField(default = 10)
+
+
+    is_active = models.BooleanField(default=True)
