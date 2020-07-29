@@ -539,7 +539,9 @@ def add_new_item(self, request):
                     description = data_json['description'],
                     weight = data_json['weight'],
                     average_cost_price = data_json['average_cost_price'],
-                    barcode = data_json['barcode']
+                    barcode = data_json['barcode'],
+                    vat_enabled = data_json['vat_enabled'],
+                    weight_unit = data_json['weight_unit']
                 )
                 item.save()
                 try:
@@ -622,6 +624,8 @@ def update_item(self, request):
                 item.sales_price = data_json['sales_price']
                 item.average_cost_price =  data_json['average_cost_price']
                 item.barcode = data_json['barcode']
+                item.vat_enabled = data_json['vat_enabled']
+                item.weight_unit = data_json['weight_unit']
                 try:
                     if (data_json['product_images']):
                         for image_data in data_json['product_images']:
