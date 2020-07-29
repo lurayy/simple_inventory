@@ -386,7 +386,7 @@ def create_payment(self, request):
                             bank_name = payment['bank_name'],
                             remarks = payment['remarks'],
                         )
-                        temp.save()                            
+                        temp.save()  
                     elif payment['purchase_order']:
                         temp = Payment.objects.create(
                             purchase_order = PurchaseOrder.objects.get(id=payment['purchase_order']),
@@ -423,7 +423,11 @@ def create_payment(self, request):
                                 handle_credit_for(credit, temp)
                     except:
                         pass
-                    payment_models.append(temp)  
+                    payment_models.append(temp)
+                    if payment['invoice']:
+                        temp.invoice.save()
+                    elif payment['purchase_order']:
+                        temp.purchase_order.save()
                 response_json['status'] = True
                 response_json['payments'] = payment_to_json(payment_models)
             return JsonResponse(response_json)
