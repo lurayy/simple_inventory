@@ -43,8 +43,8 @@ headers = {
     'authorization': 'JWT '+token
 }
 
-r = requests.get(base_url+'user/current', headers=headers)
-print(r.text)
+# r = requests.get(base_url+'user/current', headers=headers)
+# print(r.text)
 
 
 # data = {
@@ -271,48 +271,27 @@ print(r.text)
 #   'action' : 'get'
 # }
 
-# data =  {
-#   'action' : 'export',
-#   'filters' : {
-#     'name' : None,
-#     'weight' : None,
-#     'average_cost_price': {
-#       'from' : 0,
-#       'upto' : None
-#     },
-#     'stock': None,
-#     'sales_price': None,
-#     'category' : None,
-#     'sold' : None
-#   },
-#   'start': 0,
-#   'end' : 25,
-#   'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
-# }
-# sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
-# print(sess.text)
-
-# import datetime
-# data = {
-#     'action' : 'get',
-#     'filters' : {
-#         'date' : {
-#             'start' : str(datetime.datetime.now() - datetime.timedelta(days = 2)),
-#             'end' : str(datetime.datetime.now()+ datetime.timedelta(days = 2))
-#         },
-#         'delta' : 1
-#     }
-# }
-# sess = requests.post(base_url+'sales/summary', headers = headers, data=json.dumps(data))
-# print("here")
-# print(sess.text)
-
-data = {
-    'action' : 'get',
-    'start' : 0,
-    'end' : 25,
-    'filter' : 'none'
+data =  {
+  'action' : 'export',
+  'export' : 'excel',
+  'filters' : {
+    'name' : None,
+    'weight' : None,
+    'average_cost_price': {
+      'from' : 0,
+      'upto' : None
+    },
+    'stock': None,
+    'sales_price': None,
+    'category' : None,
+    'sold' : None
+  },
+  'start': 0,
+  'end' : 25,
+  'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
 }
-sess = requests.post(base_url+'inventory/items/get', headers = headers, data=json.dumps(data))
-# sess = requests.get(base_url+'user/settings/get', headers = headers)
+sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
 print(sess.text)
+
+with open('/mnt/d/file.xls', 'wb') as f:
+  f.write(sess.content)

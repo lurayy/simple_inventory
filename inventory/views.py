@@ -23,6 +23,8 @@ import cgi
 from user_handler.permission_check import bind, check_permission
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
+import xlwt
+
 from django.db.models import Sum
 
 from django.conf import settings
@@ -1546,7 +1548,8 @@ def export_inventory(self, request):
                 response_json['count'] = len(items)
                 items = items[int(data_json['start']) : int(data_json['end'])]
                 response_json['items'] = items_to_json(items)
-                # return JsonResponse(response_json)
+
+
 
                 fields = (data_json['selected_fields'])
                 selected_fields = []
@@ -1554,23 +1557,53 @@ def export_inventory(self, request):
                     if key not in sensative:
                         selected_fields.append(key)
                 data = items_to_json_with_selection(items, selected_fields)
-                pdf = export_data(data,selected_fields)
-                if pdf:
-                    response = HttpResponse(pdf, content_type='application/pdf')
-                    filename = "export_data"
-                    content = "inline; filename='%s'" %(filename)
-                    download = request.GET.get("download")
-                    if download:
-                        content = "attachment; filename='%s'" %(filename)
-                    response['Content-Disposition'] = content
+
+                if data_json['export'] == "pdf":
+                    pdf = export_data(data,selected_fields)
+                    if pdf:
+                        response = HttpResponse(pdf, content_type='application/pdf')
+                        filename = "export_data"
+                        content = "inline; filename='%s'" %(filename)
+                        download = request.GET.get("download")
+                        if download:
+                            content = "attachment; filename='%s'" %(filename)
+                        response['Content-Disposition'] = content
+                        return response
+                
+                if data_json['export'] == "excel":
+                    response = HttpResponse(content_type='application/ms-excel')
+                    response['Content-Disposition'] = 'attachment; filename="items_data.xls"'
+
+                    wb = xlwt.Workbook(encoding='utf-8')
+                    ws = wb.add_sheet('Items')
+
+                    # Sheet header, first row
+                    row_num = 0
+
+                    font_style = xlwt.XFStyle()
+                    font_style.font.bold = True
+
+                    columns = selected_fields
+
+                    for col_num in range(len(columns)):
+                        ws.write(row_num, col_num, columns[col_num], font_style)
+
+                    font_style = xlwt.XFStyle()
+
+                    rows = data
+                    for row in rows:
+                        row_num += 1
+                        for col_num in range(len(row)):
+                            ws.write(row_num, col_num, row[col_num], font_style)
+
+                    wb.save(response)
                     return response
-                return HttpResponse("Not found")
-            return JsonResponse({'status':True})
+
+            return JsonResponse({'status':False})
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
 
 
 def render_to_pdf(template_src, context_dict={}):

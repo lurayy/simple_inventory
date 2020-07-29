@@ -57,10 +57,37 @@ Solution : Add invoice
 ```
 
 ## 3. Export Items : 
+#### a. To pdf
 - /inventory/items/export
 ```
 data =  {
   'action' : 'export',
+  'export' : 'pdf',
+  'filters' : {
+    'name' : None, / __str__,
+    'weight' : None, / {
+      'from' : 0,
+      'upto' : None
+    },
+    'average_cost_price':  None / {
+      'from' : 0,
+      'upto' : None
+    },
+    'stock': None, / {'from' :  , 'upto':  }
+    'sales_price': None / {'from' :  , 'upto':  },
+    'category' : None / __id__,
+    'sold' : None / {'from' :  , 'upto':  }
+  },
+  'start': 0,
+  'end' : 25,
+  'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
+}
+```
+#### b. To excel : 
+```
+data =  {
+  'action' : 'export',
+  'export' : 'excel',
   'filters' : {
     'name' : None, / __str__,
     'weight' : None, / {
