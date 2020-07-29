@@ -134,8 +134,6 @@ class ItemImage(models.Model):
     image = models.ImageField(null = True, upload_to = image_path, blank = True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
-
-
 def qrcode_directory_path(instance, filename):
     return 'product_image/product_{0}/qrcode_{1}.jpg'.format(instance.item.name,instance.uuid)
 
