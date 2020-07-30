@@ -1647,12 +1647,12 @@ def dashboard_report(self,request):
                 items = Item.objects.filter(is_active = True)
                 response_json['summary']['active_items'] = len(items)
                 response_json['summary']['sold'] = items.aggregate(Sum('sold'))['sold__sum']
-                temp = items.filter().order_by('-stock')
+                temp = items.filter().order_by('stock')
                 response_json['summary']['low_stock_items'] = {
                     'items' : items_to_json(temp[data_json['filters']['low_items']['start']:data_json['filters']['low_items']['end']]),
                     'count' : len(temp)
                 }
-                temp = items.filter().order_by('sold')
+                temp = items.filter().order_by('-sold')
                 response_json['summary']['most_sold_items'] = {
                     'items' : items_to_json(temp[data_json['filters']['most_sold_items']['start']:data_json['filters']['most_sold_items']['end']]),
                     'count' : len(temp)
