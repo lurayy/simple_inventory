@@ -2,6 +2,7 @@ from .models import Invoice, InvoiceItem
 from user_handler.models import Customer, CustomUserBase, Setting
 from .serializers import InvoiceSerializer, InvoiceItemSerializer, CustomerSerializer, TaxSerializer, DiscountSerializer, CustomerCategorySerializer
 from inventory.models import PurchaseItem, Place, Item
+from inventory.utils import weight_conversion
 
 def invoices_to_json(models):
     data = []
