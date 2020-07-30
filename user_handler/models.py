@@ -140,5 +140,6 @@ class Setting(models.Model):
     organization = models.CharField(max_length=255)
     stock_low_notification_on = models.PositiveIntegerField(default = 10)
 
-
     is_active = models.BooleanField(default=True)
+
+    

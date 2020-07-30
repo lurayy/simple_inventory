@@ -1170,6 +1170,8 @@ def dashboard_report(self,request):
             if data_json['action'] == "get":
                 invoice = Invoice.objects.filter(is_active = True)
                 order = PurchaseOrder.objects.filter(is_active = True)
+                if len(invoice) == 0 or len(order) == 0:
+                    return JsonResponse({'status':True, 'graphdata': {}, 'msg': 'no sales or purchase data.'})
                 delta = data_json['filters']['delta']
                 if data_json['filters']['date']['start']:
                     start = str_to_datetime(data_json['filters']['date']['start'])
@@ -1182,6 +1184,7 @@ def dashboard_report(self,request):
                 true_end = end
                 end = start
                 loop = True
+                response_json['data'] = {}
                 while loop:
                     temp_res = {'purchase': 0, 'sales':0, 'profit':0}
                     start = end
@@ -1191,8 +1194,7 @@ def dashboard_report(self,request):
                     temp_res['purchase'] = order.aggregate(Sum('bill_amount'))['bill_amount__sum']
                     temp_res['sales'] = invoice.aggregate(Sum('bill_amount'))['bill_amount__sum']
                     temp_res['profit'] = temp_res['sales'] - temp_res['purchase']
-                    response_json[str(start)] = temp_res
-                    print(true_end , end)
+                    response_json['data'][str(start)] = temp_res
                     if true_end.date() == end.date():
                         loop = False
                 response_json['status'] = True
