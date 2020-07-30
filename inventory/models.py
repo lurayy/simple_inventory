@@ -129,6 +129,19 @@ class Item(models.Model):
 
 
 
+@receiver(pre_save, sender=Item)
+def item_pre_save_handler(sender, instance, *args, **kwargs):
+    if instance.weight or instance.weight_unit:
+        if instance.weight_unit == "g":
+            pass
+        elif instance.weight_unit == "kg":
+            instance.weight = instance.weight * 1000
+            instance.weight_unit = "g"
+        elif instance.weight_unit == "lb":
+            instance.weight = instance.weight * 452
+            instance.weight_unit = "g"
+        else:
+            raise Exception("Accepted weight units g [gram], kg[kilogram] and lb[pound]")
 
 def image_path(instance, filename):
     return 'product_image/product_{0}/image_{1}_{2}.jpg'.format(instance.item.name, instance.category, instance.id)
@@ -205,8 +218,6 @@ class Placement(models.Model):
             new_placement = Placement.objects.create(purchase_item=p_i, stock=0, placed_on=place)
         new_placement.stock = new_placement.stock+stock
         new_placement.save()
-        
-
 
 @receiver(pre_save, sender=Place)
 def place_pre_save_handler(sender, instance, *args, **kwargs):

@@ -1,6 +1,6 @@
 from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, ItemCatagory, PurchaseOrderStatus, ItemImage
 from django.forms.models import model_to_dict 
-from user_handler.models import Vendor, CustomUserBase
+from user_handler.models import Vendor, CustomUserBase, Setting
 from .serializers import PurchaseOrderSerializer, PurchaseItemSerializer, VendorSerializer, ItemSerializer, PlaceSerializer,ItemCatagorySerializer, PlacementSerializer, ItemImageSerializer
 import dateutil.parser
 
@@ -50,6 +50,10 @@ def items_to_json(items):
         temp = ItemSerializer(item).data
         temp['catagory_str'] = str(item.catagory)
         temp['images'] = []
+        if temp['weight']:
+            unit = Setting.objects.filter(is_active=True)[0].default_weight_unit
+            temp['weight_unit'] = unit
+            temp['weight'] = weight_conversion(temp['weight'], unit)
         for image in ItemImage.objects.filter(item = item):
             temp['images'].append(ItemImageSerializer(image).data)
         data.append(temp)
@@ -98,3 +102,13 @@ def placements_to_json(placements):
             temp['qr_code_image'] = str(placement.purchase_item.qr_code_image.url)
             data.append(temp)
     return data
+
+
+def weight_conversion(mass, to):
+    if to == "kg":
+        return (mass/1000)
+    if to == "lb":
+        return (mass/454)
+    if to == "g":
+        return mass
+    raise Exception("Default mass unit is invalid. Accepted Units. Accepted weight units g [gram], kg[kilogram] and lb[pound]")

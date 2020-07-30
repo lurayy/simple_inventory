@@ -131,7 +131,12 @@ class PasswordResetCode(models.Model):
 
 
 class Setting(models.Model):
-    default_weight_unit = models.CharField(max_length=25)
+    units = (
+        ('kg', "kg"),
+        ('g', "g"),
+        ('lb', "lb")
+    )    
+    default_weight_unit = models.CharField(max_length=25, choices=units, default='g')
     organization = models.CharField(max_length=255)
     stock_low_notification_on = models.PositiveIntegerField(default = 10)
 

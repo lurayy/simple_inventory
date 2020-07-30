@@ -20,7 +20,7 @@
 
 - Free entry is always added to the payment.amount.
 
-
+- mass is always saved in grams in database.
 
 Search filter for accounts : 
 
@@ -245,3 +245,4 @@ Search filter for accounts :
   start 
   end 
 }
+

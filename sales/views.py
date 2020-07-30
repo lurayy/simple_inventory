@@ -1202,7 +1202,6 @@ def dashboard_report(self,request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
 @require_http_methods(['GET'])
 @bind
 def get_sales_settings(self,request):
