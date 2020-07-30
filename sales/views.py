@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_http_methods
 from user_handler.models import Tax, Discount
 from user_handler.models import Customer, CustomUserBase, Tax, Discount, CustomerCategory
-from .serializers import InvoiceStatusSerializer
+from .serializers import InvoiceStatusSerializer, SalesSettingSerializer
 from user_handler.permission_check import bind, check_permission
 import datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
@@ -1182,16 +1182,12 @@ def dashboard_report(self,request):
                 true_end = end
                 end = start
                 loop = True
-                print(invoice)
-                print(true_end.date() , end.date())
                 while loop:
                     temp_res = {'purchase': 0, 'sales':0, 'profit':0}
                     start = end
                     end = end +  datetime.timedelta(days = delta)
                     t_invoice = invoice.filter(invoiced_on__range = (start, end))
                     t_order = order.filter(invoiced_on__range = (start, end))
-                    print("----------------------------------------------")
-                    print(t_invoice)
                     temp_res['purchase'] = order.aggregate(Sum('bill_amount'))['bill_amount__sum']
                     temp_res['sales'] = invoice.aggregate(Sum('bill_amount'))['bill_amount__sum']
                     temp_res['profit'] = temp_res['sales'] - temp_res['purchase']
@@ -1206,3 +1202,20 @@ def dashboard_report(self,request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+
+@require_http_methods(['GET'])
+@bind
+def get_sales_settings(self,request):
+    response_json = {'status':False}        
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            response_json['settings'] = SalesSettingSerializer(SalesSetting.objects.filter(is_active=True)[0]).data
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})

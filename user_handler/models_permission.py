@@ -91,6 +91,7 @@ class CustomPermission(models.Model):
     add_new_purchase_order = models.BooleanField(default=True)
     get_multiple_purchase_orders = models.BooleanField(default=True)
     purchase_order_statuss = models.BooleanField(default=True)
+    get_sales_settings = models.BooleanField(default=True)
     dashboard_report = models.BooleanField(default=True)
     export_sales_data = models.BooleanField(default=True)
     add_new_tax = models.BooleanField(default=True)

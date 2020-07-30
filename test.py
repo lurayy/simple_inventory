@@ -33,7 +33,6 @@ creds = {
 
 
 r = requests.post(log_in_url, data= json.dumps(creds))
-print(r.text)
 token = r.json()['token']
 r = requests.get(base_url+'user/verify')
 csrftoken = r.json()['x-csrftoken']
@@ -271,27 +270,59 @@ headers = {
 #   'action' : 'get'
 # }
 
-data =  {
-  'action' : 'export',
-  'export' : 'excel',
-  'filters' : {
-    'name' : None,
-    'weight' : None,
-    'average_cost_price': {
-      'from' : 0,
-      'upto' : None
-    },
-    'stock': None,
-    'sales_price': None,
-    'category' : None,
-    'sold' : None
-  },
-  'start': 0,
-  'end' : 25,
-  'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
-}
-sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data =  {
+#   'action' : 'export',
+#   'export' : 'excel',
+#   'filters' : {
+#     'name' : None,
+#     'weight' : None,
+#     'average_cost_price': {
+#       'from' : 0,
+#       'upto' : None
+#     },
+#     'stock': None,
+#     'sales_price': None,
+#     'category' : None,
+#     'sold' : None
+#   },
+#   'start': 0,
+#   'end' : 25,
+#   'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
+# }
+# sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
-with open('/mnt/d/file.xls', 'wb') as f:
-  f.write(sess.content)
+# with open('/mnt/d/file.xls', 'wb') as f:
+#   f.write(sess.content)
+
+data = {
+  "action": "get",
+  "filters": {
+    "date": {
+      "start": "2018-03-15T12:59:48.316Z",
+      "end": "2020-07-29T12:15:19.434Z"
+    },
+    
+  "delta": 1
+  }
+}
+
+data = {
+    'action' : 'get',
+    'filters' : {
+        'low_items' : {
+            'start' : 0,
+            'end' : 25
+        },
+        'most_sold_items' : {
+            'start' : 0,
+            'end' : 25
+        },
+    }
+}
+
+# sess = requests.post(base_url+'inventory/summary', headers=headers, data=json.dumps(data))
+# print(sess.text)
+
+sess = requests.get(base_url+'sales/settings/get', headers=headers)
+print(sess.text)

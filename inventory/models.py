@@ -128,6 +128,8 @@ class Item(models.Model):
         unique_together = ['name', 'catagory', 'sales_price']
 
 
+
+
 def image_path(instance, filename):
     return 'product_image/product_{0}/image_{1}_{2}.jpg'.format(instance.item.name, instance.category, instance.id)
 

@@ -167,3 +167,13 @@ data =  {
     }
 }
 ```
+
+
+## Get settings
+a. Sales Settings
+- [GET]
+- /sales/settings/get
+
+b. Universal Settings
+- [GET]
+- /user/settings/get

@@ -5,8 +5,6 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.db.models import signals
 import uuid
-# from payment.models import Payment
-
 from django.conf import settings
 from django.template.loader import get_template 
 from django.core.files.base import ContentFile
@@ -16,6 +14,7 @@ import cgi
 import datetime
 from io import BytesIO
 from django.http import HttpResponse
+
 
 class InvoiceStatus(models.Model):
     name = models.CharField(max_length=255)
