@@ -10,10 +10,10 @@ def invoices_to_json(models):
         temp['customer_name'] = str(Customer.objects.get(id=temp['customer']))
         temp['added_by_name'] = str(CustomUserBase.objects.get(id=temp['added_by']))
         temp['status_name'] = str(model.status.name)
-        if temp['weight']:
+        if temp['total_weight']:
             unit = Setting.objects.filter(is_active=True)[0].default_weight_unit
             temp['weight_unit'] = unit
-            temp['weight'] = weight_conversion(temp['weight'], unit)
+            temp['total_weight'] = weight_conversion(temp['total_weight'], unit)
         data.append(temp)
     return data
 

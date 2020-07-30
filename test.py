@@ -202,22 +202,24 @@ headers = {
 #   ]  
 # }
 
+# data = {
+#   'action' : 'add',
+#   'name' : 'ssssss',
+#   'weight': 0,
+#   'description' : 's',
+#   'average_cost_price' : 25,
+#   "catagory" : 1,
+#   'sales_price' : 25,
+#   'weight_unit' : 'kg',
+#   'barcode' : 12345234553,
+#   'vat_enabled' : True,
+#   'product_images' : None
+# }
+# sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
+# print(sess.text)
 data = {
-  'action' : 'add',
-  'name' : 'ssssss',
-  'weight': 0,
-  'description' : 's',
-  'average_cost_price' : 25,
-  "catagory" : 1,
-  'sales_price' : 25,
-  'weight_unit' : 'kg',
-  'barcode' : 12345234553,
-  'vat_enabled' : True,
-  'product_images' : None
+  
 }
-sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
-print(sess.text)
-
 
 
 

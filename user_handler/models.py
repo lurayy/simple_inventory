@@ -142,12 +142,23 @@ class Setting(models.Model):
 
     is_active = models.BooleanField(default=True)
 
+class NotificationSetting(models.Model):
+    model_choice = (
+        ('item', "Item"),
+        ('purchase_order', "Purchase Order"),
+        ('invoice', "Invoice")
+    )
+    model = models.CharField(max_length=25, choices=model_choice)
+    roles_to_get_notified = models.ManyToManyField(CustomPermission)
 
-class Notifications(models.Model):
-    for_role = models.ManyToManyField(CustomPermission)
+    class Meta:
+        unique_together = ('model',)
+
+class Notification(models.Model):
     msg = models.TextField()
     object_id = models.CharField(max_length=10)
-    object_type = models.CharField(max_length=255)
+    model = models.CharField(max_length=255)
+
 
 def notify(msg, object_id, object_type):
     print(msg, object_id, object_type)

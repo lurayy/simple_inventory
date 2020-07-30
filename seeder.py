@@ -46,6 +46,12 @@ permission.save()
 ## craete fake users
 fake = Faker()
 
+Setting.objects.create(
+    default_weight_unit = "kg",
+    organization = "Mandala IT",
+    stock_low_notification_on = 10
+)
+
 for _ in range(USER_COUNT):
     username = fake.last_name()
     email = fake.email()
@@ -222,9 +228,3 @@ SalesSetting.objects.create(
     default_vat_tax = vat
 )
 
-
-Setting.objects.create(
-    default_weight_unit = "kg",
-    organization = "Mandala IT",
-    stock_low_notification_on = 10
-)
