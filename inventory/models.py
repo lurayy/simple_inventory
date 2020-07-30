@@ -3,7 +3,7 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
-from user_handler.models import CustomUserBase, Vendor, Tax, Discount 
+from user_handler.models import CustomUserBase, Vendor, Tax, Discount, Setting, notify
 from django.db.models import Q
 import qrcode
 from django.core.files.base import ContentFile
@@ -127,8 +127,6 @@ class Item(models.Model):
     class Meta:
         unique_together = ['name', 'catagory', 'sales_price']
 
-
-
 @receiver(pre_save, sender=Item)
 def item_pre_save_handler(sender, instance, *args, **kwargs):
     if instance.weight or instance.weight_unit:
@@ -142,6 +140,17 @@ def item_pre_save_handler(sender, instance, *args, **kwargs):
             instance.weight_unit = "g"
         else:
             raise Exception("Accepted weight units g [gram], kg[kilogram] and lb[pound]")
+
+@receiver(post_save, sender=Item)
+def post_save_handler_item(sender, instance, created, **kwargs):
+    if instance.stock < Setting.objects.filter(is_active=True)[0].stock_low_notification_on:
+        id = instance.id
+        o_type = "Item"
+        msg = instance.name + " stock is low. Stock : "+ str(instance.stock)
+        notify(msg, id, o_type)
+
+
+
 
 def image_path(instance, filename):
     return 'product_image/product_{0}/image_{1}_{2}.jpg'.format(instance.item.name, instance.category, instance.id)
@@ -303,8 +312,6 @@ def pre_save_handler(sender, instance, *args, **kwargs):
         instance.purchase_price = instance.non_discount_price - instance.discount
     else:
         instance.purchase_price = instance.non_discount_price - instance.non_discount_price*instance.discount/100
-    
-        
 
 @receiver(post_save, sender=PurchaseItem)
 def post_save_handler(sender, instance, created, **kwargs):

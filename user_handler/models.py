@@ -142,4 +142,12 @@ class Setting(models.Model):
 
     is_active = models.BooleanField(default=True)
 
-    
+
+class Notifications(models.Model):
+    for_role = models.ManyToManyField(CustomPermission)
+    msg = models.TextField()
+    object_id = models.CharField(max_length=10)
+    object_type = models.CharField(max_length=255)
+
+def notify(msg, object_id, object_type):
+    print(msg, object_id, object_type)

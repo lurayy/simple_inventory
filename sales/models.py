@@ -144,14 +144,14 @@ def tranction_handler(sender, instance, **kwargs):
         instance.discount_total = instance.discount_total + invoice_item.discount_amount
         instance.tax_total = instance.tax_total + invoice_item.tax_total
     instance.bill_amount = instance.total_amount - instance.additional_discount
-    if instance.weight or instance.weight_unit:
+    if instance.total_weight or instance.weight_unit:
         if instance.weight_unit == "g":
             pass
         elif instance.weight_unit == "kg":
-            instance.weight = instance.weight * 1000
+            instance.total_weight = instance.total_weight * 1000
             instance.weight_unit = "g"
         elif instance.weight_unit == "lb":
-            instance.weight = instance.weight * 452
+            instance.total_weight = instance.total_weight * 452
             instance.weight_unit = "g"
         else:
             raise Exception("Accepted weight units g [gram], kg[kilogram] and lb[pound]")
