@@ -1,5 +1,5 @@
 from .models import Invoice, InvoiceItem 
-from user_handler.models import Customer, CustomUserBase
+from user_handler.models import Customer, CustomUserBase, Setting
 from .serializers import InvoiceSerializer, InvoiceItemSerializer, CustomerSerializer, TaxSerializer, DiscountSerializer, CustomerCategorySerializer
 from inventory.models import PurchaseItem, Place, Item
 
@@ -10,6 +10,10 @@ def invoices_to_json(models):
         temp['customer_name'] = str(Customer.objects.get(id=temp['customer']))
         temp['added_by_name'] = str(CustomUserBase.objects.get(id=temp['added_by']))
         temp['status_name'] = str(model.status.name)
+        if temp['weight']:
+            unit = Setting.objects.filter(is_active=True)[0].default_weight_unit
+            temp['weight_unit'] = unit
+            temp['weight'] = weight_conversion(temp['weight'], unit)
         data.append(temp)
     return data
 
