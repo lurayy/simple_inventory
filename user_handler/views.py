@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .exceptions import  EmptyValueException
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .forms import UserForm, LoginForm
-from .models import CustomUserBase, Profile, UserActivities, PasswordResetCode, Setting
+from .models import CustomUserBase, Profile, UserActivities, PasswordResetCode, Setting, Notification, NotificationSetting
 import json
 from django.middleware.csrf import get_token
 from django.contrib.auth import authenticate
@@ -712,6 +712,27 @@ def get_settings(self, request):
             settings = Setting.objects.filter(is_active=True)[0]
             response_json['settings'] = SettingSerializer(settings).data
             response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['GET'])
+@bind
+def get_notifications(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+            setting = NotificationSetting.objects.filter(is_active = True)[0]
+            
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

@@ -153,12 +153,30 @@ class NotificationSetting(models.Model):
 
     class Meta:
         unique_together = ('model',)
+    
+    def __str__(self):
+        return f'{self.model}'
 
 class Notification(models.Model):
     msg = models.TextField()
     object_id = models.CharField(max_length=10)
     model = models.CharField(max_length=255)
 
+    read = models.BooleanField(default=False)
+    date = models.DateTimeField(auto_now=True)
+    
 
-def notify(msg, object_id, object_type):
-    print(msg, object_id, object_type)
+def notify(msg, object_id, model):
+    try:
+        notify = Notification.objects.get(
+            object_id = object_id, model = model
+        )
+        notify.delete()
+    except:
+        pass
+    Notification.objects.create(
+        msg = msg,
+        object_id = object_id,
+        model = model
+    )
+    print(msg, object_id, model)

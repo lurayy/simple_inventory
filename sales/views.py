@@ -15,6 +15,7 @@ from user_handler.permission_check import bind, check_permission
 import datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from django.db.models import Sum
+from inventory.utils import weight_conversion
 
 
 @require_http_methods(['POST'])

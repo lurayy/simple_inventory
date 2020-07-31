@@ -12,6 +12,8 @@ from django.views.decorators.http import require_http_methods
 from .models import MonthlyStats
 from inventory.utils import str_to_datetime
 from user_handler.permission_check import bind, check_permission
+import datetime
+import dateutil.relativedelta
 
 @require_http_methods(['POST'])
 @bind
@@ -22,21 +24,58 @@ def dashboard_report(self,request):
         data_json = json.loads(json_str)
         try:
             response_json['summary'] = {
-                'profit' : 0,
-                'revenue' : 0,
-                'expense' : 0
+                'total_profit' : 0,
+                'total_revenue' : 0,
+                'total_expense' : 0,
+                'data' : {}
             }
             if data_json['action'] == "get":
                 stats = MonthlyStats.objects.filter()
                 if data_json['filters']['date']:
                     if data_json['filters']['date']['from']:
-                        stats = stats.filter(created_at__gte = str_to_datetime(data_json['filters']['date']['from']))
+                        stats = stats.filter(date__gte = str_to_datetime(data_json['filters']['date']['from']))
                     if data_json['filters']['date']['upto']:
-                        stats = stats.filter(created_at__lte = str_to_datetime(data_json['filters']['date']['upto']))
+                        stats = stats.filter(date__lte = str_to_datetime(data_json['filters']['date']['upto']))
                 for stat in stats:
-                    response_json['summary']['profit'] = response_json['summary']['profit'] + stat.profit
-                    response_json['summary']['revenue'] = response_json['summary']['revenue'] + stat.total_revenue
-                    response_json['summary']['expense'] = response_json['summary']['expense'] + stat.total_expense
+                    try:
+                        old = stat.date - dateutil.relativedelta.relativedelta(months=1)
+                        old_stat = MonthlyStats.objects.get( date__month = old.month, date__year = old.year)
+                        old_profit = old_stat.profit
+                        old_revenue = old_stat.total_revenue
+                        old_expense = old_stat.total_expense
+                    except:
+                        old_profit = 0
+                        old_revenue = 0
+                        old_expense = 0
+                    response_json['summary']['data'][str(stat.date.date())] = {
+                        'profit' : stat.profit,
+                        'revenue' : stat.total_revenue,
+                        'expense' : stat.total_expense,
+                    }
+                    if stat.profit != 0 and old_profit != 0:
+                        response_json['summary']['data'][str(stat.date.date())]['profit_increase'] = (stat.profit - old_profit) /old_profit * 100
+                    elif stat.profit == 0:
+                        response_json['summary']['data'][str(stat.date.date())]['profit_increase'] = 0
+                    elif old_profit == 0:
+                        response_json['summary']['data'][str(stat.date.date())]['profit_increase'] = stat.profit
+                    
+                    if stat.total_revenue != 0 and old_revenue != 0:
+                        response_json['summary']['data'][str(stat.date.date())]['revenue_increase'] = (stat.total_revenue - old_revenue) /old_revenue * 100
+                    elif stat.total_revenue == 0:
+                        response_json['summary']['data'][str(stat.date.date())]['revenue_increase'] = 0
+                    elif old_revenue == 0:
+                        response_json['summary']['data'][str(stat.date.date())]['revenue_increase'] = stat.total_revenue
+                    
+                    if stat.total_expense != 0 and old_expense != 0:
+                        response_json['summary']['data'][str(stat.date.date())]['expense_increase'] = (stat.total_expense - old_expense) /old_expense * 100
+                    elif stat.total_expense == 0:
+                        response_json['summary']['data'][str(stat.date.date())]['expense_increase'] = 0
+                    elif old_expense == 0:
+                        response_json['summary']['data'][str(stat.date.date())]['expense_increase'] = stat.total_expense
+                    
+                    response_json['summary']['total_profit'] = response_json['summary']['total_profit'] + stat.profit
+                    response_json['summary']['total_revenue'] = response_json['summary']['total_revenue'] + stat.total_revenue
+                    response_json['summary']['total_expense'] = response_json['summary']['total_expense'] + stat.total_expense
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:

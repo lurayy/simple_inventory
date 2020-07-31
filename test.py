@@ -1,8 +1,8 @@
 import requests
 import json
-
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = "https://simpleim.herokuapp.com/api/v1/"
+import datetime
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = "https://simpleim.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # data = {
@@ -218,10 +218,17 @@ headers = {
 # sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
 # print(sess.text)
 data = {
-  
+    'action' : 'get',
+    'filters' : {
+        'date' : {
+            'from' : str(datetime.datetime.now() - datetime.timedelta(days = 90)),
+            'upto' : str(datetime.datetime.now() + datetime.timedelta(days = 90))
+        }
+    }
 }
-
-
+print(data)
+sess = requests.post(base_url+'accounting/summary', headers=headers, data=json.dumps(data))
+print(sess.text)
 
 # data = {
 #   'code' : 'FX522',

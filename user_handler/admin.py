@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Tax, Discount
 # Register your models here.
 from .models_permission import CustomPermission
-from .models import Profile,  UserActivities, PasswordResetCode, Setting
+from .models import Profile,  UserActivities, PasswordResetCode, Setting, Notification, NotificationSetting
 
 admin.site.register(Setting)
 
@@ -16,3 +16,7 @@ admin.site.register(UserActivities)
 admin.site.register(CustomPermission)
 
 admin.site.register(PasswordResetCode)
+
+
+admin.site.register(NotificationSetting)
+admin.site.register(Notification)
