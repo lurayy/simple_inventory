@@ -997,7 +997,6 @@ def get_multiple_taxes(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            print(data_json)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
                     taxes = Tax.objects.filter(is_active=True).order_by('id')
@@ -1174,10 +1173,12 @@ def dashboard_report(self,request):
                 delta = data_json['filters']['delta']
                 if data_json['filters']['date']['start']:
                     start = str_to_datetime(data_json['filters']['date']['start'])
+                    start = start.date()
                     invoice = invoice.filter(invoiced_on__gte = start)
                     order = order.filter(invoiced_on__gte = start)
                 if data_json['filters']['date']['end']:
                     end = str_to_datetime(data_json['filters']['date']['end'])
+                    end = end.date()
                     invoice = invoice.filter(invoiced_on__lte = end)
                     order = order.filter(invoiced_on__lte = end)
                 true_end = end
@@ -1188,9 +1189,8 @@ def dashboard_report(self,request):
                     temp_res = {'purchase': 0, 'sales':0, 'profit':0}
                     start = end
                     end = end + dateutil.relativedelta.relativedelta(days=delta)
-                    t_invoice = invoice.filter(invoiced_on__range = (start, end))
-                    t_order = order.filter(invoiced_on__range = (start, end))
-                    print(start, order, invoice)
+                    t_invoice = invoice.filter(invoiced_on__date__range = (start, end))
+                    t_order = order.filter(invoiced_on__date__range = (start, end))
                     if len(order) != 0:
                         temp_res['purchase'] = order.aggregate(Sum('bill_amount'))['bill_amount__sum']
                     else:
@@ -1201,8 +1201,7 @@ def dashboard_report(self,request):
                         temp_res['sales'] = 0
                     temp_res['profit'] = temp_res['sales'] - temp_res['purchase']
                     response_json['data'][str(start)] = temp_res
-                    print(start)
-                    if true_end.date() <= end.date():
+                    if true_end <= end:
                         loop = False
                 response_json['status'] = True
             return JsonResponse(response_json)
