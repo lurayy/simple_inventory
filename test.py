@@ -322,17 +322,17 @@ print(sess.text)
 # with open('/mnt/d/file.xls', 'wb') as f:
 #   f.write(sess.content)
 
-# data = {
-#   "action": "get",
-#   "filters": {
-#     "date": {
-#       "start": "2018-03-15T12:59:48.316Z",
-#       "end": "2020-07-29T12:15:19.434Z"
-#     },
+data = {
+  "action": "get",
+  "filters": {
+    "date": {
+      "start": "2018-03-15T12:59:48.316Z",
+      "end": "2020-07-29T12:15:19.434Z"
+    },
     
-#   "delta": 1
-#   }
-# }
+  "delta": 1
+  }
+}
 
 # data = {
 #     'action' : 'get',
@@ -348,8 +348,8 @@ print(sess.text)
 #     }
 # }
 
-# sess = requests.post(base_url+'inventory/summary', headers=headers, data=json.dumps(data))
-# print(sess.text)
+sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
+print(sess.text)
 
 # sess = requests.get(base_url+'sales/settings/get', headers=headers)
 # print(sess.text)
