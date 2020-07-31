@@ -1,6 +1,6 @@
 from .models_permission import CustomPermission
 from rest_framework import serializers
-from .models import Profile, UserActivities, Setting
+from .models import Profile, UserActivities, Setting, Notification, NotificationSetting
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -28,3 +28,10 @@ class SettingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Setting
         exclude = ('id',)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Notification
+        fields = '__all__'

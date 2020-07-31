@@ -19,7 +19,7 @@ from django.core.files.base import ContentFile
 import base64
 from inventory.utils import str_to_datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
-from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer, SettingSerializer
+from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer, SettingSerializer, NotificationSerializer
 from .permission_check import bind, check_permission
 from .models_permission import CustomPermission
 import datetime
@@ -419,7 +419,6 @@ def get_role_details(self, request):
                         }
                     )
                 response_json['status'] = True
-            print(response_json)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -644,7 +643,6 @@ def forget_password(request):
         except:
             pass
         code = create_unique_code(request, email)
-        print(code)
         send_email(code, email)
         return JsonResponse({'status': True, 'msg': 'A code has been sent to your email. Please use the code to login.'})
     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -719,7 +717,7 @@ def get_settings(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-@require_http_methods(['GET'])
+@require_http_methods(['POST'])
 @bind
 def get_notifications(self, request):
     response_json = {'status':False}
@@ -728,13 +726,48 @@ def get_notifications(self, request):
         if not jwt_check['status']:
             return JsonResponse(jwt_check)
         try:
-            data = {'token':request.headers['Authorization'].split(' ')[1]}
-            valid_data = VerifyJSONWebTokenSerializer().validate(data)
-            user = valid_data['user']
-            setting = NotificationSetting.objects.filter(is_active = True)[0]
-            
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']
+                response_json['notifications'] = []
+                settings = NotificationSetting.objects.filter(roles_to_get_notified = user.role)
+                notifications = []
+                for setting in settings:
+                    for x in (Notification.objects.filter(model = setting.model, read = False)):
+                        notifications.append(x)
+                notifications = notifications[data_json['start']:data_json['end']]
+                for notification in notifications:
+                    response_json['notifications'].append(NotificationSerializer(notification).data)
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+@require_http_methods(['GET'])
+@bind
+def read_notification(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == 'read':
+                notification = Notification.objects.get(id = data_json['notification_id'])
+                notification.read = True
+                notification.save()
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+        

@@ -6,7 +6,7 @@ import datetime
 
 import random
 from faker import Faker
-from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount, CustomerCategory, Setting
+from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount, CustomerCategory, Setting, NotificationSetting
 from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, Item, PurchaseItem, Place, Placement
 from sales.models import Invoice, InvoiceItem, InvoiceStatus, SalesSetting
 from payment.models import GiftCard, UniqueCard, GiftCardCategory
@@ -228,3 +228,8 @@ SalesSetting.objects.create(
     default_vat_tax = vat
 )
 
+
+x  = NotificationSetting.objects.create(
+    model = 'item'
+)
+x.roles_to_get_notified.add(user.role)

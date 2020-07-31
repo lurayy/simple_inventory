@@ -217,17 +217,26 @@ headers = {
 # }
 # sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
 # print(sess.text)
+# data = {
+#     'action' : 'get',
+#     'filters' : {
+#         'date' : {
+#             'from' : str(datetime.datetime.now() - datetime.timedelta(days = 90)),
+#             'upto' : str(datetime.datetime.now() + datetime.timedelta(days = 90))
+#         }
+#     }
+# }
+# print(data)
+# sess = requests.post(base_url+'accounting/summary', headers=headers, data=json.dumps(data))
+# print(sess.text)
+
 data = {
     'action' : 'get',
-    'filters' : {
-        'date' : {
-            'from' : str(datetime.datetime.now() - datetime.timedelta(days = 90)),
-            'upto' : str(datetime.datetime.now() + datetime.timedelta(days = 90))
-        }
-    }
+    'start' :0,
+    'end' :10
 }
-print(data)
-sess = requests.post(base_url+'accounting/summary', headers=headers, data=json.dumps(data))
+
+sess = requests.post(base_url + 'user/notifications/get', headers=headers, data=json.dumps(data))
 print(sess.text)
 
 # data = {

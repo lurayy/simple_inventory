@@ -159,7 +159,7 @@ class NotificationSetting(models.Model):
 
 class Notification(models.Model):
     msg = models.TextField()
-    object_id = models.CharField(max_length=10)
+    object_id = models.CharField(max_length=25)
     model = models.CharField(max_length=255)
 
     read = models.BooleanField(default=False)
@@ -169,7 +169,7 @@ class Notification(models.Model):
 def notify(msg, object_id, model):
     try:
         notify = Notification.objects.get(
-            object_id = object_id, model = model
+            object_id = object_id, model = str(model).lower()
         )
         notify.delete()
     except:
@@ -177,6 +177,6 @@ def notify(msg, object_id, model):
     Notification.objects.create(
         msg = msg,
         object_id = object_id,
-        model = model
+        model = str(model).lower()
     )
     print(msg, object_id, model)
