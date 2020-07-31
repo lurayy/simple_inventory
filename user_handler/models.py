@@ -4,6 +4,14 @@ from django.contrib.auth.models import AbstractUser
 from django.dispatch import receiver
 from .models_permission import CustomPermission
 import random
+from django.core.mail import send_mail
+from django.template.loader import get_template 
+from django.template import Context
+import datetime
+from io import BytesIO
+from django.http import HttpResponse
+import xhtml2pdf.pisa as pisa
+from django.conf import settings
 
 class CustomUserBase(AbstractUser):
     '''Base Custom UserClass'''
@@ -179,4 +187,41 @@ def notify(msg, object_id, model):
         object_id = object_id,
         model = str(model).lower()
     )
-    print(msg, object_id, model)
+    data = {
+        'msg' : msg,
+        'id' : object_id,
+        'model' : model
+    }
+    roles = NotificationSetting.objects.get(model = str(model).lower()).roles_to_get_notified.all()
+    for role in roles:
+        users = CustomUserBase.objects.filter(role = role)
+        for user in users:
+            response = export_data(data)
+            res = send_mail("Email Notification", "Some Generic Msg", settings.EMAIL_HOST_USER, [user.email], html_message=response['html'])
+            if res:
+                print("Notification sent through email.")
+            else:
+                print("Notification cannot be sent through email.")
+
+
+
+
+def render_to_pdf(template_src, context_dict={}):
+    template = get_template('notification.html')
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return {'pdf' : HttpResponse(result.getvalue(), content_type='application/pdf'), 'html': html}
+    return None
+
+
+def export_data(data):
+    template = get_template('notification.html')
+    data = {
+        'today': datetime.date.today(),
+        'data': data
+    }
+    html = template.render(data)
+    pdf = render_to_pdf('notification', data)
+    return pdf

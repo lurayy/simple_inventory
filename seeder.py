@@ -74,6 +74,13 @@ for x in range(2):
     temp.save()
 
 
+
+x  = NotificationSetting.objects.create(
+    model = 'item'
+)
+x.roles_to_get_notified.add(user.role)
+
+
 print("--------------------------- Vendors -------------------------")
 ## Vendors 
 for _ in range(VENDOR_COUNT-1):
@@ -227,9 +234,3 @@ SalesSetting.objects.create(
     default_place_to_sold_from = Place.objects.get(name='Default'),
     default_vat_tax = vat
 )
-
-
-x  = NotificationSetting.objects.create(
-    model = 'item'
-)
-x.roles_to_get_notified.add(user.role)
