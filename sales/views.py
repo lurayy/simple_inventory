@@ -1171,7 +1171,7 @@ def dashboard_report(self,request):
             if data_json['action'] == "get":
                 invoice = Invoice.objects.filter(is_active = True)
                 order = PurchaseOrder.objects.filter(is_active = True)
-                if len(invoice) == 0 or len(order) == 0:
+                if len(invoice) == 0 and len(order) == 0:
                     return JsonResponse({'status':True, 'data': {'purchase':0,'sales':0, 'profit':0}, 'msg': 'no sales or purchase data.'})
                 delta = data_json['filters']['delta']
                 if data_json['filters']['date']['start']:
@@ -1185,7 +1185,7 @@ def dashboard_report(self,request):
                 true_end = end
                 end = start
                 loop = True
-                if len(invoice) == 0 or len(order) == 0:
+                if len(invoice) == 0 and len(order) == 0:
                     return JsonResponse({'status':True, 'data': {'purchase':0,'sales':0, 'profit':0}, 'msg': 'no sales or purchase data.'})
                 response_json['data'] = {}
                 while loop:
@@ -1194,8 +1194,14 @@ def dashboard_report(self,request):
                     end = end +  datetime.timedelta(days = delta)
                     t_invoice = invoice.filter(invoiced_on__range = (start, end))
                     t_order = order.filter(invoiced_on__range = (start, end))
-                    temp_res['purchase'] = order.aggregate(Sum('bill_amount'))['bill_amount__sum']
-                    temp_res['sales'] = invoice.aggregate(Sum('bill_amount'))['bill_amount__sum']
+                    if len(order) != 0:
+                        temp_res['purchase'] = order.aggregate(Sum('bill_amount'))['bill_amount__sum']
+                    else:
+                        temp_res['purchase'] = 0
+                    if len(invoice) !=0:
+                        temp_res['sales'] = invoice.aggregate(Sum('bill_amount'))['bill_amount__sum']
+                    else:
+                        temp_res['sales'] = 0
                     temp_res['profit'] = temp_res['sales'] - temp_res['purchase']
                     response_json['data'][str(start)] = temp_res
                     if true_end.date() <= end.date():
