@@ -736,7 +736,7 @@ def get_notifications(self, request):
                 settings = NotificationSetting.objects.filter(roles_to_get_notified = user.role)
                 notifications = []
                 for setting in settings:
-                    for x in (Notification.objects.filter(model = setting.model, read = False)):
+                    for x in (Notification.objects.filter(model = setting.model, read = data_json['read'])):
                         notifications.append(x)
                 notifications = notifications[data_json['start']:data_json['end']]
                 for notification in notifications:

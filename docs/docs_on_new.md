@@ -177,3 +177,25 @@ a. Sales Settings
 b. Universal Settings
 - [GET]
 - /user/settings/get
+
+## Notification : 
+
+1. GET : 
+- user/notifications/get
+```
+{
+  action : get,
+  start : 
+  end : 
+  read : __bool__
+}
+```
+
+2. Read:
+- user/notifications/read
+```
+{
+  action : read,
+  notification_id : __id__
+}
+```
