@@ -1,8 +1,8 @@
 import requests
 import json
 import datetime
-base_url = 'http://localhost:8000/api/v1/'
-# base_url = "https://simpleim.herokuapp.com/api/v1/"
+# base_url = 'http://localhost:8000/api/v1/'
+base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # data = {
@@ -33,6 +33,7 @@ creds = {
 
 
 r = requests.post(log_in_url, data= json.dumps(creds))
+print(r.text)
 token = r.json()['token']
 r = requests.get(base_url+'user/verify')
 csrftoken = r.json()['x-csrftoken']
@@ -42,8 +43,8 @@ headers = {
     'authorization': 'JWT '+token
 }
 
-# r = requests.get(base_url+'user/current', headers=headers)
-# print(r.text)
+r = requests.get(base_url+'user/current', headers=headers)
+print(r.text)
 
 
 # data = {

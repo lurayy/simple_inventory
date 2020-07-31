@@ -13,14 +13,14 @@ from payment.models import GiftCard, UniqueCard, GiftCardCategory
 from user_handler.models_permission import CustomPermission
 from payment.models import PaymentMethod
 
-USER_COUNT = 2
+USER_COUNT = 0
 VENDOR_COUNT = 5
 CUSTOMER_COUNT = 10
 TAX_COUNT = 5
 DISCOUNT_COUNT = 5
 
 ITEM_CATAGORY_COUNT = 4
-ITEM_COUNT = 8
+ITEM_COUNT = 2
 
 PLACE_COUNT = 5
 GIFT_CARD_COUNT = 10
