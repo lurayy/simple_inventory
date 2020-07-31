@@ -1,8 +1,8 @@
 import requests
 import json
 import datetime
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = "https://simpleim.herokuapp.com/api/v1/"
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = "https://simpleim.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # data = {
@@ -230,15 +230,15 @@ headers = {
 # sess = requests.post(base_url+'accounting/summary', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
-data = {
-    'action' : 'get',
-    'start' :0,
-    'end' :10,
-    'read' :False
-}
+# data = {
+#     'action' : 'get',
+#     'start' :0,
+#     'end' :10,
+#     'read' :False
+# }
 
-sess = requests.post(base_url + 'user/notifications/get', headers=headers, data=json.dumps(data))
-print(sess.text)
+# sess = requests.post(base_url + 'user/notifications/get', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # data = {
 #   'code' : 'FX522',

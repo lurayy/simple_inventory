@@ -16,7 +16,7 @@ import datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from django.db.models import Sum
 from inventory.utils import weight_conversion
-
+import dateutil
 
 @require_http_methods(['POST'])
 @bind
@@ -1171,8 +1171,6 @@ def dashboard_report(self,request):
             if data_json['action'] == "get":
                 invoice = Invoice.objects.filter(is_active = True)
                 order = PurchaseOrder.objects.filter(is_active = True)
-                if len(invoice) == 0 and len(order) == 0:
-                    return JsonResponse({'status':True, 'data': {'purchase':0,'sales':0, 'profit':0}, 'msg': 'no sales or purchase data.'})
                 delta = data_json['filters']['delta']
                 if data_json['filters']['date']['start']:
                     start = str_to_datetime(data_json['filters']['date']['start'])
@@ -1185,13 +1183,11 @@ def dashboard_report(self,request):
                 true_end = end
                 end = start
                 loop = True
-                if len(invoice) == 0 and len(order) == 0:
-                    return JsonResponse({'status':True, 'data': {'purchase':0,'sales':0, 'profit':0}, 'msg': 'no sales or purchase data.'})
                 response_json['data'] = {}
                 while loop:
                     temp_res = {'purchase': 0, 'sales':0, 'profit':0}
                     start = end
-                    end = end +  datetime.timedelta(days = delta)
+                    end = end + dateutil.relativedelta.relativedelta(days=delta)
                     t_invoice = invoice.filter(invoiced_on__range = (start, end))
                     t_order = order.filter(invoiced_on__range = (start, end))
                     if len(order) != 0:
