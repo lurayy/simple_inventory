@@ -230,14 +230,17 @@ class Placement(models.Model):
 
 @receiver(pre_save, sender=Place)
 def place_pre_save_handler(sender, instance, *args, **kwargs):
-    if instance.id:
-        if (instance.is_default) and instance.id != Place.objects.get(is_default=True).id:
-            if len(Place.objects.filter(is_default=True))>=1:
-                raise Exception("Default place for unassigned items already exsists.")
-    else:
-        if (instance.is_default):
-            if len(Place.objects.filter(is_default=True))>=1:
-                raise Exception("Default place for unassigned items already exsists.")
+    try:
+        if instance.id:
+            if (instance.is_default) and instance.id != Place.objects.get(is_default=True).id:
+                if len(Place.objects.filter(is_default=True))>=1:
+                    raise Exception("Default place for unassigned items already exsists.")
+        else:
+            if (instance.is_default):
+                if len(Place.objects.filter(is_default=True))>=1:
+                    raise Exception("Default place for unassigned items already exsists.")
+    except:
+        pass
 
 
 @receiver(pre_save, sender=Placement)
