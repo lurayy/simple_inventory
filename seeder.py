@@ -73,13 +73,10 @@ for x in range(2):
     )
     temp.save()
 
-
-
 x  = NotificationSetting.objects.create(
     model = 'item'
 )
 x.roles_to_get_notified.add(user.role)
-
 
 print("--------------------------- Vendors -------------------------")
 ## Vendors 
