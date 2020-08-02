@@ -152,7 +152,7 @@ def add_new_invoice(self, request):
                     customer = Customer.objects.get(id=int(data_json['customer'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     due_on = str_to_datetime(data_json['due_on']),
-                    status = InvoiceStatus.objects.get(id= data_json['invoice_status']),
+                    status = InvoiceStatus.objects.filter(is_sold = False)[0],
                     total_amount = 0,
                     bill_amount=0,
                     weight_unit = data_json['weight_unit'],
