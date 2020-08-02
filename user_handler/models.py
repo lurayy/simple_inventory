@@ -157,7 +157,7 @@ class NotificationSetting(models.Model):
         ('invoice', "Invoice")
     )
     model = models.CharField(max_length=25, choices=model_choice)
-    roles_to_get_notified = models.ManyToManyField(CustomPermission)
+    roles_to_get_notified = models.ManyToManyField(CustomPermission, blank=True)
 
     class Meta:
         unique_together = ('model',)
@@ -192,16 +192,19 @@ def notify(msg, object_id, model):
         'id' : object_id,
         'model' : model
     }
-    roles = NotificationSetting.objects.get(model = str(model).lower()).roles_to_get_notified.all()
-    for role in roles:
-        users = CustomUserBase.objects.filter(role = role)
-        for user in users:
-            response = export_data(data)
-            res = send_mail("Email Notification", "Some Generic Msg", settings.EMAIL_HOST_USER, [user.email], html_message=response['html'])
-            if res:
-                print("Notification sent through email.")
-            else:
-                print("Notification cannot be sent through email.")
+    try:
+        roles = NotificationSetting.objects.get(model = str(model).lower()).roles_to_get_notified.all()
+        for role in roles:
+            users = CustomUserBase.objects.filter(role = role)
+            for user in users:
+                response = export_data(data)
+                res = send_mail("Email Notification", "Some Generic Msg", settings.EMAIL_HOST_USER, [user.email], html_message=response['html'])
+                if res:
+                    print("Notification sent through email.")
+                else:
+                    print("Notification cannot be sent through email.")
+    except:
+        print("Notification settings has not been setup.")
 
 
 

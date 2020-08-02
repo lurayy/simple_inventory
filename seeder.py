@@ -39,6 +39,7 @@ INVOICE_ITEM_COUNT = 10
 Faker.seed(22506)
 
 permission = CustomPermission.objects.create(
+    id = 1,
     name="super_role"
 )
 permission.save()
@@ -52,6 +53,7 @@ Setting.objects.create(
     stock_low_notification_on = 10
 )
 
+print("________________________________ USER________________________")
 for _ in range(USER_COUNT):
     username = fake.last_name()
     email = fake.email()
@@ -61,7 +63,7 @@ for _ in range(USER_COUNT):
     user.last_name = fake.last_name()
     user.role = permission
     user.save()
-
+print('____________user___________________')
 users = CustomUserBase.objects.all()
 for user in users:
     print(str(user))
@@ -73,10 +75,11 @@ for x in range(2):
     )
     temp.save()
 
-x  = NotificationSetting.objects.create(
-    model = 'item'
-)
-x.roles_to_get_notified.add(user.role)
+print('____________user___________________')
+# x  = NotificationSetting.objects.create(
+#     model = 'item'
+# )
+# x.roles_to_get_notified.add(user.role)
 
 print("--------------------------- Vendors -------------------------")
 ## Vendors 
