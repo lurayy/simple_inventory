@@ -1157,6 +1157,7 @@ def export_data(data, fields):
     return pdf
 
 
+
 @require_http_methods(['POST'])
 @bind
 def dashboard_report(self,request):
