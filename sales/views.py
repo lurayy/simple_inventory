@@ -356,9 +356,10 @@ def add_new_customer(self, request):
                     tax_number = str(data_json['tax_number']),
                     phone1 = str(data_json['phone1']),
                     phone2 = str(data_json['phone2']),
-                    address = str(data_json['address']),
-                    category = CustomerCategory.objects.get(id=data_json['category'])
+                    address = str(data_json['address'])
                 )
+                if data_json['category']:
+                    category = CustomerCategory.objects.get(id=data_json['category'])
                 customer.save()
                 response_json['customers'] = customers_to_json([customer])
                 response_json['status'] = True
