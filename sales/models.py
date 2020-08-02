@@ -158,9 +158,9 @@ def tranction_handler(sender, instance, **kwargs):
 
 
 
-@receiver(post_save, sender=Invoice)
-def invoice_post_handler(sender, instance, **kwargs):
-    send_update_invoice(instance)
+# @receiver(post_save, sender=Invoice)
+# def invoice_post_handler(sender, instance, **kwargs):
+#     send_update_invoice(instance)
 
 # @receiver(post_save, sender=InvoiceItem)
 # def invoice_item_handler(sender, instance, **kwargs):
