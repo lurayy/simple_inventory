@@ -310,13 +310,13 @@ def payemnt_entry_to_system(account, payment):
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_credit_is_add
         )
-        elif payment.method.header == 'credit':
+        elif payment.method.header == 'bank':
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_invoice_account_on_bank,
             remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_invoice_action_on_credit_is_add
+            is_add =  settings.default_invoice_action_on_bank_is_add
         )
     
     elif payment.purchase_order:
@@ -359,13 +359,13 @@ def payemnt_entry_to_system(account, payment):
             date = django.utils.timezone.now(),
             is_add =  settings.default_purchase_action_on_credit_is_add
         )
-        elif payment.method.header == 'credit':
+        elif payment.method.header == 'bank':
             entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = settings.default_purchase_account_on_bank,
             remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_purchase_action_on_credit_is_add
+            is_add =  settings.default_purchase_action_on_bank_is_add
         )
         
 
