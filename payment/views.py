@@ -407,6 +407,7 @@ def create_payment(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             payment_models = []
+            temp = False
             if data_json['action'] == "add":
                 for payment in data_json['payments']:
                     if payment['invoice']:
@@ -465,10 +466,11 @@ def create_payment(self, request):
                 response_json['payments'] = payment_to_json(payment_models)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            if temp:
+                temp.delete()
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
 
 
 @require_http_methods(['POST'])
