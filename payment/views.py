@@ -447,16 +447,6 @@ def create_payment(self, request):
                             from accounting.models import Account, payemnt_entry_to_system
                             account = Account.objects.get(id = payment['account'])
                             payemnt_entry_to_system(account, temp)
-                    try:
-                        if payment['credit_payment_for']:
-                            credit = Payment.objects.get(id = payment['credit_payment_for'])
-                            temp.remarks = payment['remarks'] + " / credit payemnt for  "+ str(credit.id)
-                            temp.save()
-                            if "accounting" in settings.INSTALLED_APPS:
-                                from accounting.models import handle_credit_for
-                                handle_credit_for(credit, temp)
-                    except:
-                        pass
                     payment_models.append(temp)
                     if payment['invoice']:
                         temp.invoice.save()
@@ -471,6 +461,60 @@ def create_payment(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def credit_payment(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)    
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "credit_payment":
+                credit = Payment.objects.get(id= data_json['credit_id'])
+                payment = Payment.objects.create(
+                    invoice = credit.invoice,
+                    purchase_order = credit.purchase_order,
+                    amount = data_json['amount'],
+                    method = PaymentMethod.objects.get(id=payment['method']),
+                    transaction_from = data_json['transaction_from'],
+                    transaction_id = data_json['transaction_id'],
+                    bank_name = data_json['bank_name'],
+                    remarks = data_json['remarks']
+                )
+                if "accounting" in settings.INSTALLED_APPS:
+                    from accounting.models import Account, LedgerEntry, AccountingSettings
+                    credit_entry = LedgerEntry.objects.get(payment = credit, account__id = data_json['old_credit_account'])
+                    entry = LedgerEntry.objects.create(
+                        payment = payment,
+                        account = credit_entry.account,
+                        remarks = "automated entry for credit payment",
+                        date = now(),
+                        is_add = False,
+                        bundle_id = credit_entry.bundle_id
+                    )
+                    account = Account.objects.get(id = data_json['choosen_account'])
+                    entry = LedgerEntry.objects.create(
+                        payment = payment,
+                        account = account,
+                        remarks = "automated entry for credit payment",
+                        date = now(),
+                        is_add = True,
+                        bundle_id = credit_entry.bundle_id
+                    )
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
+            if temp:
+                temp.delete()
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
 
 
 @require_http_methods(['POST'])

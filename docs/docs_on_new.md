@@ -199,3 +199,21 @@ b. Universal Settings
   notification_id : __id__
 }
 ```
+
+
+## Credit payment 
+- payment/credit/pay
+```
+{
+  action : credit_payment,
+  credit_id : __payment_id__,
+  amount : __float__,
+  method : __method__,
+  transaction_from : 
+  transaction_id : 
+  bank_name : 
+  remarks
+  old_credit_account : __acount_id__            <= account id that has the credit
+  choosen_account : account_id                  <= account id /cash ac
+}
+```

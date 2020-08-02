@@ -88,18 +88,12 @@ class Payment(models.Model):
     def __str__(self):
         return f'{self.method} {self.amount}'
 
-# @receiver(pre_delete, sender=UniqueCard)
-# def pre_delete_handler_unique_card(sender, instance, **kwargs):
-#     instance.gift_card.count_limit = instance.gift_card.count_limit - 1
-#     instance.gift_card.save()
-
-
 @receiver(models.signals.post_save, sender=Payment)
 def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
     if instance.purchase_order:
         instance.purchase_order.save()
-
-
+    if instance.invoice:
+        instance.invoice.save()
 
 @receiver(pre_save, sender=GiftCard)
 def pre_save_handler_gift_card(sender, instance, *args, **kwargs):

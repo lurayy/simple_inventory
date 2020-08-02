@@ -193,6 +193,10 @@ class AccountingSettings(models.Model):
     default_invoice_account_on_pre_paid = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='invoice_account_on_pre_paid')
     default_invoice_action_on_pre_paid_is_add = models.BooleanField(default=True)
 
+    default_invoice_action_on_selected_account = models.BooleanField(default=True)
+
+    default_purchase_action_on_selected_account = models.BooleanField(default=True)
+
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
@@ -276,7 +280,7 @@ def payemnt_entry_to_system(account, payment):
             account = account,
             remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
-            is_add = True
+            is_add = settings.default_invoice_action_on_selected_account
         )
         if payment.method.header == 'credit':
             entry_one = LedgerEntry.objects.create(
@@ -318,14 +322,13 @@ def payemnt_entry_to_system(account, payment):
             date = django.utils.timezone.now(),
             is_add =  settings.default_invoice_action_on_bank_is_add
         )
-    
     elif payment.purchase_order:
         entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = account,
             remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
-            is_add = False
+            is_add = settings.default_purchase_action_on_selected_account
         )
         if payment.method.header == 'credit':
             entry_two = LedgerEntry.objects.create(

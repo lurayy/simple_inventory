@@ -26,5 +26,6 @@ urlpatterns = [
     path('add', views.create_payment),
     path('delete', views.delete_payment),
     path('update', views.update_payment),
-    path('get', views.get_payments)
+    path('get', views.get_payments),
+    path('credit/pay', views.credit_payment)
 ]
