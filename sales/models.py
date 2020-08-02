@@ -121,6 +121,7 @@ def post_save_handler(sender, created, instance, **kwargs):
 
 @receiver(pre_save, sender=Invoice)
 def tranction_handler(sender, instance, **kwargs):
+    print("here")
     if instance.id is None:
         if instance.status.is_sold == True:
             sales_sub(instance)
@@ -190,7 +191,7 @@ def sales_sub(invoice):
             placed_on=item.sold_from, purchase_item=item.purchase_item)
         sold_from.stock = sold_from.stock - item.quantity
         sold_from.save()
-
+        print(item.item.sold)
 
 def sales_add(invoice):
     for item in invoice.invoice_items.filter():
@@ -207,6 +208,7 @@ def sales_add(invoice):
         sold_from.save()
         item.sold_from = place
         item.save()
+        print(item.item.sold)
 
 
 def send_update_invoice(invoice):

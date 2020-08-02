@@ -200,7 +200,7 @@ for i in range(2):
     )
     temp.save()
 
-temp.is_end = True
+temp.is_sold = True
 temp.save()
 
 
