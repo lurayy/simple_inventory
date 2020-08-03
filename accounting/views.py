@@ -39,7 +39,6 @@ def dashboard_report(self,request):
                     if data_json['filters']['date']['end']:
                         stats = stats.filter(date__lte = str_to_datetime(data_json['filters']['date']['end']))
                 for stat in stats:
-                    print(stat)
                     try:
                         old = stat.date - dateutil.relativedelta.relativedelta(months=1)
                         old_stat = MonthlyStats.objects.get( date__month = old.month, date__year = old.year)
@@ -93,7 +92,6 @@ def dashboard_report(self,request):
                             'revenue_increase' : 0,
                             'expense_increase' : 0
                         }
-                    print(start.date(), end.date())
                     if start.date() >= end.date():
                         loop = False
                     else:
