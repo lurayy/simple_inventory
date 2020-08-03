@@ -2,6 +2,7 @@ import requests
 import json
 import datetime
 base_url = 'http://localhost:8000/api/v1/'
+# base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
@@ -44,7 +45,7 @@ headers = {
 }
 
 r = requests.get(base_url+'user/current', headers=headers)
-print(r.text)
+# print(r.text)
 
 
 # data = {
@@ -328,8 +329,8 @@ data = {
   "action": "get",
   "filters": {
     "date": {
-      "start": "2020-07-27T12:59:48.316Z",
-      "end": "2020-08-01T12:15:19.434Z"
+      "start": "2020-01-27T12:59:48.316Z",
+      "end": "2021-07-01T12:15:19.434Z"
     },
   "delta": 1
   }
@@ -349,7 +350,7 @@ data = {
 #     }
 # }
 
-sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
+sess = requests.post(base_url+'accounting/summary', headers=headers, data=json.dumps(data))
 print(sess.text)
 
 # sess = requests.get(base_url+'sales/settings/get', headers=headers)

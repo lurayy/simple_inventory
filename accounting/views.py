@@ -23,6 +23,8 @@ def dashboard_report(self,request):
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)
         try:
+            if data_json['filters']['date']['start'] == None or data_json['filters']['date']['end'] == None:
+                raise Exception("Both start and end date is requried.")
             response_json['summary'] = {
                 'total_profit' : 0,
                 'total_revenue' : 0,
@@ -32,11 +34,12 @@ def dashboard_report(self,request):
             if data_json['action'] == "get":
                 stats = MonthlyStats.objects.filter()
                 if data_json['filters']['date']:
-                    if data_json['filters']['date']['from']:
-                        stats = stats.filter(date__gte = str_to_datetime(data_json['filters']['date']['from']))
-                    if data_json['filters']['date']['upto']:
-                        stats = stats.filter(date__lte = str_to_datetime(data_json['filters']['date']['upto']))
+                    if data_json['filters']['date']['start']:
+                        stats = stats.filter(date__gte = str_to_datetime(data_json['filters']['date']['start']))
+                    if data_json['filters']['date']['end']:
+                        stats = stats.filter(date__lte = str_to_datetime(data_json['filters']['date']['end']))
                 for stat in stats:
+                    print(stat)
                     try:
                         old = stat.date - dateutil.relativedelta.relativedelta(months=1)
                         old_stat = MonthlyStats.objects.get( date__month = old.month, date__year = old.year)
@@ -76,7 +79,27 @@ def dashboard_report(self,request):
                     response_json['summary']['total_profit'] = response_json['summary']['total_profit'] + stat.profit
                     response_json['summary']['total_revenue'] = response_json['summary']['total_revenue'] + stat.total_revenue
                     response_json['summary']['total_expense'] = response_json['summary']['total_expense'] + stat.total_expense
+                
+                start  = str_to_datetime(data_json['filters']['date']['start'])
+                end = str_to_datetime(data_json['filters']['date']['end'])
+                loop = True
+                while loop:
+                    if not str(start.date()) in response_json['summary']['data']:
+                        response_json['summary']['data'][str(start.date())] = {
+                            'profit' : 0,
+                            'revenue' : 0,
+                            'expense' : 0,
+                            'profit_increase' : 0,
+                            'revenue_increase' : 0,
+                            'expense_increase' : 0
+                        }
+                    print(start.date(), end.date())
+                    if start.date() >= end.date():
+                        loop = False
+                    else:
+                        start = start + dateutil.relativedelta.relativedelta(months=1)
                 response_json['status'] = True
+
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
