@@ -345,7 +345,7 @@ r = requests.get(base_url+'user/current', headers=headers)
 data = {
   'action' : 'create',
   'type' : 'barcode',
-  'barcode' : '5552050'
+  'count' : 2
 }
 sess = requests.post(base_url+'inventory/generate', headers=headers, data=json.dumps(data))
 print(sess.text)

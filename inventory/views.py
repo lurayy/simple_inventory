@@ -1667,6 +1667,7 @@ def dashboard_report(self,request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+import uuid
 
 @require_http_methods(['POST'])
 @bind
@@ -1679,15 +1680,34 @@ def create_bar_code(self,request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            code = 0
+            response_json['barcode_images'] = []
             if data_json['action'] == 'create':
                 if data_json['type'] == "barcode":
-                    with open('temp.jpeg', 'wb') as image:
-                        Code128(str(data_json['barcode']), writer=ImageWriter()).write(image)
-                    with open('temp.jpeg', 'rb') as image:
-                        response_json['barcode_image'] = base64.b64encode(image.read()).decode('utf-8')
-                        response_json['status'] = True
+                    count = data_json['count']
+                    for _ in range(count):
+                        code = generate_code()
+                        with open('temp.jpeg', 'wb') as image:
+                            Code128(str(code), writer=ImageWriter()).write(image)
+                        with open('temp.jpeg', 'rb') as image:
+                            response_json['barcode_images'].append(
+                                {
+                                    'barcode': code,
+                                    'image':base64.b64encode(image.read()).decode('utf-8')
+                                }
+                            )
+                            response_json['status'] = True
+                            response_json['count'] = len(response_json['barcode_images'])
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+def generate_code():
+    code = uuid.uuid4()
+    code = str(code).replace('-','')[:12].upper()
+    if Item.objects.filter(barcode = code):
+        code()
+    else:
+        return code
