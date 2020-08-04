@@ -246,3 +246,6 @@ Search filter for accounts :
   end 
 }
 
+
+
+  name, description (optional) , weight( in grams 0 or value) , category, stock, sales_price, sold,  barcode , vat enabled (0 or 1), purchase_price, Quantity

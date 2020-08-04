@@ -22,10 +22,13 @@ from io import StringIO
 import cgi
 from user_handler.permission_check import bind, check_permission
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
-
+from barcode import generate
 import xlwt
 
 from django.db.models import Sum
+
+from barcode import Code128
+from barcode.writer import ImageWriter
 
 from django.conf import settings
 if 'sales' in settings.INSTALLED_APPS:
@@ -1658,6 +1661,31 @@ def dashboard_report(self,request):
                     'count' : len(temp)
                 }
                 response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def create_bar_code(self,request):
+    response_json = {'status':False}        
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == 'create':
+                if data_json['type'] == "barcode":
+                    with open('temp.jpeg', 'wb') as image:
+                        Code128(str(data_json['barcode']), writer=ImageWriter()).write(image)
+                    with open('temp.jpeg', 'rb') as image:
+                        response_json['barcode_image'] = base64.b64encode(image.read()).decode('utf-8')
+                        response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

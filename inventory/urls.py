@@ -47,5 +47,7 @@ urlpatterns = [
     path('purchaseitem/get',views.get_purchase_item_details, name="purchae items"),
     path('purchaseitem/update',views.update_purchase_item, name="purchae items"),
 
-    path('summary', views.dashboard_report)
+    path('summary', views.dashboard_report),
+
+    path('generate', views.create_bar_code)
 ]

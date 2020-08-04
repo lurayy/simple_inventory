@@ -59,6 +59,7 @@ class CustomPermission(models.Model):
     get_multiple_user = models.BooleanField(default=True)
     user_creation = models.BooleanField(default=True)
     user_token = models.BooleanField(default=True)
+    create_bar_code = models.BooleanField(default=True)
     dashboard_report = models.BooleanField(default=True)
     update_purchase_item = models.BooleanField(default=True)
     get_purchase_item_details = models.BooleanField(default=True)

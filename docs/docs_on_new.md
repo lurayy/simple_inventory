@@ -217,3 +217,13 @@ b. Universal Settings
   choosen_account : account_id                  <= account id /cash ac
 }
 ```
+
+### bar code generator
+- inventory/generate
+```
+{
+  'action' : 'create',
+  'type' : 'barcode',
+  'barcode' : '__code__'
+}
+```
