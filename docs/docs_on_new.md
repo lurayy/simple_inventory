@@ -224,6 +224,6 @@ b. Universal Settings
 {
   'action' : 'create',
   'type' : 'barcode',
-  'barcode' : '__code__'
+  'count' : __int__
 }
 ```
