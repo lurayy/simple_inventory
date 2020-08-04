@@ -213,7 +213,6 @@ b. Universal Settings
   transaction_id : 
   bank_name : 
   remarks
-  old_credit_account : __acount_id__            <= account id that has the credit
   choosen_account : account_id                  <= account id /cash ac
 }
 ```
