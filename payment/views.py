@@ -488,10 +488,17 @@ def credit_payment(self, request):
                 )
                 if "accounting" in settings.INSTALLED_APPS:
                     from accounting.models import Account, LedgerEntry, AccountingSettings
-                    credit_entry = LedgerEntry.objects.get(payment = credit, account__id = data_json['old_credit_account'])
+                    
+                    credit_entries = LedgerEntry.objects.filter(payment = credit)
+                    if credit.invoice:
+                        account = credit_entries.filter(is_add=False)[0].account
+                    elif credit.purchase_order:
+                        account = credit_entries.filter(is_add=True)[0].account
+                    else:
+                        raise Exception("To pay credit that is not related to any invoice or purchase order, please use ledger entry.")
                     entry = LedgerEntry.objects.create(
                         payment = payment,
-                        account = credit_entry.account,
+                        account = account,
                         remarks = "automated entry for credit payment",
                         date = now(),
                         is_add = False,
@@ -509,8 +516,8 @@ def credit_payment(self, request):
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
-            if temp:
-                temp.delete()
+            if payment:
+                payment.delete()
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
