@@ -164,7 +164,7 @@ def add_new_invoice(self, request):
                     customer = Customer.objects.get(id=int(data_json['customer'])),
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     due_on = str_to_datetime(data_json['due_on']),
-                    status = InvoiceStatus.objects.filter(is_sold = False)[0],
+                    status = InvoiceStatus.objects.get(id = data_json['status']),
                     total_amount = 0,
                     bill_amount=0,
                     weight_unit = data_json['weight_unit'],
@@ -650,11 +650,15 @@ def add_new_invoice_item(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "add":
+                invoice = Invoice.objects.get(id=int(data_json['invoice']))
+                old_status = invoice.status
+                invoice.status = InvoiceStatus.objects.filter(is_sold=False)[0]
+                invoice.save()
                 invoice_item = InvoiceItem.objects.create(
                     item = Item.objects.get(id=int(data_json['item'])),
                     purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item'])),
                     sold_from = Place.objects.get(id=int(data_json['sold_from'])),
-                    invoice = Invoice.objects.get(id=int(data_json['invoice'])),
+                    invoice = invoice,
                     quantity = int(data_json['quantity']),
                     price = float(data_json['price']),
                     )
@@ -667,17 +671,21 @@ def add_new_invoice_item(self, request):
                     invoice_item.taxes.add(tax)
                 invoice_item.save()
                 invoice_item.invoice.save()
-                invoice_item.invoice.save()
+                invoice.status = old_status
+                invoice.save()
                 response_json['invoice_item'] = invoice_items_to_json([invoice_item])
                 response_json['status'] = True
             if data_json['action'] == "add_multiple":
+                invoice = Invoice.objects.get(id=int(data_json['invoice']))
+                old_status = invoice.status
+                invoice.status = InvoiceStatus.objects.filter(is_sold=False)[0]
+                invoice.save()
                 for invoice_item_json in data_json['invoice_items']:
-                    try:
                         invoice_item = InvoiceItem.objects.create(
                             item = Item.objects.get(id=int(invoice_item_json['item'])),
                             purchase_item = PurchaseItem.objects.get(id=int(invoice_item_json['purchase_item'])),
                             sold_from = Place.objects.get(id=int(invoice_item_json['sold_from'])),
-                            invoice = Invoice.objects.get(id=int(invoice_item_json['invoice'])),
+                            invoice = invoice,
                             quantity = invoice_item_json['quantity'],
                             price = invoice_item_json['price'],
                             )
@@ -690,9 +698,8 @@ def add_new_invoice_item(self, request):
                             invoice_item.taxes.add(tax)
                         invoice_item.save()
                         invoice_item.invoice.save()
-                        invoice_item.invoice.save()
-                    except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
-                        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+                invoice.status = old_status
+                invoice.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
