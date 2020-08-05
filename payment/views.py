@@ -467,6 +467,8 @@ def create_payment(self, request):
 @bind
 def credit_payment(self, request):
     response_json = {'status':False}
+    payment = False
+    new_credit = False
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
     if jwt_check:
         if not jwt_check['status']:
@@ -497,7 +499,7 @@ def credit_payment(self, request):
                     invoice = credit.invoice,
                     purchase_order = credit.purchase_order,
                     amount = data_json['amount'],
-                    method = PaymentMethod.objects.get(id=payment['method']),
+                    method = PaymentMethod.objects.get(id=data_json['method']),
                     transaction_from = data_json['transaction_from'],
                     transaction_id = data_json['transaction_id'],
                     bank_name = data_json['bank_name'],
@@ -508,10 +510,10 @@ def credit_payment(self, request):
                     from accounting.models import Account, LedgerEntry, AccountingSettings
                     credit_entries = LedgerEntry.objects.filter(payment = credit)
                     if credit.invoice:
-                        account = credit_entries.filter(is_add=False)[0].account
-                        credit_entry = credit_entries.filter(is_add=False)[0]
-                    elif credit.purchase_order:
                         account = credit_entries.filter(is_add=True)[0].account
+                        credit_entry = credit_entries.filter(is_add=True)[0]
+                    elif credit.purchase_order:
+                        account = credit_entries.filter(is_add=False)[0].account
                         credit_entry = credit_entries.filter(is_add=False)[0]
                     else:
                         raise Exception("To pay credit that is not related to any invoice or purchase order, please use ledger entry.")
@@ -548,6 +550,8 @@ def credit_payment(self, request):
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             if payment:
                 payment.delete()
+            if new_credit:
+                new_credit.delete()
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Template</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200&display=swap');
+
+        * {
+            font-family: 'Oswald', sans-seri
+        }
+
+        body {
+            max-width: 21cm;
+            margin: auto;
+            padding: 5mm;
+            /* background-color: #eee; */
+            font-size: min(5vw, 18px);
+        }
+
+        .invoice-footer{
+            position: relative;
+            text-align: center;
+            font-size: 0.7em;
+            margin-top: 10px;
+        }
+        .invoice-container {
+            background-color: white;
+        }
+
+        .centered-text {
+            text-align: center;
+        }
+
+        .uppercased {
+            text-transform: uppercase;
+        }
+
+        .righted-text {
+            text-align: right;
+        }
+
+        .invoice-header {
+            margin: 16px auto;
+        }
+
+        .company-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .vatno {
+            margin: 5px 0;
+        }
+
+        .invoice-title {
+            margin-bottom: 15px;
+        }
+
+
+        .dotted-border {
+            border-top: 2px dashed #8a8a8a;
+            border-bottom: 2px dashed #8a8a8a;
+            position: relative;
+        }
+
+        .dotted-border:after {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: -2px;
+            right: -2px;
+            bottom: -2px;
+        }
+
+        .in-words.dotted-border{
+            border-top: none;
+        }
+
+
+        .extra-details-box>div>div {
+            margin: 6px 2px;
+        }
+
+        .table-wrapper {
+            margin: 10px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+
+
+        th,
+        td {
+            text-align: left;
+            padding: 6px 5px 5px 6px;
+            margin: 0;
+        }
+
+
+        thead>tr>th {
+            text-transform: uppercase;
+        }
+
+        .in-words {
+            margin-top: 5px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div class="invoice-container">
+        <div class="invoice-header">
+            <div class="company-name centered-text">name of the company ltd</div>
+            <div class="address centered-text">Lakeside Kathmandu Nepal</div>
+            <div class="vatno centered-text"> VAT/PAN No : 2132323sdsd</div>
+        </div>
+        <div class="invoice-title centered-text"> TAX INVOICE </div>
+        <div class="extra-details-box">
+            <div class="left-box">
+                <div>Bill No : 32333</div>
+                <div>Transaction Date : Jan 12 8899</div>
+                <div>Invoice Date : Jan 12 8899</div>
+                <div class="customer-name">Name : Luca Changretta</div>
+                <div class="customer-vat"> PAN/VAT No. : asdfwef234</div>
+                <div class="customer-address">Address : Fakeside Pokhara</div>
+                <div> Payment Method : Credit/Cash/Bank/Other</div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr class='dotted-border'>
+                        <th>SN</th>
+                        <th>Items</th>
+                        <th>Qty</th>
+                        <th>Rate(Rs.)</th>
+                        <th>Total(Rs.)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Invoice item</td>
+                        <td>125</td>
+                        <td>3698.25</td>
+                        <td>23333.255</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Invoice item</td>
+                        <td>125</td>
+                        <td>3698.25</td>
+                        <td>23333.255</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Invoice item</td>
+                        <td>125</td>
+                        <td>3698.25</td>
+                        <td>23333.255</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Invoice item</td>
+                        <td>125</td>
+                        <td>3698.25</td>
+                        <td>23333.255</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Invoice item</td>
+                        <td>125</td>
+                        <td>3698.25</td>
+                        <td>23333.255</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Invoice item</td>
+                        <td>125</td>
+                        <td>3698.25</td>
+                        <td>23333.255</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <!-- <tr>
+
+                        <th colspan="3"></th>
+                        <th>Sub Total</th>
+                        <th>23323</th>
+                    </tr> -->
+
+                    <tr>
+                        <th colspan="2"></th>
+
+                        <th colspan="2" class="dotted-border">Discount</th>
+                        <th class="dotted-border">23</th>
+                    </tr>
+
+
+                    <tr>
+                        <th colspan="2"></th>
+
+                        <th colspan="2" class="dotted-border">Taxable Amt</th>
+                        <th class="dotted-border">2333</th>
+                    </tr>
+
+
+                    <tr>
+                        <th colspan="2"></th>
+
+                        <th colspan="2" class="dotted-border">VAT/Tax</th>
+                        <th class="dotted-border">333233</th>
+                    </tr>
+
+
+                    <tr>
+                        <th colspan="2"></th>
+
+                        <th colspan="2" class="dotted-border">Total</th>
+                        <th class="dotted-border">23333</th>
+                    </tr>
+
+
+                    <tr>
+                        <th colspan="2"></th>
+
+                        <th colspan="2" class="dotted-border">Paid</th>
+                        <th class="dotted-border">23333</th>
+                    </tr>
+
+                    <tr>
+                        <th colspan="2"></th>
+
+                        <th colspan="2" class="dotted-border">Due</th>
+                        <th class="dotted-border">23333</th>
+                    </tr>
+                </tfoot>
+            </table>
+            <div colspan="5" class="in-words righted-text dotted-border "><span class='uppercased'>In words</span> : Five thousands
+                and fourty four hundredsonly
+            </div>
+        </div>
+        <div class="invoice-footer">
+            --------Name of the company ding ding ding--------
+        </div>
+    </div>
+</body>
+
+</html>

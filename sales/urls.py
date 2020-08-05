@@ -41,5 +41,6 @@ urlpatterns = [
     path('export',views.export_sales_data, name="export data related to sales"),
     path('summary', views.dashboard_report),
 
-    path('settings/get', views.get_sales_settings)
+    path('settings/get', views.get_sales_settings),
+    path('invoice/bill', views.get_bill)
 ]

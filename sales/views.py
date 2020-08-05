@@ -1231,3 +1231,27 @@ def get_sales_settings(self,request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+from django.shortcuts import render
+
+@require_http_methods(['GET'])
+@bind
+def get_bill(self,request):
+    response_json = {'status':False}        
+    # jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    # if jwt_check:
+    #     if not jwt_check['status']:
+    #         return JsonResponse(jwt_check)
+    try:
+        invoice = Invoice.objects.get(id= 1)
+        invoice_items = InvoiceItem.objects.filter(invoice = invoice)
+
+        return render(request, 'invoice_bill.html')
+        # response_json['status'] = True
+        # return JsonResponse(response_json)
+    except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    # else:
+    #     return JsonResponse({'status':False, "error":'You are not authorized.'})

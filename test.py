@@ -350,21 +350,44 @@ r = requests.get(base_url+'user/current', headers=headers)
 # sess = requests.post(base_url+'inventory/generate', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
+# data = {
+#   'action' : 'import',
+#   'csv_file' : "bmFtZSxkZXNjcmlwdGlvbix3ZWlnaHQsY2F0ZWdvcnksc3RvY2ssc2FsZXNfcHJpY2UscHVyY2hhc2VfcHJpY2UsYmFyY29kZSx2YXRfZW5hYmxlZAppdGVtMSxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDQyMzQyMzIsMQppdGVtMixsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDMsMQppdGVtMyxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDIsMQ=="
+# }
+# sess = requests.post(base_url+'inventory/import', headers=headers, data=json.dumps(data))
+# print(sess.text)
+
 data = {
-  'action' : 'import',
-  'csv_file' : "bmFtZSxkZXNjcmlwdGlvbix3ZWlnaHQsY2F0ZWdvcnksc3RvY2ssc2FsZXNfcHJpY2UscHVyY2hhc2VfcHJpY2UsYmFyY29kZSx2YXRfZW5hYmxlZAppdGVtMSxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDQyMzQyMzIsMQppdGVtMixsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDMsMQppdGVtMyxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDIsMQ=="
+  'action' : 'credit_payment',
+  'credit_id' : 8,
+  'amount' : 283,
+  'method' : 1,
+  'transaction_from' : 'asfd',
+  'transaction_id' :'asd',
+  'bank_name' : 'asdf',
+  'remarks' : 'asdf',
+  'choosen_account' : 7
 }
-sess = requests.post(base_url+'inventory/import', headers=headers, data=json.dumps(data))
+
+sess = requests.post(base_url+'payment/credit/pay', headers=headers, data=json.dumps(data))
 print(sess.text)
 
 # data = {
-#   'action' : 'credit_payment',
-#   'credit_id' : ,
-#   'amount' : ,
-#   'method' : 5,
-#   'transaction_from' : 'asfd',
-#   'transaction_id' :'asd',
-#   'bank_name' : 'asdf',
-#   'remarks' : 'asdf'
+#   'action' : 'add',
+#   'payments' :[
+#     {'amount' : 283,
+#     'method' : 3,
+#     'transaction_from' : 'asfd',
+#     'transaction_id' :'asd',
+#     'bank_name' : 'asdf',
+#     'remarks' : 'asdf',
+#     'account' : 8,
+#     'invoice' :1
+# }],
 
+  
 # }
+
+# sess = requests.post(base_url+'payment/add', headers=headers, data=json.dumps(data))
+# print(sess.text)
+
