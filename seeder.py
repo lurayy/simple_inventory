@@ -234,3 +234,22 @@ SalesSetting.objects.create(
     default_place_to_sold_from = Place.objects.get(name='Default'),
     default_vat_tax = vat
 )
+
+types = []
+headers = ['assets','expense','draw', 'liabilities','revenue', 'equity']
+for head in headers:
+    temp = AccountType.objects.create(
+        name = head, 
+        header = head,
+    )
+    types.append(temp)
+
+for ac in types:
+    Account.objects.create(
+        account_type = ac,
+        name = ac.header,
+        opening_date = datetime.datetime.now(),
+        opening_balance = 0,
+        current_amount = 0,
+        credit = 0
+    )

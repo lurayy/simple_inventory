@@ -226,3 +226,24 @@ b. Universal Settings
   'count' : __int__
 }
 ```
+
+### import items 
+- /inventory/import
+```
+{
+  action : import,
+  csv_file : __base64_of_csv__
+}
+```
+
+eg : 
+```
+{
+  'action' : 'import',
+  'csv_file' : "bmFtZSxkZXNjcmlwdGlvbix3ZWlnaHQsY2F0ZWdvcnksc3RvY2ssc2FsZXNfcHJpY2UscHVyY2hhc2VfcHJpY2UsYmFyY29kZSx2YXRfZW5hYmxlZAppdGVtMSxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDQyMzQyMzIsMQppdGVtMixsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDMsMQppdGVtMyxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDIsMQ=="
+}
+```
+
+
+- Excel Column Format
+```name,description,weight,category,stock,sales_price,purchase_price,barcode,vat_enabled```

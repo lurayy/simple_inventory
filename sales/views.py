@@ -213,6 +213,7 @@ def update_invoice(self, request):
                 invoice.additional_discount = float(data_json['additional_discount'])
                 invoice.total_weight = data_json['total_weight']
                 invoice.weight_unit = data_json['weight_unit']
+                invoice.is_sent = data_json['is_sent']
                 invoice.save()
                 response_json['status'] = True
             return JsonResponse(response_json)

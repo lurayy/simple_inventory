@@ -100,7 +100,10 @@ def user_creation(self, request):
     response_json = {}
     new_user = None
     try:
-        if check_permission(self.__name__, request.headers['Authorization'].split(' ')[1]):
+        jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+        if jwt_check:
+            if not jwt_check['status']:
+                return JsonResponse(jwt_check)
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)    
             if data_json['action'] == "add":

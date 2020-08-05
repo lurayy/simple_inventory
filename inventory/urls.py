@@ -49,5 +49,6 @@ urlpatterns = [
 
     path('summary', views.dashboard_report),
 
-    path('generate', views.create_bar_code)
+    path('generate', views.create_bar_code),
+    path('import', views.import_data)
 ]

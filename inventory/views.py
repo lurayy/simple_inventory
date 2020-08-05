@@ -24,6 +24,8 @@ from user_handler.permission_check import bind, check_permission
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from barcode import generate
 import xlwt
+from django.utils import timezone
+
 
 from django.db.models import Sum
 
@@ -118,7 +120,8 @@ def add_new_purchase_order(self,request):
                     invoiced_on = str_to_datetime(data_json['invoiced_on']),
                     completed_on = str_to_datetime(data_json['completed_on']),
                     third_party_invoice_number = data_json['third_party_invoice_number'],
-                    status = status
+                    status = status,
+                    bill_received=data_json['bill_received']
                 )
                 purchase_order.save()
                 response_json['status'] = True
@@ -190,6 +193,7 @@ def update_purchase_order(self, request):
                 purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
                 purchase_order.status = PurchaseOrderStatus.objects.get(id=int(data_json['status']))
                 purchase_order.third_party_invoice_number = data_json['third_party_invoice_number']
+                purchase_order.bill_received = data_json['bill_received']
                 purchase_order.save()
                 response_json['status'] = True
                 response_json['purchase_order'] = purchase_orders_to_json([purchase_order])
@@ -1711,3 +1715,113 @@ def generate_code():
         code()
     else:
         return code
+
+import pandas as pd
+
+@require_http_methods(['POST'])
+@bind
+def import_data(self,request):
+    response_json = {'status':False}        
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "import":
+                csv = base64.b64decode(data_json['csv_file']).decode('utf-8')
+                csv = csv.splitlines()
+                column = csv[0].split(',')
+                if len(csv) <= 1:
+                    raise Exception("No data to import.")
+                data_raw = csv[1:len(csv)]
+                data = []
+                for x in data_raw:
+                    data.append( x.split(','))
+                df = pd.DataFrame(data, columns=column)
+                data = df.to_dict()
+                try:
+                    vendor = Vendor.objects.get(first_name = 'Old', last_name = 'Inventory')
+                except:
+                    vendor = Vendor.objects.create(
+                        first_name= 'Old',
+                        last_name= 'Inventory',
+                        middle_name = '',
+                        company = "Yes",
+                        email = 'generic@dumb.com',
+                        website= '',
+                        tax_number = '00',
+                        phone1 = '0',
+                        phone2 = '0',
+                        address = ' '
+                    )
+                try:
+                    purchase_order = PurchaseOrder.objects.get(vendor = vendor, third_party_invoice_number = '0000001')
+                except:
+                    purchase_order = PurchaseOrder.objects.create(
+                    third_party_invoice_number = '0000001',
+                    added_by = user,
+                    vendor = vendor,
+                    invoiced_on = timezone.now(),
+                    completed_on = timezone.now(),
+                    total_cost = 0,
+                    bill_amount = 0,
+                    paid_amount = 0,
+                    status = PurchaseOrderStatus.objects.filter(is_end = False)[0]
+                    )
+                purchase_items_data = []
+                for i in range(len(data['name'])):
+                    try:
+                        category = ItemCatagory.objects.get(name = data['category'][i])
+                    except:
+                        category = ItemCatagory.objects.create(name = data['category'][i])
+                    try:
+                        item = Item.objects.get(name = data['name'][i], barcode=data['barcode'][i])
+                    except:
+                        if data['vat_enabled'][i] == 0:
+                            x = False
+                        else:
+                            x = True
+                        item = Item.objects.create(
+                            name = data['name'][i],
+                            description = data['description'][i],
+                            weight = data['weight'][i],
+                            average_cost_price = data['purchase_price'][i],
+                            sales_price = data['sales_price'][i],
+                            weight_unit = 'g',
+                            barcode = data['barcode'][i],
+                            vat_enabled = x
+                        )
+                    print("here")
+                    try:
+                        purchase_item = PurchaseItem.objects.get(
+                            item = item,
+                            purchase_order = purchase_order, 
+                            purchase_price = data['purchase_price'][i]
+                        )
+                        purchase_item.quantity = purchase_item.quantity + int(data['stock'][i])
+                    except:
+                        purchase_item = PurchaseItem.objects.create(
+                            item = item,
+                            purchase_order = purchase_order,
+                            quantity = int(data['stock'][i]),
+                            non_discount_price = float (data['purchase_price'][i]),
+                            sold = 0,
+                            defective = 0,
+                            status = 'addedtocirculation'
+                        )
+                    purchase_items_data.append(purchase_item)
+                    purchase_order.save()
+                purchase_order.status = PurchaseOrderStatus.objects.get(is_end=True)
+                purchase_order.save()
+                response_json['purchase_order'] = purchase_orders_to_json([purchase_order])
+                response_json['purchase_items'] = purchase_items_to_json(purchase_items_data)
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})

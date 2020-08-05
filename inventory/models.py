@@ -36,6 +36,8 @@ class PurchaseOrder(models.Model):
     paid_amount = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)
 
+    bill_received = models.BooleanField(default=False)
+
     def save(self, *args, **kwargs):
         self.total_cost = 0
         for item in self.items.filter(is_active=True):

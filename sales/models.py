@@ -42,6 +42,9 @@ class Invoice(models.Model):
     discount_total = models.PositiveIntegerField(default=0)
     additional_discount = models.PositiveIntegerField(default=0)
 
+    
+    is_sent = models.BooleanField(default=False)
+
     status = models.ForeignKey(
         InvoiceStatus, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)

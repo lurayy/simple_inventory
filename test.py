@@ -325,19 +325,19 @@ r = requests.get(base_url+'user/current', headers=headers)
 # with open('/mnt/d/file.xls', 'wb') as f:
 #   f.write(sess.content)
 
-data = {
-  "action": "get",
-  "filters": {
-    "date": {
-      "start": "2020-11-27T12:59:48.316Z",
-      "end": "2020-12-01T12:15:19.434Z"
-    },
-  "delta": 1
-  }
-}
+# data = {
+#   "action": "get",
+#   "filters": {
+#     "date": {
+#       "start": "2020-11-27T12:59:48.316Z",
+#       "end": "2020-12-01T12:15:19.434Z"
+#     },
+#   "delta": 1
+#   }
+# }
 
-sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
-print(sess.text)
+# sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # sess = requests.get(base_url+'sales/settings/get', headers=headers)
 # print(sess.text)
@@ -349,3 +349,10 @@ print(sess.text)
 # }
 # sess = requests.post(base_url+'inventory/generate', headers=headers, data=json.dumps(data))
 # print(sess.text)
+
+data = {
+  'action' : 'import',
+  'csv_file' : "bmFtZSxkZXNjcmlwdGlvbix3ZWlnaHQsY2F0ZWdvcnksc3RvY2ssc2FsZXNfcHJpY2UscHVyY2hhc2VfcHJpY2UsYmFyY29kZSx2YXRfZW5hYmxlZAppdGVtMSxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDQyMzQyMzIsMQppdGVtMixsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDMsMQppdGVtMyxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDIsMQ=="
+}
+sess = requests.post(base_url+'inventory/import', headers=headers, data=json.dumps(data))
+print(sess.text)
