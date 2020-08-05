@@ -534,15 +534,6 @@ def credit_payment(self, request):
                         is_add = True,
                         bundle_id = credit_entry.bundle_id
                     )
-                    if new_credit:
-                        entry = LedgerEntry.objects.create(
-                            payment = new_credit,
-                            account = account,
-                            remarks = "automated entry for credit payment",
-                            date = now(),
-                            is_add = credit_entry.is_add,
-                            bundle_id = credit_entry.bundle_id
-                        )
                 response_json['status'] = True
                 credit.is_paid_credit = True
                 credit.save()
