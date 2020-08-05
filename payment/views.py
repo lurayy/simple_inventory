@@ -508,15 +508,8 @@ def credit_payment(self, request):
                 )
                 if "accounting" in settings.INSTALLED_APPS:
                     from accounting.models import Account, LedgerEntry, AccountingSettings
-                    credit_entries = LedgerEntry.objects.filter(payment = credit)
-                    if credit.invoice:
-                        account = credit_entries.filter(is_add=True)[0].account
-                        credit_entry = credit_entries.filter(is_add=True)[0]
-                    elif credit.purchase_order:
-                        account = credit_entries.filter(is_add=False)[0].account
-                        credit_entry = credit_entries.filter(is_add=False)[0]
-                    else:
-                        raise Exception("To pay credit that is not related to any invoice or purchase order, please use ledger entry.")
+                    account = Account.objects.get(id = data_json['credited_account'])
+                    credit_entry = LedgerEntry.objects.filter(payment = credit, account=account)
                     entry = LedgerEntry.objects.create(
                         payment = payment,
                         account = account,
