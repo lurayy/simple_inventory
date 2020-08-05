@@ -158,9 +158,9 @@ def tranction_handler(sender, instance, **kwargs):
 
 
 
-# @receiver(post_save, sender=Invoice)
-# def invoice_post_handler(sender, instance, **kwargs):
-#     send_update_invoice(instance)
+@receiver(post_save, sender=Invoice)
+def invoice_post_handler(sender, instance, **kwargs):
+    send_update_invoice(instance)
 
 # @receiver(post_save, sender=InvoiceItem)
 # def invoice_item_handler(sender, instance, **kwargs):
@@ -215,35 +215,36 @@ def send_update_invoice(invoice):
         if invoice.customer.email:
             from sales.utils import invoices_to_json, invoice_items_to_json
             from django.core.mail import send_mail
-            invoice_data = invoices_to_json([invoice])
-            invoice_item_data = invoice_items_to_json(invoice.invoice_items.all())
-            sensative = ['id', 'is_active', 'status','added_by', 'purchase_item', 'item', 'sold_from', 'invoice', 'discount', 'taxes']
-            invoice_fields = []
-            invoice_value = []
-            for key in invoice_data[0]:
-                if key not in sensative:
-                    invoice_fields.append(key)
-                    invoice_value.append(invoice_data[0][key])
-            invoice_item_fields = []
-            item_values = []
-            if len(invoice_item_data) > 0:
-                for key in invoice_item_data[0]:
-                    if key not in sensative:
-                        invoice_item_fields.append(key)
-                
-                for item in invoice_item_data:
-                    item_value = []
-                    for key in invoice_item_fields:
-                        item_value.append(item[key])
-                    item_values.append(item_value)
+            import weasyprint
+            from user_handler.models import Setting
+            from payment.models import Payment
+            
+
+            invoice_items = InvoiceItem.objects.filter(invoice = invoice)
+            setting = Setting.objects.filter()[0]
             data = {
-                'invoice_fields':invoice_fields,
-                'invoice_values':invoice_value,
-                'item_fields':invoice_item_fields,
-                'item_values':item_values
-            }
-            response = export_data(data)
-            res = send_mail("Invoice", "Some generic Message", settings.EMAIL_HOST_USER, [invoice.customer.email], html_message=response['html'])
+                'invoice' : invoices_to_json([invoice])[0] ,
+                'invoice_items' : invoice_items_to_json(invoice_items),
+                'company' : {
+                    'name' : setting.organization,
+                    'address' : setting.address,
+                    'pan' : setting.pan_number
+                }
+            } 
+            data['invoice']['customer_pan'] = invoice.customer.tax_number
+            data['invoice']['customer_address'] = invoice.customer.address
+
+            data['invoice']['invoiced_on'] = invoice.invoiced_on.date()
+            data['invoice']['due_on'] = invoice.due_on.date()
+            data['invoice']['due_amount'] = invoice.bill_amount - invoice.paid_amount
+
+            data['invoice']['payment_methods'] = ''
+            for payment in Payment.objects.filter(refunded = False, is_paid_credit = False, is_active = True ):
+                data['invoice']['payment_methods'] = data['invoice']['payment_methods'] + str(payment.method).capitalize() + ", " 
+            template = get_template('invoice_bill.html')
+            html = template.render({'data':data})
+
+            res = send_mail("Invoice", "Some generic Message", settings.EMAIL_HOST_USER, [invoice.customer.email], html_message=html)
             if res:
                 print("Invoice sent through email.")
             else:
