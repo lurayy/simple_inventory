@@ -40,11 +40,8 @@ class Invoice(models.Model):
     weight_unit = models.CharField(max_length=25, default='kg')
     tax_total = models.PositiveIntegerField()
     discount_total = models.PositiveIntegerField(default=0)
-    additional_discount = models.PositiveIntegerField(default=0)
-
-    
+    additional_discount = models.PositiveIntegerField(default=0)    
     is_sent = models.BooleanField(default=False)
-
     status = models.ForeignKey(
         InvoiceStatus, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -61,11 +58,9 @@ class Invoice(models.Model):
         if self.id:
             payments_list = Payment.objects.all().filter(invoice=self.id)
             for pay in payments_list:
-                if payment.method.header != "credit":
+                if pay.method.header != "credit":
                     self.paid_amount = self.paid_amount + pay.amount
         super(Invoice, self).save(*args, **kwargs)
-
-
 
 class InvoiceItem(models.Model):
     ''' this model hold the items and the details of that item, that are add to invoice'''

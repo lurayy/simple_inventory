@@ -356,3 +356,15 @@ data = {
 }
 sess = requests.post(base_url+'inventory/import', headers=headers, data=json.dumps(data))
 print(sess.text)
+
+# data = {
+#   'action' : 'credit_payment',
+#   'credit_id' : ,
+#   'amount' : ,
+#   'method' : 5,
+#   'transaction_from' : 'asfd',
+#   'transaction_id' :'asd',
+#   'bank_name' : 'asdf',
+#   'remarks' : 'asdf'
+
+# }
