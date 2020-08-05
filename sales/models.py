@@ -218,8 +218,6 @@ def send_update_invoice(invoice):
             import weasyprint
             from user_handler.models import Setting
             from payment.models import Payment
-            
-
             invoice_items = InvoiceItem.objects.filter(invoice = invoice)
             setting = Setting.objects.filter()[0]
             data = {
