@@ -17,6 +17,18 @@ from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from django.db.models import Sum
 from inventory.utils import weight_conversion
 import dateutil
+from django.shortcuts import render
+from user_handler.models import Setting
+from payment.models import Payment
+
+from django.template.loader import get_template
+from django.core.files.base import ContentFile
+
+from io import BytesIO
+import xhtml2pdf.pisa as pisa
+from django.http import HttpResponse
+from django.template import Context
+import weasyprint
 
 @require_http_methods(['POST'])
 @bind
@@ -1232,26 +1244,53 @@ def get_sales_settings(self,request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
-
-from django.shortcuts import render
-
-@require_http_methods(['GET'])
+@require_http_methods(['POST'])
 @bind
 def get_bill(self,request):
     response_json = {'status':False}        
-    # jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
-    # if jwt_check:
-    #     if not jwt_check['status']:
-    #         return JsonResponse(jwt_check)
-    try:
-        invoice = Invoice.objects.get(id= 1)
-        invoice_items = InvoiceItem.objects.filter(invoice = invoice)
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "export":
+                invoice = Invoice.objects.get(id= data_json['invoice'])
+                invoice_items = InvoiceItem.objects.filter(invoice = invoice)
+                setting = Setting.objects.filter()[0]
+                data = {
+                    'invoice' : invoices_to_json([invoice])[0] ,
+                    'invoice_items' : invoice_items_to_json(invoice_items),
+                    'company' : {
+                        'name' : setting.organization,
+                        'address' : setting.address,
+                        'pan' : setting.pan_number
+                    }
+                } 
+                data['invoice']['customer_pan'] = invoice.customer.tax_number
+                data['invoice']['customer_address'] = invoice.customer.address
 
-        return render(request, 'invoice_bill.html')
-        # response_json['status'] = True
-        # return JsonResponse(response_json)
-    except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
-        return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    # else:
-    #     return JsonResponse({'status':False, "error":'You are not authorized.'})
+                data['invoice']['invoiced_on'] = invoice.invoiced_on.date()
+                data['invoice']['due_on'] = invoice.due_on.date()
+                data['invoice']['due_amount'] = invoice.bill_amount - invoice.paid_amount
+
+                data['invoice']['payment_methods'] = ''
+                for payment in Payment.objects.filter(refunded = False, is_paid_credit = False, is_active = True ):
+                    data['invoice']['payment_methods'] = data['invoice']['payment_methods'] + str(payment.method).capitalize() + ", " 
+                template = get_template('invoice_bill.html')
+                html = template.render({'data':data})
+
+                pdf = weasyprint.HTML(string=html).write_pdf()
+                response = HttpResponse(pdf, content_type='application/pdf')
+                filename = "invoice_bill.pdf"
+                content = "inline; filename='%s'" %(filename)
+                download = request.GET.get("download")
+                if download:
+                    content = "attachment; filename='%s'" %(filename)
+                response['Content-Disposition'] = content
+                return response
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})

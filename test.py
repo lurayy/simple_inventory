@@ -357,20 +357,20 @@ r = requests.get(base_url+'user/current', headers=headers)
 # sess = requests.post(base_url+'inventory/import', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
-data = {
-  'action' : 'credit_payment',
-  'credit_id' : 8,
-  'amount' : 283,
-  'method' : 1,
-  'transaction_from' : 'asfd',
-  'transaction_id' :'asd',
-  'bank_name' : 'asdf',
-  'remarks' : 'asdf',
-  'choosen_account' : 7
-}
+# data = {
+#   'action' : 'credit_payment',
+#   'credit_id' : 8,
+#   'amount' : 283,
+#   'method' : 1,
+#   'transaction_from' : 'asfd',
+#   'transaction_id' :'asd',
+#   'bank_name' : 'asdf',
+#   'remarks' : 'asdf',
+#   'choosen_account' : 7
+# }
 
-sess = requests.post(base_url+'payment/credit/pay', headers=headers, data=json.dumps(data))
-print(sess.text)
+# sess = requests.post(base_url+'payment/credit/pay', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # data = {
 #   'action' : 'add',
@@ -391,3 +391,10 @@ print(sess.text)
 # sess = requests.post(base_url+'payment/add', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
+
+data = {
+  'action' : 'export',
+  'invoice' : 1
+}
+sess = requests.post(base_url+'sales/invoice/bill', headers=headers, data=json.dumps(data))
+print(sess.text)

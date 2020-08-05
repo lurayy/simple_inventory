@@ -117,7 +117,7 @@ class Item(models.Model):
     vat_enabled = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.name} {self.sales_price}'
+        return f'{self.name}'
     
     def is_in_stock(self):
         if self.stock > 0:

@@ -247,3 +247,13 @@ eg :
 
 - Excel Column Format
 ```name,description,weight,category,stock,sales_price,purchase_price,barcode,vat_enabled```
+
+
+### Invoice Bill Export
+- /sales/invoice/bill
+```
+{
+  action : export,
+  invoice: __invoice_id__
+}
+```
