@@ -474,8 +474,25 @@ def credit_payment(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            new_credit = False
             if data_json['action'] == "credit_payment":
                 credit = Payment.objects.get(id= data_json['credit_id'])
+                print(credit.amount,  data_json['amount'])
+                if credit.amount != data_json['amount']:
+                    amount = credit.amount - data_json['amount']
+                    if amount < 0:
+                        raise Exception("Payment must be less than or equal to the credit amount.")
+                    new_credit = Payment.objects.create(
+                        invoice = credit.invoice,
+                        purchase_order = credit.purchase_order,
+                        amount = amount,
+                        method = credit.method,
+                        transaction_from = credit.transaction_from,
+                        transaction_id = credit.transaction_id,
+                        bank_name = credit.bank_name,
+                        remarks = credit.remarks,
+                        is_paid_credit = False
+                    )
                 payment = Payment.objects.create(
                     invoice = credit.invoice,
                     purchase_order = credit.purchase_order,
@@ -484,16 +501,18 @@ def credit_payment(self, request):
                     transaction_from = data_json['transaction_from'],
                     transaction_id = data_json['transaction_id'],
                     bank_name = data_json['bank_name'],
-                    remarks = data_json['remarks']
+                    remarks = data_json['remarks'],
+                    is_paid_credit = False
                 )
                 if "accounting" in settings.INSTALLED_APPS:
                     from accounting.models import Account, LedgerEntry, AccountingSettings
-                    
                     credit_entries = LedgerEntry.objects.filter(payment = credit)
                     if credit.invoice:
                         account = credit_entries.filter(is_add=False)[0].account
+                        credit_entry = credit_entries.filter(is_add=False)[0]
                     elif credit.purchase_order:
                         account = credit_entries.filter(is_add=True)[0].account
+                        credit_entry = credit_entries.filter(is_add=False)[0]
                     else:
                         raise Exception("To pay credit that is not related to any invoice or purchase order, please use ledger entry.")
                     entry = LedgerEntry.objects.create(
@@ -513,7 +532,18 @@ def credit_payment(self, request):
                         is_add = True,
                         bundle_id = credit_entry.bundle_id
                     )
+                    if new_credit:
+                        entry = LedgerEntry.objects.create(
+                            payment = new_credit,
+                            account = account,
+                            remarks = "automated entry for credit payment",
+                            date = now(),
+                            is_add = credit_entry.is_add,
+                            bundle_id = credit_entry.bundle_id
+                        )
                 response_json['status'] = True
+                credit.is_paid_credit = True
+                credit.save()
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             if payment:

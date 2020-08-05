@@ -53,7 +53,7 @@ class PurchaseOrder(models.Model):
             from payment.models import Payment
             payments = Payment.objects.filter(purchase_order__id = self.id, refunded=False, is_active=True)
             for payment in payments:
-                if payment.method.header != "credit":
+                if payment.method.header != "credit" and payment.is_paid_credit == False:
                     self.paid_amount = self.paid_amount + payment.amount
         super(PurchaseOrder, self).save(*args, **kwargs)
         # settings = AccountingSettings.objects.all()[0]

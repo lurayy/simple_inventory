@@ -58,7 +58,7 @@ class Invoice(models.Model):
         if self.id:
             payments_list = Payment.objects.all().filter(invoice=self.id)
             for pay in payments_list:
-                if pay.method.header != "credit":
+                if pay.method.header != "credit" and pay.is_paid_credit == False:
                     self.paid_amount = self.paid_amount + pay.amount
         super(Invoice, self).save(*args, **kwargs)
 

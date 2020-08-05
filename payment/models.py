@@ -84,6 +84,7 @@ class Payment(models.Model):
     remarks = models.CharField(max_length=255, blank=True, null=True)
     refunded = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_paid_credit = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.method} {self.amount}'
