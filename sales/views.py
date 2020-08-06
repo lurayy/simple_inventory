@@ -1213,10 +1213,8 @@ def dashboard_report(self,request):
                     temp_res = {'purchase': 0, 'sales':0, 'profit':0}
                     start = end
                     end = end + dateutil.relativedelta.relativedelta(days=delta)
-                    print(start, end)
                     t_invoice = invoice.filter(invoiced_on__date__range = (start, end))
                     t_order = order.filter(invoiced_on__date__range = (start, end))
-                    print(t_invoice, t_order)
                     if len(t_order) != 0:
                         temp_res['purchase'] = t_order.aggregate(Sum('bill_amount'))['bill_amount__sum']
                     else:

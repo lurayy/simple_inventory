@@ -14,7 +14,7 @@ import cgi
 import datetime
 from io import BytesIO
 from django.http import HttpResponse
-
+import django.dispatch
 
 class InvoiceStatus(models.Model):
     name = models.CharField(max_length=255)
@@ -243,10 +243,14 @@ def send_update_invoice(invoice):
             html = template.render({'data':data})
 
             res = send_mail("Invoice", "Some generic Message", settings.EMAIL_HOST_USER, [invoice.customer.email], html_message=html)
-            if res:
-                print("Invoice sent through email.")
-            else:
-                print("Invoice cannot be sent through email.")
+            if not invoice.is_sent:
+                if res:
+                    invoice.is_sent = True
+                    signals.post_save.disconnect(invoice_post_handler, sender=Invoice)
+                    invoice.save()
+                    signals.post_save.connect(invoice_post_handler, sender=Invoice)
+                else:
+                    print("Invoice cannot be sent through email.")
 
 
 def render_to_pdf(template_src, context_dict={}):
