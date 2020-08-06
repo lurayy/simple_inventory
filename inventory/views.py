@@ -1780,7 +1780,7 @@ def import_data(self,request):
                     except:
                         category = ItemCatagory.objects.create(name = data['category'][i])
                     try:
-                        item = Item.objects.get(name = data['name'][i], barcode=data['barcode'][i])
+                        item = Item.objects.get(name = data['name'][i], catagory = category, sales_price = data['sales_price'][i])
                     except:
                         if data['vat_enabled'][i] == 0:
                             x = False
@@ -1789,6 +1789,7 @@ def import_data(self,request):
                         item = Item.objects.create(
                             name = data['name'][i],
                             description = data['description'][i],
+                            catagory = category,
                             weight = data['weight'][i],
                             average_cost_price = data['purchase_price'][i],
                             sales_price = data['sales_price'][i],
