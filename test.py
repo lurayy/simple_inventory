@@ -1,8 +1,8 @@
 import requests
 import json
 import datetime
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = 'https://simpleim.herokuapp.com/api/v1/'
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
@@ -325,19 +325,19 @@ r = requests.get(base_url+'user/current', headers=headers)
 # with open('/mnt/d/file.xls', 'wb') as f:
 #   f.write(sess.content)
 
-data = {
-  "action": "get",
-  "filters": {
-    "date": {
-      "start": "2019-11-27T12:59:48.316Z",
-      "end": "2021-12-01T12:15:19.434Z"
-    },
-  "delta": 1
-  }
-}
+# data = {
+#   "action": "get",
+#   "filters": {
+#     "date": {
+#       "start": "2019-11-27T12:59:48.316Z",
+#       "end": "2021-12-01T12:15:19.434Z"
+#     },
+#   "delta": 1
+#   }
+# }
 
-sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
-print(sess.text)
+# sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # sess = requests.get(base_url+'sales/settings/get', headers=headers)
 # print(sess.text)
@@ -350,12 +350,12 @@ print(sess.text)
 # sess = requests.post(base_url+'inventory/generate', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
-# data = {
-#   'action' : 'import',
-#   'csv_file' : "bmFtZSxkZXNjcmlwdGlvbix3ZWlnaHQsY2F0ZWdvcnksc3RvY2ssc2FsZXNfcHJpY2UscHVyY2hhc2VfcHJpY2UsYmFyY29kZSx2YXRfZW5hYmxlZAppdGVtMSxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDQyMzQyMzIsMQppdGVtMixsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDMsMQppdGVtMyxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDI1MTMyMDIsMQ=="
-# }
-# sess = requests.post(base_url+'inventory/import', headers=headers, data=json.dumps(data))
-# print(sess.text)
+data = {
+  'action' : 'import',
+  'csv_file' : "bmFtZSxkZXNjcmlwdGlvbix3ZWlnaHQsY2F0ZWdvcnksc3RvY2ssc2FsZXNfcHJpY2UscHVyY2hhc2VfcHJpY2UsYmFyY29kZSx2YXRfZW5hYmxlZAppdGVtMSxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDQyMzQyMzIsMQppdGVtMixsa2osMCxsa2phc2RmLDI1LDI1MCwyMDAsMjUxMzIwMywxCml0ZW0zLGxraiwwLFNtb2tlLDI1LDI1MCwyMDAsMjUxMzIwMiwxCml0ZW00LGxraiw1LGtpc3NtYW4sMjUwLDEyMzAsMjMwLDEzNTQ2OCwwCml0ZW0xLGxraiwwLFNtb2tlLDI1MCwyNTAsMjAwLDEzMjE1MSwx"
+}
+sess = requests.post(base_url+'inventory/import', headers=headers, data=json.dumps(data))
+print(sess.text)
 
 # data = {
 #   'action' : 'credit_payment',

@@ -1820,6 +1820,7 @@ def import_data(self,request):
                 purchase_order.save()
                 response_json['purchase_order'] = purchase_orders_to_json([purchase_order])
                 response_json['purchase_items'] = purchase_items_to_json(purchase_items_data)
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
