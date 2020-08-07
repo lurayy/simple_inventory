@@ -509,7 +509,7 @@ def credit_payment(self, request):
                 if "accounting" in settings.INSTALLED_APPS:
                     from accounting.models import Account, LedgerEntry, AccountingSettings
                     account = Account.objects.get(id = data_json['credited_account'])
-                    credit_entry = LedgerEntry.objects.filter(payment = credit, account=account)
+                    credit_entry = LedgerEntry.objects.get(payment = credit, account=account)
                     entry = LedgerEntry.objects.create(
                         payment = payment,
                         account = account,
