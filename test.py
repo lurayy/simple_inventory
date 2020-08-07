@@ -300,27 +300,27 @@ r = requests.get(base_url+'user/current', headers=headers)
 #   'action' : 'get'
 # }
 
-data =  {
-  'action' : 'export',
-  'export' : 'excel',
-  'filters' : {
-    'name' : None,
-    'weight' : None,
-    'average_cost_price': {
-      'from' : 0,
-      'upto' : None
-    },
-    'stock': None,
-    'sales_price': None,
-    'category' : 1,
-    'sold' : None
-  },
-  'start': 0,
-  'end' : 25,
-  'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
-}
-sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data =  {
+#   'action' : 'export',
+#   'export' : 'excel',
+#   'filters' : {
+#     'name' : None,
+#     'weight' : None,
+#     'average_cost_price': {
+#       'from' : 0,
+#       'upto' : None
+#     },
+#     'stock': None,
+#     'sales_price': None,
+#     'category' : 1,
+#     'sold' : None
+#   },
+#   'start': 0,
+#   'end' : 25,
+#   'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
+# }
+# sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # with open('/mnt/d/file.xls', 'wb') as f:
 #   f.write(sess.content)
@@ -398,3 +398,39 @@ print(sess.text)
 # }
 # sess = requests.post(base_url+'sales/invoice/bill', headers=headers, data=json.dumps(data))
 # print(sess.text)
+
+# data =  {
+#   'action' : 'add',
+#   'payments' : [
+#     {
+#     'purchase_order' :1,
+#   'invoice' : None,
+#     'amount' : 2500,
+#     'method' : 1,
+#     'transaction_from' : ' ',
+#     'transaction_id' : ' ',
+#     'bank_name' : ' ',
+#     'remarks' : ' ',
+#     'account' : 7
+#     }
+#   ]
+# }
+# sess = requests.post(base_url+'payment/add', headers=headers, data=json.dumps(data))
+# print(sess.text)
+
+data =  {
+  'action' : 'credit_payment',
+    'purchase_order' :1,
+  'invoice' : None,
+    'amount' : 2500,
+    'method' : 1,
+    'transaction_from' : ' ',
+    'transaction_id' : ' ',
+    'bank_name' : ' ',
+    'remarks' : ' ',
+    'credit_id' : 1,
+    'choosen_account' : 5,
+    'credited_account' : 7
+}
+sess = requests.post(base_url+'payment/credit/pay', headers=headers, data=json.dumps(data))
+print(sess.text)
