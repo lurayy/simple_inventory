@@ -1550,7 +1550,7 @@ def export_inventory(self, request):
                         items = items.filter(sales_price__lte = data_json['filters']['sold']['upto'])
               
                 if (data_json['filters']['category']):
-                    items = items.filter(catagory__id = int(data_json['filters']['catagory']))
+                    items = items.filter(catagory__id = int(data_json['filters']['category']))
                 
                 response_json['count'] = len(items)
                 items = items[int(data_json['start']) : int(data_json['end'])]

@@ -300,27 +300,27 @@ r = requests.get(base_url+'user/current', headers=headers)
 #   'action' : 'get'
 # }
 
-# data =  {
-#   'action' : 'export',
-#   'export' : 'excel',
-#   'filters' : {
-#     'name' : None,
-#     'weight' : None,
-#     'average_cost_price': {
-#       'from' : 0,
-#       'upto' : None
-#     },
-#     'stock': None,
-#     'sales_price': None,
-#     'category' : None,
-#     'sold' : None
-#   },
-#   'start': 0,
-#   'end' : 25,
-#   'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
-# }
-# sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
-# print(sess.text)
+data =  {
+  'action' : 'export',
+  'export' : 'excel',
+  'filters' : {
+    'name' : None,
+    'weight' : None,
+    'average_cost_price': {
+      'from' : 0,
+      'upto' : None
+    },
+    'stock': None,
+    'sales_price': None,
+    'category' : 1,
+    'sold' : None
+  },
+  'start': 0,
+  'end' : 25,
+  'selected_fields': ["name", "description", "weight", "average_cost_price", "is_active", "catagory", "stock", "sales_price", "sold", "barcode"]
+}
+sess = requests.post(base_url+'inventory/items/export', headers=headers, data=json.dumps(data))
+print(sess.text)
 
 # with open('/mnt/d/file.xls', 'wb') as f:
 #   f.write(sess.content)
@@ -350,12 +350,12 @@ r = requests.get(base_url+'user/current', headers=headers)
 # sess = requests.post(base_url+'inventory/generate', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
-data = {
-  'action' : 'import',
-  'csv_file' : "bmFtZSxkZXNjcmlwdGlvbix3ZWlnaHQsY2F0ZWdvcnksc3RvY2ssc2FsZXNfcHJpY2UscHVyY2hhc2VfcHJpY2UsYmFyY29kZSx2YXRfZW5hYmxlZAppdGVtMSxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDQyMzQyMzIsMQppdGVtMixsa2osMCxsa2phc2RmLDI1LDI1MCwyMDAsMjUxMzIwMywxCml0ZW0zLGxraiwwLFNtb2tlLDI1LDI1MCwyMDAsMjUxMzIwMiwxCml0ZW00LGxraiw1LGtpc3NtYW4sMjUwLDEyMzAsMjMwLDEzNTQ2OCwwCml0ZW0xLGxraiwwLFNtb2tlLDI1MCwyNTAsMjAwLDEzMjE1MSwx"
-}
-sess = requests.post(base_url+'inventory/import', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data = {
+#   'action' : 'import',
+#   'csv_file' : "bmFtZSxkZXNjcmlwdGlvbix3ZWlnaHQsY2F0ZWdvcnksc3RvY2ssc2FsZXNfcHJpY2UscHVyY2hhc2VfcHJpY2UsYmFyY29kZSx2YXRfZW5hYmxlZAppdGVtMSxsa2osMCxTbW9rZSwyNSwyNTAsMjAwLDQyMzQyMzIsMQppdGVtMixsa2osMCxsa2phc2RmLDI1LDI1MCwyMDAsMjUxMzIwMywxCml0ZW0zLGxraiwwLFNtb2tlLDI1LDI1MCwyMDAsMjUxMzIwMiwxCml0ZW00LGxraiw1LGtpc3NtYW4sMjUwLDEyMzAsMjMwLDEzNTQ2OCwwCml0ZW0xLGxraiwwLFNtb2tlLDI1MCwyNTAsMjAwLDEzMjE1MSwx"
+# }
+# sess = requests.post(base_url+'inventory/import', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # data = {
 #   'action' : 'credit_payment',
