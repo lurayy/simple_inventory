@@ -510,23 +510,42 @@ def credit_payment(self, request):
                     from accounting.models import Account, LedgerEntry, AccountingSettings
                     account = Account.objects.get(id = data_json['credited_account'])
                     bid = str( uuid.uuid4())
-                    entry = LedgerEntry.objects.create(
-                        payment = payment,
-                        account = account,
-                        remarks = "automated entry for credit payment",
-                        date = now(),
-                        is_add = False,
-                        bundle_id = bid
-                    )
-                    account = Account.objects.get(id = data_json['choosen_account'])
-                    entry = LedgerEntry.objects.create(
-                        payment = payment,
-                        account = account,
-                        remarks = "automated entry for credit payment",
-                        date = now(),
-                        is_add = True,
-                        bundle_id = bid
-                    )
+                    if credit.invoice:
+                        entry = LedgerEntry.objects.create(
+                            payment = payment,
+                            account = account,
+                            remarks = "automated entry for credit payment",
+                            date = now(),
+                            is_add = False,
+                            bundle_id = bid
+                        )
+                        account = Account.objects.get(id = data_json['choosen_account'])
+                        entry = LedgerEntry.objects.create(
+                            payment = payment,
+                            account = account,
+                            remarks = "automated entry for credit payment",
+                            date = now(),
+                            is_add = True,
+                            bundle_id = bid
+                        )
+                    elif credit.purchase_order:
+                        entry = LedgerEntry.objects.create(
+                            payment = payment,
+                            account = account,
+                            remarks = "automated entry for credit payment",
+                            date = now(),
+                            is_add = True,
+                            bundle_id = bid
+                        )
+                        account = Account.objects.get(id = data_json['choosen_account'])
+                        entry = LedgerEntry.objects.create(
+                            payment = payment,
+                            account = account,
+                            remarks = "automated entry for credit payment",
+                            date = now(),
+                            is_add = False,
+                            bundle_id = bid
+                        )
                 response_json['status'] = True
                 credit.is_paid_credit = True
                 credit.save()
