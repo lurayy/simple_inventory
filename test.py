@@ -422,13 +422,13 @@ data =  {
   'action' : 'credit_payment',
     'purchase_order' :1,
   'invoice' : None,
-    'amount' : 2500,
-    'method' : 1,
+    'amount' : 1500,
+    'method' : 3,
     'transaction_from' : ' ',
     'transaction_id' : ' ',
     'bank_name' : ' ',
     'remarks' : ' ',
-    'credit_id' : 1,
+    'credit_id' : 12,
     'choosen_account' : 5,
     'credited_account' : 7
 }

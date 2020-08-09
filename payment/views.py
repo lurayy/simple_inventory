@@ -509,14 +509,14 @@ def credit_payment(self, request):
                 if "accounting" in settings.INSTALLED_APPS:
                     from accounting.models import Account, LedgerEntry, AccountingSettings
                     account = Account.objects.get(id = data_json['credited_account'])
-                    credit_entry = LedgerEntry.objects.get(payment = credit, account=account)
+                    # credit_entry = LedgerEntry.objects.get(payment = credit, account=account)
                     entry = LedgerEntry.objects.create(
                         payment = payment,
                         account = account,
                         remarks = "automated entry for credit payment",
                         date = now(),
                         is_add = False,
-                        bundle_id = credit_entry.bundle_id
+                        bundle_id = 'credit_payment'
                     )
                     account = Account.objects.get(id = data_json['choosen_account'])
                     entry = LedgerEntry.objects.create(
@@ -525,11 +525,15 @@ def credit_payment(self, request):
                         remarks = "automated entry for credit payment",
                         date = now(),
                         is_add = True,
-                        bundle_id = credit_entry.bundle_id
+                        bundle_id = 'credit_payment'
                     )
                 response_json['status'] = True
                 credit.is_paid_credit = True
                 credit.save()
+                if credit.invoice:
+                    credit.invoice.save()
+                elif credit.purchase_order:
+                    credit.purchase_order.save()
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             if payment:
