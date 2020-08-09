@@ -1290,7 +1290,6 @@ def get_bill(self,request):
                 data['invoice']['payment_methods'] = data['invoice']['payment_methods'][:-2]
                 template = get_template('invoice_bill.html')
                 html = template.render({'data':data})
-                print(data)
                 pdf = weasyprint.HTML(string=html).write_pdf()
                 response = HttpResponse(pdf, content_type='application/pdf')
                 filename = "invoice_bill.pdf"

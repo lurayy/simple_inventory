@@ -92,7 +92,7 @@ def dashboard_report(self,request):
                             'revenue_increase' : 0,
                             'expense_increase' : 0
                         }
-                    if start.date() >= end.date():
+                    if start.date() > end.date():
                         loop = False
                     else:
                         start = start + dateutil.relativedelta.relativedelta(months=1)
