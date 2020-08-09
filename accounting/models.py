@@ -274,13 +274,15 @@ def payemnt_entry_to_system(account, payment):
     if len(settings) == 0:
         raise Exception("No Active Account Setting Defined. Please configure the account setting before using it.")
     settings = settings[0]
+    bid = str(uuid.uuid4())
     if payment.invoice:
         entry_one = LedgerEntry.objects.create(
             payment = payment,
             account = account,
             remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
-            is_add = settings.default_invoice_action_on_selected_account
+            is_add = settings.default_invoice_action_on_selected_account,
+            bundle_id = bid
         )
         if payment.method.header == 'credit':
             entry_one = LedgerEntry.objects.create(
@@ -288,7 +290,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_invoice_account_on_credit,
             remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
-            is_add = settings.default_invoice_action_on_credit_is_add
+            is_add = settings.default_invoice_action_on_credit_is_add,
+            bundle_id = bid
         )
         elif payment.method.header == 'cash':
             entry_one = LedgerEntry.objects.create(
@@ -296,7 +299,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_invoice_account_on_cash,
             remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_invoice_action_on_credit_is_add
+            is_add =  settings.default_invoice_action_on_credit_is_add,
+            bundle_id = bid
         )
         elif payment.method.header == 'pre_paid':
             entry_one = LedgerEntry.objects.create(
@@ -304,7 +308,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_invoice_account_on_pre_paid,
             remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_invoice_action_on_credit_is_add
+            is_add =  settings.default_invoice_action_on_credit_is_add,
+            bundle_id = bid
         )
         elif payment.method.header == 'transfer':
             entry_one = LedgerEntry.objects.create(
@@ -312,7 +317,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_invoice_account_on_transfer,
             remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_invoice_action_on_credit_is_add
+            is_add =  settings.default_invoice_action_on_credit_is_add,
+            bundle_id = bid
         )
         elif payment.method.header == 'bank':
             entry_one = LedgerEntry.objects.create(
@@ -320,7 +326,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_invoice_account_on_bank,
             remarks = 'automated entry invoice '+str(payment.invoice.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_invoice_action_on_bank_is_add
+            is_add =  settings.default_invoice_action_on_bank_is_add,
+            bundle_id = bid
         )
     elif payment.purchase_order:
         entry_one = LedgerEntry.objects.create(
@@ -328,7 +335,8 @@ def payemnt_entry_to_system(account, payment):
             account = account,
             remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
-            is_add = settings.default_purchase_action_on_selected_account
+            is_add = settings.default_purchase_action_on_selected_account,
+            bundle_id = bid
         )
         if payment.method.header == 'credit':
             entry_two = LedgerEntry.objects.create(
@@ -336,7 +344,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_purchase_account_on_credit,
             remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
-            is_add = settings.default_purchase_action_on_credit_is_add
+            is_add = settings.default_purchase_action_on_credit_is_add,
+            bundle_id = bid
         )
         elif payment.method.header == 'cash':
             entry_two = LedgerEntry.objects.create(
@@ -344,7 +353,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_purchase_account_on_cash,
             remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_purchase_action_on_credit_is_add
+            is_add =  settings.default_purchase_action_on_credit_is_add,
+            bundle_id = bid
         )
         elif payment.method.header == 'pre_paid':
             entry_two = LedgerEntry.objects.create(
@@ -352,7 +362,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_purchase_account_on_pre_paid,
             remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_purchase_action_on_credit_is_add
+            is_add =  settings.default_purchase_action_on_credit_is_add,
+            bundle_id = bid
         )
         elif payment.method.header == 'transfer':
             entry_two = LedgerEntry.objects.create(
@@ -360,7 +371,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_purchase_account_on_transfer,
             remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_purchase_action_on_credit_is_add
+            is_add =  settings.default_purchase_action_on_credit_is_add,
+            bundle_id = bid
         )
         elif payment.method.header == 'bank':
             entry_one = LedgerEntry.objects.create(
@@ -368,7 +380,8 @@ def payemnt_entry_to_system(account, payment):
             account = settings.default_purchase_account_on_bank,
             remarks = 'automated entry purchase order '+str(payment.purchase_order.id),
             date = django.utils.timezone.now(),
-            is_add =  settings.default_purchase_action_on_bank_is_add
+            is_add =  settings.default_purchase_action_on_bank_is_add,
+            bundle_id = bid
         )
         
 

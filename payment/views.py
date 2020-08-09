@@ -509,14 +509,14 @@ def credit_payment(self, request):
                 if "accounting" in settings.INSTALLED_APPS:
                     from accounting.models import Account, LedgerEntry, AccountingSettings
                     account = Account.objects.get(id = data_json['credited_account'])
-                    # credit_entry = LedgerEntry.objects.get(payment = credit, account=account)
+                    bid = str( uuid.uuid4())
                     entry = LedgerEntry.objects.create(
                         payment = payment,
                         account = account,
                         remarks = "automated entry for credit payment",
                         date = now(),
                         is_add = False,
-                        bundle_id = 'credit_payment'
+                        bundle_id = bid
                     )
                     account = Account.objects.get(id = data_json['choosen_account'])
                     entry = LedgerEntry.objects.create(
@@ -525,7 +525,7 @@ def credit_payment(self, request):
                         remarks = "automated entry for credit payment",
                         date = now(),
                         is_add = True,
-                        bundle_id = 'credit_payment'
+                        bundle_id = bid
                     )
                 response_json['status'] = True
                 credit.is_paid_credit = True
