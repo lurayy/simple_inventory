@@ -122,6 +122,8 @@ class MonthlyStats(models.Model):
 
 @receiver(pre_save, sender=MonthlyStats)
 def monthly_stats_post_save_handler(sender, instance, *args, **kwargs):
+    instance.date = instance.date.replace(day = 1)
+    print(instance.date.day)
     if not instance.id:
         stat = MonthlyStats.objects.filter(date__year=instance.date.year).filter(date__month=instance.date.month)
         if len(stat) > 0:

@@ -219,18 +219,18 @@ r = requests.get(base_url+'user/current', headers=headers)
 # }
 # sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
 # print(sess.text)
-# data = {
-#     'action' : 'get',
-#     'filters' : {
-#         'date' : {
-#             'from' : str(datetime.datetime.now() - datetime.timedelta(days = 90)),
-#             'upto' : str(datetime.datetime.now() + datetime.timedelta(days = 90))
-#         }
-#     }
-# }
-# print(data)
-# sess = requests.post(base_url+'accounting/summary', headers=headers, data=json.dumps(data))
-# print(sess.text)
+data = {
+    'action' : 'get',
+    'filters' : {
+        'date' : {
+            'start' : str(datetime.datetime.now() - datetime.timedelta(days = 90)),
+            'end' : str(datetime.datetime.now() + datetime.timedelta(days = 90))
+        }
+    }
+}
+print(data)
+sess = requests.post(base_url+'accounting/summary', headers=headers, data=json.dumps(data))
+print(sess.text)
 
 # data = {
 #     'action' : 'get',
@@ -392,12 +392,12 @@ r = requests.get(base_url+'user/current', headers=headers)
 # print(sess.text)
 
 
-data = {
-  'action' : 'export',
-  'invoice' : 1
-}
-sess = requests.post(base_url+'sales/invoice/bill', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data = {
+#   'action' : 'export',
+#   'invoice' : 1
+# }
+# sess = requests.post(base_url+'sales/invoice/bill', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # data =  {
 #   'action' : 'add',

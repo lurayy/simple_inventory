@@ -81,6 +81,8 @@ def dashboard_report(self,request):
                 
                 start  = str_to_datetime(data_json['filters']['date']['start'])
                 end = str_to_datetime(data_json['filters']['date']['end'])
+                start = start.replace(day = 1)
+                end = end.replace(day = 1)
                 loop = True
                 while loop:
                     if not str(start.date()) in response_json['summary']['data']:
@@ -97,7 +99,6 @@ def dashboard_report(self,request):
                     else:
                         start = start + dateutil.relativedelta.relativedelta(months=1)
                 response_json['status'] = True
-
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
