@@ -339,10 +339,10 @@ data = {
   "action": "get",
   "filters": {
     "date": {
-      "start": "2020-08-08T12:59:48.316Z",
-      "end": "2020-08-12T12:15:19.434Z"
+      "start": "2020-08-05T18:15:00.000Z",
+      "end": "2020-08-07T11:42:50.247Z"
     },
-  "delta": 1
+    "delta": 1
   }
 }
 sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))

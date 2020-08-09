@@ -1196,14 +1196,11 @@ def dashboard_report(self,request):
                 if data_json['filters']['date']['start']:
                     start = str_to_datetime(data_json['filters']['date']['start'])
                     start = start.date()
-                    invoice = invoice.filter(invoiced_on__gte = start)
-                    order = order.filter(invoiced_on__gte = start)
                 if data_json['filters']['date']['end']:
                     end = str_to_datetime(data_json['filters']['date']['end'])
                     end = end.date()
-                    invoice = invoice.filter(invoiced_on__lte = end)
-                    order = order.filter(invoiced_on__lte = end)
-                print(start, end)
+                invoice = invoice.filter(invoiced_on__date__range = (start, end))
+                order = order.filter(invoiced_on__date__range = (start, end))
                 true_end = end
                 end = start
                 loop = True
@@ -1218,7 +1215,6 @@ def dashboard_report(self,request):
                     end = end + dateutil.relativedelta.relativedelta(days=delta)
                     t_invoice = invoice.filter(invoiced_on__date__range = (start, end))
                     t_order = order.filter(invoiced_on__date__range = (start, end))
-                    print(start, end)
                     if len(t_order) != 0:
                         temp_res['purchase'] = t_order.aggregate(Sum('bill_amount'))['bill_amount__sum']
                     else:
