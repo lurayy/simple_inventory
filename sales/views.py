@@ -1285,9 +1285,12 @@ def get_bill(self,request):
                 data['invoice']['due_amount'] = invoice.bill_amount - invoice.paid_amount
                 data['invoice']['payment_methods'] = ''
                 for payment in Payment.objects.filter(refunded = False, is_paid_credit = False, is_active = True ):
-                    data['invoice']['payment_methods'] = data['invoice']['payment_methods'] + str(payment.method).capitalize() + ", " 
+                    if not str(payment.method).capitalize() in data['invoice']['payment_methods'].split(', '):
+                        data['invoice']['payment_methods'] = data['invoice']['payment_methods'] + str(payment.method).capitalize() + ", " 
+                data['invoice']['payment_methods'] = data['invoice']['payment_methods'][:-2]
                 template = get_template('invoice_bill.html')
                 html = template.render({'data':data})
+                print(data)
                 pdf = weasyprint.HTML(string=html).write_pdf()
                 response = HttpResponse(pdf, content_type='application/pdf')
                 filename = "invoice_bill.pdf"

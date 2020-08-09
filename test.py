@@ -392,12 +392,12 @@ r = requests.get(base_url+'user/current', headers=headers)
 # print(sess.text)
 
 
-# data = {
-#   'action' : 'export',
-#   'invoice' : 1
-# }
-# sess = requests.post(base_url+'sales/invoice/bill', headers=headers, data=json.dumps(data))
-# print(sess.text)
+data = {
+  'action' : 'export',
+  'invoice' : 1
+}
+sess = requests.post(base_url+'sales/invoice/bill', headers=headers, data=json.dumps(data))
+print(sess.text)
 
 # data =  {
 #   'action' : 'add',
@@ -418,19 +418,19 @@ r = requests.get(base_url+'user/current', headers=headers)
 # sess = requests.post(base_url+'payment/add', headers=headers, data=json.dumps(data))
 # print(sess.text)
 
-data =  {
-  'action' : 'credit_payment',
-    'purchase_order' :1,
-  'invoice' : None,
-    'amount' : 1500,
-    'method' : 3,
-    'transaction_from' : ' ',
-    'transaction_id' : ' ',
-    'bank_name' : ' ',
-    'remarks' : ' ',
-    'credit_id' : 12,
-    'choosen_account' : 5,
-    'credited_account' : 7
-}
-sess = requests.post(base_url+'payment/credit/pay', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data =  {
+#   'action' : 'credit_payment',
+#     'purchase_order' :1,
+#   'invoice' : None,
+#     'amount' : 1500,
+#     'method' : 3,
+#     'transaction_from' : ' ',
+#     'transaction_id' : ' ',
+#     'bank_name' : ' ',
+#     'remarks' : ' ',
+#     'credit_id' : 12,
+#     'choosen_account' : 5,
+#     'credited_account' : 7
+# }
+# sess = requests.post(base_url+'payment/credit/pay', headers=headers, data=json.dumps(data))
+# print(sess.text)
