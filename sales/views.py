@@ -1225,7 +1225,7 @@ def dashboard_report(self,request):
                         temp_res['sales'] = 0
                     temp_res['profit'] = temp_res['sales'] - temp_res['purchase']
                     response_json['data'][str(start)] = temp_res
-                    if true_end < end:
+                    if true_end <= end:
                         loop = False
                 response_json['status'] = True
             return JsonResponse(response_json)
