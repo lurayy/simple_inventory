@@ -1203,18 +1203,22 @@ def dashboard_report(self,request):
                     end = end.date()
                     invoice = invoice.filter(invoiced_on__lte = end)
                     order = order.filter(invoiced_on__lte = end)
+                print(start, end)
                 true_end = end
                 end = start
                 loop = True
                 response_json['data'] = {}
-                if delta == 0:
-                    delta = 1
+                if delta == 1 or delta == 0:
+                    delta = 0
+                else:
+                    delta == delta - 1 
                 while loop:
                     temp_res = {'purchase': 0, 'sales':0, 'profit':0}
                     start = end
                     end = end + dateutil.relativedelta.relativedelta(days=delta)
                     t_invoice = invoice.filter(invoiced_on__date__range = (start, end))
                     t_order = order.filter(invoiced_on__date__range = (start, end))
+                    print(start, end)
                     if len(t_order) != 0:
                         temp_res['purchase'] = t_order.aggregate(Sum('bill_amount'))['bill_amount__sum']
                     else:
@@ -1224,7 +1228,9 @@ def dashboard_report(self,request):
                     else:
                         temp_res['sales'] = 0
                     temp_res['profit'] = temp_res['sales'] - temp_res['purchase']
-                    response_json['data'][str(start)] = temp_res
+                    response_json['data'][str(end)] = temp_res
+                    if delta <= 1:
+                        end = end + dateutil.relativedelta.relativedelta(days=1)
                     if true_end <= end:
                         loop = False
                 response_json['status'] = True

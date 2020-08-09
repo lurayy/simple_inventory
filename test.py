@@ -219,18 +219,18 @@ r = requests.get(base_url+'user/current', headers=headers)
 # }
 # sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
 # print(sess.text)
-data = {
-    'action' : 'get',
-    'filters' : {
-        'date' : {
-            'start' : str(datetime.datetime.now() - datetime.timedelta(days = 90)),
-            'end' : str(datetime.datetime.now() + datetime.timedelta(days = 90))
-        }
-    }
-}
-print(data)
-sess = requests.post(base_url+'accounting/summary', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data = {
+#     'action' : 'get',
+#     'filters' : {
+#         'date' : {
+#             'start' : str(datetime.datetime.now() - datetime.timedelta(days = 30)),
+#             'end' : str(datetime.datetime.now() + datetime.timedelta(days = 30))
+#         }
+#     }
+# }
+# print(data)
+# sess = requests.post(base_url+'accounting/summary', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # data = {
 #     'action' : 'get',
@@ -329,15 +329,24 @@ print(sess.text)
 #   "action": "get",
 #   "filters": {
 #     "date": {
-#       "start": "2020-08-01T12:59:48.316Z",
-#       "end": "2020-08-20T12:15:19.434Z"
+#       "start": "2020-08-08T12:59:48.316Z",
+#       "end": "2020-08-10T12:15:19.434Z"
 #     },
-#   "delta": 0
+#   "delta": 1
 #   }
 # }
-
-# sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
-# print(sess.text)
+data = {
+  "action": "get",
+  "filters": {
+    "date": {
+      "start": "2020-08-08T12:59:48.316Z",
+      "end": "2020-08-12T12:15:19.434Z"
+    },
+  "delta": 3
+  }
+}
+sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
+print(sess.text)
 
 # sess = requests.get(base_url+'sales/settings/get', headers=headers)
 # print(sess.text)
