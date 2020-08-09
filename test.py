@@ -342,7 +342,7 @@ data = {
       "start": "2020-08-08T12:59:48.316Z",
       "end": "2020-08-12T12:15:19.434Z"
     },
-  "delta": 3
+  "delta": 1
   }
 }
 sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))

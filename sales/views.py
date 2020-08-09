@@ -1229,10 +1229,10 @@ def dashboard_report(self,request):
                         temp_res['sales'] = 0
                     temp_res['profit'] = temp_res['sales'] - temp_res['purchase']
                     response_json['data'][str(end)] = temp_res
-                    if delta <= 1:
-                        end = end + dateutil.relativedelta.relativedelta(days=1)
                     if true_end <= end:
                         loop = False
+                    if delta <= 1:
+                        end = end + dateutil.relativedelta.relativedelta(days=1)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
