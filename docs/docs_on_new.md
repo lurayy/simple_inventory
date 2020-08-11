@@ -196,7 +196,7 @@ b. Universal Settings
 ```
 {
   action : read,
-  notification_id : __id__
+  notification_id :[ __id__,__id__,__id__,__id__ . . . ]
 }
 ```
 

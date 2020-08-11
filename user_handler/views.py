@@ -770,9 +770,10 @@ def read_notification(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == 'read':
-                notification = Notification.objects.get(id = data_json['notification_id'])
-                notification.read = True
-                notification.save()
+                for n_id in data_json['notifications_id']:
+                    notification = Notification.objects.get(id = n_id)
+                    notification.read = True
+                    notification.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
