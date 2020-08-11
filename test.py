@@ -69,10 +69,23 @@ r = requests.get(base_url+'user/current', headers=headers)
 # print(r.text)
 
 
+data = {
+  'action' : 'get',
+  'filters' : {
+    'low_items' : {
+      'start' : 0,
+      'end' : 25
+    },
+    'most_sold_items' : {
+      'start' : 0,
+      'end' : 25
+    }
+  }
+}
 
 
-
-
+r = requests.post(base_url+'inventory/summary', headers = headers, data = json.dumps(data))
+print(r.text)
 
 # data = {
 #   'action' : 'get',
@@ -335,18 +348,18 @@ r = requests.get(base_url+'user/current', headers=headers)
 #   "delta": 1
 #   }
 # }
-data = {
-  "action": "get",
-  "filters": {
-    "date": {
-      "start": "2020-08-05T18:15:00.000Z",
-      "end": "2020-08-07T11:42:50.247Z"
-    },
-    "delta": 1
-  }
-}
-sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data = {
+#   "action": "get",
+#   "filters": {
+#     "date": {
+#       "start": "2020-08-05T18:15:00.000Z",
+#       "end": "2020-08-07T11:42:50.247Z"
+#     },
+#     "delta": 1
+#   }
+# }
+# sess = requests.post(base_url+'sales/summary', headers=headers, data=json.dumps(data))
+# print(sess.text)
 
 # sess = requests.get(base_url+'sales/settings/get', headers=headers)
 # print(sess.text)

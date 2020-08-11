@@ -64,26 +64,26 @@ def get_multiple_gift_cards(self, request):
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
                     response_json['status'] = True
-                    x = GiftCard.objects.filter(is_active = True)
+                    x = GiftCard.objects.filter(is_active = True).order_by('-id')
                     response_json['count'] = len(x)
                     x = x[start:end]
                     response_json['gift_cards']  = gift_cards_to_json(x)
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'name':
-                    x = GiftCard.objects.filter(is_active = True, name__icontains=str(data_json['name']).lower())
+                    x = GiftCard.objects.filter(is_active = True, name__icontains=str(data_json['name']).lower()).order_by('-id')
                     response_json['count'] = len(x)
                     x = x[start:end]
                     response_json['gift_cards'] = gift_cards_to_json(x)
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'code':
-                    x = GiftCard.objects.filter(is_active = True, code__icontains=str(data_json['name']).lower())
+                    x = GiftCard.objects.filter(is_active = True, code__icontains=str(data_json['name']).lower()).order_by('-id')
                     response_json['count'] = len(x)
                     x = x[start:end]
                     response_json['gift_cards'] = gift_cards_to_json(x)
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
-                    gift_cards = GiftCard.objects.filter(is_active= True)
+                    gift_cards = GiftCard.objects.filter(is_active= True).order_by('-id')
                     if data_json['filters']['name']:
                         gift_cards = gift_cards.filter(name__icontains = data_json['filters']['name'])
                     if data_json['filters']['category']:
@@ -378,9 +378,9 @@ def get_gift_card_categories(self, request):
             category = []
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
-                    category = GiftCardCategory.objects.filter(is_active=True)
+                    category = GiftCardCategory.objects.filter(is_active=True).order_by('-id')
                 if data_json['filter'] == "multiple":
-                    category = GiftCardCategory.objects.filter()
+                    category = GiftCardCategory.objects.filter().order_by('-id')
                     if data_json['filters']['name']:
                         category = category.filter(name__icontains = data_json['filters']['name'])
                     if data_json['filters']['status']:

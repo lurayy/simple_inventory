@@ -41,13 +41,13 @@ def get_multiple_ledger_entries(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
-                    entries = LedgerEntry.objects.filter(is_active=True).order_by('date')
+                    entries = LedgerEntry.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(entries)
                     entries = entries[data_json['start']:data_json['end']]
                     response_json['ledger_entries'] = ledger_entries_to_json(entries)
                     response_json['status'] = True
                 if data_json['filter'] == "account":
-                    entries =  LedgerEntry.objects.filter(is_active=True, account=Account.objects.get(id=data_json['account_id'])).order_by('date')
+                    entries =  LedgerEntry.objects.filter(is_active=True, account=Account.objects.get(id=data_json['account_id'])).order_by('-id')
                     response_json = len(entries)
                     entries = entries[data_json['start']:data_json['end']]
                     response_json['ledger_entries'] = ledger_entries_to_json(entries)
@@ -57,25 +57,25 @@ def get_multiple_ledger_entries(self, request):
                     end = data_json['end']
                     entries = LedgerEntry.objects.filter(is_active = True)
                     if data_json['filters']['account']:
-                        entries = entries.filter(account__id = data_json['filters']['account']).order_by('date')
+                        entries = entries.filter(account__id = data_json['filters']['account']).order_by('-id')
                     if data_json['filters']['date']:
                         if data_json['filters']['start_date']:
                             start_date = str_to_datetime(str(data_json['filters']['start_date']))
-                            entries = entries.filter(date__gte = start_date).order_by('date')
+                            entries = entries.filter(date__gte = start_date).order_by('-id')
                         if data_json['filters']['end_date']:
                             end_date = str_to_datetime(str(data_json['filters']['end_date']))
-                            entries = entries.filter(date__lte = end_date).order_by('date')
+                            entries = entries.filter(date__lte = end_date).order_by('-id')
                     if data_json['filters']['bundle_id']:
-                        entries = entries.filter(bundle_id__icontains = data_json['filters']['bundle_id']).order_by('date')
+                        entries = entries.filter(bundle_id__icontains = data_json['filters']['bundle_id']).order_by('-id')
                     if data_json['filters']['apply_is_add']:
-                        entries = entries.filter(is_add = data_json['filters']['is_add']).order_by('date')
+                        entries = entries.filter(is_add = data_json['filters']['is_add']).order_by('-id')
                     if data_json['filters']['amount']:
                         if data_json['filters']['amount_from']:
-                            entries = entries.filter(payment__amount__gte = data_json['filters']['amount_from']).order_by('date')
+                            entries = entries.filter(payment__amount__gte = data_json['filters']['amount_from']).order_by('-id')
                         if data_json['filters']['amount_upto']:
-                            entries = entries.filter(payment__amount__lte = data_json['filters']['amount_upto']).order_by('date')
+                            entries = entries.filter(payment__amount__lte = data_json['filters']['amount_upto']).order_by('-id')
                     if data_json['filters']['payment_method']:
-                        entries = entries.filter(payment__method__id = data_json['filters']['payment_method']).order_by('date')
+                        entries = entries.filter(payment__method__id = data_json['filters']['payment_method']).order_by('-id')
                     response_json['count'] = len(entries)
                     entries = entries[start:end]
                     response_json['ledger_entries'] = ledger_entries_to_json(entries)

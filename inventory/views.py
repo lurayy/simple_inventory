@@ -54,12 +54,12 @@ def get_multiple_purchase_orders(self, request):
                 if str(data_json['filter']).lower() == "none":
                     start = int(data_json["start"])
                     end = int(data_json["end"])
-                    orders = PurchaseOrder.objects.filter(is_active=True).order_by('-invoiced_on')
+                    orders = PurchaseOrder.objects.filter(is_active=True).order_by('-id')
                 if str(data_json['filter']).lower() == "added_by":
                     start = int(data_json["start"])
                     end = int(data_json["end"])
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
-                    orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')
+                    orders = PurchaseOrder.objects.filter(is_active=True, added_by=added_by_obj).order_by('-id')
                 if data_json['filter'] == "third_party_invoice_number":
                     order = PurchaseOrder.objects.filter(is_active=True, third_party_invoice_number = data_json['third_party_invoice_number'])
                 if data_json['filter'] == "multiple":
@@ -69,16 +69,16 @@ def get_multiple_purchase_orders(self, request):
                     if data_json['filters']['date']:
                         if data_json['filters']['start_date']:
                             start_date = str_to_datetime(str(data_json['filters']['start_date']))
-                            orders = orders.filter(invoiced_on__gte = start_date).order_by('-invoiced_on')
+                            orders = orders.filter(invoiced_on__gte = start_date).order_by('-id')
                         if data_json['filters']['end_date']:
                             end_date = str_to_datetime(str(data_json['filters']['end_date']))
-                            orders = orders.filter(invoiced_on__lte = end_date).order_by('-invoiced_on')
+                            orders = orders.filter(invoiced_on__lte = end_date).order_by('-id')
                     if data_json['filters']['vendor']:
                         vendor_obj = Vendor.objects.get(id=int(data_json['filters']['vendor_id']))
-                        orders = orders.filter(vendor=vendor_obj).order_by('-invoiced_on')
+                        orders = orders.filter(vendor=vendor_obj).order_by('-id')
                     if data_json['filters']['status']:
                         status = PurchaseOrderStatus.objects.get(id=data_json['filters']['status_id'])
-                        orders = orders.filter(is_active=True, status=status).order_by('-invoiced_on')
+                        orders = orders.filter(is_active=True, status=status).order_by('-id')
                 
                 response_json['count'] = len(orders)
                 orders = orders[start:end]
@@ -281,7 +281,7 @@ def get_multiple_vendors(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    vendors = Vendor.objects.filter(is_active=True).order_by('id')
+                    vendors = Vendor.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(vendors)
                     vendors = vendors[int(data_json['start']):int(data_json['end'])]
                     response_json['vendors'] = vendors_to_json(vendors)
@@ -466,21 +466,21 @@ def get_multiple_items(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
-                    items = Item.objects.filter(is_active=True).order_by('id')
+                    items = Item.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(items)
                     items = items[int(data_json['start']):int(data_json['end'])]
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'category':
-                    items = items = Item.objects.filter(is_active=True, catagory = ItemCatagory.objects.get(id=data_json['category_id'])).order_by('id')
+                    items = items = Item.objects.filter(is_active=True, catagory = ItemCatagory.objects.get(id=data_json['category_id'])).order_by('-id')
                     response_json['count'] = len(items)
                     items = items[int(data_json['start']):int(data_json['end'])]
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == "name":
-                    items = Item.objects.filter(is_active=True, name__icontains = str(data_json['name']).lower() ).order_by('id')
+                    items = Item.objects.filter(is_active=True, name__icontains = str(data_json['name']).lower() ).order_by('-id')
                     response_json['count'] = len(items)
                     items = items[int(data_json['start']):int(data_json['end'])]
                     response_json['items'] = items_to_json(items)
@@ -492,7 +492,7 @@ def get_multiple_items(self, request):
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'multiple':
-                    items = Item.objects.filter(is_active=True)
+                    items = Item.objects.filter(is_active=True).order_by('-id')
                     if (data_json['filters']['is_applied_name']):
                         if(data_json['filters']['exact_name']):
                             items = items.filter(name=str(data_json['filters']['name']))
@@ -767,13 +767,13 @@ def get_multiple_item_catagories(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    catagroies = ItemCatagory.objects.filter(is_active=True).order_by('id')
+                    catagroies = ItemCatagory.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(catagroies)
                     catagroies = catagroies[int(data_json['start']):int(data_json['end'])]
                     response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
                     response_json['status'] = True
                 if data_json['filter'] == 'parent':
-                    catagroies = ItemCatagory.objects.filter(is_active=True, parent=None).order_by('id')
+                    catagroies = ItemCatagory.objects.filter(is_active=True, parent=None).order_by('-id')
                     response_json['count'] = len(catagroies)
                     catagroies = catagroies[int(data_json['start']):int(data_json['end'])]
                     response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
@@ -966,7 +966,7 @@ def get_multiple_places(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'item':
-                    placements = Placement.objects.filter(item__id = data_json['item_id'])
+                    placements = Placement.objects.filter(item__id = data_json['item_id']).order_by('-id')
                     for p in placements:
                         if p.stock>0:
                             temp = {}
@@ -987,7 +987,7 @@ def get_multiple_places(self, request):
                     response_json['status'] = True
                 else:
                     response_json= {'places':[]}
-                    places = Place.objects.filter(is_active=True).order_by('id')
+                    places = Place.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(places)
                     places = places[int(data_json['start']):int(data_json['end'])]
                     for place in places:
@@ -1249,7 +1249,7 @@ def get_mulitple_purchase_items(self, request):
             if data_json['action'] == 'get':
                 if data_json['filter'] == 'item_on_default':
                     default = Place.objects.get(is_default=True)
-                    purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id']))
+                    purchase_items= PurchaseItem.objects.filter(item__id=int(data_json['item_id'])).order_by('-id')
                     response_json['count'] = len(purchase_items)
                     purchase_items = purchase_items[data_json['start']:data_json['end']]
                     for purchase_item in purchase_items:
@@ -1271,10 +1271,10 @@ def get_mulitple_purchase_items(self, request):
                     response_json['status'] = True
                 if data_json['filter'] == "barcode":
                     item = Item.objects.get(barcode = data_json['barcode'])
-                    purchase_items = PurchaseItem.objects.filter(item__id = item.id )
+                    purchase_items = PurchaseItem.objects.filter(item__id = item.id).order_by('-id')
                     default = SalesSetting.objects.all()
                     default = default[0].default_place_to_sold_from
-                    purchase_items= PurchaseItem.objects.filter(item__id= item.id )
+                    purchase_items= PurchaseItem.objects.filter(item__id= item.id).order_by('-id')
                     for purchase_item in purchase_items:
                         temp = {}
                         try:
@@ -1513,7 +1513,7 @@ def export_inventory(self, request):
                         x.append(t.name)
                 return JsonResponse({'status':True,"fields":x})
             if (data_json['action'] == 'export' ):
-                items = Item.objects.filter(is_active=True)
+                items = Item.objects.filter(is_active=True).order_by('-id')
 
                 if (data_json['filters']['name']):
                     items = items.filter(name__icontains=str(data_json['filters']['name']))
@@ -1651,7 +1651,7 @@ def dashboard_report(self,request):
                 'sold' : 0
             }
             if data_json['action'] == "get":
-                items = Item.objects.filter(is_active = True)
+                items = Item.objects.filter(is_active = True).order_by('-id')
                 response_json['summary']['active_items'] = len(items)
                 response_json['summary']['sold'] = items.aggregate(Sum('sold'))['sold__sum']
                 temp = items.filter().order_by('stock')

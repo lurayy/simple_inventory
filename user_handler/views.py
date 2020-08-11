@@ -153,7 +153,7 @@ def get_multiple_user(self, request):
             user_json = []
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
-                    users = CustomUserBase.objects.filter()
+                    users = CustomUserBase.objects.filter().order_by('-id')
                     response_json['count'] = len(users)
                     users = users[data_json['start']:data_json['end']]
                     for user in users:
@@ -167,7 +167,7 @@ def get_multiple_user(self, request):
                     response_json['users'] = users_json
 
                 if data_json['filter'] == "id":
-                    users = CustomUserBase.objects.filter(id=data_json['user_id'])
+                    users = CustomUserBase.objects.filter(id=data_json['user_id']).order_by('-id')
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -179,7 +179,7 @@ def get_multiple_user(self, request):
 
 
                 if data_json['filter'] == "name":
-                    users = CustomUserBase.objects.filter(Q(username__icontains = data_json['name'])|Q(first_name__icontains = data_json['name'])|Q(last_name__icontains = data_json['name']))
+                    users = CustomUserBase.objects.filter(Q(username__icontains = data_json['name'])|Q(first_name__icontains = data_json['name'])|Q(last_name__icontains = data_json['name'])).order_by('-id')
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -191,7 +191,7 @@ def get_multiple_user(self, request):
                     response_json['users'] = users_json
                 
                 if data_json['filter'] == "role":
-                    users = CustomUserBase.objects.filter(role__id = data_json['role_id'] )
+                    users = CustomUserBase.objects.filter(role__id = data_json['role_id'] ).order_by('-id')
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -203,7 +203,7 @@ def get_multiple_user(self, request):
                     response_json['users'] = users_json
 
                 if data_json['filter'] == "status":
-                    users = CustomUserBase.objects.filter(is_active = data_json['is_active'] )
+                    users = CustomUserBase.objects.filter(is_active = data_json['is_active'] ).order_by('-id')
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -217,11 +217,11 @@ def get_multiple_user(self, request):
                 if data_json['filter'] == "multiple":
                     users = CustomUserBase.objects.all()
                     if data_json['filters']['name']:
-                        users = users.filter(Q(username__icontains = data_json['filters']['name'])|Q(first_name__icontains = data_json['filters']['name'])|Q(last_name__icontains = data_json['filters']['name']))
+                        users = users.filter(Q(username__icontains = data_json['filters']['name'])|Q(first_name__icontains = data_json['filters']['name'])|Q(last_name__icontains = data_json['filters']['name'])).order_by('-id')
                     if data_json['filters']['role']:
-                        users = users.filter(role__id = data_json['filters']['role_id'] )
+                        users = users.filter(role__id = data_json['filters']['role_id'] ).order_by('-id')
                     if data_json['filters']['status']:
-                        users = CustomUserBase.objects.filter(is_active = data_json['filters']['is_active'])
+                        users = CustomUserBase.objects.filter(is_active = data_json['filters']['is_active']).order_by('-id')
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -377,7 +377,7 @@ def get_multiple_roles(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
-                roles = CustomPermission.objects.filter()
+                roles = CustomPermission.objects.filter().order_by('-id')
                 response_json['roles'] = []
                 for role in roles:
                     data = CustomPermissionSerializer(role).data
@@ -409,7 +409,7 @@ def get_role_details(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
-                roles = CustomPermission.objects.filter(id=data_json['role_id'])
+                roles = CustomPermission.objects.filter(id=data_json['role_id']).order_by('-id')
                 response_json['roles'] = []
                 for role in roles:
                     data = CustomPermissionSerializer(role).data
@@ -588,9 +588,9 @@ def get_logs(self, request):
                 activites = UserActivities.objects.all()
                 if data_json['filter'] == "multiple":
                     if data_json['filters']['user']:
-                        activites = activites.filter( user__id = data_json['filters']['user'])
+                        activites = activites.filter( user__id = data_json['filters']['user']).order_by('-id')
                     if data_json['filters']['action']:
-                        activites = activites.filter( action = data_json['filters']['action'])
+                        activites = activites.filter( action = data_json['filters']['action']).order_by('-id')
                         if data_json['filters']['date']:
                             if data_json['filters']['start_date']:
                                 start_date = str_to_datetime(str(data_json['filters']['start_date']))
@@ -738,9 +738,16 @@ def get_notifications(self, request):
                 response_json['notifications'] = []
                 settings = NotificationSetting.objects.filter(roles_to_get_notified = user.role)
                 notifications = []
-                for setting in settings:
-                    for x in (Notification.objects.filter(model = setting.model, read = data_json['read'])):
-                        notifications.append(x)
+                if data_json['read']:
+                    for setting in settings:
+                        for x in (Notification.objects.filter(model = setting.model, read = data_json['read']).order_by('-id')):
+                            notifications.append(x)
+                else:
+                    for setting in settings:
+                        for x in (Notification.objects.filter(model = setting.model, read = False).order_by('-id')):
+                            notifications.append(x)
+                        for x in (Notification.objects.filter(model = setting.model, read = True).order_by('-id')):
+                            notifications.append(x)
                 notifications = notifications[data_json['start']:data_json['end']]
                 for notification in notifications:
                     response_json['notifications'].append(NotificationSerializer(notification).data)

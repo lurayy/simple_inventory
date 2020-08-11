@@ -101,7 +101,7 @@ def get_multiple_invoices(self, request):
                 if str(data_json['filter']).lower() == "none":
                     start = data_json['start']
                     end = data_json['end']    
-                    invoices = Invoice.objects.filter(is_active=True).order_by('-invoiced_on')
+                    invoices = Invoice.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(invoices)
                     invoices = invoices[start:end]
                 # filter using date, will have to do after front-end
@@ -109,7 +109,7 @@ def get_multiple_invoices(self, request):
                     start = data_json['start']
                     end = data_json['end']    
                     added_by_obj = CustomUserBase.objects.get(id=int(data_json['added_by']))
-                    invoices = Invoice.objects.filter(is_active=True, added_by=added_by_obj).order_by('-invoiced_on')
+                    invoices = Invoice.objects.filter(is_active=True, added_by=added_by_obj).order_by('-id')
                     response_json['count'] = len(invoices)
                     invoices = invoices[start:end]
                 if data_json['filter'] == "invoice_number":
@@ -124,15 +124,15 @@ def get_multiple_invoices(self, request):
                     if data_json['filters']['date']:
                         if data_json['filters']['start_date']:
                             start_date = str_to_datetime(str(data_json['filters']['start_date']))
-                            invoices = invoices.filter(invoiced_on__gte = start_date).order_by('-invoiced_on')
+                            invoices = invoices.filter(invoiced_on__gte = start_date).order_by('-id')
                         if data_json['filters']['end_date']:
                             end_date = str_to_datetime(str(data_json['filters']['end_date']))
-                            invoices = invoices.filter(invoiced_on__lte = end_date).order_by('-invoiced_on')
+                            invoices = invoices.filter(invoiced_on__lte = end_date).order_by('-id')
                     if data_json['filters']['customer']:
                         customer_obj = Customer.objects.get(is_active=True, id=int(data_json['filters']['customer_id']))
-                        invoices = invoices.filter(customer=customer_obj).order_by('-invoiced_on')
+                        invoices = invoices.filter(customer=customer_obj).order_by('-id')
                     if data_json['filters']['status']:
-                        invoices = invoices.filter(status__id=str(data_json['filters']['status_id']).lower()).order_by('-invoiced_on')
+                        invoices = invoices.filter(status__id=str(data_json['filters']['status_id']).lower()).order_by('-id')
                     response_json['count'] = len(invoices)
                     invoices = invoices[start:end]
 
@@ -329,14 +329,14 @@ def get_multiple_customers(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == "name":
-                    customers = Customer.objects.filter(is_active=True, first_name__icontains=str(data_json['name']).lower() ).order_by('id')
+                    customers = Customer.objects.filter(is_active=True, first_name__icontains=str(data_json['name']).lower() ).order_by('-id')
                     response_json['count'] = len(customers)
                     customers = customers[int(data_json['start']):int(data_json['end'])]
                     response_json['customers'] = customers_to_json(customers)
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 else:
-                    customers = Customer.objects.filter(is_active=True).order_by('id')
+                    customers = Customer.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(customers)
                     customers = customers[int(data_json['start']):int(data_json['end'])]
                     response_json['customers'] = customers_to_json(customers)
@@ -506,7 +506,7 @@ def get_customer_categories(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
-                x = CustomerCategory.objects.filter(is_active=True)
+                x = CustomerCategory.objects.filter(is_active=True).order_by('-id')
                 response_json = {
                     'status':True,
                     'customerCategories': categories_to_json(x),
@@ -852,7 +852,7 @@ def get_multiple_discounts(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    discounts = Discount.objects.filter(is_active=True).order_by('id')
+                    discounts = Discount.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(discounts)
                     discounts = discounts[int(data_json['start']):int(data_json['end'])]
                     response_json['discounts'] = discounts_to_json(discounts)
@@ -1020,7 +1020,7 @@ def get_multiple_taxes(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    taxes = Tax.objects.filter(is_active=True).order_by('id')
+                    taxes = Tax.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(taxes)
                     taxes = taxes[int(data_json['start']):int(data_json['end'])]
                     response_json['default_vat'] = taxes_to_json([SalesSetting.objects.filter(is_active=True)[0].default_vat_tax])
@@ -1268,7 +1268,7 @@ def get_bill(self,request):
             data_json = json.loads(json_str)
             if data_json['action'] == "export":
                 invoice = Invoice.objects.get(id= data_json['invoice'])
-                invoice_items = InvoiceItem.objects.filter(invoice = invoice)
+                invoice_items = InvoiceItem.objects.filter(invoice = invoice).order_by('-id')
                 setting = Setting.objects.filter()[0]
                 data = {
                     'invoice' : invoices_to_json([invoice])[0] ,
