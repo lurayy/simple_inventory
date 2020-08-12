@@ -758,9 +758,10 @@ def get_notifications(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-@require_http_methods(['GET'])
+@require_http_methods(['POST'])
 @bind
 def read_notification(self, request):
+    print("her")
     response_json = {'status':False}
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
     if jwt_check:

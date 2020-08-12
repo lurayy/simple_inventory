@@ -32,9 +32,9 @@ creds = {
     'password':'pass'
 }
 
-
+print('asdf')
 r = requests.post(log_in_url, data= json.dumps(creds))
-# print(r.text)
+print(r.text)
 token = r.json()['token']
 r = requests.get(base_url+'user/verify')
 csrftoken = r.json()['x-csrftoken']
@@ -45,7 +45,7 @@ headers = {
 }
 
 r = requests.get(base_url+'user/current', headers=headers)
-# print(r.text)
+print(r.text)
 
 
 # data = {
@@ -69,22 +69,33 @@ r = requests.get(base_url+'user/current', headers=headers)
 # print(r.text)
 
 
+# data = {
+#   'action' : 'get',
+#   'filters' : {
+#     'low_items' : {
+#       'start' : 0,
+#       'end' : 25
+#     },
+#     'most_sold_items' : {
+#       'start' : 0,
+#       'end' : 25
+#     }
+#   }
+# }
+
+
+# r = requests.post(base_url+'inventory/summary', headers = headers, data = json.dumps(data))
+# print(r.text)
+
 data = {
-  'action' : 'get',
-  'filters' : {
-    'low_items' : {
-      'start' : 0,
-      'end' : 25
-    },
-    'most_sold_items' : {
-      'start' : 0,
-      'end' : 25
-    }
-  }
+  'action' : 'read',
+  'notifications_id' : [
+    2,4
+  ]
 }
 
-
-r = requests.post(base_url+'inventory/summary', headers = headers, data = json.dumps(data))
+print("weasfd")
+r = requests.post(base_url+'user/notification/read', headers = headers, data = json.dumps(data))
 print(r.text)
 
 # data = {
