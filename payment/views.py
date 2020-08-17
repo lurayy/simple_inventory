@@ -517,7 +517,7 @@ def credit_payment(self, request):
                             remarks = "automated entry for credit payment",
                             date = now(),
                             is_add = False,
-                            bundle_id = bid
+                            bundle_id = bid,
                         )
                         account = Account.objects.get(id = data_json['choosen_account'])
                         entry = LedgerEntry.objects.create(

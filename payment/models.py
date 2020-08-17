@@ -66,6 +66,8 @@ class PaymentMethod(models.Model):
     ('bank', 'Bank')
     )
     header = models.CharField(max_length=10, choices=payment_method_types, default='credit')
+
+    is_transaction_online = models.BooleanField(default=True)
     
     is_active = models.BooleanField(default=True)
 

@@ -76,7 +76,7 @@ class LedgerEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True) 
 
     def __str__(self):
         return f'{self.account} {self.payment}'
@@ -411,7 +411,7 @@ def update_ledger(entry, amount):
         remarks = "correction for ledger :"+str(entry.id),
         date = django.utils.timezone.now(),
         is_add = entry.is_add,
-        bundle_id = entry.bundle_id
+        bundle_id = entry.bundle_id,
     )
     return new_entry
 

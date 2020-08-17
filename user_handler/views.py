@@ -748,6 +748,7 @@ def get_notifications(self, request):
                             notifications.append(x)
                         for x in (Notification.objects.filter(model = setting.model, read = True).order_by('-id')):
                             notifications.append(x)
+                response_json['count_notifications'] = len(notifications)
                 notifications = notifications[data_json['start']:data_json['end']]
                 for notification in notifications:
                     response_json['notifications'].append(NotificationSerializer(notification).data)
