@@ -2,9 +2,9 @@ import requests
 import json
 import datetime
 # base_url = 'http://localhost:8000/api/v1/'
-base_url = 'https://simpleim.herokuapp.com/api/v1/'
+# base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
-# base_url = "https://erp.mandalaitsolutions.com/api/v1/"
+base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # data = {
 #   'email' : "rabbit.bonex@gmail.com",
@@ -87,16 +87,16 @@ print(r.text)
 # r = requests.post(base_url+'inventory/summary', headers = headers, data = json.dumps(data))
 # print(r.text)
 
-data = {
-  'action' : 'read',
-  'notifications_id' : [
-    2,4
-  ]
-}
+# data = {
+#   'action' : 'read',
+#   'notifications_id' : [
+#     2,4
+#   ]
+# }
 
-print("weasfd")
-r = requests.post(base_url+'user/notification/read', headers = headers, data = json.dumps(data))
-print(r.text)
+# print("weasfd")
+# r = requests.post(base_url+'user/notification/read', headers = headers, data = json.dumps(data))
+# print(r.text)
 
 # data = {
 #   'action' : 'get',
@@ -166,31 +166,31 @@ print(r.text)
 # }
 
 
-# data = {
-#   'action' : 'get'
-# }
+data = {
+  'action' : 'get'
+}
 
-# sess = requests.post(base_url+'user/roles/get', headers=headers, data=json.dumps(data), verify=False)
+sess = requests.post(base_url+'user/roles/get', headers=headers, data=json.dumps(data), verify=False)
 
-# sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
-# roles = sess.json()
+sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
+roles = sess.json()
 
-# res = {
-#   'action' : 'add',
-#   'name' : 'new_role_man',
-#   'description' : "asdfasdfasdfasdf",
-#   'role_id' : 1,
-#   'powers' : roles['valid_powers'],
-#   'values': []
-# }
+res = {
+  'action' : 'add',
+  'name' : 'somerole',
+  'description' : "asdfasdfasdfasdf",
+  'role_id' : 1,
+  'powers' : roles['valid_powers'],
+  'values': []
+}
 
-# for i in range(len(roles['valid_powers'])):
-#   res['values'].append(True)
+for i in range(len(roles['valid_powers'])):
+  res['values'].append(False)
 
-# # print(res)
+# print(res)
 
-# sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
-# print(sess.text)
+sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
+print(sess.text)
 
 # data = {
 #   'action' : 'update',
