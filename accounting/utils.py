@@ -40,6 +40,7 @@ def ledger_entries_to_json(models):
         temp['account_str'] = model.account.name
         temp['account_type_str'] = model.account.account_type.name
         temp['account_header_str'] = model.account.account_type.header
+        temp['account_uuid'] = model.account.uuid
         temp['payment'] = payment_to_json([model.payment])
         data.append(temp)
     return data
