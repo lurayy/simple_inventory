@@ -33,8 +33,16 @@ from django.template.loader import get_template
 
 import django
 
+from user_handler.models import log
+
 def csrf(request):
     return JsonResponse({'x-csrftoken': get_token(request)})
+
+def ss(request):    
+    data = {'token':request.headers['Authorization'].split(' ')[1]}
+    valid_data = VerifyJSONWebTokenSerializer().validate(data)
+    user = valid_data['user']
+    return user
 
 
 def check(user):
@@ -131,6 +139,7 @@ def user_creation(self, request):
                 else:
                     profile = Profile.objects.create(user = new_user)
                 response_json['status'] = True
+                log('user', 'create', new_user.id, str(new_user), {}, ss(request))
             return JsonResponse(response_json)
     except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, IntegrityError, Exception) as exp:
         if (new_user):
@@ -302,6 +311,7 @@ def update_user(self, request):
             elif data_json['action'] == "deactivate":
                 user.is_active = False
                 user.save()
+                log('user', 'deactivate', user.id, str(user), {}, ss(request))
                 response_json['status'] = True    
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -325,10 +335,13 @@ def delete_user(self, request):
                 user = CustomUserBase.objects.get(id = data_json['user_id'])
                 user.is_active = False
                 user.save()
+                log('user', 'deactivate', user.id, str(user), {}, ss(request))
+
                 response_json['status'] = True
             elif data_json['action'] == "activate":
                 user = CustomUserBase.objects.get(id = data_json['user_id'])
                 user.is_active = True
+                log('user', 'activate', user.id, str(user), {}, ss(request))
                 user.save()
                 response_json['status'] = True
             return JsonResponse(response_json)
@@ -483,6 +496,7 @@ def add_new_role(self, request):
                 from .temp import tes
                 tes()
                 response_json['status'] = True
+                log('user/roles', 'create', 0, str(0), {}, ss(request))
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -516,6 +530,7 @@ def update_role(self, request):
                 from .temp import tes
                 tes()
                 response_json['status'] = True
+                log('user/role', 'update', 0, str(0), {}, ss(request))
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -539,6 +554,7 @@ def assign_role(self, request):
                 role = CustomPermission.objects.get(id = data_json['role_id'])
                 user.role = role
                 user.save()
+                log('user/role/assign', 'create', user.id, str(user), {'msg' : 'given power to object id','role_id': role.id}, ss(request))
                 response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -560,7 +576,9 @@ def delete_role(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "delete":
                 role = CustomPermission.objects.get(id=data_json['role_id'])
+                x = role.id
                 role.delete()
+                log('user/role', 'delete', x, str(x), {}, ss(request))
                 response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
