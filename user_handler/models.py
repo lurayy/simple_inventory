@@ -175,7 +175,34 @@ class Notification(models.Model):
 
     read = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now=True)
-    
+
+class ActivityLog(models.Model):
+    action_choice = (
+        ('delete', "Delete"),
+        ('create', "Create"),
+        ('update', "Update"),
+        ('soft-delete', "Soft-delete")
+    )
+    model = models.CharField(max_length=25)
+    action = models.CharField(max_length=25, choices=action_choice)
+    object_id = models.PositiveIntegerField()
+    object_str = models.CharField(max_length=255)
+    change = models.TextField()
+    user = models.ForeignKey(CustomUserBase, on_delete=models.PROTECT)
+    date = models.DateTimeField(auto_now_add=True)   
+
+    def delete(self):
+        raise Exception("Activity logs cannot be removed.")
+
+def log(model, action, id, stri, change, user):
+    ActivityLog.objects.create(
+        model = model,
+        action = action,
+        object_id = id,
+        object_str = stri,
+        change =  str(change),
+        user = user
+    )
 
 def notify(msg, object_id, model):
     try:
@@ -231,3 +258,4 @@ def export_data(data):
     html = template.render(data)
     pdf = render_to_pdf('notification', data)
     return pdf
+

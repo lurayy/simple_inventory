@@ -10,7 +10,7 @@ from accounting.models import AccountType, Account, LedgerEntry, MonthlyStats, u
 from accounting.utils import accounts_to_json, accounts_types_to_json, ledger_entries_to_json
 from payment.models import Payment, PaymentMethod
 import uuid
-
+from user_handler.models import log
 
 @require_http_methods(['POST'])
 @bind
@@ -109,7 +109,10 @@ def add_new_ledger_entry(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            print(data_json)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']        
+            
             if data_json['action'] == "add":
                 if data_json['bundle_id']:
                     bundle_id = data_json['bundle_id']
@@ -125,6 +128,8 @@ def add_new_ledger_entry(self, request):
                         bundle_id = bundle_id
                     )
                 response_json['status'] = True
+                log('accounting/ledger_entry', 'create', entry_model.id, str(entry_model), {}, user)
+
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -173,16 +178,28 @@ def update_ledger_entry(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']        
             if data_json['action'] == "update":
                 entry = LedgerEntry.objects.get(id = data_json['ledger_entry_id'])
                 new_entry = update_ledger(entry, data_json['amount'])
                 response_json['entries'] = ledger_entries_to_json([entry, new_entry])
                 response_json['status'] = True
+                log('accounting/ledger_entry', 'update', entry.id, str(entry), {}, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+
+# data = {'token':request.headers['Authorization'].split(' ')[1]}
+# valid_data = VerifyJSONWebTokenSerializer().validate(data)
+# user = valid_data['user']        
+
+# log('accounting/ledger_entry', 'update', entry.id, str(entry), {}, user)
 
 # @require_http_methods(['POST'])
 # @bind

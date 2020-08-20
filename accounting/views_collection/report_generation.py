@@ -30,6 +30,10 @@ def generate_profit_loss_statement(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == "none":
+                    data = {'token':request.headers['Authorization'].split(' ')[1]}
+                    valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                    user = valid_data['user']        
+                
                     monthly_stats = MonthlyStats.objects.filter(is_active=True).order_by('-date')
                     today =datetime.datetime.now()
                     if len(monthly_stats) >= 0 :
@@ -72,6 +76,8 @@ def generate_profit_loss_statement(self, request):
                     }
                     new_entries = LedgerEntry.objects.filter(is_active=True, created_at__range=[latest_calulcation_date, today])
                     response_json['this_month'] = sum_from_legder_entries(new_entries, fields)
+                    log('accounting/report_generations', 'get', 0, "zero", {}, user)
+
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

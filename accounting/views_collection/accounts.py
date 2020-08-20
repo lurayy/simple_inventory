@@ -13,6 +13,7 @@ from inventory.utils import vendors_to_json
 from sales.utils import customers_to_json
 import django
 
+from user_handler.models import log
 
 @require_http_methods(['POST'])
 @bind
@@ -145,6 +146,10 @@ def add_new_account(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+            
             
             if data_json['action'] == "add":
                 account = Account.objects.create(
@@ -166,6 +171,7 @@ def add_new_account(self, request):
                 account.save()
                 response_json['accounts'] = accounts_to_json([account])
                 response_json['status'] = True
+                log('accounting/account', 'create', account.id, str(account), {}, user)
                 return JsonResponse( response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -269,7 +275,9 @@ def delete_accounts(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-                    
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']        
             if data_json['action'] == 'delete':
                 for i in range(len(data_json['accounts_ids'])):
                     account = Account.objects.get(id=data_json['accounts_ids'][i], uuid=data_json['accounts_uuids'][i])
@@ -277,8 +285,9 @@ def delete_accounts(self, request):
                         raise Exception("The account you are trying to delete has a dependent(child) account.")
                     account.is_active = False
                     account.is_closed = True
+                    log('accounting/account', 'soft-delete', account.id, str(account), {}, user)
                     account.save()
-                response_json['status'] = True
+                response_json['status'] = True               
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -311,18 +320,25 @@ def update_account(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']        
+            change = []
             account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'], is_active =True)
             if data_json['action'] == "update":
                 account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'])
                 account.name = data_json['name']
                 account.opening_date = data_json['opening_date']
                 if data_json['new_parent']:
+                    change.append('parent change from : ', account.parent.uuid)
                     account.parent = Account.objects.get(id=data_json['parent_id'], uuid=data_json['parent_uuid'])
                 account.save()
                 if data_json['customer']:
+                    change.append('customer change from : ', account.customer)
                     customer = Customer.objects.get(id=data_json['customer'])
                     account.customer = customer
                 if data_json['vendor']:
+                    change.append('vendor change from : ', account.vendor)
                     vendor = Vendor.objects.get(id=data_json['vendor'])
                     account.vendor = vendor
                 account.save()
@@ -331,12 +347,15 @@ def update_account(self, request):
                 account.closing_balance = account.current_amount
                 account.closing_date = django.utils.timezone.now()
                 account.save()
+                change.append('Account closed')
             if data_json['action'] == 'open':
                 account.is_closed = False
                 account.closing_balance = 0
                 account.closing_date = None
                 account.save()
+                change.append('Account reopened.')
             response_json['status'] = True
+            log('accounting/account', 'update', account.id, str(account), change, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

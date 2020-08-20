@@ -26,6 +26,7 @@ from barcode import generate
 import xlwt
 from django.utils import timezone
 
+from user_handler.models import log
 
 from django.db.models import Sum
 
@@ -126,6 +127,11 @@ def add_new_purchase_order(self,request):
                 purchase_order.save()
                 response_json['status'] = True
                 response_json['purchase_orders'] = purchase_orders_to_json([purchase_order])
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']        
+                log('inventory/purchase_order', 'create', purchase_order.id, str(purchase_order), {}, user)
+
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -186,18 +192,39 @@ def update_purchase_order(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
-                purchase_order.discount_type = data_json['discount_type']
-                purchase_order.discount = data_json['discount']
-                purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
-                purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
-                purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
-                purchase_order.status = PurchaseOrderStatus.objects.get(id=int(data_json['status']))
-                purchase_order.third_party_invoice_number = data_json['third_party_invoice_number']
-                purchase_order.bill_received = data_json['bill_received']
+                change = []
+                if data_json['discount_type']:
+                    change.append('changed discount type from : ',purchase_order.discount_type)
+                    purchase_order.discount_type = data_json['discount_type']
+                if data_json['discount']:
+                    change.append('changed discount type from : ',purchase_order.discount_type)
+                    purchase_order.discount = data_json['discount']
+                if data_json['vendor']:
+                    change.append('changed vendor from : ',purchase_order.vendor)
+                    purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
+                if data_json['invoiced_on']:
+                    change.append('changed invoiced on  from : ',str(purchase_order.invoiced_on))
+                    purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
+                if data_json['completed_on']:
+                    change.append('changed completed on from : ',str(purchase_order.completed_on))
+                    purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
+                if data_json['status']:
+                    change.append('changed status from : ',str(purchase_order.status))
+                    purchase_order.status = PurchaseOrderStatus.objects.get(id=int(data_json['status']))
+                if data_json['third_party_invoice_number']:
+                    change.append('changed third_party_invoice_number from : ',str(purchase_order.third_party_invoice_number))
+                    purchase_order.third_party_invoice_number = data_json['third_party_invoice_number']
+                if data_json['bill_received']:
+                    change.append('changed bill_received from : ',str(purchase_order.bill_received))
+                    purchase_order.bill_received = data_json['bill_received']
                 purchase_order.save()
                 response_json['status'] = True
                 response_json['purchase_order'] = purchase_orders_to_json([purchase_order])
-            return JsonResponse(response_json)
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user'] 
+                log('inventory/purchase_order', 'update', purchase_order.id, str(purchase_order), change, user)   
+                return JsonResponse(response_json)
         except(ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
@@ -223,6 +250,9 @@ def delete_purchase_orders(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user'] 
             if data_json['action'] == "delete":
                 ids = data_json['purchase_orders_id']
                 for id in ids:
@@ -230,6 +260,7 @@ def delete_purchase_orders(self, request):
                     purchase_order.is_active = False
                     purchase_order.status = PurchaseOrderStatus.objects.filter(is_end=False)[0]
                     purchase_order.save()
+                    log('inventory/purchase_order', 'delete', purchase_order.id, str(purchase_order), {}, user)   
                     for p_item in PurchaseItem.objects.filter(purchase_order = purchase_order):
                         p_item.is_active = False
                         p_item.status = "incomplete"
@@ -329,6 +360,7 @@ def add_new_vendor(self, request):
                     added_by = user
                 )
                 vendor.save()
+                log('inventory/vendor', 'create', vendor.id, str(vendor), {}, user)
                 response_json['vendors'] = vendors_to_json([vendor])
                 response_json['status'] = True
             return JsonResponse(response_json)
@@ -357,12 +389,15 @@ def delete_vendors(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             ids = data_json['vendors_id']
+            valid_data = VerifyJSONWebTokenSerializer().validate({'token':request.headers['Authorization'].split(' ')[1]})
+            user = valid_data['user']    
             if ids is None:
                 raise Exception('Empty Vendor list')
             for id in ids:
                 vendor = Vendor.objects.get(id=int(id))
                 vendor.is_active = False
                 vendor.save()
+                log('inventory/vendor', 'soft-delete', vendor.id, str(vendor), {}, user)
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -409,21 +444,46 @@ def update_vendor(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            valid_data = VerifyJSONWebTokenSerializer().validate({'token':request.headers['Authorization'].split(' ')[1]})
+            user = valid_data['user']
+                
             if data_json['action'] == "update":
-                vendor = Vendor.objects.get(id=int(data_json['vendor_id']))
-                vendor.first_name = str(data_json['first_name'])
-                vendor.last_name = str(data_json['last_name'])
-                vendor.middle_name = str(data_json['middle_name'])
-                vendor.email = str(data_json['email'])
-                vendor.website = str(data_json['website'])
-                vendor.tax_number = str(data_json['tax_number'])
-                vendor.phone1 = str(data_json['phone1'])
-                vendor.phone2 = str(data_json['phone2'])
-                vendor.address = str(data_json['address'])
-                vendor.is_active = (data_json['is_active'])
-                vendor.country = data_json['country']
-                vendor.company = data_json['company']
+                changes = []
+                if data_json['first_name']:
+                    changes.append('vendor.first_name : ', str(vendor.first_name))
+                    vendor.first_name = str(data_json['first_name'])
+                if data_json['last_name']:
+                    changes.append('vendor.last_name : ', str(vendor.last_name))
+                    vendor.last_name = str(data_json['last_name'])
+                if data_json['middle_name']:
+                    changes.append('vendor.middle_name : ', str(vendor.middle_name))
+                    vendor.middle_name = str(data_json['middle_name'])
+                if data_json['email']:
+                    changes.append('vendor.email : ', str(vendor.email))
+                    vendor.email = str(data_json['email'])
+                if data_json['website']:
+                    changes.append('vendor.website : ', str(vendor.website))
+                    vendor.website = str(data_json['website'])
+                if data_json['tax_number']:
+                    changes.append('vendor.tax_number : ', str(vendor.tax_number))
+                    vendor.tax_number = str(data_json['tax_number'])
+                if data_json['phone1']:
+                    changes.append('vendor.phone1 : ', str(vendor.phone1))
+                    vendor.phone1 = str(data_json['phone1'])
+                if data_json['phone2']:
+                    changes.append('vendor.phone2 : ', str(vendor.phone2))
+                    vendor.phone2 = str(data_json['phone2'])
+                if data_json['address']:
+                    changes.append('vendor.address : ', str(vendor.address))
+                    vendor.address = str(data_json['address'])
+                if data_json['country']:
+                    changes.append('vendor.country : ', str(vendor.country))
+                    vendor.tax_number = str(data_json['tax_number'])
+                if data_json['company']:
+                    changes.append('vendor.company : ', str(vendor.company))
+                    vendor.tax_number = str(data_json['company'])
                 vendor.save()
+                log('inventory/vendor', 'update', vendor.id, str(vendor), changes, user)
                 response_json['vendors'] = vendors_to_json([vendor])
                 response_json['status'] = True
             return JsonResponse(response_json)
@@ -577,6 +637,9 @@ def add_new_item(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "add":
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']        
                 item = Item.objects.create(
                     name = str(data_json['name']),
                     sales_price = data_json['sales_price'],
@@ -589,6 +652,7 @@ def add_new_item(self, request):
                     weight_unit = data_json['weight_unit']
                 )
                 item.save()
+                log('inventory/item', 'create', item.id, str(item), {}, user)
                 try:
                     if (data_json['product_images']):
                         for image_data in data_json['product_images']:
@@ -667,16 +731,36 @@ def update_item(self, request):
             response_json = {'status':False}
             if data_json['action'] == "update":
                 item = Item.objects.get(id=int(data_json['item_id']))
-                item.name = str(data_json['name'])
-                item.catagory = ItemCatagory.objects.get(id=int(data_json['catagory']))
-                item.is_active = data_json['is_active']
-                item.description = data_json['description']
-                item.weight = data_json['weight']
-                item.sales_price = data_json['sales_price']
-                item.average_cost_price =  data_json['average_cost_price']
-                item.barcode = data_json['barcode']
-                item.vat_enabled = data_json['vat_enabled']
-                item.weight_unit = data_json['weight_unit']
+
+                if data_json['name']:
+                    changes.append('item.name : ', str(item.name))
+                    item.name = str(data_json['name'])
+                if data_json['description']:
+                    changes.append('item.description : ', str(item.description))
+                    item.description = (data_json['description'])
+                if data_json['weight']:
+                    changes.append('item.name : ', str(item.weight))
+                    item.weight = (data_json['weight'])
+                
+                if data_json['sales_price']:
+                    changes.append('item.sales_price : ', str(item.sales_price))
+                    item.sales_price = (data_json['sales_price'])
+                if data_json['average_cost_price']:
+                    changes.append('item.average_cost_price : ', str(item.average_cost_price))
+                    item.average_cost_price = (data_json['average_cost_price'])
+                if data_json['barcode']:
+                    changes.append('item.barcode : ', str(item.barcode))
+                    item.barcode = (data_json['barcode'])
+                if data_json['vat_enabled']:
+                    changes.append('item.vat_enabled : ', str(item.vat_enabled))
+                    item.vat_enabled = (data_json['vat_enabled'])
+                if data_json['weight_unit']:
+                    changes.append('item.weight_unit : ', str(item.weight_unit))
+                    item.weight_unit = (data_json['weight_unit'])
+                if data_json['category']:
+                    changes.append('item.category : ', str(item.category))
+                    category = ItemCatagory.objects.get(id=int(data_json['catagory']))
+                    item.category = category
                 try:
                     if (data_json['product_images']):
                         for image_data in data_json['product_images']:
@@ -690,14 +774,18 @@ def update_item(self, request):
                             )
                             x.image = data
                             x.save()
+                            changes.append('changes product image')
                 except Exception as exp:
                     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 if data_json['remove_image']:
                     for id in data_json['remove_image']:
                         x = ItemImage.objects.get(id = id)
                         x.delete()
+                        changes.append('changes product image')
                 item.save()
                 response_json = {'status':True}
+                log('inventory/item', 'update', item.id, str(item), changes, user)
+
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -723,11 +811,15 @@ def delete_items(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']        
             ids = data_json['items_id']
             for id in ids:
                 item = Item.objects.get(id=int(id))
                 item.is_active = False
                 item.save()
+                log('inventory/item', 'soft-delete', item.id, str(item), {}, user)
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -814,6 +906,10 @@ def add_new_item_catagory(self, request):
                 catagory.save()
                 response_json['item_category'] = item_catagories_to_json([catagory])
                 response_json['status'] = True
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']        
+                log('inventory/item_category', 'create', catagory.id, str(catagory), {}, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -886,8 +982,8 @@ def update_item_category(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 item_catagory = ItemCatagory.objects.get(id=int(data_json['item_category_id']))
+                old = item_catagory.name
                 item_catagory.name = str(data_json['name'])
-                item_catagory.is_active = data_json['is_active']
                 try:
                     parent = ItemCatagory.objects.get(id=data_json['parent'])
                 except:
@@ -895,13 +991,15 @@ def update_item_category(self, request):
                 item_catagory.parent = parent
                 item_catagory.save()
                 response_json = {'status':True}
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']        
+                log('inventory/item_category', 'update', item_catagory.id, str(item_catagory), [str('item_category.name : ',old)], user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
-
 
 
 @require_http_methods(['POST'])
@@ -921,12 +1019,16 @@ def delete_item_catagories(self, request):
             return JsonResponse(jwt_check)    
         try:
             json_str = request.body.decode(encoding='UTF-8')
-            data_json = json.loads(json_str)
+            data_json = json.loads(json_str)            
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             ids = data_json['item_catagories_id']
             for id in ids:
                 item_catagories = ItemCatagory.objects.get(id=int(id))
                 item_catagories.is_active = False
                 item_catagories.save()
+                log('inventory/item_category', 'soft-delete', item_catagories.id, str(item_catagories), {}, user)
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:

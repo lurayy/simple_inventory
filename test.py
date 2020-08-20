@@ -1,10 +1,10 @@
 import requests
 import json
 import datetime
-# base_url = 'http://localhost:8000/api/v1/'
+base_url = 'http://localhost:8000/api/v1/'
 # base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
-base_url = "https://erp.mandalaitsolutions.com/api/v1/"
+# base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
 # data = {
 #   'email' : "rabbit.bonex@gmail.com",
@@ -166,31 +166,31 @@ print(r.text)
 # }
 
 
-data = {
-  'action' : 'get'
-}
+# data = {
+#   'action' : 'get'
+# }
 
-sess = requests.post(base_url+'user/roles/get', headers=headers, data=json.dumps(data), verify=False)
+# sess = requests.post(base_url+'user/roles/get', headers=headers, data=json.dumps(data), verify=False)
 
-sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
-roles = sess.json()
+# sess = requests.post(base_url+'user/role/valid', headers=headers, data=json.dumps(data), verify=False)
+# roles = sess.json()
 
-res = {
-  'action' : 'add',
-  'name' : 'somerole',
-  'description' : "asdfasdfasdfasdf",
-  'role_id' : 1,
-  'powers' : roles['valid_powers'],
-  'values': []
-}
+# res = {
+#   'action' : 'add',
+#   'name' : 'somerole',
+#   'description' : "asdfasdfasdfasdf",
+#   'role_id' : 1,
+#   'powers' : roles['valid_powers'],
+#   'values': []
+# }
 
-for i in range(len(roles['valid_powers'])):
-  res['values'].append(False)
+# for i in range(len(roles['valid_powers'])):
+#   res['values'].append(False)
 
 # print(res)
 
-sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
-print(sess.text)
+# sess = requests.post(base_url+'user/role/add', headers=headers, data=json.dumps(res), verify=False)
+# print(sess.text)
 
 # data = {
 #   'action' : 'update',
@@ -228,21 +228,21 @@ print(sess.text)
 #   ]  
 # }
 
-# data = {
-#   'action' : 'add',
-#   'name' : 'ssssss',
-#   'weight': 0,
-#   'description' : 's',
-#   'average_cost_price' : 25,
-#   "catagory" : 1,
-#   'sales_price' : 25,
-#   'weight_unit' : 'kg',
-#   'barcode' : 12345234553,
-#   'vat_enabled' : True,
-#   'product_images' : None
-# }
-# sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
-# print(sess.text)
+data = {
+  'action' : 'add',
+  'name' : 'ssssss',
+  'weight': 0,
+  'description' : 's',
+  'average_cost_price' : 25,
+  "catagory" : 1,
+  'sales_price' : 25,
+  'weight_unit' : 'kg',
+  'barcode' : 12345234553,
+  'vat_enabled' : True,
+  'product_images' : None
+}
+sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
+print(sess.text)
 # data = {
 #     'action' : 'get',
 #     'filters' : {

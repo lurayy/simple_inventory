@@ -255,9 +255,6 @@ def user_data(user):
     user_json['last_name'] = user.last_name
     return user_json
 
-
-
-
 @require_http_methods(['POST'])
 @bind
 def update_user(self, request):
@@ -748,7 +745,7 @@ def get_notifications(self, request):
                             notifications.append(x)
                         for x in (Notification.objects.filter(model = setting.model, read = True).order_by('-id')):
                             notifications.append(x)
-                response_json['count_notifications'] = len(notifications)
+                response_json['count'] = len(notifications)
                 notifications = notifications[data_json['start']:data_json['end']]
                 for notification in notifications:
                     response_json['notifications'].append(NotificationSerializer(notification).data)
