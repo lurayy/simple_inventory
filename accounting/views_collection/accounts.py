@@ -112,7 +112,7 @@ def get_multiple_accounts(self, request):
                     if data_json['filters']['account_type']:
                         accounts = accounts.filter(account_type__id = data_json['filters']['account_type'])
                     if data_json['filters']['header']:
-                        accounts = account.filter(account_type__header = data_json['filters']['header'])
+                        accounts = accounts.filter(account_type__header = data_json['filters']['header'])
                     response_json['count'] = len(accounts)    
                     accounts = accounts[start:end]
                     response_json['accounts'] = accounts_to_json(accounts)

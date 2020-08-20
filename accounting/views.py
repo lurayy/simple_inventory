@@ -3,7 +3,6 @@ from .views_collection.types_curd import get_multiple_account_types, add_account
 from .views_collection.ledger_entries import get_multiple_ledger_entries, add_new_ledger_entry, get_ledger_entry_details, update_ledger_entry
 from .views_collection.report_generation import generate_profit_loss_statement, generate_balance_sheet_statement
 
-
 import json
 from django.http import JsonResponse
 from inventory.utils import  str_to_datetime

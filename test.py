@@ -55,9 +55,9 @@ r = requests.get(base_url+'user/current', headers=headers)
 # r = requests.post(base_url+'user/refresh', headers= headers, data = json.dumps(data))
 # print(r.text)
 
-data = {"action":"update","account_type_id":5,"header":"expense","name":"check hait ta","status":{"is_active":True}}
-r = requests.post(base_url+'accounting/accounts/type/update', headers = headers, data= json.dumps(data))
-print(r.text)
+# data = {"action":"update","account_type_id":5,"header":"expense","name":"check hait ta","status":{"is_active":True}}
+# r = requests.post(base_url+'accounting/accounts/type/update', headers = headers, data= json.dumps(data))
+# print(r.text)
 
 
 # data = {
@@ -458,3 +458,24 @@ print(r.text)
 # }
 # sess = requests.post(base_url+'payment/credit/pay', headers=headers, data=json.dumps(data))
 # print(sess.text)
+
+data = {
+    'action' : 'get',
+    'start' : 0,
+    'end' : 25,
+    "filter" : 'multiple',
+    'filters' : {
+        'status' : None,
+        'name' : None,
+        'vendor' : None,
+        'customer' :None,
+        'current_amount' : None,
+        'credits' : None,
+        'parent' : None,
+        'children' : None,
+        'account_type' : None,
+        'header' : 'assets'
+    }
+}
+sess = requests.post(base_url+'accounting/accounts/get', headers=headers, data=json.dumps(data))
+print(sess.text)
