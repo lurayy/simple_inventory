@@ -45,7 +45,7 @@ headers = {
 }
 
 r = requests.get(base_url+'user/current', headers=headers)
-print(r.text)
+# print(r.text)
 
 
 # data = {
@@ -55,18 +55,9 @@ print(r.text)
 # r = requests.post(base_url+'user/refresh', headers= headers, data = json.dumps(data))
 # print(r.text)
 
-
-
-
-# data = {
-#   'action' : 'get',
-#   'filter' : 'none',
-#   'start' : 1,
-#   'end' : 2
-# }
-
-# r = requests.post(base_url+'inventory/items/get', headers = headers, data= json.dumps(data))
-# print(r.text)
+data = {"action":"update","account_type_id":5,"header":"expense","name":"check hait ta","status":{"is_active":True}}
+r = requests.post(base_url+'accounting/accounts/type/update', headers = headers, data= json.dumps(data))
+print(r.text)
 
 
 # data = {
@@ -228,21 +219,21 @@ print(r.text)
 #   ]  
 # }
 
-data = {
-  'action' : 'add',
-  'name' : 'ssssss',
-  'weight': 0,
-  'description' : 's',
-  'average_cost_price' : 25,
-  "catagory" : 1,
-  'sales_price' : 25,
-  'weight_unit' : 'kg',
-  'barcode' : 12345234553,
-  'vat_enabled' : True,
-  'product_images' : None
-}
-sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data = {
+#   'action' : 'add',
+#   'name' : 'ssssss',
+#   'weight': 0,
+#   'description' : 's',
+#   'average_cost_price' : 25,
+#   "catagory" : 1,
+#   'sales_price' : 25,
+#   'weight_unit' : 'kg',
+#   'barcode' : 12345234553,
+#   'vat_enabled' : True,
+#   'product_images' : None
+# }
+# sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
+# print(sess.text)
 # data = {
 #     'action' : 'get',
 #     'filters' : {

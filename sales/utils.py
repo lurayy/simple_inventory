@@ -11,6 +11,7 @@ def invoices_to_json(models):
         temp['customer_name'] = str(Customer.objects.get(id=temp['customer']))
         temp['added_by_name'] = str(CustomUserBase.objects.get(id=temp['added_by']))
         temp['status_name'] = str(model.status.name)
+        temp['revision']
         if temp['total_weight']:
             unit = Setting.objects.filter(is_active=True)[0].default_weight_unit
             temp['weight_unit'] = unit

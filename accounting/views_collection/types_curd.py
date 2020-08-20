@@ -100,15 +100,16 @@ def udpate_account_types(self, request):
             
             if data_json['action'] =="update":
                 x = AccountType.objects.get(id = data_json['account_type_id'])
-                changes = []
+                changes = {}
                 if data_json['name']:
-                    changes.append(str('account_type.name : ', x.name))
+                    changes['account_type_name'] = x.name
+                    print("hanasdf")
                     x.name = data_json['name']
                 if data_json['status']:
-                    changes.append(str('account_type.is_active : ', x.is_active))
+                    changes['account_type_is_active'] = x.is_active
                     x.is_active = data_json['status']['is_active']
-                if data_json['header']:                    
-                    changes.append(str('account_type.header : ', x.header))
+                if data_json['header']:         
+                    changes['account_type_header'] = x.header           
                     x.header = data_json['header']
                 x.save()
                 response_json['account_types'] = accounts_types_to_json([x])
