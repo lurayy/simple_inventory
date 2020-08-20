@@ -29,9 +29,14 @@ def get_multiple_account_types(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] =="get":
-                x = AccountType.objects.filter(is_active=True)
-                response_json['count'] = len(x)
-                response_json['account_types'] = accounts_types_to_json(x)
+                if data_json['filter'] == "none":
+                    x = AccountType.objects.filter(is_active=True)
+                    response_json['count'] = len(x)
+                    response_json['account_types'] = accounts_types_to_json(x)
+                if data_json['filter'] == "id":
+                    x = AccountType.objects.filter(is_active=True, id= data_json['id'])
+                    response_json['count'] = len(x)
+                    response_json['account_types'] = accounts_types_to_json(x)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:

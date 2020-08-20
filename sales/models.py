@@ -46,6 +46,10 @@ class Invoice(models.Model):
         InvoiceStatus, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return f'{self.customer} {self.invoice_number}'
 
@@ -86,6 +90,10 @@ class InvoiceItem(models.Model):
 
     discount = models.ManyToManyField(Discount, blank=True)
     taxes = models.ManyToManyField(Tax, blank=True)
+
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 @receiver(post_save, sender=InvoiceItem)
@@ -338,5 +346,8 @@ def export_data(data):
 class SalesSetting(models.Model):
     default_place_to_sold_from = models.ForeignKey(Place, on_delete=models.PROTECT)
     default_vat_tax = models.ForeignKey(Tax, on_delete=models.PROTECT)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     is_active = models.BooleanField(default=True)

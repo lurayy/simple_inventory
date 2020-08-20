@@ -1122,6 +1122,10 @@ def add_new_place(self, request):
                     name = data_json['name']
                 )
                 place.save()
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']        
+                log('inventory/place', 'create', place.id, str(place), {}, user)
                 response_json['status'] = True
             return JsonResponse( response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -1152,6 +1156,10 @@ def update_place(self, request):
             place = Place.objects.get(id=int(data_json['place_id']))
             response_json = {'status':False}
             if data_json['action'] == "update":
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']
+                log('inventory/place', 'update', place.id, str(place), [str('place.name : ', place.name)], user)
                 place.name = str(data_json['name'])
                 place.save()
                 response_json = {'status':True}
@@ -1210,10 +1218,16 @@ def delete_places(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             ids = data_json['places_id']
+            
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             for id in ids:
                 place_x = Place.objects.get(id=int(id))
                 place_x.is_active = False
                 place_x.save()
+                log('inventory/place', 'soft-delete', place.id, str(place), {}, user)
+
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
@@ -1253,6 +1267,10 @@ def assign_place(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+            
             if data_json['action'] == "add":
                 place = Place.objects.get(id=int(data_json['place_id']))
                 purchase_item = PurchaseItem.objects.get(id=int(data_json['purchase_item_id']))
@@ -1264,16 +1282,23 @@ def assign_place(self, request):
                     stock = int(data_json["quantity"])
                 )
                 placement.save()
+                changes =str ('items moved from default place to ',place.name, ' quantity : ',placement.stock, ' purchase item : ',purchase_item.id )
+                log('inventory/placement', 'create', place.id, str(place), changes, user)
                 response_json['status'] = True
+
             if data_json['action'] == 'delete':
                 placement = Placement.objects.get(id=int(data_json['placement_id']))
+                placement_id = placement.id
+                str_placement = str(placement)
                 placement.delete()
+                log('inventory/placement', 'delete', placement_id, str(str_placement), {}, user)
                 response_json['status'] = True
             if data_json['action'] == 'update':
                 placement = Placement.objects.get(id=int(data_json['placement_id']))
                 placement.stock = int(data_json['quantity'])
                 placement.save()
                 response_json['status'] = True
+                log('inventory/placement', 'update', placement.id, str(placement), {'quantity':placement.stock}, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -1414,6 +1439,10 @@ def add_new_purchase_item(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+            
             if data_json['action'] == "add":
                 purchase_item = PurchaseItem.objects.create(
                     item = Item.objects.get(id=int(data_json['item'])),
@@ -1427,6 +1456,7 @@ def add_new_purchase_item(self, request):
                     )                
                 purchase_item.save()
                 purchase_item.purchase_order.save()
+                log('inventory/purchase_item', 'create', purchase_item.id, str(purchase_item), {'purchase_order':purchase_item.purchase_order.id}, user)
                 response_json = {'status':True}
             if data_json['action'] == "add_multiple":
                 for purchase_items_json in data_json['purchase_items']:
@@ -1442,6 +1472,7 @@ def add_new_purchase_item(self, request):
                         )                
                     purchase_item.save()
                     purchase_item.purchase_order.save()
+                    log('inventory/purchase_item', 'create', purchase_item.id, str(purchase_item), {'purchase_order':purchase_item.purchase_order.id}, user)
                 response_json = {'status':True}
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -1499,6 +1530,9 @@ def update_purchase_item(self, request):
             return JsonResponse(jwt_check)
         json_str = request.body.decode(encoding='UTF-8')
         data_json = json.loads(json_str)
+        data = {'token':request.headers['Authorization'].split(' ')[1]}
+        valid_data = VerifyJSONWebTokenSerializer().validate(data)
+        user = valid_data['user']    
         try:
             if data_json['action'] == "update":
                 purchase_item = PurchaseItem.objects.get(id=data_json['id'])
@@ -1512,6 +1546,7 @@ def update_purchase_item(self, request):
                 purchase_item.status = data_json['status']    
                 purchase_item.save()
                 purchase_item.purchase_order.save()
+                log('inventory/purchase_item', 'update', purchase_item.id, str(purchase_item), {'purchase_order':purchase_item.purchase_order.id, 'old_purchase_item':purchase_items_to_json([purchase_item])}, user)
                 response_json = {'status':True}
             if data_json['action'] == 'update_multiple':
                 for purchase_item_json in data_json['purchase_items']:
@@ -1526,6 +1561,7 @@ def update_purchase_item(self, request):
                     purchase_item.status = purchase_item_json['status']    
                     purchase_item.save()
                     purchase_item.purchase_order.save()
+                    log('inventory/purchase_item', 'update', purchase_item.id, str(purchase_item), {'purchase_order':purchase_item.purchase_order.id, 'old_purchase_item':purchase_items_to_json([purchase_item])}, user)
                 response_json = {'status':True}
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -1554,6 +1590,10 @@ def delete_purchase_items(self, request):
             data_json = json.loads(json_str)
             ids = data_json['purchase_items_id']
             orders = []
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+        
             for id in ids:
                 z = PurchaseItem.objects.get(id=int(id))
                 if z.purchase_order not in orders:
@@ -1561,6 +1601,7 @@ def delete_purchase_items(self, request):
                 z.is_active = False
                 z.status = 'incomplete'
                 z.save()
+                log('inventory/purchase_item', 'delete', z.id, str(z), {}, user)
                 z.delete()
             for order in orders:
                 order.save()
@@ -1829,11 +1870,11 @@ def import_data(self,request):
         if not jwt_check['status']:
             return JsonResponse(jwt_check)
         try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
             data = {'token':request.headers['Authorization'].split(' ')[1]}
             valid_data = VerifyJSONWebTokenSerializer().validate(data)
             user = valid_data['user']
-            json_str = request.body.decode(encoding='UTF-8')
-            data_json = json.loads(json_str)
             if data_json['action'] == "import":
                 csv = base64.b64decode(data_json['csv_file']).decode('utf-8')
                 csv = csv.splitlines()
@@ -1923,6 +1964,8 @@ def import_data(self,request):
                 purchase_order.save()
                 response_json['purchase_order'] = purchase_orders_to_json([purchase_order])
                 response_json['purchase_items'] = purchase_items_to_json(purchase_items_data)
+                log('inventory/import', 'create', 0, str('data import'), {}, user)
+
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:

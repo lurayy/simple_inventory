@@ -14,6 +14,8 @@ from django.conf import settings
 from django.utils.timezone import now
 from user_handler.models import Customer
 from inventory.utils import  str_to_datetime
+from user_handler.models import log
+from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
 @require_http_methods(['POST'])
 @bind
@@ -26,6 +28,9 @@ def add_new_gift_cards(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             if data_json['action'] =="add":
                 gift_card = GiftCard.objects.create(
                     name = data_json['name'],
@@ -40,6 +45,7 @@ def add_new_gift_cards(self, request):
                     gift_card.category = GiftCardCategory.objects.get(id=data_json['category'])
                 gift_card.save()
                 response_json['status'] = True
+                log('payment/gift_card', 'create', gift_card.id, str(gift_card), {}, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -153,11 +159,15 @@ def delete_gift_cards(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             uuids = data_json['gift_cards_uuid']
             for uuid in uuids:
                 gift_card = GiftCard.objects.get(uuid=uuid)
                 gift_card.is_active = False
                 gift_card.save()
+                log('payment/gift_card', 'soft-delete', gift_card.id, str(gift_card), {}, user)
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -189,7 +199,12 @@ def update_gift_card(self, request):
                 gift_card.has_unique_codes = data_json['has_unique_codes']
                 gift_card.is_active = data_json['is_active']
                 gift_card.save()
-                response_json['status'] = True
+                response_json['status'] = True                
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']
+                log('payment/gift_card', 'update', gift_card.id, str(gift_card), {}, user)
+
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -210,11 +225,15 @@ def delete_unique_cards(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             uuids = data_json['uuids']
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             for uuid in uuids:
                 card = UniqueCard.objects.get(uuid = uuid)
                 if card.is_used:
                     raise Exception("You cannot delete gift card that's already been used.")
                 else:
+                    log('payment/gift_card', 'delete', card.id, str(card), {}, user)
                     card.delete()
             response_json['status'] = True
             return JsonResponse(response_json)
@@ -407,6 +426,9 @@ def create_payment(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             payment_models = []
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']           
             temp = False
             if data_json['action'] == "add":
                 for payment in data_json['payments']:
@@ -452,6 +474,7 @@ def create_payment(self, request):
                         temp.invoice.save()
                     elif payment['purchase_order']:
                         temp.purchase_order.save()
+                    log('payment/payment', 'create', temp.id, str(temp), {}, user)
                 response_json['status'] = True
                 response_json['payments'] = payment_to_json(payment_models)
             return JsonResponse(response_json)
@@ -553,6 +576,10 @@ def credit_payment(self, request):
                     credit.invoice.save()
                 elif credit.purchase_order:
                     credit.purchase_order.save()
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']
+                log('payment/credit_payment', 'create', payment.id, str(payment), {}, user)   
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             if payment:
@@ -576,6 +603,9 @@ def delete_payment(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             if data_json['action'] == "delete":
                 for pay_id in data_json['payments_ids']:
                     payment = Payment.objects.get(id=pay_id)
@@ -586,6 +616,7 @@ def delete_payment(self, request):
                         if "accounting" in settings.INSTALLED_APPS:
                             from accounting.models import handle_payment_deletetion
                             handle_payment_deletetion(payment)
+                    log('payment/payment', 'soft-delete', payment.id, str(payment), {}, user)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -605,6 +636,9 @@ def update_payment(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             if data_json['action'] == "update":
                 payment = Payment.objects.get(id=data_json['payment_id'])
                 # payment.amount=data_json['amount'],
@@ -613,6 +647,7 @@ def update_payment(self, request):
                 payment.bank_name = data_json['bank_name']
                 payment.remarks = data_json['remarks']
                 payment.save()
+                log('payment/payment', 'update', payment.id, str(payment), {'old_data': payment_to_json([payment])}, user)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -824,12 +859,16 @@ def add_new_gift_card_category(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             if data_json['action'] == "add":
                 category = GiftCardCategory.objects.create(
                     name = data_json['name']
                 )
                 data_json['category'] = gift_card_categories_to_json([category])
                 response_json['status'] = True
+                log('payment/gift_card_category', 'create', category.id, str(category), {}, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -848,6 +887,9 @@ def update_gift_card_category(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             if data_json['action'] == "update":
                 category = GiftCardCategory.objects.get(id = data_json['gift_card_category'])
                 if data_json['name']:
@@ -857,6 +899,7 @@ def update_gift_card_category(self, request):
                 category.save()
                 data_json['category'] = gift_card_categories_to_json([category])
                 response_json['status'] = True
+                log('payment/gift_card_category', 'update', category.id, str(category), {}, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -875,11 +918,16 @@ def delete_gift_card_category(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
             if data_json['action'] == "delete":
                 for category in data_json['gift_card_categories']:
                     x = GiftCardCategory.objects.get(id = category)
                     x.is_active = False
                     x.save()
+                    log('payment/gift_card_category', 'soft-delete', x.id, str(x), {}, user)
+
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:

@@ -38,6 +38,10 @@ class PurchaseOrder(models.Model):
 
     bill_received = models.BooleanField(default=False)
 
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def save(self, *args, **kwargs):
         self.total_cost = 0
         for item in self.items.filter(is_active=True):
@@ -115,6 +119,9 @@ class Item(models.Model):
     barcode = models.CharField(max_length=255, unique=True)
 
     vat_enabled = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -190,6 +197,9 @@ class PurchaseItem(models.Model):
     )
     status = models.CharField(max_length=25, choices=STATUS_S, default='incomplete')
     is_active = models.BooleanField(default=True)    
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.item} of {self.purchase_order}'
@@ -211,6 +221,7 @@ class Placement(models.Model):
     stock = models.PositiveIntegerField(default=0)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_placements', null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    
     def __str__(self):
         return f'{self.purchase_item} on {self.placed_on}'
     

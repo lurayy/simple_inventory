@@ -30,6 +30,16 @@ from django.http import HttpResponse
 from django.template import Context
 import weasyprint
 
+
+from user_handler.models import log
+
+def ss(request):    
+    data = {'token':request.headers['Authorization'].split(' ')[1]}
+    valid_data = VerifyJSONWebTokenSerializer().validate(data)
+    user = valid_data['user']
+    return user
+        
+
 @require_http_methods(['POST'])
 @bind
 def get_multiple_invoices(self, request):
@@ -172,6 +182,7 @@ def add_new_invoice(self, request):
                     additional_discount= data_json['additional_discount']
                 )
                 invoice.save()
+                log('sales/invoice', 'create', invoice.id, str(invoice), {}, ss(request))
                 response_json['status'] = True
                 response_json['invoice'] = invoices_to_json([invoice])
             return JsonResponse(response_json)
@@ -227,6 +238,7 @@ def update_invoice(self, request):
                 invoice.weight_unit = data_json['weight_unit']
                 invoice.is_sent = data_json['is_sent']
                 invoice.save()
+                log('sales/invoice', 'create', invoice.id, str(invoice), invoices_to_json([invoice]), ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -284,6 +296,7 @@ def delete_invoices(self, request):
                 invoice = Invoice.objects.get(id=int(id))
                 invoice.is_active = False
                 invoice.save()
+                log('sales/invoice', 'soft-delete', invoice.id, str(invoice), {}, ss(request))
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
@@ -374,6 +387,7 @@ def add_new_customer(self, request):
                 if data_json['category']:
                     category = CustomerCategory.objects.get(id=data_json['category'])
                 customer.save()
+                log('sales/customer', 'create', customer.id, str(customer), {}, ss(request))
                 response_json['customers'] = customers_to_json([customer])
                 response_json['status'] = True
             return JsonResponse(response_json)
@@ -408,6 +422,7 @@ def delete_customers(self, request):
                 customer = Customer.objects.get(id=int(id))
                 customer.is_active = False
                 customer.save()
+                log('sales/customer', 'soft_delete', customer.id, str(customer), {}, ss(request))
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
@@ -462,6 +477,7 @@ def update_customer(self, request):
                 customer.is_active = (data_json['is_active'])
                 customer.category = CustomerCategory.objects.get(id=data_json['category'])
                 customer.save()
+                log('sales/customer', 'update', customer.id, str(customer), {'old_customer': customers_to_json([customer])}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -536,6 +552,7 @@ def update_customer_categories(self, request):
                 category.is_active = data_json['is_active']
                 response_json['status'] = True
                 category.save()
+                log('sales/customer_category', 'update', category.id, str(category), {}, ss(request))
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
                 return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -584,6 +601,8 @@ def add_customer_categories(self, request):
                 category = CustomerCategory.objects.create(name=data_json['name'])
                 category.save()
                 response_json['category'] = categories_to_json([category])
+                log('sales/customer_category', 'create', category.id, str(category), {}, ss(request))
+
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
                 return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -610,6 +629,7 @@ def delete_customer_categories(self, request):
                     customer = CustomerCategory.objects.get(id=int(id))
                     customer.is_active = False
                     customer.save()
+                    log('sales/customer_category', 'soft_delete', customer.id, str(customer), {}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
@@ -674,6 +694,7 @@ def add_new_invoice_item(self, request):
                 invoice.status = old_status
                 invoice.save()
                 response_json['invoice_item'] = invoice_items_to_json([invoice_item])
+                log('sales/invoice_item', 'create', invoice_item.id, str(invoice_item), {'invoice': invoice.id}, ss(request))
                 response_json['status'] = True
             if data_json['action'] == "add_multiple":
                 invoice = Invoice.objects.get(id=int(data_json['invoice']))
@@ -698,6 +719,7 @@ def add_new_invoice_item(self, request):
                             invoice_item.taxes.add(tax)
                         invoice_item.save()
                         invoice_item.invoice.save()
+                        log('sales/invoice_item', 'create', invoice_item.id, str(invoice_item), {'invoice': invoice.id}, ss(request))
                 invoice.status = old_status
                 invoice.save()
                 response_json['status'] = True
@@ -757,6 +779,7 @@ def update_invoice_item(self, request):
                 invoice_item.save()
                 invoice_item.save()
                 invoice_item.invoice.save()
+                log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([invoice_item])}, ss(request))
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if data_json['action'] == "update_multiple":
@@ -781,6 +804,7 @@ def update_invoice_item(self, request):
                     invoice_item.save()
                     invoice_item.save()
                     invoice_item.invoice.save()
+                    log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([invoice_item])}, ss(request))
                     response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -830,6 +854,7 @@ def delete_invoice_items(self, request):
                 invoice_item = InvoiceItem.objects.get(id=int(id))
                 if (invoice_item.invoice.status.is_sold == True):
                     raise Exception("Cannot Delete items if the invoice's items are already sold.")
+                log('sales/invoice_item', 'delete', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([invoice_item])}, ss(request))
                 invoice_item.delete()
             response_json['status'] = True
             return JsonResponse(response_json)
@@ -901,6 +926,7 @@ def add_new_discount(self, request):
                 )
                 discount.save()
                 response_json['discounts'] = discounts_to_json([discount])
+                log('sales/discont', 'create', discount.id, str(discount), {}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
@@ -928,6 +954,7 @@ def update_discount(self, request):
                 discount.rate = data_json['rate']
                 discount.is_active = data_json['is_active']
                 discount.save()
+                log('sales/discont', 'update', discount.id, str(discount), {'old_discount':discounts_to_json([discount])}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -973,6 +1000,7 @@ def delete_discount(self, request):
                 discount = Discount.objects.get(id=int(id))
                 discount.is_active = False
                 discount.save()
+                log('sales/discont', 'soft_delete', discount.id, str(discount), {}, ss(request))
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -1001,6 +1029,7 @@ def add_new_tax(self, request):
                 )
                 tax.save()
                 response_json['taxes'] = taxes_to_json([tax])
+                log('sales/tax', 'create', tax.id, str(tax), {}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -1069,6 +1098,7 @@ def update_tax(self, request):
                 tax.rate = data_json['rate']
                 tax.is_active = data_json['is_active']
                 tax.save()
+                log('sales/tax', 'update', tax.id, str(tax), {}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -1115,6 +1145,8 @@ def delete_taxes(self, request):
                 tax = Tax.objects.get(id=int(id))
                 tax.is_active = False
                 tax.save()
+                log('sales/tax', 'soft_delete', tax.id, str(tax), {}, ss(request))
+
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:

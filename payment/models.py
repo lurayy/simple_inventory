@@ -31,6 +31,9 @@ class GiftCard(models.Model):
     is_limited = models.BooleanField(default=True)
     has_unique_codes = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.name}  {self.code}'
@@ -87,6 +90,10 @@ class Payment(models.Model):
     refunded = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_paid_credit = models.BooleanField(default=False)
+
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.method} {self.amount}'
@@ -167,6 +174,10 @@ class GiftCardRedeem(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete= models.CASCADE, null=True, blank = True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     date = models.DateField(default=django.utils.timezone.now)
+
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class Settings(models.Model):

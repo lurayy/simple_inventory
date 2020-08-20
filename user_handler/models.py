@@ -20,6 +20,10 @@ class CustomUserBase(AbstractUser):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     role = models.ForeignKey(CustomPermission, on_delete=models.PROTECT, related_name='role_users', null=True, blank=True)
 
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
     
@@ -61,6 +65,10 @@ class Vendor(models.Model):
 
     is_active = models.BooleanField(default=True)
 
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
@@ -87,6 +95,9 @@ class Customer(models.Model):
     category = models.ForeignKey(CustomerCategory, on_delete=models.SET_NULL, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -103,6 +114,8 @@ class Tax(models.Model):
     code = models.CharField(max_length=255, null=True, blank=True, default=" ")
     is_active = models.BooleanField(default=True)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return f'{self.name} {self.rate}'
 
@@ -117,6 +130,8 @@ class Discount(models.Model):
     rate = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return f'{self.name} {self.code} {self.rate}'
 
@@ -148,10 +163,19 @@ class Setting(models.Model):
     organization = models.CharField(max_length=255)
     address = models.TextField()
     pan_number = models.CharField(max_length=255)
+
+    manufacturer = models.CharField(max_length=255, default="Mandala IT Solutions")
+    distributor = models.CharField(max_length=255, default="Mandala IT Solutions")
+    contact = models.CharField(max_length=255, default= '+(977)9846785856')
+    manufacturer_address = models.CharField(max_length=255, default='Pokhara, Lakeside')
+    manufacturer_website = models.URLField(default='https://mandalaitsolutions.com/')
     
     stock_low_notification_on = models.PositiveIntegerField(default = 10)
 
     is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class NotificationSetting(models.Model):
     model_choice = (
@@ -175,6 +199,9 @@ class Notification(models.Model):
 
     read = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class ActivityLog(models.Model):
     action_choice = (
