@@ -192,30 +192,30 @@ def update_purchase_order(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 purchase_order = PurchaseOrder.objects.get(id=int(data_json['purchase_order_id']))
-                change = []
+                change = {}
                 if data_json['discount_type']:
-                    change.append('changed discount type from : ',purchase_order.discount_type)
+                    change['discount_type'] = purchase_order.discount_type
                     purchase_order.discount_type = data_json['discount_type']
                 if data_json['discount']:
-                    change.append('changed discount type from : ',purchase_order.discount_type)
+                    change['discount'] = purchase_order.discount
                     purchase_order.discount = data_json['discount']
                 if data_json['vendor']:
-                    change.append('changed vendor from : ',purchase_order.vendor)
+                    change['vendor'] = purchase_order.vendor
                     purchase_order.vendor = Vendor.objects.get(id=int(data_json['vendor']))
                 if data_json['invoiced_on']:
-                    change.append('changed invoiced on  from : ',str(purchase_order.invoiced_on))
+                    change['invoiced_on'] = str(purchase_order.invoiced_on)
                     purchase_order.invoiced_on = str_to_datetime(data_json['invoiced_on'])
                 if data_json['completed_on']:
-                    change.append('changed completed on from : ',str(purchase_order.completed_on))
+                    change['completed_on'] = str(purchase_order.completed_on)
                     purchase_order.completed_on = str_to_datetime(data_json['completed_on'])
                 if data_json['status']:
-                    change.append('changed status from : ',str(purchase_order.status))
+                    change['status'] = purchase_order.status
                     purchase_order.status = PurchaseOrderStatus.objects.get(id=int(data_json['status']))
                 if data_json['third_party_invoice_number']:
-                    change.append('changed third_party_invoice_number from : ',str(purchase_order.third_party_invoice_number))
+                    change['third_party_invoice_number'] = purchase_order.third_party_invoice_number
                     purchase_order.third_party_invoice_number = data_json['third_party_invoice_number']
                 if data_json['bill_received']:
-                    change.append('changed bill_received from : ',str(purchase_order.bill_received))
+                    change['bill_received'] = purchase_order.bill_received
                     purchase_order.bill_received = data_json['bill_received']
                 purchase_order.save()
                 response_json['status'] = True
@@ -448,39 +448,40 @@ def update_vendor(self, request):
             user = valid_data['user']
                 
             if data_json['action'] == "update":
-                changes = []
+                vendor = Vendor.objects.get(id = data_json['vendor_id'])
+                changes = {}
                 if data_json['first_name']:
-                    changes.append('vendor.first_name : ', str(vendor.first_name))
+                    changes['first_name'] = vendor.first_name
                     vendor.first_name = str(data_json['first_name'])
                 if data_json['last_name']:
-                    changes.append('vendor.last_name : ', str(vendor.last_name))
+                    changes['last_name'] = vendor.last_name
                     vendor.last_name = str(data_json['last_name'])
                 if data_json['middle_name']:
-                    changes.append('vendor.middle_name : ', str(vendor.middle_name))
+                    changes['first_middle_namename'] = vendor.middle_name
                     vendor.middle_name = str(data_json['middle_name'])
                 if data_json['email']:
-                    changes.append('vendor.email : ', str(vendor.email))
+                    changes['email'] = vendor.email
                     vendor.email = str(data_json['email'])
                 if data_json['website']:
-                    changes.append('vendor.website : ', str(vendor.website))
+                    changes['website'] = vendor.website
                     vendor.website = str(data_json['website'])
                 if data_json['tax_number']:
-                    changes.append('vendor.tax_number : ', str(vendor.tax_number))
+                    changes['tax_number'] = vendor.tax_number
                     vendor.tax_number = str(data_json['tax_number'])
                 if data_json['phone1']:
-                    changes.append('vendor.phone1 : ', str(vendor.phone1))
+                    changes['phone1'] = vendor.phone1
                     vendor.phone1 = str(data_json['phone1'])
                 if data_json['phone2']:
-                    changes.append('vendor.phone2 : ', str(vendor.phone2))
+                    changes['phone2'] = vendor.phone2
                     vendor.phone2 = str(data_json['phone2'])
                 if data_json['address']:
-                    changes.append('vendor.address : ', str(vendor.address))
+                    changes['address'] = vendor.address
                     vendor.address = str(data_json['address'])
                 if data_json['country']:
-                    changes.append('vendor.country : ', str(vendor.country))
+                    changes['country'] = vendor.country
                     vendor.tax_number = str(data_json['tax_number'])
                 if data_json['company']:
-                    changes.append('vendor.company : ', str(vendor.company))
+                    changes['company'] = vendor.company
                     vendor.tax_number = str(data_json['company'])
                 vendor.save()
                 log('inventory/vendor', 'update', vendor.id, str(vendor), changes, user)
@@ -730,35 +731,35 @@ def update_item(self, request):
             data_json = json.loads(json_str)
             response_json = {'status':False}
             if data_json['action'] == "update":
+                changes = {}
                 item = Item.objects.get(id=int(data_json['item_id']))
-
                 if data_json['name']:
-                    changes.append('item.name : ', str(item.name))
+                    changes['name'] : item.name
                     item.name = str(data_json['name'])
                 if data_json['description']:
-                    changes.append('item.description : ', str(item.description))
+                    changes['description'] : item.description
                     item.description = (data_json['description'])
                 if data_json['weight']:
-                    changes.append('item.name : ', str(item.weight))
+                    changes['weight'] : item.weight
                     item.weight = (data_json['weight'])
                 
                 if data_json['sales_price']:
-                    changes.append('item.sales_price : ', str(item.sales_price))
+                    changes['sales_price'] : item.sales_price
                     item.sales_price = (data_json['sales_price'])
                 if data_json['average_cost_price']:
-                    changes.append('item.average_cost_price : ', str(item.average_cost_price))
+                    changes['average_cost_price'] : item.average_cost_price
                     item.average_cost_price = (data_json['average_cost_price'])
                 if data_json['barcode']:
-                    changes.append('item.barcode : ', str(item.barcode))
+                    changes['barcode'] : item.barcode
                     item.barcode = (data_json['barcode'])
                 if data_json['vat_enabled']:
-                    changes.append('item.vat_enabled : ', str(item.vat_enabled))
+                    changes['vat_enabled'] : item.vat_enabled
                     item.vat_enabled = (data_json['vat_enabled'])
                 if data_json['weight_unit']:
-                    changes.append('item.weight_unit : ', str(item.weight_unit))
+                    changes['weight_unit'] : item.weight_unit
                     item.weight_unit = (data_json['weight_unit'])
                 if data_json['category']:
-                    changes.append('item.category : ', str(item.category))
+                    changes['category'] : item.category
                     category = ItemCatagory.objects.get(id=int(data_json['catagory']))
                     item.category = category
                 try:
@@ -774,14 +775,14 @@ def update_item(self, request):
                             )
                             x.image = data
                             x.save()
-                            changes.append('changes product image')
+                            changes['product_image'] = 'changed'
                 except Exception as exp:
                     return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
                 if data_json['remove_image']:
                     for id in data_json['remove_image']:
                         x = ItemImage.objects.get(id = id)
                         x.delete()
-                        changes.append('changes product image')
+                        changes['product_image'] = 'removed'
                 item.save()
                 response_json = {'status':True}
                 log('inventory/item', 'update', item.id, str(item), changes, user)
@@ -994,7 +995,7 @@ def update_item_category(self, request):
                 data = {'token':request.headers['Authorization'].split(' ')[1]}
                 valid_data = VerifyJSONWebTokenSerializer().validate(data)
                 user = valid_data['user']        
-                log('inventory/item_category', 'update', item_catagory.id, str(item_catagory), [str('item_category.name : ',old)], user)
+                log('inventory/item_category', 'update', item_catagory.id, str(item_catagory), {'item_category.name':old}, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -1159,7 +1160,7 @@ def update_place(self, request):
                 data = {'token':request.headers['Authorization'].split(' ')[1]}
                 valid_data = VerifyJSONWebTokenSerializer().validate(data)
                 user = valid_data['user']
-                log('inventory/place', 'update', place.id, str(place), [str('place.name : ', place.name)], user)
+                log('inventory/place', 'update', place.id, str(place), {'name': place.name}, user)
                 place.name = str(data_json['name'])
                 place.save()
                 response_json = {'status':True}
@@ -1282,7 +1283,7 @@ def assign_place(self, request):
                     stock = int(data_json["quantity"])
                 )
                 placement.save()
-                changes =str ('items moved from default place to ',place.name, ' quantity : ',placement.stock, ' purchase item : ',purchase_item.id )
+                changes = {'items moved from default place to':place.name, ' quantity':placement.stock, ' purchase item':purchase_item.id}
                 log('inventory/placement', 'create', place.id, str(place), changes, user)
                 response_json['status'] = True
 
@@ -1536,6 +1537,7 @@ def update_purchase_item(self, request):
         try:
             if data_json['action'] == "update":
                 purchase_item = PurchaseItem.objects.get(id=data_json['id'])
+                old_purchase_item = purchase_item
                 purchase_item.status = 'incomplete'
                 purchase_item.save()
                 purchase_item.quantity = int(data_json['quantity'])
@@ -1546,11 +1548,12 @@ def update_purchase_item(self, request):
                 purchase_item.status = data_json['status']    
                 purchase_item.save()
                 purchase_item.purchase_order.save()
-                log('inventory/purchase_item', 'update', purchase_item.id, str(purchase_item), {'purchase_order':purchase_item.purchase_order.id, 'old_purchase_item':purchase_items_to_json([purchase_item])}, user)
+                log('inventory/purchase_item', 'update', purchase_item.id, str(purchase_item), {'purchase_order':purchase_item.purchase_order.id, 'old_purchase_item':purchase_items_to_json([old_purchase_item])}, user)
                 response_json = {'status':True}
             if data_json['action'] == 'update_multiple':
                 for purchase_item_json in data_json['purchase_items']:
                     purchase_item = PurchaseItem.objects.get(id=purchase_item_json['id'])
+                    old_purchase_item = purchase_item
                     purchase_item.status = 'incomplete'
                     purchase_item.save()
                     purchase_item.quantity = int(purchase_item_json['quantity'])
@@ -1561,7 +1564,7 @@ def update_purchase_item(self, request):
                     purchase_item.status = purchase_item_json['status']    
                     purchase_item.save()
                     purchase_item.purchase_order.save()
-                    log('inventory/purchase_item', 'update', purchase_item.id, str(purchase_item), {'purchase_order':purchase_item.purchase_order.id, 'old_purchase_item':purchase_items_to_json([purchase_item])}, user)
+                    log('inventory/purchase_item', 'update', purchase_item.id, str(purchase_item), {'purchase_order':purchase_item.purchase_order.id, 'old_purchase_item':purchase_items_to_json([old_purchase_item])}, user)
                 response_json = {'status':True}
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:

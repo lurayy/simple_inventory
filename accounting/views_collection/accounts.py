@@ -323,22 +323,22 @@ def update_account(self, request):
             data = {'token':request.headers['Authorization'].split(' ')[1]}
             valid_data = VerifyJSONWebTokenSerializer().validate(data)
             user = valid_data['user']        
-            change = []
+            change = {}
             account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'], is_active =True)
             if data_json['action'] == "update":
                 account = Account.objects.get(id=data_json['account_id'], uuid=data_json['account_uuid'])
                 account.name = data_json['name']
                 account.opening_date = data_json['opening_date']
                 if data_json['new_parent']:
-                    change.append('parent change from : ', account.parent.uuid)
+                    change['account.parent'] = account.parent.uuid
                     account.parent = Account.objects.get(id=data_json['parent_id'], uuid=data_json['parent_uuid'])
                 account.save()
                 if data_json['customer']:
-                    change.append('customer change from : ', account.customer)
+                    change['account.customer'] = account.customer
                     customer = Customer.objects.get(id=data_json['customer'])
                     account.customer = customer
                 if data_json['vendor']:
-                    change.append('vendor change from : ', account.vendor)
+                    change['account.vendor'] = account.vendor
                     vendor = Vendor.objects.get(id=data_json['vendor'])
                     account.vendor = vendor
                 account.save()
@@ -347,13 +347,13 @@ def update_account(self, request):
                 account.closing_balance = account.current_amount
                 account.closing_date = django.utils.timezone.now()
                 account.save()
-                change.append('Account closed')
+                change['account.is_closed'] = False
             if data_json['action'] == 'open':
                 account.is_closed = False
                 account.closing_balance = 0
                 account.closing_date = None
                 account.save()
-                change.append('Account reopened.')
+                change['account.is_closed'] = True
             response_json['status'] = True
             log('accounting/account', 'update', account.id, str(account), change, user)
             return JsonResponse(response_json)

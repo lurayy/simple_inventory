@@ -641,13 +641,14 @@ def update_payment(self, request):
             user = valid_data['user']
             if data_json['action'] == "update":
                 payment = Payment.objects.get(id=data_json['payment_id'])
+                old_payment = payment
                 # payment.amount=data_json['amount'],
                 payment.transaction_from = data_json['transaction_from']
                 payment.transaction_id = data_json['transaction_id']
                 payment.bank_name = data_json['bank_name']
                 payment.remarks = data_json['remarks']
                 payment.save()
-                log('payment/payment', 'update', payment.id, str(payment), {'old_data': payment_to_json([payment])}, user)
+                log('payment/payment', 'update', payment.id, str(payment), {'old_data': payment_to_json([old_payment])}, user)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:

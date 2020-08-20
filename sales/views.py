@@ -224,6 +224,7 @@ def update_invoice(self, request):
             if data_json['action'] == "update":
                 new_status = InvoiceStatus.objects.get(id=data_json['status']) 
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
+                old_invoice = invoice
                 if (new_status == invoice.status and invoice.status.is_sold ==True):
                     raise Exception("Cannot update Invoice Or Invoice Item if it's already sold.")
                 elif (new_status != invoice.status):
@@ -238,7 +239,7 @@ def update_invoice(self, request):
                 invoice.weight_unit = data_json['weight_unit']
                 invoice.is_sent = data_json['is_sent']
                 invoice.save()
-                log('sales/invoice', 'create', invoice.id, str(invoice), invoices_to_json([invoice]), ss(request))
+                log('sales/invoice', 'create', invoice.id, str(invoice), invoices_to_json([old_invoice]), ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -465,6 +466,7 @@ def update_customer(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 customer = Customer.objects.get(id=int(data_json['id']))
+                old_customer = customer
                 customer.first_name = str(data_json['first_name'])
                 customer.last_name = str(data_json['last_name'])
                 customer.middle_name = str(data_json['middle_name'])
@@ -477,7 +479,7 @@ def update_customer(self, request):
                 customer.is_active = (data_json['is_active'])
                 customer.category = CustomerCategory.objects.get(id=data_json['category'])
                 customer.save()
-                log('sales/customer', 'update', customer.id, str(customer), {'old_customer': customers_to_json([customer])}, ss(request))
+                log('sales/customer', 'update', customer.id, str(customer), {'old_customer': customers_to_json([old_customer])}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -760,6 +762,7 @@ def update_invoice_item(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 invoice_item = InvoiceItem.objects.get(id=data_json["invoice_item_id"])
+                old_invoice_item= invoice_item
                 if(invoice_item.invoice.status.is_sold):
                     raise Exception("Cannot update item's that are already sold.")
                 invoice_item.item = Item.objects.get(id=int(data_json['item']))
@@ -779,12 +782,13 @@ def update_invoice_item(self, request):
                 invoice_item.save()
                 invoice_item.save()
                 invoice_item.invoice.save()
-                log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([invoice_item])}, ss(request))
+                log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([old_invoice_item])}, ss(request))
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if data_json['action'] == "update_multiple":
                 for invoice_item_json in data_json['invoice_items']:
                     invoice_item = InvoiceItem.objects.get(id=invoice_item_json["invoice_item_id"])
+                    old_invoice_item= invoice_item
                     if(invoice_item.invoice.status.is_sold):
                         raise Exception("Cannot update item's that are already sold.")
                     invoice_item.item = Item.objects.get(id=int(invoice_item_json['item']))
@@ -804,7 +808,7 @@ def update_invoice_item(self, request):
                     invoice_item.save()
                     invoice_item.save()
                     invoice_item.invoice.save()
-                    log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([invoice_item])}, ss(request))
+                    log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([old_invoice_item])}, ss(request))
                     response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -948,13 +952,14 @@ def update_discount(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 discount = Discount.objects.get(is_active=True, id = data_json['discount_id'])
+                old_discount = discount
                 discount.name = data_json['name']
                 discount.code = data_json['code']
                 discount.discount_type = data_json['discount_type']
                 discount.rate = data_json['rate']
                 discount.is_active = data_json['is_active']
                 discount.save()
-                log('sales/discont', 'update', discount.id, str(discount), {'old_discount':discounts_to_json([discount])}, ss(request))
+                log('sales/discont', 'update', discount.id, str(discount), {'old_discount':discounts_to_json([old_discount])}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -1092,13 +1097,14 @@ def update_tax(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 tax = Tax.objects.get(is_active=True, id = data_json['tax_id'])
+                old_tax = tax
                 tax.name = data_json['name']
                 tax.code = data_json['code']
                 tax.tax_type = data_json['tax_type']
                 tax.rate = data_json['rate']
                 tax.is_active = data_json['is_active']
                 tax.save()
-                log('sales/tax', 'update', tax.id, str(tax), {}, ss(request))
+                log('sales/tax', 'update', tax.id, str(tax), {'old_tax' : taxes_to_json([old_tax])}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
