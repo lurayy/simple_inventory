@@ -44,9 +44,16 @@ class Invoice(models.Model):
     is_sent = models.BooleanField(default=False)
     status = models.ForeignKey(
         InvoiceStatus, on_delete=models.SET_NULL, null=True, blank=True)
+    
     is_active = models.BooleanField(default=True)
 
-    
+    # new fields
+    fiscal_year = models.DateField(auto_now_add=True)
+    is_synced_with_ird = models.BooleanField(default=False)
+    is_bill_printed = models.BooleanField(default=False)
+    printed_timestamp = models.DateTimeField(null=True, blank=True)
+    printed_by = models.ForeignKey(CustomUserBase, on_delete=models.SET_NULL, null=True, blank=True, related_name='printed_invoices')
+    is_realtime = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

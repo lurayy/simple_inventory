@@ -4,6 +4,7 @@ class CustomPermission(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     dashboard_report = models.BooleanField(default=True)
+    trail_balance = models.BooleanField(default=True)
     generate_balance_sheet_statement = models.BooleanField(default=True)
     generate_profit_loss_statement = models.BooleanField(default=True)
     update_ledger_entry = models.BooleanField(default=True)
