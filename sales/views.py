@@ -239,7 +239,18 @@ def update_invoice(self, request):
                 invoice.weight_unit = data_json['weight_unit']
                 invoice.is_sent = data_json['is_sent']
                 invoice.save()
-                log('sales/invoice', 'create', invoice.id, str(invoice), invoices_to_json([old_invoice]), ss(request))
+                log('sales/invoice', 'update', invoice.id, str(invoice), invoices_to_json([old_invoice]), ss(request))
+            if data_json['action'] == 'cancel':
+                invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
+                old_invoice = invoice
+                if (invoice.status.is_sold ==True):
+                    raise Exception("Cannot update Invoice Or Invoice Item if it's already sold.")
+                invoice.is_active = True
+                invoice.is_canceled = True
+                invoice.cancelation_reason = data_json['reason']
+                invoice.save()
+                log('sales/invoice', 'update', invoice.id, str(invoice), invoices_to_json([old_invoice]), ss(request))
+
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:

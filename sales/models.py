@@ -57,6 +57,9 @@ class Invoice(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    is_canceled = models.BooleanField(default=False)
+    cancelation_reason = models.TextField(null=True, blank=True)
+
     def __str__(self):
         return f'{self.customer} {self.invoice_number}'
 
