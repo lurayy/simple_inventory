@@ -76,8 +76,7 @@ def generate_profit_loss_statement(self, request):
                     }
                     new_entries = LedgerEntry.objects.filter(is_active=True, created_at__range=[latest_calulcation_date, today])
                     response_json['this_month'] = sum_from_legder_entries(new_entries, fields)
-                    log('accounting/report_generations', 'get', 0, "zero", {}, user)
-
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -156,28 +155,8 @@ def generate_balance_sheet_statement(self, request):
                     balance_sheet['liabilities']['net_profit'] = balance_sheet['revenue']['meta_data']['sum_current_amount']*-1-balance_sheet['expense']['meta_data']['sum_current_amount']
                     print(balance_sheet['liabilities']['net_profit'])
                 # elif data_json['filter']== "date":
+                    balance_sheet['status'] = True
                     return JsonResponse(balance_sheet)
-            return JsonResponse(response_json)        
-        except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    else:
-        return JsonResponse({'status':False, "error":'You are not authorized.'})
-
-@require_http_methods(['POST'])
-@bind
-def trail_balance(self, request):
-    response_json = {'status':False}
-    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
-    if jwt_check:
-        if not jwt_check['status']:
-            return JsonResponse(jwt_check)
-        try:
-            json_str = request.body.decode(encoding='UTF-8')
-            data_json = json.loads(json_str)
-            if data_json['action'] == 'get':
-                accounts = Account.objects.filter(is_active=True)
-                response_json['accounts'] = accounts_to_json(accounts)
-                response_json['count'] = len(accounts)
             return JsonResponse(response_json)        
         except (KeyError, json.decoder.JSONDecodeError,  IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

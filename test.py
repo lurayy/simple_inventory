@@ -51,7 +51,7 @@ data = {
     'action' : 'get',
     'filter' : 'none'
 }
-r = requests.post(base_url+'accounting/reports/trailbalance', headers= headers, data = json.dumps(data))
+r = requests.post(base_url+'accounting/reports/profitloss', headers= headers, data = json.dumps(data))
 print(r.text)
 # data = {
 #   'token' : token

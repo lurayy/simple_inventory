@@ -1,7 +1,7 @@
 from .views_collection.accounts import get_multiple_accounts, add_new_account, get_account_details, delete_accounts, update_account, get_transactions
 from .views_collection.types_curd import get_multiple_account_types, add_account_types, delete_account_types, udpate_account_types
 from .views_collection.ledger_entries import get_multiple_ledger_entries, add_new_ledger_entry, get_ledger_entry_details, update_ledger_entry
-from .views_collection.report_generation import generate_profit_loss_statement, generate_balance_sheet_statement, trail_balance
+from .views_collection.report_generation import generate_profit_loss_statement, generate_balance_sheet_statement
 
 import json
 from django.http import JsonResponse
