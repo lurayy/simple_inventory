@@ -3,6 +3,7 @@ from user_handler.models import Customer, CustomUserBase, Setting
 from .serializers import InvoiceSerializer, InvoiceItemSerializer, CustomerSerializer, TaxSerializer, DiscountSerializer, CustomerCategorySerializer
 from inventory.models import PurchaseItem, Place, Item
 from inventory.utils import weight_conversion
+from user_handler.models import ActivityLog
 
 def invoices_to_json(models):
     data = []
@@ -11,7 +12,8 @@ def invoices_to_json(models):
         temp['customer_name'] = str(Customer.objects.get(id=temp['customer']))
         temp['added_by_name'] = str(CustomUserBase.objects.get(id=temp['added_by']))
         temp['status_name'] = str(model.status.name)
-        temp['revision']
+        x = ActivityLog.objects.filter(object_id = model.id, model = 'sales/invoice')
+        temp['count_revision'] =  len(x)
         if temp['total_weight']:
             unit = Setting.objects.filter(is_active=True)[0].default_weight_unit
             temp['weight_unit'] = unit
