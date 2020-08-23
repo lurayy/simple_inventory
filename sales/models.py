@@ -77,15 +77,14 @@ class Invoice(models.Model):
                     self.paid_amount = self.paid_amount + pay.amount
         super(Invoice, self).save(*args, **kwargs)
     
-    class Meta:
-        unique_together = ('invoice_number',)
+    # class Meta:
+    #     unique_together = ('invoice_number',)
 
 def generate_invoice_number(invoice):
     try:
         setting = Setting.objects.filter(is_active=True)[0]
         lastest_invoice = Invoice.objects.filter().order_by('-created_at')[0]
         
-
     except:
         raise Exception("Settings is not setup properly.")
 
