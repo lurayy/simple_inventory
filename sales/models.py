@@ -43,24 +43,22 @@ class Invoice(models.Model):
     discount_total = models.PositiveIntegerField(default=0)
     additional_discount = models.PositiveIntegerField(default=0)    
     is_sent = models.BooleanField(default=False)
+
     status = models.ForeignKey(
         InvoiceStatus, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     # new fields
-
-    nepali_date = models.DateTimeField(null=True, blank=True)
-    fiscal_year = models.DateField(auto_now_add=True)
     is_synced_with_ird = models.BooleanField(default=False)
     is_bill_printed = models.BooleanField(default=False)
     printed_timestamp = models.DateTimeField(null=True, blank=True)
     printed_by = models.ForeignKey(CustomUserBase, on_delete=models.SET_NULL, null=True, blank=True, related_name='printed_invoices')
     is_realtime = models.BooleanField(default=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     is_canceled = models.BooleanField(default=False)
     cancelation_reason = models.TextField(null=True, blank=True)
-
-
 
     def __str__(self):
         return f'{self.customer} {self.invoice_number}'
@@ -80,13 +78,15 @@ class Invoice(models.Model):
     # class Meta:
     #     unique_together = ('invoice_number',)
 
-def generate_invoice_number(invoice):
-    try:
-        setting = Setting.objects.filter(is_active=True)[0]
-        lastest_invoice = Invoice.objects.filter().order_by('-created_at')[0]
+# def generate_invoice_number(invoice):
+#     try:
+#         setting = Setting.objects.filter(is_active=True)[0]
+#         lastest_invoice = Invoice.objects.filter(invoiced_on = invoice.invoiced_on.date.year()).order_by('-invoiced_on')[0]
+
+
         
-    except:
-        raise Exception("Settings is not setup properly.")
+#     except:
+#         raise Exception("Settings is not setup properly.")
 
 
 

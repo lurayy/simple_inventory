@@ -146,10 +146,9 @@ def get_multiple_invoices(self, request):
                     if data_json['filters']['active']:
                         invoices = invoices.filter(is_active = data_json['filters']['active']['is_active']).order_by('-id')
                     if data_json['filters']['canceled']:
-                        invoices = invoices.filter(is_active = data_json['filters']['active']['is_canceled']).order_by('-id')
+                        invoices = invoices.filter(is_active = data_json['filters']['canceled']['is_canceled']).order_by('-id')
                     response_json['count'] = len(invoices)
                     invoices = invoices[start:end]
-
                 response_json['invoices'] = invoices_to_json(invoices)
                 response_json['status'] = True
                 return JsonResponse(response_json)
