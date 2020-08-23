@@ -160,8 +160,10 @@ class Setting(models.Model):
         ('lb', "lb")
     )    
     default_weight_unit = models.CharField(max_length=25, choices=units, default='g')
-    organization = models.CharField(max_length=255)
-    address = models.TextField()
+    company = models.CharField(max_length=255)
+    company_address = models.TextField()
+    branch = models.CharField(max_length=25)
+    branch_code = models.CharField(max_length=5)
     pan_number = models.CharField(max_length=255)
 
     manufacturer = models.CharField(max_length=255, default="Mandala IT Solutions")
@@ -169,6 +171,8 @@ class Setting(models.Model):
     contact = models.CharField(max_length=255, default= '+(977)9846785856')
     manufacturer_address = models.CharField(max_length=255, default='Pokhara, Lakeside')
     manufacturer_website = models.URLField(default='https://mandalaitsolutions.com/')
+
+    change_fisal_year = models.DateTimeField()          # only using day and month 
     
     stock_low_notification_on = models.PositiveIntegerField(default = 10)
 

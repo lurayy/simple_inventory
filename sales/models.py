@@ -15,6 +15,7 @@ import datetime
 from io import BytesIO
 from django.http import HttpResponse
 import django.dispatch
+from user_handler.models import Setting
 
 class InvoiceStatus(models.Model):
     name = models.CharField(max_length=255)
@@ -32,7 +33,7 @@ class Invoice(models.Model):
         Customer, on_delete=models.SET_NULL, null=True)
     invoiced_on = models.DateTimeField()
     due_on = models.DateTimeField()
-    invoice_number = models.UUIDField(unique=True, default=uuid.uuid4)
+    invoice_number = models.CharField(max_length=255)
     total_amount = models.FloatField()
     bill_amount = models.FloatField()
     paid_amount = models.FloatField()
@@ -44,10 +45,10 @@ class Invoice(models.Model):
     is_sent = models.BooleanField(default=False)
     status = models.ForeignKey(
         InvoiceStatus, on_delete=models.SET_NULL, null=True, blank=True)
-    
     is_active = models.BooleanField(default=True)
-
     # new fields
+
+    nepali_date = models.DateTimeField(null=True, blank=True)
     fiscal_year = models.DateField(auto_now_add=True)
     is_synced_with_ird = models.BooleanField(default=False)
     is_bill_printed = models.BooleanField(default=False)
@@ -56,9 +57,10 @@ class Invoice(models.Model):
     is_realtime = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     is_canceled = models.BooleanField(default=False)
     cancelation_reason = models.TextField(null=True, blank=True)
+
+
 
     def __str__(self):
         return f'{self.customer} {self.invoice_number}'
@@ -68,13 +70,26 @@ class Invoice(models.Model):
         self.bill_amount = round(self.bill_amount, 2)
         self.paid_amount = 0
         from payment.models import Payment
-        print(Payment)
         if self.id:
             payments_list = Payment.objects.all().filter(invoice=self.id)
             for pay in payments_list:
                 if pay.method.header != "credit" and pay.is_paid_credit == False:
                     self.paid_amount = self.paid_amount + pay.amount
         super(Invoice, self).save(*args, **kwargs)
+    
+    class Meta:
+        unique_together = ('invoice_number',)
+
+def generate_invoice_number(invoice):
+    try:
+        setting = Setting.objects.filter(is_active=True)[0]
+        lastest_invoice = Invoice.objects.filter().order_by('-created_at')[0]
+        
+
+    except:
+        raise Exception("Settings is not setup properly.")
+
+
 
 class InvoiceItem(models.Model):
     ''' this model hold the items and the details of that item, that are add to invoice'''

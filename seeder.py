@@ -49,8 +49,11 @@ fake = Faker()
 
 Setting.objects.create(
     default_weight_unit = "kg",
-    organization = "Mandala IT",
-    stock_low_notification_on = 10
+    company = "Mandala IT",
+    branch = "Pokhara",
+    branch_code= "PKR",
+    stock_low_notification_on = 10,
+    change_fisal_year = datetime.datetime.now()
 )
 
 print("________________________________ USER________________________")

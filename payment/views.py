@@ -671,11 +671,11 @@ def get_payments(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == "invoice":
-                    payments = Payment.objects.filter(is_active=True, invoice=Invoice.objects.get(is_active=True, id=data_json['invoice']))
+                    payments = Payment.objects.filter(is_active=True, invoice=Invoice.objects.get(id=data_json['invoice']))
                     response_json['payments'] = payment_to_json(payments)
                     response_json['status'] = True
                 if data_json['filter'] == "purchase_order":
-                    payments = Payment.objects.filter(is_active=True, purchase_order=PurchaseOrder.objects.get(is_active=True, id=data_json['purchase_order']))
+                    payments = Payment.objects.filter(is_active=True, purchase_order=PurchaseOrder.objects.get( id=data_json['purchase_order']))
                     response_json['payments'] = payment_to_json(payments)
                     response_json['status'] = True
             return JsonResponse(response_json)

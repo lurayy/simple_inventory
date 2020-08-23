@@ -130,7 +130,7 @@ def get_multiple_invoices(self, request):
                 if data_json['filter'] == "multiple":
                     start = data_json['start']
                     end = data_json['end']    
-                    invoices = Invoice.objects.filter(is_active=True)
+                    invoices = Invoice.objects.filter()
                     if data_json['filters']['date']:
                         if data_json['filters']['start_date']:
                             start_date = str_to_datetime(str(data_json['filters']['start_date']))
@@ -143,6 +143,10 @@ def get_multiple_invoices(self, request):
                         invoices = invoices.filter(customer=customer_obj).order_by('-id')
                     if data_json['filters']['status']:
                         invoices = invoices.filter(status__id=str(data_json['filters']['status_id']).lower()).order_by('-id')
+                    if data_json['filters']['active']:
+                        invoices = invoices.filter(is_active = data_json['filters']['active']['is_active']).order_by('-id')
+                    if data_json['filters']['canceled']:
+                        invoices = invoices.filter(is_active = data_json['filters']['active']['is_canceled']).order_by('-id')
                     response_json['count'] = len(invoices)
                     invoices = invoices[start:end]
 
