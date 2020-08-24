@@ -45,6 +45,8 @@ class CustomPermission(models.Model):
     delete_gift_cards = models.BooleanField(default=True)
     get_gift_card_details = models.BooleanField(default=True)
     get_multiple_gift_cards = models.BooleanField(default=True)
+    update_notification_settings = models.BooleanField(default=True)
+    get_notification_settings = models.BooleanField(default=True)
     read_notification = models.BooleanField(default=True)
     get_notifications = models.BooleanField(default=True)
     udpate_settings = models.BooleanField(default=True)
