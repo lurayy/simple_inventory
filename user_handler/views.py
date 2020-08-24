@@ -19,7 +19,7 @@ from django.core.files.base import ContentFile
 import base64
 from inventory.utils import str_to_datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
-from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer, SettingSerializer, NotificationSerializer
+from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer, SettingSerializer, NotificationSerializer, NotificationSettingSerializer
 from .permission_check import bind, check_permission
 from .models_permission import CustomPermission
 import datetime
@@ -838,6 +838,59 @@ def udpate_settings(self, request):
                     settings.pan_number = data_json['pan_number']
                 settings.save()
             response_json['settings'] = SettingSerializer(settings).data
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+@require_http_methods(['GET'])
+@bind
+def get_notification_settings(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            response_json['settings'] = []
+            for x in NotificationSetting.objects.all():
+                response_json['settings'].append(NotificationSettingSerializer(x).data)
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def update_notification_settings(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "create":
+                x = NotificationSetting.objects.create(
+                    model = data_json['model']
+                )
+                for x in data_json['roles']:
+                    x.roles_to_get_notified.add(CustomPermission.objects.get(id = x))
+                x.save()
+                response_json['settings'] = NotificationSettingSerializer(x).data
+            if data_json['action'] == "update":
+                x = NotificationSetting.objects.get(id = data_json['notification_setting_id'])
+                x.roles_to_get_notified.clear()
+                for x in data_json['roles']:
+                    x.roles_to_get_notified.add(CustomPermission.objects.get(id = x))
+                x.save()
+                response_json['settings'] = NotificationSettingSerializer(x).data
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:

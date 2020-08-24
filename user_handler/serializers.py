@@ -35,3 +35,11 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = '__all__'
+
+
+
+class NotificationSettingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = NotificationSetting
+        fields = '__all__'

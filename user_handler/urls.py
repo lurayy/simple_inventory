@@ -34,5 +34,7 @@ urlpatterns = [
     path('settings/get', views.get_settings),
     path('settings/update', views.udpate_settings),
     path('notifications/get', views.get_notifications),
-    path('notification/read', views.read_notification)
+    path('notification/read', views.read_notification),
+    path('notification/settings/get', views.get_notification_settings),
+    path('notification/settings/update', views.update_notification_settings)
 ]

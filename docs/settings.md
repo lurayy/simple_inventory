@@ -114,3 +114,30 @@ b. Update
 
 }
 ```
+
+
+5. Notification settings
+
+a. Get
+- /user/notifications/settings/get
+
+b. Update / Create
+- /user/notification/settings/update
+```
+{
+    action : create,
+    model : item/purchase_order/invoice  [is unique , so only 3 settings can be created  with each having differnt model],
+    roles : [
+        role_id, role_id ...
+    ]
+}
+```
+```
+{
+    action : update,
+    notification_setting_id : __id__,
+    roles : [
+        role_id, role_id , 
+    ]                   <- New Role set
+}
+```
