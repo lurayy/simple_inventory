@@ -3,7 +3,7 @@ from django.forms.models import model_to_dict
 from user_handler.models import Vendor, CustomUserBase, Setting
 from .serializers import PurchaseOrderSerializer, PurchaseItemSerializer, VendorSerializer, ItemSerializer, PlaceSerializer,ItemCatagorySerializer, PlacementSerializer, ItemImageSerializer
 import dateutil.parser
-
+from user_handler.models import ActivityLog
 
 def purchase_orders_to_json(models):
     data = []
@@ -12,7 +12,8 @@ def purchase_orders_to_json(models):
         temp['vendor_name'] = str(Vendor.objects.get(id=temp['vendor']))
         temp['added_by_name'] = str(CustomUserBase.objects.get(id=temp['added_by']))
         temp['status_name'] = str(PurchaseOrderStatus.objects.get(id=temp['status']))
-        temp['items'] = ''
+        x = ActivityLog.objects.filter(object_id = model.id, model = 'inventory/purchase_order')
+        temp['count_revision'] =  len(x)
         for item in model.items.filter(is_active=True):
             temp['items'] = f'{item.item}, {temp["items"]}'
         data.append(temp)
