@@ -22,5 +22,8 @@ urlpatterns = [
    path('reports/profitloss', views.generate_profit_loss_statement),
    path('reports/balancesheet', views.generate_balance_sheet_statement),
 
-   path('summary', views.dashboard_report)
+   path('summary', views.dashboard_report),
+
+   path('settings/get', views.get_accounting_settings),
+   path('settings/update', views.update_accounting_settings)
 ]

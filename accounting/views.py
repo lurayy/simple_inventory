@@ -8,11 +8,12 @@ from django.http import JsonResponse
 from inventory.utils import  str_to_datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
-from .models import MonthlyStats
+from .models import MonthlyStats, AccountingSettings, Account
 from inventory.utils import str_to_datetime
 from user_handler.permission_check import bind, check_permission
 import datetime
 import dateutil.relativedelta
+from .serializers import AccountingSettingsSerializer
 
 @require_http_methods(['POST'])
 @bind
@@ -97,6 +98,92 @@ def dashboard_report(self,request):
                         loop = False
                     else:
                         start = start + dateutil.relativedelta.relativedelta(months=1)
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+@require_http_methods(['GET'])
+@bind
+def get_accounting_settings(self,request):
+    response_json = {'status':False}        
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            setting = AccountingSettings.objects.filter(is_active = True)[0]
+            response_json['settings'] = AccountingSettingsSerializer(setting).data
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def update_accounting_settings(self,request):
+    response_json = {'status':False}        
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "update":
+                setting = AccountingSettings.objects.filter(is_active = True)[0]
+                if data_json['default_purchase_account_on_cash']:
+                    setting.default_purchase_account_on_cash = Account.objects.get(id = data_json['default_purchase_account_on_cash'])
+                if data_json['default_purchase_account_on_credit']:
+                    setting.default_purchase_account_on_credit = Account.objects.get(id = data_json['default_purchase_account_on_credit'])
+                if data_json['default_purchase_account_on_bank']:
+                    setting.default_purchase_account_on_bank = Account.objects.get(id = data_json['default_purchase_account_on_bank'])
+                if data_json['default_purchase_account_on_transfer']:
+                    setting.default_purchase_account_on_transfer = Account.objects.get(id = data_json['default_purchase_account_on_transfer'])
+                if data_json['default_purchase_account_on_pre_paid']:
+                    setting.default_purchase_account_on_pre_paid = Account.objects.get(id = data_json['default_purchase_account_on_pre_paid'])
+                if data_json['default_invoice_account_on_cash']:
+                    setting.default_invoice_account_on_cash = Account.objects.get(id = data_json['default_invoice_account_on_cash'])
+                if data_json['default_invoice_account_on_credit']:
+                    setting.default_invoice_account_on_credit = Account.objects.get(id = data_json['default_invoice_account_on_credit'])
+                if data_json['default_invoice_account_on_bank']:
+                    setting.default_invoice_account_on_bank = Account.objects.get(id = data_json['default_invoice_account_on_bank'])
+                if data_json['default_invoice_account_on_transfer']:
+                    setting.default_invoice_account_on_transfer = Account.objects.get(id = data_json['default_invoice_account_on_transfer'])
+                if data_json['default_invoice_account_on_pre_paid']:
+                    setting.default_invoice_account_on_pre_paid = Account.objects.get(id = data_json['default_invoice_account_on_pre_paid'])
+                if data_json['default_purchase_action_on_cash_is_add']:
+                    setting.default_purchase_action_on_cash_is_add = data_json['default_purchase_action_on_cash_is_add']['state']
+                if data_json['default_purchase_action_on_credit_is_add']:
+                    setting.default_purchase_action_on_credit_is_add = data_json['default_purchase_action_on_credit_is_add']['state']
+                if data_json['default_purchase_action_on_bank_is_add']:
+                    setting.default_purchase_action_on_bank_is_add = data_json['default_purchase_action_on_bank_is_add']['state']
+                if data_json['default_purchase_action_on_transfer_is_add']:
+                    setting.default_purchase_action_on_transfer_is_add = data_json['default_purchase_action_on_transfer_is_add']['state']
+                if data_json['default_purchase_action_on_pre_paid_is_add']:
+                    setting.default_purchase_action_on_pre_paid_is_add = data_json['default_purchase_action_on_pre_paid_is_add']['state']
+                if data_json['default_invoice_action_on_credit_is_add']:
+                    setting.default_invoice_action_on_credit_is_add = data_json['default_invoice_action_on_credit_is_add']['state']
+                if data_json['default_invoice_action_on_bank_is_add']:
+                    setting.default_invoice_action_on_bank_is_add = data_json['default_invoice_action_on_bank_is_add']['state']
+                if data_json['default_invoice_action_on_transfer_is_add']:
+                    setting.default_invoice_action_on_transfer_is_add = data_json['default_invoice_action_on_transfer_is_add']['state']
+                if data_json['default_invoice_action_on_pre_paid_is_add']:
+                    setting.default_invoice_action_on_pre_paid_is_add = data_json['default_invoice_action_on_pre_paid_is_add']['state']
+                if data_json['default_invoice_action_on_cash_is_add']:
+                    setting.default_invoice_action_on_cash_is_add = data_json['default_invoice_action_on_cash_is_add']['state']
+                
+                if data_json['default_invoice_action_on_selected_account']:
+                    setting.default_invoice_action_on_selected_account = data_json['default_invoice_action_on_selected_account']['state']
+                if data_json['default_purchase_action_on_selected_account']:
+                    setting.default_purchase_action_on_selected_account = data_json['default_purchase_action_on_selected_account']['state']
+                setting.save()
+                response_json['settings'] = AccountingSettingsSerializer(setting).data
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:

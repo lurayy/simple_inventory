@@ -32,6 +32,7 @@ urlpatterns = [
     path('current', views.get_current_user, name='get current user data'),    
     
     path('settings/get', views.get_settings),
+    path('settings/update', views.udpate_settings),
     path('notifications/get', views.get_notifications),
     path('notification/read', views.read_notification)
 ]

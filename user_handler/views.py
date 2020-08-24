@@ -716,25 +716,6 @@ def reset_password(request):
     except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
         return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
-@require_http_methods(['GET'])
-@bind
-def get_settings(self, request):
-    response_json = {'status':False}
-    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
-    if jwt_check:
-        if not jwt_check['status']:
-            return JsonResponse(jwt_check)
-        try:
-            settings = Setting.objects.filter(is_active=True)[0]
-            response_json['settings'] = SettingSerializer(settings).data
-            response_json['status'] = True
-            return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    else:
-        return JsonResponse({'status':False, "error":'You are not authorized.'})
-
-
 @require_http_methods(['POST'])
 @bind
 def get_notifications(self, request):
@@ -777,7 +758,6 @@ def get_notifications(self, request):
 @require_http_methods(['POST'])
 @bind
 def read_notification(self, request):
-    print("her")
     response_json = {'status':False}
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
     if jwt_check:
@@ -798,4 +778,70 @@ def read_notification(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-        
+
+@require_http_methods(['GET'])
+@bind
+def get_settings(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            settings = Setting.objects.filter(is_active=True)[0]
+            response_json['settings'] = SettingSerializer(settings).data
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+@require_http_methods(['POST'])
+@bind
+def udpate_settings(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            settings = Setting.objects.filter(is_active=True)[0]
+            if data_json['action'] == "update":
+                if data_json['default_weight_unit']:
+                    settings.default_weight_unit = data_json['default_weight_unit']
+                if data_json['company']:
+                    settings.company = data_json['company']
+                if data_json['company_address']:
+                    settings.company_address = data_json['company_address']
+                if data_json['branch']:
+                    settings.branch = data_json['branch']
+                if data_json['branch_code']:
+                    settings.branch_code = data_json['branch_code']
+                if data_json['manufacturer']:
+                    settings.manufacturer = data_json['manufacturer']
+                if data_json['distributor']:
+                    settings.distributor = data_json['distributor']
+                if data_json['contact']:
+                    settings.contact = data_json['contact']
+                if data_json['manufacturer_website']:
+                    settings.manufacturer_website = data_json['manufacturer_website']
+                if data_json['change_fisal_year']:
+                    settings.change_fisal_year = data_json['change_fisal_year']
+                if data_json['stock_low_notification_on']:
+                    settings.stock_low_notification_on = data_json['stock_low_notification_on']
+                if data_json['manufacturer_address']:
+                    settings.manufacturer_address = data_json['manufacturer_address']
+                if data_json['pan_number']:
+                    settings.pan_number = data_json['pan_number']
+                settings.save()
+            response_json['settings'] = SettingSerializer(settings).data
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+

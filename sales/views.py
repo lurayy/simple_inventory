@@ -1288,28 +1288,7 @@ def dashboard_report(self,request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
-
-@require_http_methods(['GET'])
-@bind
-def get_sales_settings(self,request):
-    response_json = {'status':False}        
-    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
-    if jwt_check:
-        if not jwt_check['status']:
-            return JsonResponse(jwt_check)
-        try:
-            response_json['settings'] = SalesSettingSerializer(SalesSetting.objects.filter(is_active=True)[0]).data
-            response_json['status'] = True
-            return JsonResponse(response_json)
-        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
-            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-    else:
-        return JsonResponse({'status':False, "error":'You are not authorized.'})
-
 from django.utils import timezone
-
-
 @require_http_methods(['POST'])
 @bind
 def get_bill(self,request):
@@ -1394,6 +1373,49 @@ def get_bill(self,request):
                 invoice.printed_by = ss(request)
                 invoice.save()
                 return response
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+@require_http_methods(['GET'])
+@bind
+def get_sales_settings(self,request):
+    response_json = {'status':False}        
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            response_json['settings'] = SalesSettingSerializer(SalesSetting.objects.filter(is_active=True)[0]).data
+            response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+@require_http_methods(['POST'])
+@bind
+def update_settings(self,request):
+    response_json = {'status':False}        
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "update":
+                settings = SalesSetting.objects.filter(is_active=True)[0]
+                if data_json['default_place_to_sold_from']:
+                    settings.default_place_to_sold_from = Place.objects.get(id = data_json['default_place_to_sold_from'])
+                if data_json['default_vat_tax']:
+                    settings.default_vat_tax = Tax.objects.get(id  = data_json['default_vat_tax'])
+                settings.save()
+            response_json['settings'] = SalesSettingSerializer(SalesSetting.objects.filter(is_active=True)[0]).data
+            response_json['status'] = True
+            return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
