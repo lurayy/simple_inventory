@@ -212,7 +212,7 @@ class ActivityLog(models.Model):
         ('delete', "Delete"),
         ('create', "Create"),
         ('update', "Update"),
-        ('soft-delete', "Soft-delete")
+        ('soft_delete', "Soft Delete")
     )
     model = models.CharField(max_length=25)
     action = models.CharField(max_length=25, choices=action_choice)

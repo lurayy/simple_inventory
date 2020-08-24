@@ -36,5 +36,9 @@ urlpatterns = [
     path('notifications/get', views.get_notifications),
     path('notification/read', views.read_notification),
     path('notification/settings/get', views.get_notification_settings),
-    path('notification/settings/update', views.update_notification_settings)
+    path('notification/settings/update', views.update_notification_settings),
+
+    path('user/activities/logs', views.get_activities_log),
+    
+    path('user/auth/logs', views.get_user_logs)
 ]

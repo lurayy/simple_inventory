@@ -15,7 +15,6 @@ INSTALLED_APPS = [
     'accounting',
     'payment',
     'corsheaders',
-    'landing_pages',
     'user_handler',
     'inventory',
     'sales',

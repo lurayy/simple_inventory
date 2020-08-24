@@ -989,6 +989,7 @@ def update_payment_settings(self,request):
             return JsonResponse(jwt_check)
         try:
             setting = Settings.objects.filter(is_active = True)[0]
+            old = setting
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
@@ -998,6 +999,15 @@ def update_payment_settings(self,request):
                 response_json['settings'] = {
                     'default_gitf_card_payment_method' : setting.default_gitf_card_payment_method.id
                 }
+                c = {
+                    'default_gitf_card_payment_method' : old.default_gitf_card_payment_method.id
+                }
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']
+            
+                log('payment/settings', 'update', old.id, str(old),  c , user)
+
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:

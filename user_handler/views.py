@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .exceptions import  EmptyValueException
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .forms import UserForm, LoginForm
-from .models import CustomUserBase, Profile, UserActivities, PasswordResetCode, Setting, Notification, NotificationSetting
+from .models import CustomUserBase, Profile, UserActivities, PasswordResetCode, Setting, Notification, NotificationSetting, ActivityLog, UserActivities
 import json
 from django.middleware.csrf import get_token
 from django.contrib.auth import authenticate
@@ -19,7 +19,7 @@ from django.core.files.base import ContentFile
 import base64
 from inventory.utils import str_to_datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
-from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer, SettingSerializer, NotificationSerializer, NotificationSettingSerializer
+from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer, SettingSerializer, NotificationSerializer, NotificationSettingSerializer, ActivityLogSerializer, UserActivitiesSerializer
 from .permission_check import bind, check_permission
 from .models_permission import CustomPermission
 import datetime
@@ -809,6 +809,7 @@ def udpate_settings(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             settings = Setting.objects.filter(is_active=True)[0]
+            old = settings
             if data_json['action'] == "update":
                 if data_json['default_weight_unit']:
                     settings.default_weight_unit = data_json['default_weight_unit']
@@ -839,6 +840,11 @@ def udpate_settings(self, request):
                 settings.save()
             response_json['settings'] = SettingSerializer(settings).data
             response_json['status'] = True
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+            log('user/settings', 'update', old.id, str(old),  SettingSerializer(old).data, user)
+        
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -883,18 +889,129 @@ def update_notification_settings(self, request):
                 for x in data_json['roles']:
                     x.roles_to_get_notified.add(CustomPermission.objects.get(id = x))
                 x.save()
+                old = x
                 response_json['settings'] = NotificationSettingSerializer(x).data
             if data_json['action'] == "update":
                 x = NotificationSetting.objects.get(id = data_json['notification_setting_id'])
+                old = x
                 x.roles_to_get_notified.clear()
                 for x in data_json['roles']:
                     x.roles_to_get_notified.add(CustomPermission.objects.get(id = x))
                 x.save()
                 response_json['settings'] = NotificationSettingSerializer(x).data
             response_json['status'] = True
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+            log('user/notification/settings', 'update', old.id, str(old),  NotificationSettingSerializer(old).data, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+
+
+def get_user_data(user):
+    temp = {}
+    temp['username'] = user.username
+    temp['first_name'] = user.first_name
+    temp['last_name'] = user.last_name
+    try:
+        temp['profile_picture'] = user.profile.profile_image.url
+    except:
+        temp['profile_picture'] = None
+    return temp
+
+def logs_to_json(models):
+    data = []
+    for model in models:
+        temp = ActivityLogSerializer(model).data
+        temp['user_details'] = get_user_data(model.user)
+        data.append(temp)
+    return data
+
+def login_to_json(models):
+    data = []
+    for model in models:
+        temp = UserActivitiesSerializer(model).data
+        temp['user_details'] = get_user_data(model.user)
+        data.append(temp)
+    return data
+
+
+
+@require_http_methods(['POST'])
+@bind
+def get_activities_log(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                logs = ActivityLog.objects.filter()
+                if data_json['fitler'] == "none":
+                    logs = logs
+                if data_json['filter'] == 'multiple':
+                    if data_json['filters']['model']:
+                        logs = logs.filter(model = data_json['filters']['model'])
+                    if data_json['filters']['action']:
+                        logs = logs.filter(action = data_json['filters']['action'])
+                    if data_json['filters']['object_id']:
+                        logs = logs.filter(object_id = data_json['filters']['object_id'])
+                    if data_json['filters']['object_str']:
+                        logs = logs.filter(object_str__icontains = data_json['filters']['object_str'])
+                    if data_json['filters']['user']:
+                        logs = logs.filter(user__id = data_json['filters']['user'])
+                    if data_json['filters']['date_range']:
+                        if data_json['filters']['date_from']:
+                            logs = logs.filter(date__gte = str_to_datetime(data_json['filters']['date_from']))
+                        if data_json['filters']['date_upto']:
+                            logs = logs.filter(date__lte = str_to_datetime(data_json['filters']['date_upto']))
+                logs = logs[data_json['start']:data_json['end']]
+                response_json['logs'] = logs_to_json(logs)
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def get_user_logs(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                logs = UserActivities.objects.filter()
+                if data_json['filter'] == "none":
+                    logs = logs 
+                if data_json['filter'] == "multiple":
+                    if data_json['filters']['action']:
+                        logs = logs.filter(action = data_json['filters']['action'])
+                    if data_json['filters']['user']:
+                        logs = logs.filter(user__id = data_json['filters']['user'])
+                    if data_json['filters']['date_range']:
+                        if data_json['filters']['date_from']:
+                            logs = logs.filter(log_time__gte = str_to_datetime(data_json['filters']['date_from']))
+                        if data_json['filters']['date_upto']:
+                            logs = logs.filter(log_time__lte = str_to_datetime(data_json['filters']['date_upto']))
+                logs = logs[data_json['start']:data_json['end']]
+                response_json['status'] = True
+                response_json['logs'] = login_to_json(logs)
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})

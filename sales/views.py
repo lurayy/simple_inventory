@@ -1408,13 +1408,18 @@ def update_settings(self,request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 settings = SalesSetting.objects.filter(is_active=True)[0]
+                old = settings
                 if data_json['default_place_to_sold_from']:
                     settings.default_place_to_sold_from = Place.objects.get(id = data_json['default_place_to_sold_from'])
                 if data_json['default_vat_tax']:
                     settings.default_vat_tax = Tax.objects.get(id  = data_json['default_vat_tax'])
                 settings.save()
-            response_json['settings'] = SalesSettingSerializer(SalesSetting.objects.filter(is_active=True)[0]).data
-            response_json['status'] = True
+                response_json['settings'] = SalesSettingSerializer(SalesSetting.objects.filter(is_active=True)[0]).data
+                response_json['status'] = True
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']
+                log('sales/settings', 'update', old.id, str(old),  SalesSettingSerializer(old).data, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

@@ -14,6 +14,7 @@ from user_handler.permission_check import bind, check_permission
 import datetime
 import dateutil.relativedelta
 from .serializers import AccountingSettingsSerializer
+from user_handler.models import log
 
 @require_http_methods(['POST'])
 @bind
@@ -137,6 +138,7 @@ def update_accounting_settings(self,request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 setting = AccountingSettings.objects.filter(is_active = True)[0]
+                old_setting = setting
                 if data_json['default_purchase_account_on_cash']:
                     setting.default_purchase_account_on_cash = Account.objects.get(id = data_json['default_purchase_account_on_cash'])
                 if data_json['default_purchase_account_on_credit']:
@@ -185,6 +187,12 @@ def update_accounting_settings(self,request):
                 setting.save()
                 response_json['settings'] = AccountingSettingsSerializer(setting).data
                 response_json['status'] = True
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']
+                
+                log('accounting/settings', 'update', setting.id, str(setting),  AccountingSettingsSerializer(old_setting).data, user)
+
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
