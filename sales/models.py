@@ -76,12 +76,13 @@ class Invoice(models.Model):
         super(Invoice, self).save(*args, **kwargs)
     
     # class Meta:
-    #     unique_together = ('invoice_number',)
+#     #     unique_together = ('invoice_number',)
 
 # def generate_invoice_number(invoice):
 #     try:
 #         setting = Setting.objects.filter(is_active=True)[0]
 #         lastest_invoice = Invoice.objects.filter(invoiced_on = invoice.invoiced_on.date.year()).order_by('-invoiced_on')[0]
+        
 
 
         
@@ -194,18 +195,6 @@ def tranction_handler(sender, instance, **kwargs):
 def invoice_post_handler(sender, instance, **kwargs):
     send_update_invoice(instance)
 
-# @receiver(post_save, sender=InvoiceItem)
-# def invoice_item_handler(sender, instance, **kwargs):
-#     instance.tax_total = 0
-#     calculate_tax(instance)
-#     print(instance.tax_total)
-#     print(instance.id)
-#     instance.sub_total = instance.price*instance.quantity
-#     instance.total = instance.sub_total+instance.tax_total
-#     signals.post_save.disconnect(invoice_item_handler, sender=InvoiceItem)
-#     instance.save()
-#     signals.post_save.connect(invoice_item_handler, sender=InvoiceItem)
-
 
 def sales_sub(invoice):
     for item in invoice.invoice_items.filter():
@@ -304,68 +293,6 @@ def export_data(data):
     html = template.render(data)
     pdf = render_to_pdf('invoice', data)
     return pdf
-
-
-# {
-#       "id":1,
-#       "quantity":20,
-#       "price":100.0,
-#       "tax_total":1660.0,
-#       "sub_total":2000.0,
-#       "discount_amount":840.0,
-#       "total_without_discount":3660.0,
-#       "total":2820.0,
-#       "purchase_item":1,
-#       "item":4,
-#       "sold_from":1,
-#       "invoice":1,
-#       "discount":[
-#          2,
-#          3
-#       ],
-#       "taxes":[
-#          2,
-#          3
-#       ],
-#       "item_name":"Jacob 8493.0",
-#       "sold_from_name":"Default",
-#       "applied_tax":[
-#          {
-#             "id":2,
-#             "name":"Nicole",
-#             "rate":35,
-#             "tax_type":"normal",
-#             "code":" ",
-#             "is_active":True
-#          },
-#          {
-#             "id":3,
-#             "name":"Daniel",
-#             "rate":48,
-#             "tax_type":"normal",
-#             "code":" ",
-#             "is_active":True
-#          }
-#       ],
-#       "applied_discount":[
-#          {
-#             "id":2,
-#             "name":"Emily",
-#             "code":"Rice",
-#             "discount_type":"percent",
-#             "rate":21,
-#             "is_active":True
-#          },
-#          {
-#             "id":3,
-#             "name":"Randy",
-#             "code":"Deleon",
-#             "discount_type":"percent",
-#             "rate":21,
-#             "is_active":True
-#          }
-#       ]
-#    }
 
 class SalesSetting(models.Model):
     default_place_to_sold_from = models.ForeignKey(Place, on_delete=models.PROTECT)

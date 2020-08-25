@@ -121,7 +121,6 @@ def get_accounting_settings(self,request):
             for x in temp:
                 if x != "id":
                     if (type(temp[x]) == int ):
-                        print(type(temp[x]))
                         x_str = str(x)+"_str"
                         acc = Account.objects.get(id = int(temp[x]))
                         response_json['settings'][x_str] = str(acc)

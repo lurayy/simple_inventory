@@ -1,6 +1,7 @@
 asgiref==3.2.3
 astroid==2.3.3
 autopep8==1.5
+bikram==2.1.0
 cairocffi==1.1.0
 CairoSVG==2.4.2
 certifi==2019.11.28
@@ -15,6 +16,7 @@ django-cors-headers==3.2.1
 django-extensions==2.2.8
 django-heroku==0.3.1
 django-jwt-auth==0.0.2
+django-user-activity-log2==0.0.24
 djangorestframework==3.11.0
 djangorestframework-jwt==1.11.0
 Faker==4.0.2
