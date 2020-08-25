@@ -1,8 +1,8 @@
 import requests
 import json
 import datetime
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = 'https://simpleim.herokuapp.com/api/v1/'
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
@@ -44,10 +44,10 @@ headers = {
     'authorization': 'JWT '+token
 }
 
-r = requests.get(base_url+'user/notification/settings/get', headers=headers)
-print(r.text)
+# r = requests.get(base_url+'user/notification/settings/update', headers=headers)
+# print(r.text)
 
-
+data = {"action":"update","notification_setting_id":1,"roles":[1]}
 # data = {
 #   "action": "get",
 #   "filter": "none",
@@ -57,8 +57,8 @@ print(r.text)
 #   "start": 0,
 #   "end": 25
 # }
-# r = requests.post(base_url+'sales/invoices/get', headers= headers, data = json.dumps(data))
-# print(r.text)
+r = requests.post(base_url+'user/notification/settings/update', headers= headers, data = json.dumps(data))
+print(r.text)
 # data = {
 #   'token' : token
 # }

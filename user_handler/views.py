@@ -906,16 +906,18 @@ def update_notification_settings(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 x = NotificationSetting.objects.get(id = data_json['notification_setting_id'])
+                print(x)
                 old = x
                 x.roles_to_get_notified.clear()
-                for x in data_json['roles']:
-                    x.roles_to_get_notified.add(CustomPermission.objects.get(id = x))
+                for y in data_json['roles']:
+                    x.roles_to_get_notified.add(CustomPermission.objects.get(id = y))
                 x.save()
                 response_json['settings'] = NotificationSettingSerializer(x).data
             response_json['status'] = True
             data = {'token':request.headers['Authorization'].split(' ')[1]}
             valid_data = VerifyJSONWebTokenSerializer().validate(data)
             user = valid_data['user']
+            print("hasdf")
             log('user/notification/settings', 'update', old.id, str(old),  NotificationSettingSerializer(old).data, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
