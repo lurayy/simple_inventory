@@ -851,6 +851,30 @@ def udpate_settings(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+def get_user_data(user):
+    temp = {}
+    temp['username'] = user.username
+    temp['first_name'] = user.first_name
+    temp['last_name'] = user.last_name
+    try:
+        temp['profile_picture'] = user.profile.profile_image.url
+    except:
+        temp['profile_picture'] = None
+    return temp
+
+def notification_to_json(models):
+    data = []
+    for model in models:
+        temp = NotificationSettingSerializer(model).data
+        temp['roles'] = []
+        for x in model.roles_to_get_notified.all():
+            temp['roles'].append({
+                'id' : x.id,
+                'name' : x.name
+            })
+        data.append(temp)
+    return data
+
 @require_http_methods(['GET'])
 @bind
 def get_notification_settings(self, request):
@@ -862,7 +886,7 @@ def get_notification_settings(self, request):
         try:
             response_json['settings'] = []
             for x in NotificationSetting.objects.all():
-                response_json['settings'].append(NotificationSettingSerializer(x).data)
+                response_json['settings'].append(notification_to_json(x))
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -903,16 +927,6 @@ def update_notification_settings(self, request):
 
 
 
-def get_user_data(user):
-    temp = {}
-    temp['username'] = user.username
-    temp['first_name'] = user.first_name
-    temp['last_name'] = user.last_name
-    try:
-        temp['profile_picture'] = user.profile.profile_image.url
-    except:
-        temp['profile_picture'] = None
-    return temp
 
 def logs_to_json(models):
     data = []
