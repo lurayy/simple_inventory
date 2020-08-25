@@ -44,30 +44,21 @@ headers = {
     'authorization': 'JWT '+token
 }
 
-r = requests.get(base_url+'user/current', headers=headers)
-# print(r.text)
-
-data = {
-  "action": "get",
-  "filter": "multiple",
-  "filters": {
-    "date":False,
-    "start_date": "",
-    "end_date": "",
-    "customer": False,
-    "customer_id": "",
-    "status": False,
-    "status_id": "",
-    "active": None,
-    "canceled": {
-      "is_canceled":False
-    }
-  },
-  "start": 0,
-  "end": 25
-}
-r = requests.post(base_url+'sales/invoices/get', headers= headers, data = json.dumps(data))
+r = requests.get(base_url+'accounting/settings/get', headers=headers)
 print(r.text)
+
+
+# data = {
+#   "action": "get",
+#   "filter": "none",
+#   "filters": {
+    
+#   },
+#   "start": 0,
+#   "end": 25
+# }
+# r = requests.post(base_url+'sales/invoices/get', headers= headers, data = json.dumps(data))
+# print(r.text)
 # data = {
 #   'token' : token
 # }

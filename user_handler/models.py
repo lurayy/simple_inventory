@@ -20,7 +20,6 @@ class CustomUserBase(AbstractUser):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     role = models.ForeignKey(CustomPermission, on_delete=models.PROTECT, related_name='role_users', null=True, blank=True)
 
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -30,10 +29,8 @@ class CustomUserBase(AbstractUser):
     class Meta(object):
         unique_together = ('email',)
 
-
 def image_directory_path(instance, filename):
     return 'image/user_{0}/image_{1}.jpg'.format(instance.user.username, random.randint(0,100))
-
 
 class Profile(models.Model):
     user = models.OneToOneField(CustomUserBase, on_delete=models.CASCADE)
@@ -46,11 +43,9 @@ class Profile(models.Model):
     def __str__(self):
         return str(self.user)
   
-
 class Vendor(models.Model):
     ''' Vendor model'''
     added_by = models.ForeignKey(CustomUserBase, on_delete= models.SET_NULL, null=True)
-
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, null=True)
     last_name = models.CharField(max_length=255)
@@ -65,14 +60,11 @@ class Vendor(models.Model):
 
     is_active = models.BooleanField(default=True)
 
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
-
-
 
 class CustomerCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -200,7 +192,6 @@ class Notification(models.Model):
     msg = models.TextField()
     object_id = models.CharField(max_length=25)
     model = models.CharField(max_length=255)
-
     read = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now=True)
     
@@ -267,9 +258,6 @@ def notify(msg, object_id, model):
     except:
         print("Notification settings has not been setup.")
 
-
-
-
 def render_to_pdf(template_src, context_dict={}):
     template = get_template('notification.html')
     html = template.render(context_dict)
@@ -278,7 +266,6 @@ def render_to_pdf(template_src, context_dict={}):
     if not pdf.err:
         return {'pdf' : HttpResponse(result.getvalue(), content_type='application/pdf'), 'html': html}
     return None
-
 
 def export_data(data):
     template = get_template('notification.html')
@@ -289,4 +276,3 @@ def export_data(data):
     html = template.render(data)
     pdf = render_to_pdf('notification', data)
     return pdf
-

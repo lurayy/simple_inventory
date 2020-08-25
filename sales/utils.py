@@ -4,6 +4,46 @@ from .serializers import InvoiceSerializer, InvoiceItemSerializer, CustomerSeria
 from inventory.models import PurchaseItem, Place, Item
 from inventory.utils import weight_conversion
 from user_handler.models import ActivityLog
+from bikram import samwat
+
+def get_fiscal_year(date):
+    start_fisal_year = 0
+    end_fiscal_year = 0
+    settings = Setting.objects.filter(is_active=True)[0]
+    nepali_date = samwat.from_ad(date.date())
+    if date.month != settings.change_fisal_year.month:
+        if date.month < settings.change_fisal_year.month:
+            start_fisal_year = int(date.year) - 1
+            end_fiscal_year = int(date.year)
+            nepali_start = int(nepali_date.year) - 1 
+            nepali_end =  int(nepali_date.year)
+        else:
+            start_fisal_year = int(date.year)
+            end_fiscal_year = int(date.year) + 1
+            nepali_start = int(nepali_date.year) 
+            nepali_end =  int(nepali_date.year) + 1
+    elif date.day != settings.change_fisal_year.month:
+        if date.day < settings.change_fisal_year.day:
+            start_fisal_year = int(date.year) - 1
+            end_fiscal_year = int(date.year)
+            nepali_start = int(nepali_date.year) - 1
+            nepali_end =  int(nepali_date.year)
+        else:
+            start_fisal_year = int(date.year)
+            end_fiscal_year = int(date.year) + 1
+            nepali_start = int(nepali_date.year) 
+            nepali_end =  int(nepali_date.year) + 1
+    else:
+        start_fisal_year = int(date.year)
+        end_fiscal_year = int(date.year) + 1
+        nepali_start = int(nepali_date.year) 
+        nepali_end =  int(nepali_date.year) + 1
+    dates = {
+        'bs' : str(nepali_start)[2:]+"/"+str(nepali_end)[2:],
+        'ad' : str(start_fisal_year)[2:]+"/"+str(end_fiscal_year)[2:]
+    }
+    return dates
+
 
 def invoices_to_json(models):
     data = []
@@ -18,6 +58,7 @@ def invoices_to_json(models):
             unit = Setting.objects.filter(is_active=True)[0].default_weight_unit
             temp['weight_unit'] = unit
             temp['total_weight'] = weight_conversion(temp['total_weight'], unit)
+        temp['fiscal_year'] = get_fiscal_year(model.invoiced_on)
         data.append(temp)
     return data
 
@@ -70,3 +111,4 @@ def categories_to_json(categories):
         temp = CustomerCategorySerializer(category).data
         data.append(temp)
     return data
+
