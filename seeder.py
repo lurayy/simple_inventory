@@ -256,3 +256,14 @@ for ac in types:
         current_amount = 0,
         credit = 0
     )
+
+NotificationSetting.objects.create(
+    model = 'item'
+)
+
+NotificationSetting.objects.create(
+    model = 'purchase_order'
+)
+NotificationSetting.objects.create(
+    model = 'invoice'
+)

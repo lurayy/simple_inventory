@@ -882,15 +882,6 @@ def update_notification_settings(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "create":
-                x = NotificationSetting.objects.create(
-                    model = data_json['model']
-                )
-                for x in data_json['roles']:
-                    x.roles_to_get_notified.add(CustomPermission.objects.get(id = x))
-                x.save()
-                old = x
-                response_json['settings'] = NotificationSettingSerializer(x).data
             if data_json['action'] == "update":
                 x = NotificationSetting.objects.get(id = data_json['notification_setting_id'])
                 old = x
