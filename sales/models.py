@@ -31,18 +31,22 @@ class Invoice(models.Model):
         CustomUserBase, on_delete=models.SET_NULL, null=True)
     customer = models.ForeignKey(
         Customer, on_delete=models.SET_NULL, null=True)
-    invoiced_on = models.DateTimeField()
+    invoiced_on = models.DateTimeField(default=0)
     due_on = models.DateTimeField()
     invoice_number = models.CharField(max_length=255)
-    total_amount = models.FloatField()
-    bill_amount = models.FloatField()
-    paid_amount = models.FloatField()
+    total_amount = models.FloatField(default=0)
+    bill_amount = models.FloatField(default=0)
+    paid_amount = models.FloatField(default=0)
     total_weight = models.FloatField(default=0)
     weight_unit = models.CharField(max_length=25, default='kg')
-    tax_total = models.PositiveIntegerField()
+    tax_total = models.PositiveIntegerField(default=0)
     discount_total = models.PositiveIntegerField(default=0)
     additional_discount = models.PositiveIntegerField(default=0)    
     is_sent = models.BooleanField(default=False)
+
+    serial = models.PositiveIntegerField(default=0)
+    fiscal_year_ad = models.CharField(default='', max_length=6, null=True, blank=True)
+    fiscal_year_bs = models.CharField(default='', max_length=6, null=True, blank=True)
 
     status = models.ForeignKey(
         InvoiceStatus, on_delete=models.SET_NULL, null=True, blank=True)
@@ -75,19 +79,25 @@ class Invoice(models.Model):
                     self.paid_amount = self.paid_amount + pay.amount
         super(Invoice, self).save(*args, **kwargs)
     
-    # class Meta:
-#     #     unique_together = ('invoice_number',)
-
-# def generate_invoice_number(invoice):
-#     try:
-#         setting = Setting.objects.filter(is_active=True)[0]
-#         lastest_invoice = Invoice.objects.filter(invoiced_on = invoice.invoiced_on.date.year()).order_by('-invoiced_on')[0]
-        
+    class Meta:
+        unique_together = ('invoice_number',)
 
 
-        
-#     except:
-#         raise Exception("Settings is not setup properly.")
+def generate_invoice_number(invoice):
+    try:
+        from .utils import get_fiscal_year
+        setting = Setting.objects.filter(is_active=True)[0]
+        years = get_fiscal_year(invoice.invoiced_on)
+        latest = Invoice.objects.filter(fiscal_year_ad = years['ad']).order_by('-serial')
+        if len(latest) != 0:
+            serial = latest[0].serial
+            serial = serial + 1
+        else:
+            serial = 0
+        invoice_number = setting.branch_code + str(serial).zfill(6) + " " + years['bs']
+        return ([invoice_number, years])
+    except:
+        raise Exception("Settings is not setup properly.")
 
 
 
@@ -153,21 +163,21 @@ def post_save_handler(sender, created, instance, **kwargs):
 
 @receiver(pre_save, sender=Invoice)
 def tranction_handler(sender, instance, **kwargs):
-    print("here")
     if instance.id is None:
+        x = generate_invoice_number(instance)
+        instance.invoice_number = x[0]
+        instance.fiscal_year_ad = x[1]['ad']
+        instance.fiscal_year_bs = x[1]['bs']
         if instance.status.is_sold == True:
             sales_sub(instance)
     else:
-        print('triggered')
         old_status = Invoice.objects.get(id=instance.id).status
         if instance.status != old_status:
             if old_status.is_sold == False:
                 if instance.status.is_sold == True:
-                    print("sales done")
                     sales_sub(instance)
             if old_status.is_sold == True:
                 if instance.status == False:
-                    print("sales revert back")
                     sales_add(instance)
     instance.total_amount = 0
     instance.discount_total = 0

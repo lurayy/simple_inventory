@@ -15,6 +15,7 @@ import datetime
 import dateutil.relativedelta
 from .serializers import AccountingSettingsSerializer
 from user_handler.models import log
+from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 
 @require_http_methods(['POST'])
 @bind
