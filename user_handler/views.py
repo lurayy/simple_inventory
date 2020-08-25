@@ -917,7 +917,6 @@ def update_notification_settings(self, request):
             data = {'token':request.headers['Authorization'].split(' ')[1]}
             valid_data = VerifyJSONWebTokenSerializer().validate(data)
             user = valid_data['user']
-            print("hasdf")
             log('user/notification/settings', 'update', old.id, str(old),  NotificationSettingSerializer(old).data, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:

@@ -1,8 +1,8 @@
 import requests
 import json
 import datetime
-base_url = 'http://localhost:8000/api/v1/'
-# base_url = 'https://simpleim.herokuapp.com/api/v1/'
+# base_url = 'http://localhost:8000/api/v1/'
+base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
@@ -47,7 +47,7 @@ headers = {
 # r = requests.get(base_url+'user/notification/settings/update', headers=headers)
 # print(r.text)
 
-data = {"action":"update","notification_setting_id":1,"roles":[1]}
+data = {"action":"update","notification_setting_id":1,"roles":[1,2,3]}
 # data = {
 #   "action": "get",
 #   "filter": "none",
