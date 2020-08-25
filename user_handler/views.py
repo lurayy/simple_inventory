@@ -884,9 +884,7 @@ def get_notification_settings(self, request):
         if not jwt_check['status']:
             return JsonResponse(jwt_check)
         try:
-            response_json['settings'] = []
-            for x in NotificationSetting.objects.all():
-                response_json['settings'].append(notification_to_json(x))
+            response_json['settings'] = notification_to_json(NotificationSetting.objects.all())
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:

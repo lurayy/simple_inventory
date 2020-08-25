@@ -1,8 +1,8 @@
 import requests
 import json
 import datetime
-base_url = 'http://localhost:8000/api/v1/'
-# base_url = 'https://simpleim.herokuapp.com/api/v1/'
+# base_url = 'http://localhost:8000/api/v1/'
+base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
@@ -44,7 +44,7 @@ headers = {
     'authorization': 'JWT '+token
 }
 
-r = requests.get(base_url+'accounting/settings/get', headers=headers)
+r = requests.get(base_url+'user/notification/settings/get', headers=headers)
 print(r.text)
 
 
