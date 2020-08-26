@@ -89,13 +89,15 @@ def generate_invoice_number(invoice):
         setting = Setting.objects.filter(is_active=True)[0]
         years = get_fiscal_year(invoice.invoiced_on)
         latest = Invoice.objects.filter(fiscal_year_ad = years['ad']).order_by('-serial')
+        print(latest)
         if len(latest) != 0:
             serial = latest[0].serial
             serial = serial + 1
         else:
             serial = 0
         invoice_number = setting.branch_code + str(serial).zfill(6) + " " + years['bs']
-        return ([invoice_number, years])
+        print(invoice_number)
+        return ([invoice_number, years, str(serial).zfill(6)])
     except:
         raise Exception("Settings is not setup properly.")
 
@@ -168,6 +170,7 @@ def tranction_handler(sender, instance, **kwargs):
         instance.invoice_number = x[0]
         instance.fiscal_year_ad = x[1]['ad']
         instance.fiscal_year_bs = x[1]['bs']
+        instance.serial = x[2]
         if instance.status.is_sold == True:
             sales_sub(instance)
     else:
