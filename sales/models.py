@@ -255,8 +255,8 @@ def send_update_invoice(invoice):
                 'invoice' : invoices_to_json([invoice])[0] ,
                 'invoice_items' : invoice_items_to_json(invoice_items),
                 'company' : {
-                    'name' : setting.organization,
-                    'address' : setting.address,
+                    'name' : setting.company,
+                    'address' : setting.company_address,
                     'pan' : setting.pan_number
                 }
             } 
