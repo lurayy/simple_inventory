@@ -906,7 +906,6 @@ def update_notification_settings(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 x = NotificationSetting.objects.get(id = data_json['notification_setting_id'])
-                print(x)
                 old = x
                 x.roles_to_get_notified.clear()
                 for y in data_json['roles']:
@@ -1019,3 +1018,97 @@ def get_user_logs(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+from django.core import management
+import time
+@require_http_methods(['POST'])
+@bind
+def make_backup(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "backup":
+                management.call_command("dbbackup")
+                management.call_command('mediabackup')
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']
+                log('user/backup/create', 'create', 0, 0,  {}, user)
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+import os 
+@require_http_methods(['POST'])
+@bind
+def download_backup(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "download":
+                date = data_json['date']
+                time = data_json['time']
+                BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                if os.path.exists(BASE_DIR+'/backups/'+date+'/'+time):
+                    file_path = BASE_DIR+'/backups/'+date+'/'+time
+                    lists = os.listdir(file_path)
+                    for temp in lists:
+                        if data_json['type'] in temp:
+                            file_path = file_path+'/'+temp
+                            break
+                    with open(file_path, 'rb') as fh:
+                        response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                        response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+                        return response
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def get_backup_list(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                try:
+                    date_list = os.listdir(BASE_DIR+'/backups')
+                    x = date_list.copy()
+                    temp = {}
+                    for y in x:
+                        time_list = os.listdir(BASE_DIR+'/backups/'+y)
+                        print(time_list)
+                        temp[y] = time_list
+                except:
+                    temp = {}
+                response_json['backup_date'] = temp
+                response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+

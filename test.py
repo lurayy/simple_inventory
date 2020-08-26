@@ -1,8 +1,9 @@
 import requests
 import json
 import datetime
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = 'https://simpleim.herokuapp.com/api/v1/'
+
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
@@ -44,21 +45,23 @@ headers = {
     'authorization': 'JWT '+token
 }
 
-# r = requests.get(base_url+'user/notification/settings/update', headers=headers)
+data = {
+    'action' : 'download',
+    'date' : '2020-08-26',
+    'time' : '12:35:17',
+    'type' : 'mediafiles'
+}
+r = requests.post(base_url+'user/backup/download', headers= headers, data = json.dumps(data))
+print(r.text)
+
+
+# data = {
+#     'action' : 'get'
+# }
+# r = requests.post(base_url+'user/backups/get', headers= headers, data = json.dumps(data))
 # print(r.text)
 
-data = {"action":"update","notification_setting_id":1,"roles":[1,2,3]}
-# data = {
-#   "action": "get",
-#   "filter": "none",
-#   "filters": {
-    
-#   },
-#   "start": 0,
-#   "end": 25
-# }
-r = requests.post(base_url+'user/notification/settings/update', headers= headers, data = json.dumps(data))
-print(r.text)
+
 # data = {
 #   'token' : token
 # }

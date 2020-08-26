@@ -12,6 +12,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    'dbbackup',
     'accounting',
     'payment',
     'corsheaders',
@@ -166,7 +167,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
@@ -189,3 +189,11 @@ EMAIL_HOST = 'smtp.mailtrap.io'
 EMAIL_HOST_USER = 'af0e3f81bcbe90'
 EMAIL_HOST_PASSWORD = '5f482ca89b5e92'
 EMAIL_PORT = '2525'
+
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+date = datetime.date.today()
+time = str(datetime.datetime.now().time()).split('.')[0]
+location = BASE_DIR+'/backups/'+str(date)+'/'+time
+DBBACKUP_STORAGE_OPTIONS = {'location': location}
+DBBACKUP_FILENAME_TEMPLATE = 'database__{datetime}.backup'
+DBBACKUP_MEDIA_FILENAME_TEMPLATE = 'mediafiles__{datetime}.tar'
