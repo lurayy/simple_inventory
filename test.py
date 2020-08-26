@@ -33,7 +33,6 @@ creds = {
     'password':'pass'
 }
 
-print('asdf')
 r = requests.post(log_in_url, data= json.dumps(creds))
 print(r.text)
 token = r.json()['token']
@@ -45,20 +44,20 @@ headers = {
     'authorization': 'JWT '+token
 }
 
-data = {
-    'action' : 'download',
-    'date' : '2020-08-26',
-    'time' : '12:35:17',
-    'type' : 'mediafiles'
-}
-r = requests.post(base_url+'user/backup/download', headers= headers, data = json.dumps(data))
-print(r.text)
+# data = {
+#     'action' : 'download',
+#     'date' : '2020-08-26',
+#     'time' : '12:35:17',
+#     'type' : 'mediafiles'
+# }
+# r = requests.post(base_url+'user/backup/download', headers= headers, data = json.dumps(data))
+# print(r.text)
 
 
 # data = {
-#     'action' : 'get'
+#     'action' : 'backup'
 # }
-# r = requests.post(base_url+'user/backups/get', headers= headers, data = json.dumps(data))
+# r = requests.post(base_url+'user/backup/create', headers= headers, data = json.dumps(data))
 # print(r.text)
 
 
@@ -246,8 +245,14 @@ print(r.text)
 #   'vat_enabled' : True,
 #   'product_images' : None
 # }
-# sess = requests.post(base_url + 'inventory/item/add', headers=headers, data=json.dumps(data))
-# print(sess.text)
+data = {
+    'action' : 'get',
+    'filter' : 'none',
+    'start' : 0,
+    'end' : 25
+}
+sess = requests.post(base_url + 'inventory/purchaseorders/get', headers=headers, data=json.dumps(data))
+print(sess.text)
 # data = {
 #     'action' : 'get',
 #     'filters' : {

@@ -14,8 +14,6 @@ def purchase_orders_to_json(models):
         temp['status_name'] = str(PurchaseOrderStatus.objects.get(id=temp['status']))
         x = ActivityLog.objects.filter(object_id = model.id, model = 'inventory/purchase_order')
         temp['count_revision'] =  len(x)
-        for item in model.items.filter(is_active=True):
-            temp['items'] = f'{item.item}, {temp["items"]}'
         data.append(temp)
     return data
 
