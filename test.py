@@ -2,8 +2,8 @@ import requests
 import json
 import datetime
 
-base_url = 'http://localhost:8000/api/v1/'
-# base_url = 'https://simpleim.herokuapp.com/api/v1/'
+# base_url = 'http://localhost:8000/api/v1/'
+base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
