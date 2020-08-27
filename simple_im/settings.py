@@ -12,6 +12,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    'channels',
     'accounting',
     'payment',
     'sales',
@@ -61,6 +62,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'simple_im.wsgi.application'
+ASGI_APPLICATION = "simple_im.routing.application"
 
 
 # DATABASES = {

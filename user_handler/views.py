@@ -31,6 +31,13 @@ from django.template.loader import get_template
 import django
 from user_handler.models import log
 
+from django.core import management
+import sys
+from django.core.management import call_command
+from zipfile import ZipFile
+import shutil
+import os 
+
 def csrf(request):
     return JsonResponse({'x-csrftoken': get_token(request)})
 
@@ -953,7 +960,7 @@ def get_activities_log(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 logs = ActivityLog.objects.filter()
-                if data_json['fitler'] == "none":
+                if data_json['filter'] == "none":
                     logs = logs
                 if data_json['filter'] == 'multiple':
                     if data_json['filters']['model']:
@@ -1015,11 +1022,6 @@ def get_user_logs(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-from django.core import management
-import sys
-from django.core.management import call_command
-from zipfile import ZipFile
-import shutil
 
 def zipDir(dirPath, zipPath):
     zipf = ZipFile(zipPath , mode='w')
@@ -1044,7 +1046,7 @@ def make_backup(self, request):
             if data_json['action'] == "backup":
                 apps = []
                 for app in settings.INSTALLED_APPS:
-                    if 'dbbackup' not in app and 'corsheaders' not in app and 'django' not in app and 'whitenoise' not in app:
+                    if 'dbbackup' not in app and 'corsheaders' not in app and 'django' not in app and 'whitenoise' not in app and 'channels' not in app:
                         apps.append(app)
                 date = datetime.datetime.now().date()
                 time = str(datetime.datetime.now().time()).split('.')[0]
@@ -1080,7 +1082,6 @@ def make_backup(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-import os 
 @require_http_methods(['POST'])
 @bind
 def download_backup(self, request):
