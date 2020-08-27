@@ -895,7 +895,6 @@ def get_notification_settings(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
 @require_http_methods(['POST'])
 @bind
 def update_notification_settings(self, request):
@@ -926,9 +925,6 @@ def update_notification_settings(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
-
-
 def logs_to_json(models):
     data = []
     for model in models:
@@ -944,8 +940,6 @@ def login_to_json(models):
         temp['user_details'] = get_user_data(model.user)
         data.append(temp)
     return data
-
-
 
 @require_http_methods(['POST'])
 @bind
@@ -978,6 +972,7 @@ def get_activities_log(self, request):
                             logs = logs.filter(date__gte = str_to_datetime(data_json['filters']['date_from']))
                         if data_json['filters']['date_upto']:
                             logs = logs.filter(date__lte = str_to_datetime(data_json['filters']['date_upto']))
+                response_json['count'] = len(logs)
                 logs = logs[data_json['start']:data_json['end']]
                 response_json['logs'] = logs_to_json(logs)
                 response_json['status'] = True
@@ -1013,6 +1008,7 @@ def get_user_logs(self, request):
                             logs = logs.filter(log_time__gte = str_to_datetime(data_json['filters']['date_from']))
                         if data_json['filters']['date_upto']:
                             logs = logs.filter(log_time__lte = str_to_datetime(data_json['filters']['date_upto']))
+                response_json['count'] = len(logs)
                 logs = logs[data_json['start']:data_json['end']]
                 response_json['status'] = True
                 response_json['logs'] = login_to_json(logs)
