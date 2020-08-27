@@ -12,13 +12,12 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
-    'dbbackup',
     'accounting',
     'payment',
-    'corsheaders',
-    'user_handler',
-    'inventory',
     'sales',
+    'inventory',
+    'user_handler',
+    'corsheaders',
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',

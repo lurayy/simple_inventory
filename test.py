@@ -2,8 +2,8 @@ import requests
 import json
 import datetime
 
-# base_url = 'http://localhost:8000/api/v1/'
-base_url = 'https://simpleim.herokuapp.com/api/v1/'
+base_url = 'http://localhost:8000/api/v1/'
+# base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 
@@ -46,18 +46,17 @@ headers = {
 
 # data = {
 #     'action' : 'download',
-#     'date' : '2020-08-26',
-#     'time' : '12:35:17',
-#     'type' : 'mediafiles'
+#     'date' : '2020-08-27',
+#     'time' : '12:29:23'
 # }
 # r = requests.post(base_url+'user/backup/download', headers= headers, data = json.dumps(data))
 # print(r.text)
 
 
 # data = {
-#     'action' : 'backup'
+#     'action' : 'get'
 # }
-# r = requests.post(base_url+'user/backup/create', headers= headers, data = json.dumps(data))
+# r = requests.post(base_url+'user/backups/get', headers= headers, data = json.dumps(data))
 # print(r.text)
 
 
@@ -245,14 +244,14 @@ headers = {
 #   'vat_enabled' : True,
 #   'product_images' : None
 # }
-data = {
-    'action' : 'get',
-    'filter' : 'none',
-    'start' : 0,
-    'end' : 25
-}
-sess = requests.post(base_url + 'inventory/purchaseorders/get', headers=headers, data=json.dumps(data))
-print(sess.text)
+# data = {
+#     'action' : 'get',
+#     'filter' : 'none',
+#     'start' : 0,
+#     'end' : 25
+# }
+# sess = requests.post(base_url + 'inventory/purchaseorders/get', headers=headers, data=json.dumps(data))
+# print(sess.text)
 # data = {
 #     'action' : 'get',
 #     'filters' : {

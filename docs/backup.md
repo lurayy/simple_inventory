@@ -25,7 +25,6 @@
     action : download,
     date : [date]         <- get form 2
     time : [time]         <- get form 2
-    type : database / mediafiles
 }
 ```
 

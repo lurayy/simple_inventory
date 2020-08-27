@@ -25,14 +25,10 @@ from .models_permission import CustomPermission
 import datetime
 from django.db.models import Q
 from rest_framework_jwt.settings import api_settings
-
 from django.core.mail import send_mail
-
 from django.conf import settings
 from django.template.loader import get_template 
-
 import django
-
 from user_handler.models import log
 
 def csrf(request):
@@ -1020,7 +1016,20 @@ def get_user_logs(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 from django.core import management
-import time
+import sys
+from django.core.management import call_command
+from zipfile import ZipFile
+import shutil
+
+def zipDir(dirPath, zipPath):
+    zipf = ZipFile(zipPath , mode='w')
+    lenDirPath = len(dirPath)
+    for root, _ , files in os.walk(dirPath):
+        for file in files:
+            filePath = os.path.join(root, file)
+            zipf.write(filePath , filePath[lenDirPath :] )
+    zipf.close()
+
 @require_http_methods(['POST'])
 @bind
 def make_backup(self, request):
@@ -1033,8 +1042,32 @@ def make_backup(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "backup":
-                management.call_command("dbbackup")
-                management.call_command('mediabackup')
+                apps = []
+                for app in settings.INSTALLED_APPS:
+                    if 'dbbackup' not in app and 'corsheaders' not in app and 'django' not in app and 'whitenoise' not in app:
+                        apps.append(app)
+                date = datetime.datetime.now().date()
+                time = str(datetime.datetime.now().time()).split('.')[0]
+                BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                file_path = '/backups/'+str(date)+'/'+time+'/'
+                if not os.path.exists(BASE_DIR+'/backups'):
+                    os.mkdir(BASE_DIR+'/backups/')
+                if not os.path.exists(BASE_DIR+'/backups/'+str(date)):
+                    os.mkdir(BASE_DIR+'/backups/'+str(date))
+                if not os.path.exists(BASE_DIR+'/backups/'+str(date)+"/"+str(time)):
+                    os.mkdir(BASE_DIR+'/backups/'+str(date)+"/"+str(time))
+                for app in apps:
+                    sysout = sys.stdout
+                    sys.stdout = open(BASE_DIR+file_path+str(app)+'.dump', 'w')
+                    call_command('dumpdata', app)
+                    sys.stdout = sysout
+                zipDir(BASE_DIR+'/media/', BASE_DIR+file_path+'mediabackup.zip')
+                zip_obj = ZipFile(BASE_DIR+'/backups/'+str(date)+'/'+str(time)+'.zip', 'w')
+                os.chdir(BASE_DIR+file_path)
+                for files in os.listdir(BASE_DIR+file_path):
+                    zip_obj.write(files)
+                zip_obj.close()
+                shutil.rmtree(BASE_DIR+'/backups/'+str(date)+'/'+str(time))
                 data = {'token':request.headers['Authorization'].split(' ')[1]}
                 valid_data = VerifyJSONWebTokenSerializer().validate(data)
                 user = valid_data['user']
@@ -1063,17 +1096,13 @@ def download_backup(self, request):
                 date = data_json['date']
                 time = data_json['time']
                 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                if os.path.exists(BASE_DIR+'/backups/'+date+'/'+time):
-                    file_path = BASE_DIR+'/backups/'+date+'/'+time
-                    lists = os.listdir(file_path)
-                    for temp in lists:
-                        if data_json['type'] in temp:
-                            file_path = file_path+'/'+temp
-                            break
-                    with open(file_path, 'rb') as fh:
-                        response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                        response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
-                        return response
+                if os.path.exists(BASE_DIR+'/backups/'+date):
+                    if os.path.isfile(BASE_DIR+'/backups/'+date+'/'+time+'.zip'):   
+                        file_path = BASE_DIR+'/backups/'+date+'/'+time+'.zip'
+                        with open(file_path, 'rb') as fh:
+                            response = HttpResponse(fh.read(), content_type="application/zip")
+                            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+                            return response
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -1100,8 +1129,9 @@ def get_backup_list(self, request):
                     temp = {}
                     for y in x:
                         time_list = os.listdir(BASE_DIR+'/backups/'+y)
-                        print(time_list)
-                        temp[y] = time_list
+                        temp[y] = []
+                        for t in time_list:
+                            temp[y].append(t.split('.zip')[0])
                 except:
                     temp = {}
                 response_json['backup_date'] = temp
