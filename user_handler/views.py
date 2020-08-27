@@ -968,10 +968,10 @@ def get_activities_log(self, request):
                     if data_json['filters']['user']:
                         logs = logs.filter(user__id = data_json['filters']['user'])
                     if data_json['filters']['date_range']:
-                        if data_json['filters']['date_from']:
-                            logs = logs.filter(date__gte = str_to_datetime(data_json['filters']['date_from']))
-                        if data_json['filters']['date_upto']:
-                            logs = logs.filter(date__lte = str_to_datetime(data_json['filters']['date_upto']))
+                        if data_json['filters']['date_range']['date_from']:
+                            logs = logs.filter(date__gte = str_to_datetime(data_json['filters']['date_range']['date_from']))
+                        if data_json['filters']['date_range']['date_upto']:
+                            logs = logs.filter(date__lte = str_to_datetime(data_json['filters']['date_range']['date_upto']))
                 response_json['count'] = len(logs)
                 logs = logs[data_json['start']:data_json['end']]
                 response_json['logs'] = logs_to_json(logs)
@@ -1077,7 +1077,6 @@ def make_backup(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
 @require_http_methods(['POST'])
 @bind
 def download_backup(self, request):
@@ -1105,7 +1104,6 @@ def download_backup(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
 
 @require_http_methods(['POST'])
 @bind
@@ -1138,4 +1136,3 @@ def get_backup_list(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
