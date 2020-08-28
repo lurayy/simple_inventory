@@ -7,6 +7,12 @@
     action : backup
 }
 ```
+#### Live update of the backup:
+- First connect to the web socket
+- Use websocket to connect
+- 'backup/create/progress/?token='+token
+- Test code is named backup_update.html
+- After connection, trigger backup/create
 
 
 #### 2. List of backup (according to date -> time)

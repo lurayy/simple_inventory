@@ -1,0 +1,47 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <title>Chat Room</title>
+</head>
+<body>
+    <textarea id="log" cols="100" rows="20"></textarea><br>
+    <script>
+        getToken = async () => {
+            const settings = {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body : JSON.stringify({'username':'admin', 'password':'pass'})
+            };
+            try {
+                const fetchResponse = await fetch('http://localhost:8000/api/v1/user/auth', settings);
+                const data = await fetchResponse.json();
+                return data['token'];
+            } catch (e) {
+                return e;
+            }    
+
+        }
+
+        getToken().then(function(token){
+            console.log(token)
+            const chatSocket = new WebSocket(
+                'ws://localhost:8000/backup/create/progress/?token='+token
+            );
+
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                document.querySelector('#log').value += (data.message.msg + ' '+data.message.value + '\n');
+            };
+
+            chatSocket.onclose = function(e) {
+                console.error('Chat socket closed unexpectedly');
+            };
+        })
+    </script>
+</body>
+</html>

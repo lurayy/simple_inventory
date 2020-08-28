@@ -1028,6 +1028,12 @@ def zipDir(dirPath, zipPath):
             zipf.write(filePath , filePath[lenDirPath :] )
     zipf.close()
 
+
+def send_update(uuid, msg, value):
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(str(uuid), {"type": "update", "message": {"msg":msg, 'value':value}})
+
+
 @require_http_methods(['POST'])
 @bind
 def make_backup(self, request):
@@ -1039,14 +1045,20 @@ def make_backup(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            data = {'token':request.headers['Authorization'].split(' ')[1]}
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            user = valid_data['user']
+            send_update(user.uuid, 'Starting Backup', 0)
             if data_json['action'] == "backup":
                 apps = []
                 for app in settings.INSTALLED_APPS:
                     if 'dbbackup' not in app and 'corsheaders' not in app and 'django' not in app and 'whitenoise' not in app and 'channels' not in app:
                         apps.append(app)
+                send_update(user.uuid, 'Finding Apps', 0)
                 date = datetime.datetime.now().date()
                 time = str(datetime.datetime.now().time()).split('.')[0]
                 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                send_update(user.uuid, 'Creating Structure', 0)
                 file_path = '/backups/'+str(date)+'/'+time+'/'
                 if not os.path.exists(BASE_DIR+'/backups'):
                     os.mkdir(BASE_DIR+'/backups/')
@@ -1054,22 +1066,29 @@ def make_backup(self, request):
                     os.mkdir(BASE_DIR+'/backups/'+str(date))
                 if not os.path.exists(BASE_DIR+'/backups/'+str(date)+"/"+str(time)):
                     os.mkdir(BASE_DIR+'/backups/'+str(date)+"/"+str(time))
+                send_update(user.uuid, 'Creating Backup', 0)
+                x = len(apps)
+                i = 90/x
+                value = 10
                 for app in apps:
+                    send_update(user.uuid, 'Creating Backup for '+str(app), int(value))
                     sysout = sys.stdout
                     sys.stdout = open(BASE_DIR+file_path+str(app)+'.dump', 'w')
                     call_command('dumpdata', app)
                     sys.stdout = sysout
+                    value = value + i
+                send_update(user.uuid, 'Creating Backup for media files.', 90)
                 zipDir(BASE_DIR+'/media/', BASE_DIR+file_path+'mediabackup.zip')
                 zip_obj = ZipFile(BASE_DIR+'/backups/'+str(date)+'/'+str(time)+'.zip', 'w')
                 os.chdir(BASE_DIR+file_path)
+                send_update(user.uuid, 'Compressing Everything.', 95)
                 for files in os.listdir(BASE_DIR+file_path):
                     zip_obj.write(files)
                 zip_obj.close()
+                send_update(user.uuid, 'Removing Temporary Files.', 98)
                 shutil.rmtree(BASE_DIR+'/backups/'+str(date)+'/'+str(time))
-                data = {'token':request.headers['Authorization'].split(' ')[1]}
-                valid_data = VerifyJSONWebTokenSerializer().validate(data)
-                user = valid_data['user']
                 log('user/backup/create', 'create', 0, 0,  {}, user)
+                send_update(user.uuid, 'Backup process completed.', 100)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -1105,6 +1124,10 @@ def download_backup(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+
 @require_http_methods(['POST'])
 @bind
 def get_backup_list(self, request):
@@ -1116,6 +1139,7 @@ def get_backup_list(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
+            
             if data_json['action'] == "get":
                 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 try:
