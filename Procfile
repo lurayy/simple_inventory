@@ -1,1 +1,1 @@
-web: gunicorn simple_im.wsgi --log-file -
+web: daphne simple_im.asgi:application --port $PORT --bind 0.0.0.0 -v2
