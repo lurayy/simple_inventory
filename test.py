@@ -4,7 +4,7 @@ import datetime
 
 base_url = 'http://localhost:8000/api/v1/'
 # base_url = 'https://simpleim.herokuapp.com/api/v1/'
-# base_url = "https://mandala-erp.herokuapp.com/api/v1/"
+base_url = "https://mandala-erp.herokuapp.com/api/v1/"
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 # base_url = "http://ec2-52-91-11-249.compute-1.amazonaws.com/api/v1/"
 
