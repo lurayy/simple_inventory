@@ -1,7 +1,7 @@
-from django.urls import path
+from django.urls import re_path
 
 from . import consumer
 
 websocket_urlpatterns = [
-    path('backup/create/progress/', consumer.ProgressBarConsumer)
+    re_path(r'ws/backup/create/progress$', consumer.ProgressBarConsumer)
 ]

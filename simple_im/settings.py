@@ -2,8 +2,7 @@ import os
 import dj_database_url
 import django_heroku
 import datetime
-from redislite import Redis
-
+import channels_redis
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -201,14 +200,11 @@ DBBACKUP_STORAGE_OPTIONS = {'location': location}
 DBBACKUP_FILENAME_TEMPLATE = 'database__{datetime}.backup'
 DBBACKUP_MEDIA_FILENAME_TEMPLATE = 'mediafiles__{datetime}.tar'
 
-
-rdb = Redis('/tmp/redis.db', serverconfig={'port': '6379'})
-
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+            "hosts": [("localhost", 6379)],
         },
     },
 }

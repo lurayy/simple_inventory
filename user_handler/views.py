@@ -1066,6 +1066,7 @@ def make_backup(self, request):
                     os.mkdir(BASE_DIR+'/backups/')
                 if not os.path.exists(BASE_DIR+'/backups/'+str(date)):
                     os.mkdir(BASE_DIR+'/backups/'+str(date))
+                
                 if not os.path.exists(BASE_DIR+'/backups/'+str(date)+"/"+str(time)):
                     os.mkdir(BASE_DIR+'/backups/'+str(date)+"/"+str(time))
                 send_update(user.uuid, 'Creating Backup', 0)
