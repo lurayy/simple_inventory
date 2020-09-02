@@ -1058,7 +1058,9 @@ def make_backup(self, request):
                 
                 date = datetime.datetime.now().date()
                 time = str(datetime.datetime.now().time()).split('.')[0]
+                send_update(user.uuid, 'Finding base dir', 0)
                 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                send_update(user.uuid, 'Finding base dir'+str(BASE_DIR), 0)
                 send_update(user.uuid, 'Creating Structure', 0)
                 
                 file_path = '/backups/'+str(date)+'/'+str(time)+'/'
