@@ -1061,14 +1061,15 @@ def make_backup(self, request):
                 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 send_update(user.uuid, 'Creating Structure', 0)
                 
-                file_path = '/backups/'+str(date)+'/'+time+'/'
+                file_path = '/backups/'+str(date)+'/'+str(time)+'/'
                 if not os.path.exists(BASE_DIR+'/backups'):
+                    print("create new backup")
                     os.mkdir(BASE_DIR+'/backups/')
                 if not os.path.exists(BASE_DIR+'/backups/'+str(date)):
+                    print("creating new date")
                     os.mkdir(BASE_DIR+'/backups/'+str(date))
-                
-                if not os.path.exists(BASE_DIR+'/backups/'+str(date)+"/"+str(time)):
-                    os.mkdir(BASE_DIR+'/backups/'+str(date)+"/"+str(time))
+
+                os.mkdir(BASE_DIR+'/backups/'+str(date)+"/"+str(time))
                 send_update(user.uuid, 'Creating Backup', 0)
                 
                 x = len(apps)
