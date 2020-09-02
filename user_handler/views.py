@@ -1051,18 +1051,14 @@ def make_backup(self, request):
             
             if data_json['action'] == "backup":
                 apps = []
+                send_update(user.uuid, 'Finding Apps', 0)
                 for app in settings.INSTALLED_APPS:
                     if 'dbbackup' not in app and 'corsheaders' not in app and 'django' not in app and 'whitenoise' not in app and 'channels' not in app:
                         apps.append(app)
-                send_update(user.uuid, 'Finding Apps', 0)
-                
                 date = datetime.datetime.now().date()
                 time = str(datetime.datetime.now().time()).split('.')[0]
-                send_update(user.uuid, 'Finding base dir', 0)
                 BASE_DIR = settings.BASE_DIR
-                send_update(user.uuid, 'Finding base dir'+str(BASE_DIR), 0)
                 send_update(user.uuid, 'Creating Structure', 0)
-                
                 file_path = '/backups/'+str(date)+'/'+str(time)+'/'
                 if not os.path.exists(BASE_DIR+'/backups'):
                     print("create new backup")
@@ -1070,37 +1066,30 @@ def make_backup(self, request):
                 if not os.path.exists(BASE_DIR+'/backups/'+str(date)):
                     print("creating new date")
                     os.mkdir(BASE_DIR+'/backups/'+str(date))
-
                 os.mkdir(BASE_DIR+'/backups/'+str(date)+"/"+str(time))
                 send_update(user.uuid, 'Creating Backup', 0)
-                
                 x = len(apps)
                 i = 90/x
                 value = 10
                 for app in apps:
                     send_update(user.uuid, 'Creating Backup for '+str(app), int(value))
-                    
                     sysout = sys.stdout
                     sys.stdout = open(BASE_DIR+file_path+str(app)+'.dump', 'w')
                     call_command('dumpdata', app)
                     sys.stdout = sysout
                     value = value + i
                 send_update(user.uuid, 'Creating Backup for media files.', 90)
-                
                 zipDir(BASE_DIR+'/media/', BASE_DIR+file_path+'mediabackup.zip')
                 zip_obj = ZipFile(BASE_DIR+'/backups/'+str(date)+'/'+str(time)+'.zip', 'w')
                 os.chdir(BASE_DIR+file_path)
                 send_update(user.uuid, 'Compressing Everything.', 95)
-                
                 for files in os.listdir(BASE_DIR+file_path):
                     zip_obj.write(files)
                 zip_obj.close()
                 send_update(user.uuid, 'Removing Temporary Files.', 98)
-                
                 shutil.rmtree(BASE_DIR+'/backups/'+str(date)+'/'+str(time))
                 log('user/backup/create', 'create', 0, 0,  {}, user)
                 send_update(user.uuid, 'Backup process completed.', 100)
-                
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
