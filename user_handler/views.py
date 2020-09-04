@@ -1171,14 +1171,14 @@ def restore_backup(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "restore":
-                date = data_json['date']
-                time = data_json['time']
                 data = {'token':request.headers['Authorization'].split(' ')[1]}
                 valid_data = VerifyJSONWebTokenSerializer().validate(data)
                 user = valid_data['user']
                 send_update(user.uuid, 'Starting Restoring Process . . . ', 0)
                 BASE_DIR = settings.BASE_DIR
                 if data_json['method'] == "selection":
+                    date = data_json['date']
+                    time = data_json['time']
                     if os.path.exists(BASE_DIR+'/backups/'+date):
                         if os.path.isfile(BASE_DIR+'/backups/'+date+'/'+time+'.zip'):   
                             file_path = BASE_DIR+'/backups/'+date+'/'+time+'.zip'
@@ -1206,7 +1206,35 @@ def restore_backup(self, request):
                                 send_update(user.uuid, 'Restoring Process Complete.', 100)
                         else:
                             raise Exception("There is backup point for give date and time.")
-                    response_json['status'] = True
+                        response_json['status'] = True
+                elif data_json['method'] == "upload":
+                    data = data_json['file']
+                    format, zip_str = data.split(';base64,') 
+                    try:
+                        os.mkdir(BASE_DIR+'/tmp')
+                    except:
+                        shutil.rmtree(BASE_DIR+'/tmp/')
+                        os.mkdir(BASE_DIR+'/tmp')
+                    with open(BASE_DIR+'/tmp/temp.zip', 'wb') as result:
+                        result.write(base64.b64decode(zip_str))
+                    with ZipFile(BASE_DIR+'/tmp/temp.zip', 'r') as backup_zip:
+                        backup_zip.extractall(BASE_DIR+'/tmp/')
+                        send_update(user.uuid, 'Cleaning up database . . . ', 0)
+                        call_command('flush', interactive = False)
+                        send_update(user.uuid, 'Restoring Users and logs . . . ', 10)
+                        call_command('loaddata', 'tmp/user_handler.json')
+                        send_update(user.uuid, 'Restoring Inventories . . . ', 25)
+                        call_command('loaddata', 'tmp/inventory.json')
+                        send_update(user.uuid, 'Restoring Sales . . . ', 45)
+                        call_command('loaddata', 'tmp/sales.json')
+                        send_update(user.uuid, 'Restoring Payments . . . ', 60)
+                        call_command('loaddata', 'tmp/payment.json')
+                        send_update(user.uuid, 'Restoring Accounts . . . ', 80)
+                        call_command('loaddata', 'tmp/accounting.json')
+                        send_update(user.uuid, 'Cleaning files . . . ', 90)
+                        shutil.rmtree(BASE_DIR+'/tmp/')
+                        send_update(user.uuid, 'Restoring Process Complete.', 100)   
+                    response_json['status'] = True     
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

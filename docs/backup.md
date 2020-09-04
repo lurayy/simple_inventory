@@ -35,6 +35,8 @@
 ```
 
 #### 4. Restore [By Selecint db]
+
+- Get live update using the save socket method mentioned above.
 - /api/v1/user/backup/restore
 ```
 {
@@ -42,5 +44,13 @@
     method : selection,
     date : 
     time :
+}
+```
+
+```
+{
+    'action' : 'restore',
+    'method' : 'upload',
+    'file' : file_str
 }
 ```
