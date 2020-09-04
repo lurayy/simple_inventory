@@ -44,5 +44,6 @@ urlpatterns = [
 
     path('backup/create', views.make_backup),
     path('backups/get',views.get_backup_list),
-    path('backup/download', views.download_backup)
+    path('backup/download', views.download_backup),
+    path('backup/restore', views.restore_backup)
 ]

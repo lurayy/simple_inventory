@@ -488,7 +488,6 @@ def add_new_role(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "add":
                 with open('user_handler/temp.py','w') as f:
-                    print("write")
                     f.write('from user_handler.models_permission import CustomPermission')
                     f.write('\n')
                     f.write('def tes():\n')
@@ -520,7 +519,6 @@ def update_role(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
                 with open('user_handler/temp.py','w') as f:
-                    print("write")
                     f.write('from user_handler.models_permission import CustomPermission')
                     f.write('\n')
                     f.write('def tes():\n')
@@ -1059,31 +1057,29 @@ def make_backup(self, request):
                 time = str(datetime.datetime.now().time()).split('.')[0]
                 BASE_DIR = settings.BASE_DIR
                 send_update(user.uuid, 'Creating Structure', 0)
-                file_path = '/backups/'+str(date)+'/'+str(time)+'/'
                 if not os.path.exists(BASE_DIR+'/backups'):
-                    print("create new backup")
                     os.mkdir(BASE_DIR+'/backups/')
                 if not os.path.exists(BASE_DIR+'/backups/'+str(date)):
-                    print("creating new date")
                     os.mkdir(BASE_DIR+'/backups/'+str(date))
                 os.mkdir(BASE_DIR+'/backups/'+str(date)+"/"+str(time))
+                file_path = BASE_DIR + '/backups/'+str(date)+'/'+str(time)+'/'
                 send_update(user.uuid, 'Creating Backup', 0)
                 x = len(apps)
                 i = 90/x
                 value = 10
                 for app in apps:
                     send_update(user.uuid, 'Creating Backup for '+str(app), int(value))
-                    sysout = sys.stdout
-                    sys.stdout = open(BASE_DIR+file_path+str(app)+'.dump', 'w')
-                    call_command('dumpdata', app)
-                    sys.stdout = sysout
+                    x = open(file_path+str(app)+'.json', 'w')
+                    call_command('dumpdata', app, stdout=x)
+                    x.close()
                     value = value + i
+                    print(app)
                 send_update(user.uuid, 'Creating Backup for media files.', 90)
-                zipDir(BASE_DIR+'/media/', BASE_DIR+file_path+'mediabackup.zip')
+                zipDir(BASE_DIR+'/media/',file_path+'mediabackup.zip')
                 zip_obj = ZipFile(BASE_DIR+'/backups/'+str(date)+'/'+str(time)+'.zip', 'w')
-                os.chdir(BASE_DIR+file_path)
+                os.chdir(file_path)
                 send_update(user.uuid, 'Compressing Everything.', 95)
-                for files in os.listdir(BASE_DIR+file_path):
+                for files in os.listdir(file_path):
                     zip_obj.write(files)
                 zip_obj.close()
                 send_update(user.uuid, 'Removing Temporary Files.', 98)
@@ -1111,7 +1107,7 @@ def download_backup(self, request):
             if data_json['action'] == "download":
                 date = data_json['date']
                 time = data_json['time']
-                BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                BASE_DIR = settings.BASE_DIR
                 if os.path.exists(BASE_DIR+'/backups/'+date):
                     if os.path.isfile(BASE_DIR+'/backups/'+date+'/'+time+'.zip'):   
                         file_path = BASE_DIR+'/backups/'+date+'/'+time+'.zip'
@@ -1142,7 +1138,7 @@ def get_backup_list(self, request):
             data_json = json.loads(json_str)
             
             if data_json['action'] == "get":
-                BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                BASE_DIR = settings.BASE_DIR
                 try:
                     date_list = os.listdir(BASE_DIR+'/backups')
                     x = date_list.copy()
@@ -1156,6 +1152,61 @@ def get_backup_list(self, request):
                     temp = {}
                 response_json['backup_date'] = temp
                 response_json['status'] = True
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def restore_backup(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "restore":
+                date = data_json['date']
+                time = data_json['time']
+                data = {'token':request.headers['Authorization'].split(' ')[1]}
+                valid_data = VerifyJSONWebTokenSerializer().validate(data)
+                user = valid_data['user']
+                send_update(user.uuid, 'Starting Restoring Process . . . ', 0)
+                BASE_DIR = settings.BASE_DIR
+                if data_json['method'] == "selection":
+                    if os.path.exists(BASE_DIR+'/backups/'+date):
+                        if os.path.isfile(BASE_DIR+'/backups/'+date+'/'+time+'.zip'):   
+                            file_path = BASE_DIR+'/backups/'+date+'/'+time+'.zip'
+                            with ZipFile(file_path, 'r') as backup_zip:
+                                try:
+                                    os.mkdir(BASE_DIR+'/tmp')
+                                except:
+                                    shutil.rmtree(BASE_DIR+'/tmp/')
+                                    os.mkdir(BASE_DIR+'/tmp')
+                                backup_zip.extractall(BASE_DIR+'/tmp/')
+                                send_update(user.uuid, 'Cleaning up database . . . ', 0)
+                                call_command('flush', interactive = False)
+                                send_update(user.uuid, 'Restoring Users and logs . . . ', 10)
+                                call_command('loaddata', 'tmp/user_handler.json')
+                                send_update(user.uuid, 'Restoring Inventories . . . ', 25)
+                                call_command('loaddata', 'tmp/inventory.json')
+                                send_update(user.uuid, 'Restoring Sales . . . ', 45)
+                                call_command('loaddata', 'tmp/sales.json')
+                                send_update(user.uuid, 'Restoring Payments . . . ', 60)
+                                call_command('loaddata', 'tmp/payment.json')
+                                send_update(user.uuid, 'Restoring Accounts . . . ', 80)
+                                call_command('loaddata', 'tmp/accounting.json')
+                                send_update(user.uuid, 'Cleaning files . . . ', 90)
+                                shutil.rmtree(BASE_DIR+'/tmp/')
+                                send_update(user.uuid, 'Restoring Process Complete.', 100)
+                        else:
+                            raise Exception("There is backup point for give date and time.")
+                    response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

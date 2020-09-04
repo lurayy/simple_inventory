@@ -2,10 +2,10 @@ import requests
 import json
 import datetime
 
-# base_url = 'http://localhost:8000/api/v1/'
+base_url = 'http://localhost:8000/api/v1/'
 # base_url = 'https://simpleim.herokuapp.com/api/v1/'
 # base_url = "https://mandala-erp.herokuapp.com/api/v1/"
-base_url = "https://erp.mandalaitsolutions.com/api/v1/"
+# base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 # base_url = "http://ec2-52-91-11-249.compute-1.amazonaws.com/api/v1/"
 
 # data = {
@@ -47,16 +47,31 @@ headers = {
 
 # data = {
 #     'action' : 'download',
-#     'date' : '2020-08-27',
-#     'time' : '12:29:23'
+#     'date' : '2020-09-04',
+#     'time' : '10:37:27'
 # }
 # r = requests.post(base_url+'user/backup/download', headers= headers, data = json.dumps(data))
 # print(r.text)
 
+
+# data = {
+#     'action' : 'backup'
+# }
+# r = requests.post(base_url+'user/backup/create', headers= headers, data = json.dumps(data))
+# print(r.text)
+
+# data = {
+#     'action' : 'get'
+# }
+# r = requests.post(base_url+'user/backups/get', headers= headers, data = json.dumps(data))
+# print(r.text)
+
 data = {
-    'action' : 'backup'
+    'action' : 'restore',
+    'date' : '2020-09-04',
+    'time' : '10:37:27'
 }
-r = requests.post(base_url+'user/backup/create', headers= headers, data = json.dumps(data))
+r = requests.post(base_url+'user/backup/restore', headers= headers, data = json.dumps(data))
 print(r.text)
 
 # data = {

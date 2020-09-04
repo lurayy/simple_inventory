@@ -34,3 +34,13 @@
 }
 ```
 
+#### 4. Restore [By Selecint db]
+- /api/v1/user/backup/restore
+```
+{
+    action : restore,
+    method : selection,
+    date : 
+    time :
+}
+```

@@ -45,6 +45,7 @@ class CustomPermission(models.Model):
     delete_gift_cards = models.BooleanField(default=True)
     get_gift_card_details = models.BooleanField(default=True)
     get_multiple_gift_cards = models.BooleanField(default=True)
+    restore_backup = models.BooleanField(default=True)
     download_backup = models.BooleanField(default=True)
     get_backup_list = models.BooleanField(default=True)
     make_backup = models.BooleanField(default=True)
