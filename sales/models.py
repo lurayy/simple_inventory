@@ -103,6 +103,21 @@ def generate_invoice_number(invoice):
 
 
 
+def sync_with_ird(invoice):
+    settings = Setting.objects.filter(is_active=True)[0]
+    from bikram import samwat
+    data = {
+        'username' : settings.ird_username,
+        'password' : settings.ird_password,
+        'seller_pan' : settings.pan_number,
+        'buyer_pan' : invoice.customer.tax_number,
+        'fiscal_year' : fiscal_year_bs,
+        'invoice_number' : invoice.invoice_number,
+        'invoice_date' : str(samwat.from_ad(invoice.invoiced_on.date())),
+        'total_sales' : invoice.bill_amount
+    }
+
+
 class InvoiceItem(models.Model):
     ''' this model hold the items and the details of that item, that are add to invoice'''
     purchase_item = models.ForeignKey(
