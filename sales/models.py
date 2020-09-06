@@ -83,6 +83,37 @@ class Invoice(models.Model):
         unique_together = ('invoice_number',)
 
 
+
+
+# def sync_with_ird(invoice):
+#     settings = Setting.objects.filter(is_active=True)[0]
+#     url = "http://103.1.92.174:9050/api/bill"
+#     from bikram import samwat
+#     data = {
+#         'username' : settings.ird_username,
+#         'password' : settings.ird_password,
+#         'seller_pan' : settings.pan_number,
+#         'buyer_pan' : invoice.customer.tax_number,
+#         'fiscal_year' : fiscal_year_bs,
+#         'invoice_number' : invoice.invoice_number,
+#         'invoice_date' : str(samwat.from_ad(invoice.invoiced_on.date())),
+#         'total_sales' : invoice.bill_amount,
+#         'taxable_sales_vat' :  ,
+#         'vat' : ,
+#         'excisable_amount' : ,
+#         'excise' ,
+#         'taxable_sales_hst' : ,
+#         'hst' : ,
+#         'amount_for_esf' : ,
+#         'esf' : ,
+#         'export_sales' : ,
+#         'tax_exmpted_sales' : ,
+#         'isrealtime' : ,
+#         'datetimeClient' : ,
+#     }
+
+
+
 def generate_invoice_number(invoice):
     try:
         from .utils import get_fiscal_year
@@ -101,21 +132,6 @@ def generate_invoice_number(invoice):
     except:
         raise Exception("Settings is not setup properly.")
 
-
-
-def sync_with_ird(invoice):
-    settings = Setting.objects.filter(is_active=True)[0]
-    from bikram import samwat
-    data = {
-        'username' : settings.ird_username,
-        'password' : settings.ird_password,
-        'seller_pan' : settings.pan_number,
-        'buyer_pan' : invoice.customer.tax_number,
-        'fiscal_year' : fiscal_year_bs,
-        'invoice_number' : invoice.invoice_number,
-        'invoice_date' : str(samwat.from_ad(invoice.invoiced_on.date())),
-        'total_sales' : invoice.bill_amount
-    }
 
 
 class InvoiceItem(models.Model):

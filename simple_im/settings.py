@@ -201,8 +201,6 @@ DBBACKUP_STORAGE_OPTIONS = {'location': location}
 DBBACKUP_FILENAME_TEMPLATE = 'database__{datetime}.backup'
 DBBACKUP_MEDIA_FILENAME_TEMPLATE = 'mediafiles__{datetime}.tar'
 
-
-
 # import channels_redis
 # CHANNEL_LAYERS = {
 #     'default': {
