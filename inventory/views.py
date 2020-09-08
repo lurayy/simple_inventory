@@ -1520,8 +1520,8 @@ def get_purchase_item_details(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)    
             if data_json['action'] == 'get':
-                if data_json['filter'] == 'uuid':
-                    purchase_item = PurchaseItem.objects.get(uuid=data_json['uuid'])
+                if data_json['filter'] == 'id':
+                    purchase_item = PurchaseItem.objects.get(id=data_json['id'])
                     return JsonResponse({'status':True, 'purchase_item':  purchase_items_to_json([purchase_item])})
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
