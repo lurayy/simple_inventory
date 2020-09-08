@@ -551,6 +551,7 @@ def get_multiple_items(self, request):
                     return JsonResponse(response_json)
                 if data_json['filter'] == "barcode":
                     items = Item.objects.filter(is_active=True, barcode=data_json['barcode'])
+                    response_json['count'] = len(items)
                     response_json['items'] = items_to_json(items)
                     response_json['status'] = True
                     return JsonResponse(response_json)
@@ -762,7 +763,7 @@ def update_item(self, request):
                     item.weight_unit = (data_json['weight_unit'])
                 if data_json['category']:
                     changes['category'] : item.category
-                    category = ItemCatagory.objects.get(id=int(data_json['catagory']))
+                    category = ItemCatagory.objects.get(id=int(data_json['category']))
                     item.category = category
                 try:
                     if (data_json['product_images']):
