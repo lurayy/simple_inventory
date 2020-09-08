@@ -1,6 +1,7 @@
 import requests
 import json
-base_url = "https://erp.mandalaitsolutions.com/api/v1/"
+# base_url = "https://erp.mandalaitsolutions.com/api/v1/"
+base_url = 'http://localhost:8000/api/v1/'
 
 def login():    
     creds = {
@@ -29,14 +30,11 @@ def call(headers, data, url):
 
 if __name__ == "__main__":
     headers = login()
-    with open('zip.txt', 'r') as zip:
-        file_str = zip.read()
-    
+
     data = {
-        'action' : 'restore',
-        'method' : 'upload',
-        'file' : file_str
+        'action' : 'get',
+        'filter' : 'invoice_number',
+        'invoice_number' : 'PKR000000 77/78'
     }
-    
-    url = 'user/backup/restore'
+    url = 'sales/invoices/get'
     call(headers, data, url)

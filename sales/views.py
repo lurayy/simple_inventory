@@ -105,7 +105,6 @@ def get_multiple_invoices(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            # GET Handler
             if str(data_json['action']) == "get":
                 response_json = {'status':False, 'sales':[]}
                 if str(data_json['filter']).lower() == "none":
@@ -114,7 +113,6 @@ def get_multiple_invoices(self, request):
                     invoices = Invoice.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(invoices)
                     invoices = invoices[start:end]
-                # filter using date, will have to do after front-end
                 if str(data_json['filter']).lower() == "added_by":
                     start = data_json['start']
                     end = data_json['end']    

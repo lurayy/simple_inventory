@@ -49,6 +49,8 @@ def get_multiple_purchase_orders(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             # GET Handler
+            start = 0
+            end = 25
             if str(data_json['action']).lower() == "get":
                 orders = []
                 response_json = {'status':'', 'purchase_orders':[]}
