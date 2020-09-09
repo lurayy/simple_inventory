@@ -1,6 +1,6 @@
 from .models_permission import CustomPermission
 from rest_framework import serializers
-from .models import Profile, UserActivities, Setting, Notification, NotificationSetting, UserActivities, ActivityLog
+from .models import Profile, UserActivities, Setting, Notification, NotificationSetting, UserActivities, ActivityLog, Country
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -44,9 +44,6 @@ class UserActivitiesSerializer(serializers.ModelSerializer):
         model = UserActivities
         fields = '__all__'
 
-
-
-
 class NotificationSettingSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -54,6 +51,12 @@ class NotificationSettingSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class CountrySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Country
+        fields = '__all__'
 
 
 class ActivityLogSerializer(serializers.ModelSerializer):

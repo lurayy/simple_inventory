@@ -32,6 +32,7 @@ import weasyprint
 
 
 from user_handler.models import log
+from user_handler.models import Country
 
 def ss(request):    
     data = {'token':request.headers['Authorization'].split(' ')[1]}
@@ -395,7 +396,8 @@ def add_new_customer(self, request):
                     tax_number = str(data_json['tax_number']),
                     phone1 = str(data_json['phone1']),
                     phone2 = str(data_json['phone2']),
-                    address = str(data_json['address'])
+                    address = str(data_json['address']),
+                    country = Country.objects.get(id=data_json['country'])
                 )
                 if data_json['category']:
                     category = CustomerCategory.objects.get(id=data_json['category'])
@@ -489,6 +491,7 @@ def update_customer(self, request):
                 customer.phone2 = str(data_json['phone2'])
                 customer.address = str(data_json['address'])
                 customer.is_active = (data_json['is_active'])
+                customer.country = Country.objects.get(id=data_json['country'])
                 customer.category = CustomerCategory.objects.get(id=data_json['category'])
                 customer.save()
                 log('sales/customer', 'update', customer.id, str(customer), {'old_customer': customers_to_json([old_customer])}, ss(request))

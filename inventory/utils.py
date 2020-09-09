@@ -3,7 +3,8 @@ from django.forms.models import model_to_dict
 from user_handler.models import Vendor, CustomUserBase, Setting
 from .serializers import PurchaseOrderSerializer, PurchaseItemSerializer, VendorSerializer, ItemSerializer, PlaceSerializer,ItemCatagorySerializer, PlacementSerializer, ItemImageSerializer
 import dateutil.parser
-from user_handler.models import ActivityLog
+from user_handler.models import ActivityLog, Country
+from user_handler.serializers import CountrySerializer
 
 def purchase_orders_to_json(models):
     data = []
@@ -35,6 +36,7 @@ def vendors_to_json(vendors):
     data = []
     for vendor in vendors:
         temp = VendorSerializer(vendor).data
+        temp['country_detail'] = CountrySerializer(vendor.country).data
         temp['name'] = str(temp['first_name']) + " " + str(temp['middle_name'] )+ str(temp['last_name'])
         if (temp['middle_name']):
             pass

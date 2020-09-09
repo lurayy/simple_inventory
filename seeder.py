@@ -267,3 +267,20 @@ NotificationSetting.objects.create(
 NotificationSetting.objects.create(
     model = 'invoice'
 )
+
+from user_handler.models import Country
+import json
+with open('countires.json', 'r') as con_file:
+    data = json.load(con_file)
+    for con in data:
+        print(con['alpha2'])
+        Country.objects.create(
+            alpha2 = con['alpha2'],
+            alpha3 = con['alpha3'],
+            num = int(con['num']),
+            phone_code = int(con['phone_code']),
+            name = (con['name']),
+            continent = (con['continent'])
+            
+        )
+

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_http_methods
 import json
 import datetime
-from user_handler.models import Vendor, CustomUserBase
+from user_handler.models import Vendor, CustomUserBase, Country
 from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus, ItemCatagory, ItemImage
 from .utils import purchase_orders_to_json, purchase_items_to_json, str_to_datetime, vendors_to_json, items_to_json, item_catagories_to_json, places_to_json, placements_to_json,items_to_json_with_selection
 from .exceptions import  EmptyValueException
@@ -357,9 +357,9 @@ def add_new_vendor(self, request):
                     phone1 = str(data_json['phone1']),
                     phone2 = str(data_json['phone2']),
                     address = str(data_json['address']),
-                    country = data_json['country'],
                     company = data_json['company'],
-                    added_by = user
+                    added_by = user,
+                    country = Country.objects.get(id=data_json['country'])
                 )
                 vendor.save()
                 log('inventory/vendor', 'create', vendor.id, str(vendor), {}, user)
@@ -480,8 +480,8 @@ def update_vendor(self, request):
                     changes['address'] = vendor.address
                     vendor.address = str(data_json['address'])
                 if data_json['country']:
-                    changes['country'] = vendor.country
-                    vendor.tax_number = str(data_json['tax_number'])
+                    changes['country'] = str(vendor.country)
+                    vendor.country = Country.objects.get(id=data_json['country'])
                 if data_json['company']:
                     changes['company'] = vendor.company
                     vendor.tax_number = str(data_json['company'])

@@ -5,6 +5,7 @@ from inventory.models import PurchaseItem, Place, Item
 from inventory.utils import weight_conversion
 from user_handler.models import ActivityLog
 from bikram import samwat
+from user_handler.serializers import CountrySerializer
 
 def get_fiscal_year(date):
     start_fisal_year = 0
@@ -97,6 +98,7 @@ def customers_to_json(customers):
     data = []
     for customer in customers:
         temp = CustomerSerializer(customer).data
+        temp['country_detail'] = CountrySerializer(customer.country).data
         if(temp['middle_name']):
             temp['name'] = str(temp['first_name']) + " " + str(temp['middle_name'] ) + " "+ str(temp['last_name'])
         else:

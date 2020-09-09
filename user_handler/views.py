@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .exceptions import  EmptyValueException
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .forms import UserForm, LoginForm
-from .models import CustomUserBase, Profile, UserActivities, PasswordResetCode, Setting, Notification, NotificationSetting, ActivityLog, UserActivities
+from .models import Country, CustomUserBase, Profile, UserActivities, PasswordResetCode, Setting, Notification, NotificationSetting, ActivityLog, UserActivities
 import json
 from django.middleware.csrf import get_token
 from django.contrib.auth import authenticate
@@ -19,7 +19,7 @@ from django.core.files.base import ContentFile
 import base64
 from inventory.utils import str_to_datetime
 from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
-from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer, SettingSerializer, NotificationSerializer, NotificationSettingSerializer, ActivityLogSerializer, UserActivitiesSerializer
+from .serializers import CustomPermissionSerializer, ProfileSerializer, UserActivitySerializer, SettingSerializer, NotificationSerializer, NotificationSettingSerializer, ActivityLogSerializer, UserActivitiesSerializer, CountrySerializer
 from .permission_check import bind, check_permission
 from .models_permission import CustomPermission
 import datetime
@@ -1239,6 +1239,29 @@ def restore_backup(self, request):
                         shutil.rmtree(BASE_DIR+'/tmp/')
                         send_update(user.uuid, 'Restoring Process Complete.', 100)   
                     response_json['status'] = True     
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def get_countries(self, request):
+    response_json = {'status':False}
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == "get":
+                response_json['countries'] = []
+                for x in Country.objects.all():
+                    response_json['countries'] = CountrySerializer(x).data
+                response_json['status'] = True     
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

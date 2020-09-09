@@ -43,13 +43,25 @@ class Profile(models.Model):
     def __str__(self):
         return str(self.user)
   
+
+class Country(models.Model):
+    alpha2 = models.CharField(max_length=2)
+    alpha3 = models.CharField(max_length=3)
+    num = models.PositiveIntegerField()
+    phone_code = models.PositiveIntegerField()
+    name = models.CharField(max_length=255)
+    continent = models.CharField(max_length=255)
+
+    def __str__(self):
+        return str(self.name)
+
 class Vendor(models.Model):
     ''' Vendor model'''
     added_by = models.ForeignKey(CustomUserBase, on_delete= models.SET_NULL, null=True)
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, null=True)
     last_name = models.CharField(max_length=255)
-    country = models.CharField(max_length=255, default="Nepal")
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True)
     company = models.CharField(max_length=255, null=True)
     email = models.EmailField()
     website = models.CharField(null=True, max_length=255)
@@ -85,6 +97,8 @@ class Customer(models.Model):
     phone2 = models.CharField(max_length=25)
     address = models.TextField()
     category = models.ForeignKey(CustomerCategory, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     

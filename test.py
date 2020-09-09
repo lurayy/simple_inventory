@@ -11,22 +11,22 @@ def login():
     log_in_url = base_url+"user/auth"
 
     r = requests.post(log_in_url, data=json.dumps(creds))
-    print(r.text)
+    # print(r.text)
     token = r.json()["token"]
 
-    print(token)
+    # print(token)
 
     headers = {
         "authorization":'JWT '+token,
     }
 
     sess = requests.get(base_url+"user/current", headers=headers)
-    print(sess.text)
+    # print(sess.text)
     return headers
 
 def call(headers, data, url):
     sess = requests.post(base_url+url, headers=headers, data=json.dumps(data))
-    print(sess.text)
+    # print(sess.text)
 
 if __name__ == "__main__":
     headers = login()
@@ -36,5 +36,5 @@ if __name__ == "__main__":
         'filter' : 'invoice_number',
         'invoice_number' : 'PKR000000 77/78'
     }
-    url = 'sales/invoices/get'
+    url = 'user/countries/get'
     call(headers, data, url)
