@@ -26,7 +26,7 @@ def login():
 
 def call(headers, data, url):
     sess = requests.post(base_url+url, headers=headers, data=json.dumps(data))
-    # print(sess.text)
+    print(sess.text)
 
 if __name__ == "__main__":
     headers = login()

@@ -1260,8 +1260,8 @@ def get_countries(self, request):
             if data_json['action'] == "get":
                 response_json['countries'] = []
                 for x in Country.objects.all():
-                    response_json['countries'] = CountrySerializer(x).data
-                response_json['status'] = True     
+                    response_json['countries'].append(CountrySerializer(x).data)
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
