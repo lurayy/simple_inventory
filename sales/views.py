@@ -397,11 +397,13 @@ def add_new_customer(self, request):
                     phone1 = str(data_json['phone1']),
                     phone2 = str(data_json['phone2']),
                     address = str(data_json['address']),
-                    country = Country.objects.get(id=data_json['country'])
                 )
                 if data_json['category']:
-                    category = CustomerCategory.objects.get(id=data_json['category'])
+                    customer.category = CustomerCategory.objects.get(id=data_json['category'])
+                if data_json['country']:
+                    customer.country = Country.objects.get(id=data_json['country'])
                 customer.save()
+                
                 log('sales/customer', 'create', customer.id, str(customer), {}, ss(request))
                 response_json['customers'] = customers_to_json([customer])
                 response_json['status'] = True
@@ -491,8 +493,12 @@ def update_customer(self, request):
                 customer.phone2 = str(data_json['phone2'])
                 customer.address = str(data_json['address'])
                 customer.is_active = (data_json['is_active'])
-                customer.country = Country.objects.get(id=data_json['country'])
-                customer.category = CustomerCategory.objects.get(id=data_json['category'])
+                if data_json['category']:
+                    customer.category = CustomerCategory.objects.get(id=data_json['category'])
+                if data_json['country']:
+                    customer.country = Country.objects.get(id=data_json['country'])
+                customer.save()
+                
                 customer.save()
                 log('sales/customer', 'update', customer.id, str(customer), {'old_customer': customers_to_json([old_customer])}, ss(request))
                 response_json['status'] = True

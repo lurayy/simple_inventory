@@ -359,9 +359,12 @@ def add_new_vendor(self, request):
                     address = str(data_json['address']),
                     company = data_json['company'],
                     added_by = user,
-                    country = Country.objects.get(id=data_json['country'])
                 )
                 vendor.save()
+                if data_json['country']:
+                    vendor.country = Country.objects.get(id=data_json['country'])
+                vendor.save()
+                
                 log('inventory/vendor', 'create', vendor.id, str(vendor), {}, user)
                 response_json['vendors'] = vendors_to_json([vendor])
                 response_json['status'] = True
