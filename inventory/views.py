@@ -1673,52 +1673,43 @@ def export_inventory(self, request):
                 return JsonResponse({'status':True,"fields":x})
             if (data_json['action'] == 'export' ):
                 items = Item.objects.filter(is_active=True).order_by('-id')
-
                 if (data_json['filters']['name']):
                     items = items.filter(name__icontains=str(data_json['filters']['name']))
-
                 if data_json['filters']['weight']:
                     if data_json['filters']['weight']['from']:
                         items = items.filter(weight__gte = data_json['filters']['weight']['from'])
                     if data_json['filters']['weight']['upto']:
                         items = items.filter(weight__lte = data_json['filters']['weight']['upto'])
-                    
                 if data_json['filters']['average_cost_price']:
                     if data_json['filters']['average_cost_price']['from']:
                         items = items.filter(average_cost_price__gte = data_json['filters']['average_cost_price']['from'])
                     if data_json['filters']['average_cost_price']['upto']:
-                        items = items.filter(average_cost_price__lte = data_json['filters']['average_cost_price']['upto'])
-
-    
+                        items = items.filter(average_cost_price__lte = data_json['filters']['average_cost_price']['upto'])    
                 if data_json['filters']['stock']:
                     if data_json['filters']['stock']['from']:
                         items = items.filter(stock__gte = data_json['filters']['stock']['from'])
                     if data_json['filters']['stock']['upto']:
                         items = items.filter(stock__lte = data_json['filters']['stock']['upto'])
-
                 if data_json['filters']['sold']:
                     if data_json['filters']['sold']['from']:
                         items = items.filter(sold__gte = data_json['filters']['sold']['from'])
                     if data_json['filters']['sold']['upto']:
                         items = items.filter(sold__lte = data_json['filters']['sold']['upto'])
-
                 if data_json['filters']['sales_price']:
                     if data_json['filters']['sales_price']['from']:
                         items = items.filter(sales_price__gte = data_json['filters']['sales_price']['from'])
                     if data_json['filters']['sales_price']['upto']:
                         items = items.filter(sales_price__lte = data_json['filters']['sold']['upto'])
-              
                 if (data_json['filters']['category']):
                     items = items.filter(catagory__id = int(data_json['filters']['category']))
-                
+                if data_json['filters']['barcode']:
+                    items = items.filter(barcode__icontains = data_json['filters']['barcode'])
                 response_json['count'] = len(items)
                 items = items[int(data_json['start']) : int(data_json['end'])]
                 response_json['items'] = items_to_json(items)
-
-
-
                 fields = (data_json['selected_fields'])
                 selected_fields = []
+
                 for key in fields:
                     if key not in sensative:
                         selected_fields.append(key)
