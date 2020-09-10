@@ -1308,79 +1308,48 @@ def get_bill(self,request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "export":
-                invoice = Invoice.objects.get(id= data_json['invoice'])
-                invoice_items = InvoiceItem.objects.filter(invoice = invoice).order_by('-id')
-                setting = Setting.objects.filter()[0]
-                data = {
-                    'invoice' : invoices_to_json([invoice])[0] ,
-                    'invoice_items' : invoice_items_to_json(invoice_items),
-                    'company' : {
-                        'name' : setting.company,
-                        'address' : setting.company_address,
-                        'pan' : setting.pan_number
-                    }
-                } 
-                data['invoice']['customer_pan'] = invoice.customer.tax_number
-                data['invoice']['customer_address'] = invoice.customer.address
-
-                data['invoice']['invoiced_on'] = invoice.invoiced_on.date()
-                data['invoice']['due_on'] = invoice.due_on.date()
-                data['invoice']['due_amount'] = invoice.bill_amount - invoice.paid_amount
-                data['invoice']['payment_methods'] = ''
-                for payment in Payment.objects.filter(refunded = False, is_paid_credit = False, is_active = True ):
-                    if not str(payment.method).capitalize() in data['invoice']['payment_methods'].split(', '):
-                        data['invoice']['payment_methods'] = data['invoice']['payment_methods'] + str(payment.method).capitalize() + ", " 
-                data['invoice']['payment_methods'] = data['invoice']['payment_methods'][:-2]
+            invoice = Invoice.objects.get(id= data_json['invoice'])
+            invoice_items = InvoiceItem.objects.filter(invoice = invoice).order_by('-id')
+            setting = Setting.objects.filter()[0]
+            data = {
+                'invoice' : invoices_to_json([invoice])[0] ,
+                'invoice_items' : invoice_items_to_json(invoice_items),
+                'company' : {
+                    'name' : setting.company,
+                    'address' : setting.company_address,
+                    'pan' : setting.pan_number
+                }
+            } 
+            data['invoice']['customer_pan'] = invoice.customer.tax_number
+            data['invoice']['customer_address'] = invoice.customer.address
+            data['invoice']['invoiced_on'] = invoice.invoiced_on.date()
+            data['invoice']['due_on'] = invoice.due_on.date()
+            data['invoice']['due_amount'] = invoice.bill_amount - invoice.paid_amount
+            data['invoice']['payment_methods'] = ''
+            for payment in Payment.objects.filter(refunded = False, is_paid_credit = False, is_active = True ):
+                if not str(payment.method).capitalize() in data['invoice']['payment_methods'].split(', '):
+                    data['invoice']['payment_methods'] = data['invoice']['payment_methods'] + str(payment.method).capitalize() + ", " 
+            data['invoice']['payment_methods'] = data['invoice']['payment_methods'][:-2]
+            if invoice.is_bill_printed:
                 template = get_template('invoice_bill.html')
-                html = template.render({'data':data})
-                pdf = weasyprint.HTML(string=html).write_pdf()
-                response = HttpResponse(pdf, content_type='application/pdf')
-                filename = "invoice_bill.pdf"
-                content = "inline; filename='%s'" %(filename)
-                download = request.GET.get("download")
-                if download:
-                    content = "attachment; filename='%s'" %(filename)
-                response['Content-Disposition'] = content
-                return response
-            elif data_json['action'] == "print":
-                invoice = Invoice.objects.get(id= data_json['invoice'])
-                invoice_items = InvoiceItem.objects.filter(invoice = invoice).order_by('-id')
-                setting = Setting.objects.filter()[0]
-                data = {
-                    'invoice' : invoices_to_json([invoice])[0] ,
-                    'invoice_items' : invoice_items_to_json(invoice_items),
-                    'company' : {
-                        'name' : setting.company,
-                        'address' : setting.company_address,
-                        'pan' : setting.pan_number
-                    }
-                } 
-                data['invoice']['customer_pan'] = invoice.customer.tax_number
-                data['invoice']['customer_address'] = invoice.customer.address
-                data['invoice']['invoiced_on'] = invoice.invoiced_on.date()
-                data['invoice']['due_on'] = invoice.due_on.date()
-                data['invoice']['due_amount'] = invoice.bill_amount - invoice.paid_amount
-                data['invoice']['payment_methods'] = ''
-                for payment in Payment.objects.filter(refunded = False, is_paid_credit = False, is_active = True ):
-                    if not str(payment.method).capitalize() in data['invoice']['payment_methods'].split(', '):
-                        data['invoice']['payment_methods'] = data['invoice']['payment_methods'] + str(payment.method).capitalize() + ", " 
-                data['invoice']['payment_methods'] = data['invoice']['payment_methods'][:-2]
-                template = get_template('invoice_bill.html')
-                html = template.render({'data':data})
-                pdf = weasyprint.HTML(string=html).write_pdf()
-                response = HttpResponse(pdf, content_type='application/pdf')
-                filename = "invoice_bill.pdf"
-                content = "inline; filename='%s'" %(filename)
-                download = request.GET.get("download")
-                if download:
-                    content = "attachment; filename='%s'" %(filename)
-                response['Content-Disposition'] = content
-                invoice.is_bill_printed = True
-                invoice.printed_timestamp = timezone.now()
-                invoice.printed_by = ss(request)
-                invoice.save()
-                return response
+            else:
+                template = get_template('invoice_bill_copy.html')
+            html = template.render({'data':data})
+            pdf = weasyprint.HTML(string=html).write_pdf()
+            response = HttpResponse(pdf, content_type='application/pdf')
+            filename = "invoice_bill.pdf"
+            content = "inline; filename='%s'" %(filename)
+            download = request.GET.get("download")
+            if download:
+                content = "attachment; filename='%s'" %(filename)
+            response['Content-Disposition'] = content
+            invoice.is_bill_printed = True
+            invoice.printed_timestamp = timezone.now()
+            invoice.printed_by = ss(request)
+            invoice.bill_print_count = invoice.bill_print_count + 1  
+            invoice.save()
+            log('sales/bill/print', 'create', invoice.id, str(invoice), {}, ss(request))
+            return response
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
