@@ -1655,7 +1655,7 @@ def purchase_order_statuss(self, request):
 @require_http_methods(['POST'])
 @bind
 def export_inventory(self, request):
-    sensative = ['purchaseitem', 'invoiceitem', 'product_image', 'thumbnail_image', 'id', 'item_placements', 'is_active']
+    sensative = ['purchaseitem', 'invoiceitem', 'product_image', 'thumbnail_image', 'id', 'item_placements', 'is_active', 'created_at', 'updated_at', 'itemimage']
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
     if jwt_check:
         if not jwt_check['status']:
