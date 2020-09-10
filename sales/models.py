@@ -58,7 +58,7 @@ class Invoice(models.Model):
     printed_by = models.ForeignKey(CustomUserBase, on_delete=models.SET_NULL, null=True, blank=True, related_name='printed_invoices')
     is_realtime = models.BooleanField(default=True)
 
-    bill_print_count = models.PositiveIntegerField(default = 0)
+    bill_print_count = models.PositiveIntegerField(default = 0, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
