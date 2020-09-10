@@ -33,7 +33,8 @@ if __name__ == "__main__":
 
     data = {
         'action' : 'get',
-        'filter' : 'multiple',
+        'filter' : 'barcode',
+        'barcode' :"9",
         'filters' : {
             'is_applied_name': True,
             'exact_name' : False,
