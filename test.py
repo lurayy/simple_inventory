@@ -33,8 +33,25 @@ if __name__ == "__main__":
 
     data = {
         'action' : 'get',
-        'filter' : 'invoice_number',
-        'invoice_number' : 'PKR000000 77/78'
+        'filter' : 'multiple',
+        'filters' : {
+            'is_applied_name': True,
+            'exact_name' : False,
+            'name' : 'no',
+            'is_applied_weight_from' : None,
+            'is_applied_weight_upto' : None,
+            'is_applied_average_cost_price_from' : None,
+            'is_applied_average_cost_price_upto' : None,
+            'is_applied_stock_upto' : None,
+            'is_applied_stock_from' : None,
+            'is_applied_sold_upto' : None,
+            'is_applied_sold_from' : None,
+            'is_applied_sales_price_from' : None,
+            'is_applied_sales_price_upto' : None,
+            'is_applied_category' : None
+        },
+        'start' : 0,
+        'end' : 25
     }
-    url = 'user/countries/get'
+    url = 'inventory/items/get'
     call(headers, data, url)

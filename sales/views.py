@@ -123,9 +123,10 @@ def get_multiple_invoices(self, request):
                     invoices = invoices[start:end]
                 if data_json['filter'] == "invoice_number":
                     try:
-                        invoices = Invoice.objects.filter(is_active=True, invoice_number= data_json['invoice_number'])
+                        invoices = Invoice.objects.filter(is_active=True, invoice_number__icontains= data_json['invoice_number'])
                     except:
                         invoices = []
+                    response_json['count'] = len(invoices)
                 if data_json['filter'] == "multiple":
                     start = data_json['start']
                     end = data_json['end']    

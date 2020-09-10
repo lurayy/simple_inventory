@@ -157,9 +157,6 @@ def post_save_handler_item(sender, instance, created, **kwargs):
         msg = instance.name + " stock is low. Stock : "+ str(instance.stock)
         notify(msg, id, o_type)
 
-
-
-
 def image_path(instance, filename):
     return 'product_image/product_{0}/image_{1}_{2}.jpg'.format(instance.item.name, instance.category, instance.id)
 

@@ -622,9 +622,9 @@ def get_multiple_items(self, request):
                         items = items.filter(sales_price__range = (temp_start, temp_end))
                     if (data_json['filters']['is_applied_category']):
                         items = items.filter(catagory__id = int(data_json['filters']['category']))
-                    response_json['count'] = len(items)
+                    count = len(items)
                     items = items[int(data_json['start']) : int(data_json['end'])]
-                    return JsonResponse({'status':True, 'items':items_to_json(items)})
+                    return JsonResponse({'status':True, 'items':items_to_json(items), 'count' : count })
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
