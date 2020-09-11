@@ -124,12 +124,12 @@ def update_ird_bill(invoice):
     header = {
         'Content-Type' : 'application/json'
     }
-    res = requests.post(url,headers = header,  data= json.dumps(data))
-    print(res.json())
-    rest = res.json()
-    if rest  == '200':
-        invoice.is_synced_with_ird = True
-        invoice.save()
+    # res = requests.post(url,headers = header,  data= json.dumps(data))
+    # print(res.json())
+    # rest = res.json()
+    # if rest  == '200':
+    invoice.is_synced_with_ird = True
+    invoice.save()
 
     
 
@@ -194,12 +194,12 @@ def sync_with_ird(invoice):
     header = {
         'Content-Type' : 'application/json'
     }
-    res = requests.post(url,headers = header,  data = json.dumps(data))
-    print(res.json())
-    rest = res.json()
-    if rest  == '200':
-        invoice.is_synced_with_ird = True
-        invoice.save()
+    # res = requests.post(url,headers = header,  data = json.dumps(data))
+    # print(res.json())
+    # rest = res.json()
+    # if rest  == '200':
+    invoice.is_synced_with_ird = True
+    invoice.save()
 
 
 def generate_invoice_number(invoice):
