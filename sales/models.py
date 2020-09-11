@@ -125,7 +125,6 @@ def update_ird_bill(invoice):
         'Content-Type' : 'application/json'
     }
     res = requests.post(url,headers = header,  data= json.dumps(data))
-    res = requests.post(url,headers = header,  data = json.dumps(data))
     print(res.json())
     rest = res.json()
     if rest  == '200':
