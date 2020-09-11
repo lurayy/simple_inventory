@@ -85,35 +85,116 @@ class Invoice(models.Model):
         unique_together = ('invoice_number',)
 
 
+def update_ird_bill(invoice):
+    settings = Setting.objects.filter(is_active=True)[0]
+    url = "http://103.1.92.174:9050/api/billreturn"
+    from bikram import samwat
+    from .utils import get_fiscal_year
+    import requests
+    y =  samwat.from_ad(invoice.updated_at.date())
+    nepali_invoiced_on = samwat.from_ad(invoice.invoiced_on.date())
+    x = datetime.datetime.now()
+    str_datetime = str(x.day).zfill(2) + "." + str(x.month).zfill(2) + '.' + str(x.year) +' ' + str(x.hour).zfill(2) + ':' + str(x.minute).zfill(2) + ':' + str(x.second).zfill(2)
+    data = {
+        'username' : settings.ird_username,
+        'password' : settings.ird_password,
+        'seller_pan' : '999999999',
+        'buyer_pan' : '123456789',
+        'buyer_name' : "",
+        'fiscal_year' : get_fiscal_year(invoice.invoiced_on)['ird_fy'],
+        'ref_invoice_number' : invoice.invoice_number,
+        'credit_note_number' : invoice.invoice_number,
+        'credit_note_date' : str(y.year)+'.'+str(y.month)+'.'+str(y.day),
+        'reason_for_return' : str(invoice.cancelation_reason),
+        'total_sales' : invoice.bill_amount,
+        'taxable_sales_vat' :invoice.total_amount - invoice.discount_total,
+        'vat' : invoice.tax_total,
+        'excisable_amount' :0,
+        'excise' : 0,
+        'taxable_sales_hst' :0,
+        'hst' : 0,
+        'amount_for_esf' :0,
+        'esf' : 0,
+        'export_sales' : 0,
+        'tax_exmpted_sales' :0,
+        'isrealtime' :True,
+        'datetimeClient' :  str_datetime,
+    }
+    header = {
+        'Content-Type' : 'application/json'
+    }
+    res = requests.post(url,headers = header,  data= json.dumps(data))
+    
+    if res.json('Message') == '200':
+        invoice.is_synced_with_ird = True
+        invoice.save()
 
+    
 
-# def sync_with_ird(invoice):
-#     settings = Setting.objects.filter(is_active=True)[0]
-#     url = "http://103.1.92.174:9050/api/bill"
-#     from bikram import samwat
-#     data = {
-#         'username' : settings.ird_username,
-#         'password' : settings.ird_password,
-#         'seller_pan' : settings.pan_number,
-#         'buyer_pan' : invoice.customer.tax_number,
-#         'fiscal_year' : fiscal_year_bs,
-#         'invoice_number' : invoice.invoice_number,
-#         'invoice_date' : str(samwat.from_ad(invoice.invoiced_on.date())),
-#         'total_sales' : invoice.bill_amount,
-#         'taxable_sales_vat' :  ,
-#         'vat' : ,
-#         'excisable_amount' : ,
-#         'excise' ,
-#         'taxable_sales_hst' : ,
-#         'hst' : ,
-#         'amount_for_esf' : ,
-#         'esf' : ,
-#         'export_sales' : ,
-#         'tax_exmpted_sales' : ,
-#         'isrealtime' : ,
-#         'datetimeClient' : ,
-#     }
-
+def sync_with_ird(invoice):
+    settings = Setting.objects.filter(is_active=True)[0]
+    url = "http://103.1.92.174:9050/api/bill"
+    from bikram import samwat
+    from .utils import get_fiscal_year
+    import requests
+    import json
+    nepali_invoiced_on = samwat.from_ad(invoice.invoiced_on.date())
+    x = datetime.datetime.now()
+    str_datetime = str(x.day).zfill(2) + "." + str(x.month).zfill(2) + '.' + str(x.year) +' ' + str(x.hour).zfill(2) + ':' + str(x.minute).zfill(2) + ':' + str(x.second).zfill(2)
+    # data = {
+    #     'username' : settings.ird_username,
+    #     'password' : settings.ird_password,
+    #     'seller_pan' : settings.pan_number,
+    #     'buyer_pan' : invoice.customer.tax_number,
+    #     'buyer_name' : str(invoice.customer),
+    #     'fiscal_year' : get_fiscal_year(invoice.invoiced_on)['ird_fy'],
+    #     'invoice_number' : invoice.invoice_number,
+    #     'invoice_date' : str(nepali_invoiced_on.year)+'.'+str(nepali_invoiced_on.month)+'.'+str(nepali_invoiced_on.day),
+    #     'total_sales' : invoice.bill_amount,
+    #     'taxable_sales_vat' :invoice.total_amount - invoice.discount_total,
+    #     'vat' : invoice.tax_total,
+    #     'excisable_amount' :0,
+    #     'excise' : 0,
+    #     'taxable_sales_hst' :0,
+    #     'hst' : 0,
+    #     'amount_for_esf' :0,
+    #     'esf' : 0,
+    #     'export_sales' : 0,
+    #     'tax_exmpted_sales' :0,
+    #     'isrealtime' :True,
+    #     'datetimeClient' :  str_datetime,
+    # }
+    data = {
+        'username' : settings.ird_username,
+        'password' : settings.ird_password,
+        'seller_pan' : '999999999',
+        'buyer_pan' : '123456789',
+        'buyer_name' : "",
+        'fiscal_year' : str(get_fiscal_year(invoice.invoiced_on)['ird_fy']),
+        'invoice_number' : str(invoice.invoice_number),
+        'invoice_date' : str(nepali_invoiced_on.year)+'.'+str(nepali_invoiced_on.month).zfill(2)+'.'+str(nepali_invoiced_on.day),
+        'total_sales' : invoice.bill_amount,
+        'taxable_sales_vat' :invoice.total_amount - invoice.discount_total,
+        'vat' : invoice.tax_total,
+        'excisable_amount' :0,
+        'excise' : 0,
+        'taxable_sales_hst' :0,
+        'hst' : 0,
+        'amount_for_esf' :0,
+        'esf' : 0,
+        'export_sales' : 0,
+        'tax_exmpted_sales' :0,
+        'isrealtime' :True,
+        'datetimeClient' :  str_datetime,
+    }
+    
+    header = {
+        'Content-Type' : 'application/json'
+    }
+    res = requests.post(url,headers = header,  data= json.dumps(data))
+    if res.json('Message') == '200':
+        invoice.is_synced_with_ird = True
+        invoice.save()
 
 
 def generate_invoice_number(invoice):
@@ -147,20 +228,19 @@ class InvoiceItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
 
     price = models.FloatField()
-
-    tax_total = models.FloatField(blank=True, null=True)
-
+    
     sub_total = models.FloatField(blank=True, null=True)
 
     discount_amount = models.FloatField(blank=True, null=True)
 
-    total_without_discount = models.FloatField(blank=True, null=True)
+    total_without_tax = models.FloatField(blank=True, null=True)
+
+    tax_total = models.FloatField(blank=True, null=True)
 
     total = models.FloatField(blank=True, null=True)
 
     discount = models.ManyToManyField(Discount, blank=True)
     taxes = models.ManyToManyField(Tax, blank=True)
-
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -173,24 +253,26 @@ def post_save_handler(sender, created, instance, **kwargs):
     instance.discount_amount = 0
     instance.total = 0
     applied_taxex = instance.taxes.all().filter(is_active=True)
-    for tax in applied_taxex:
-        if tax.tax_type == 'fixed':
-            instance.tax_total = instance.tax_total + \
-                (tax.rate) * instance.quantity
-        else:
-            instance.tax_total = instance.tax_total + \
-                (instance.price*tax.rate*instance.quantity)/100
     applied_discounts = instance.discount.all().filter(is_active=True)
+    instance.sub_total = instance.price*instance.quantity
+
     for discount in applied_discounts:
         if discount.discount_type == 'fixed':
             instance.discount_amount = instance.discount_amount + \
                 (discount.rate) * instance.quantity
         else:
             instance.discount_amount = instance.discount_amount + \
-                (instance.price*discount.rate*instance.quantity)/100
-    instance.sub_total = instance.price*instance.quantity
-    instance.total_without_discount = instance.sub_total+instance.tax_total
-    instance.total = instance.total_without_discount - instance.discount_amount
+                (instance.sub_total*discount.rate)/100
+    
+    instance.total_without_tax = instance.sub_total + instance.discount_amount
+    for tax in applied_taxex:
+        if tax.tax_type == 'fixed':
+            instance.tax_total = instance.tax_total + \
+                (tax.rate) * instance.quantity
+        else:
+            instance.tax_total = instance.tax_total + \
+                (instance.total_without_tax*tax.rate)/100
+    instance.total = instance.total_without_tax + instance.tax_total
     signals.post_save.disconnect(post_save_handler, sender=InvoiceItem)
     instance.save()
     signals.post_save.connect(post_save_handler, sender=InvoiceItem)
@@ -219,10 +301,10 @@ def tranction_handler(sender, instance, **kwargs):
     instance.discount_total = 0
     instance.tax_total = 0
     for invoice_item in instance.invoice_items.all():
-        instance.total_amount = instance.total_amount + invoice_item.total
+        instance.total_amount = instance.total_amount + invoice_item.sub_total
         instance.discount_total = instance.discount_total + invoice_item.discount_amount
         instance.tax_total = instance.tax_total + invoice_item.tax_total
-    instance.bill_amount = instance.total_amount - instance.additional_discount
+    instance.bill_amount = instance.total_amount - instance.discount_total + instance.tax_total - instance.additional_discount
     if instance.total_weight or instance.weight_unit:
         if instance.weight_unit == "g":
             pass
@@ -237,9 +319,12 @@ def tranction_handler(sender, instance, **kwargs):
 
 
 
-@receiver(post_save, sender=Invoice)
-def invoice_post_handler(sender, instance, **kwargs):
-    send_update_invoice(instance)
+# @receiver(post_save, sender=Invoice)
+# def invoice_post_handler(sender, instance, created, **kwargs):
+#     if created:
+#         print('post')
+#         sync_with_ird(instance)
+#     send_update_invoice(instance)
 
 
 def sales_sub(invoice):
@@ -313,9 +398,7 @@ def send_update_invoice(invoice):
             if not invoice.is_sent:
                 if res:
                     invoice.is_sent = True
-                    signals.post_save.disconnect(invoice_post_handler, sender=Invoice)
                     invoice.save()
-                    signals.post_save.connect(invoice_post_handler, sender=Invoice)
                 else:
                     print("Invoice cannot be sent through email.")
 

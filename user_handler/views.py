@@ -842,6 +842,10 @@ def udpate_settings(self, request):
                     settings.manufacturer_address = data_json['manufacturer_address']
                 if data_json['pan_number']:
                     settings.pan_number = data_json['pan_number']
+                if data_json['ird_username']:
+                    settings.ird_username = data_json['ird_username']
+                if data_json['ird_password']:
+                    settings.ird_password = data_json['ird_password']
                 settings.save()
             response_json['settings'] = SettingSerializer(settings).data
             response_json['status'] = True

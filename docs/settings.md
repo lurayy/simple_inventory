@@ -23,7 +23,9 @@ b. Update settings
     manufacturer_address : str/null
     manufacturer_website : str/nul
     change_fisal_year : date() / Null          # only using day and month 
-    stock_low_notification_on  : __int__ /null
+    stock_low_notification_on  : __int__ /null,
+    ird_username : str/null,
+    ird_password : str/null
 }
 ```
 

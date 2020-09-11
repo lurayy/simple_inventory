@@ -1,4 +1,4 @@
-from .models import Invoice, InvoiceItem, InvoiceStatus, SalesSetting
+from .models import Invoice, InvoiceItem, InvoiceStatus, SalesSetting, sync_with_ird, send_update_invoice, update_ird_bill
 from inventory.models import Place, Placement, Item, PurchaseItem, PurchaseOrder
 from inventory.utils import str_to_datetime 
 from django.core.exceptions import ObjectDoesNotExist
@@ -162,6 +162,7 @@ def get_multiple_invoices(self, request):
 @bind
 def add_new_invoice(self, request):
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    invoice = None
     if jwt_check:
         if not jwt_check['status']:
             return JsonResponse(jwt_check)    
@@ -188,8 +189,13 @@ def add_new_invoice(self, request):
                 log('sales/invoice', 'create', invoice.id, str(invoice), {}, ss(request))
                 response_json['status'] = True
                 response_json['invoice'] = invoices_to_json([invoice])
+                # if invoice.status.is_sold:
+                #     sync_with_ird(invoice)
+                    # send_update_invoice(invoice)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError,   Exception) as exp:
+            if invoice:
+                invoice.delete()
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
@@ -242,6 +248,13 @@ def update_invoice(self, request):
                 invoice.weight_unit = data_json['weight_unit']
                 invoice.is_sent = data_json['is_sent']
                 invoice.save()
+                print(invoice.bill_amount)
+                # if invoice.status.is_sold:
+                #     send_update_invoice(invoice)
+                # if invoice.is_synced_with_ird:
+                #     update_ird_bill(invoice)
+                # else:
+                #     sync_with_ird(invoice)
                 log('sales/invoice', 'update', invoice.id, str(invoice), invoices_to_json([old_invoice]), ss(request))
             if data_json['action'] == 'cancel':
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
@@ -1331,9 +1344,9 @@ def get_bill(self,request):
                     data['invoice']['payment_methods'] = data['invoice']['payment_methods'] + str(payment.method).capitalize() + ", " 
             data['invoice']['payment_methods'] = data['invoice']['payment_methods'][:-2]
             if invoice.is_bill_printed:
-                template = get_template('invoice_bill.html')
-            else:
                 template = get_template('invoice_bill_copy.html')
+            else:
+                template = get_template('invoice_bill.html')
             html = template.render({'data':data})
             pdf = weasyprint.HTML(string=html).write_pdf()
             response = HttpResponse(pdf, content_type='application/pdf')
@@ -1397,6 +1410,32 @@ def update_settings(self,request):
                 valid_data = VerifyJSONWebTokenSerializer().validate(data)
                 user = valid_data['user']
                 log('sales/settings', 'update', old.id, str(old),  SalesSettingSerializer(old).data, user)
+            return JsonResponse(response_json)
+        except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
+            return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
+    else:
+        return JsonResponse({'status':False, "error":'You are not authorized.'})
+
+
+@require_http_methods(['POST'])
+@bind
+def sync_with_ird(self,request):
+    response_json = {'status':False}        
+    jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
+    if jwt_check:
+        if not jwt_check['status']:
+            return JsonResponse(jwt_check)
+        try:
+            json_str = request.body.decode(encoding='UTF-8')
+            data_json = json.loads(json_str)
+            if data_json['action'] == 'sync':
+                invoice = Invoice.objects.get(id = data_json['invoice'])
+                if invoice.is_synced_with_ird:
+                    sync_with_ird(invoice)
+                else:
+                    update_ird_bill(invoice)
+                send_update_invoice(invoice)
+                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

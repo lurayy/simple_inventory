@@ -187,6 +187,9 @@ class Setting(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    ird_username = models.CharField(max_length=255, default= "Test_CBMS")
+    ird_password = models.CharField(max_length=255, default='test@321')
+
 class NotificationSetting(models.Model):
     model_choice = (
         ('item', "Item"),

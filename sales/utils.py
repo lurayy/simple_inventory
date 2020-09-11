@@ -41,7 +41,8 @@ def get_fiscal_year(date):
         nepali_end =  int(nepali_date.year) + 1
     dates = {
         'bs' : str(nepali_start)[2:]+"/"+str(nepali_end)[2:],
-        'ad' : str(start_fisal_year)[2:]+"/"+str(end_fiscal_year)[2:]
+        'ad' : str(start_fisal_year)[2:]+"/"+str(end_fiscal_year)[2:],
+        'ird_fy' : str(nepali_start)+'.'+str(nepali_end)[1:]
     }
     return dates
 
