@@ -82,7 +82,6 @@ def get_multiple_purchase_orders(self, request):
                     if data_json['filters']['status']:
                         status = PurchaseOrderStatus.objects.get(id=data_json['filters']['status_id'])
                         orders = orders.filter(is_active=True, status=status).order_by('-id')
-                
                 response_json['count'] = len(orders)
                 orders = orders[start:end]
                 

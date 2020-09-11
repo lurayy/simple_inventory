@@ -44,5 +44,5 @@ urlpatterns = [
     path('settings/get', views.get_sales_settings),
     path('settings/update', views.update_settings),
     path('invoice/bill', views.get_bill),
-    path('invoice/sync', views.sync_with_ird)
+    path('invoice/sync', views.sync_with_ird_fnc)
 ]

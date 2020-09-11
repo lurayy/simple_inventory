@@ -1419,7 +1419,7 @@ def update_settings(self,request):
 
 @require_http_methods(['POST'])
 @bind
-def sync_with_ird(self,request):
+def sync_with_ird_fnc(self,request):
     response_json = {'status':False}        
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
     if jwt_check:
