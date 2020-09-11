@@ -1430,7 +1430,7 @@ def sync_with_ird_fnc(self,request):
             data_json = json.loads(json_str)
             if data_json['action'] == 'sync':
                 invoice = Invoice.objects.get(id = data_json['invoice'])
-                if invoice.is_synced_with_ird:
+                if not invoice.is_synced_with_ird:
                     sync_with_ird(invoice)
                 else:
                     update_ird_bill(invoice)

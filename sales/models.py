@@ -125,14 +125,17 @@ def update_ird_bill(invoice):
         'Content-Type' : 'application/json'
     }
     res = requests.post(url,headers = header,  data= json.dumps(data))
-    
-    if res.json('Message') == '200':
+    res = requests.post(url,headers = header,  data = json.dumps(data))
+    print(res.json())
+    rest = res.json()
+    if rest  == '200':
         invoice.is_synced_with_ird = True
         invoice.save()
 
     
 
 def sync_with_ird(invoice):
+    print('sync start')
     settings = Setting.objects.filter(is_active=True)[0]
     url = "http://103.1.92.174:9050/api/bill"
     from bikram import samwat
@@ -192,8 +195,10 @@ def sync_with_ird(invoice):
     header = {
         'Content-Type' : 'application/json'
     }
-    res = requests.post(url,headers = header,  data= json.dumps(data))
-    if res.json('Message') == '200':
+    res = requests.post(url,headers = header,  data = json.dumps(data))
+    print(res.json())
+    rest = res.json()
+    if rest  == '200':
         invoice.is_synced_with_ird = True
         invoice.save()
 
