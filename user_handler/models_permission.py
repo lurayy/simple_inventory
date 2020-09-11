@@ -113,7 +113,7 @@ class CustomPermission(models.Model):
     add_new_purchase_order = models.BooleanField(default=True)
     get_multiple_purchase_orders = models.BooleanField(default=True)
     purchase_order_statuss = models.BooleanField(default=True)
-    sync_with_ird = models.BooleanField(default=True)
+    sync_with_ird_fnc = models.BooleanField(default=True)
     get_bill = models.BooleanField(default=True)
     update_settings = models.BooleanField(default=True)
     get_sales_settings = models.BooleanField(default=True)
