@@ -25,7 +25,6 @@ from django.template.loader import get_template
 from django.core.files.base import ContentFile
 
 from io import BytesIO
-import xhtml2pdf.pisa as pisa
 from django.http import HttpResponse
 from django.template import Context
 import weasyprint
@@ -249,12 +248,6 @@ def update_invoice(self, request):
                 invoice.is_sent = data_json['is_sent']
                 invoice.save()
                 print(invoice.bill_amount)
-                # if invoice.status.is_sold:
-                #     send_update_invoice(invoice)
-                # if invoice.is_synced_with_ird:
-                #     update_ird_bill(invoice)
-                # else:
-                #     sync_with_ird(invoice)
                 log('sales/invoice', 'update', invoice.id, str(invoice), invoices_to_json([old_invoice]), ss(request))
             if data_json['action'] == 'cancel':
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
@@ -1225,29 +1218,26 @@ def export_sales_data(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+# def render_to_pdf(template_src, context_dict={}):
+#     template = get_template('export_items_data.html')
+#     html  = template.render(context_dict)
+#     result = BytesIO()
+#     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+#     if not pdf.err:
+#         return HttpResponse(result.getvalue(), content_type='application/pdf')
+#     return None
 
 
-
-def render_to_pdf(template_src, context_dict={}):
-    template = get_template('export_items_data.html')
-    html  = template.render(context_dict)
-    result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return None
-
-
-def export_data(data, fields):
-    template = get_template('export_items_data.html')
-    data = {
-    'today': datetime.date.today(), 
-    'invoices':data,
-    'headers':fields
-    }
-    html = template.render(data)
-    pdf = render_to_pdf('export_items_data', data)
-    return pdf
+# def export_data(data, fields):
+#     template = get_template('export_items_data.html')
+#     data = {
+#     'today': datetime.date.today(), 
+#     'invoices':data,
+#     'headers':fields
+#     }
+#     html = template.render(data)
+#     pdf = render_to_pdf('export_items_data', data)
+#     return pdf
 
 
 

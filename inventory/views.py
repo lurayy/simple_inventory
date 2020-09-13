@@ -15,7 +15,6 @@ import base64
 from django.utils import timezone
 from django.core.files.base import ContentFile
 from io import BytesIO
-import xhtml2pdf.pisa as pisa
 from django.http import HttpResponse
 from django.template import Context
 from io import StringIO
@@ -25,7 +24,7 @@ from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from barcode import generate
 import xlwt
 from django.utils import timezone
-
+import weasyprint
 from user_handler.models import log
 
 from django.db.models import Sum
@@ -1701,8 +1700,11 @@ def export_inventory(self, request):
                         items = items.filter(sales_price__lte = data_json['filters']['sold']['upto'])
                 if (data_json['filters']['category']):
                     items = items.filter(catagory__id = int(data_json['filters']['category']))
-                if data_json['filters']['barcode']:
-                    items = items.filter(barcode__icontains = data_json['filters']['barcode'])
+                try:
+                    if data_json['filters']['barcode']:
+                        items = items.filter(barcode__icontains = data_json['filters']['barcode'])
+                except:
+                    pass
                 response_json['count'] = len(items)
                 items = items[int(data_json['start']) : int(data_json['end'])]
                 response_json['items'] = items_to_json(items)
@@ -1715,17 +1717,23 @@ def export_inventory(self, request):
                 data = items_to_json_with_selection(items, selected_fields)
 
                 if data_json['export'] == "pdf":
-                    pdf = export_data(data,selected_fields)
-                    if pdf:
-                        response = HttpResponse(pdf, content_type='application/pdf')
-                        filename = "export_data"
-                        content = "inline; filename='%s'" %(filename)
-                        download = request.GET.get("download")
-                        if download:
-                            content = "attachment; filename='%s'" %(filename)
-                        response['Content-Disposition'] = content
-                        return response
-                
+                    template = get_template('export_items_data.html')
+                    data = {
+                        'today': datetime.date.today(), 
+                        'items':data,
+                        'headers':fields
+                        }
+                    html = template.render(data)
+                    pdf = weasyprint.HTML(string=html).write_pdf()
+                    response = HttpResponse(pdf, content_type='application/pdf')
+                    filename = "invoice_bill.pdf"
+                    content = "inline; filename='%s'" %(filename)
+                    download = request.GET.get("download")
+                    if download:
+                        content = "attachment; filename='%s'" %(filename)
+                    response['Content-Disposition'] = content
+                    return response
+
                 if data_json['export'] == "excel":
                     response = HttpResponse(content_type='application/ms-excel')
                     response['Content-Disposition'] = 'attachment; filename="items_data.xls"'
@@ -1762,26 +1770,26 @@ def export_inventory(self, request):
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
 
-def render_to_pdf(template_src, context_dict={}):
-    template = get_template('export_items_data.html')
-    html  = template.render(context_dict)
-    result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return None
+# def render_to_pdf(template_src, context_dict={}):
+#     template = get_template('export_items_data.html')
+#     html  = template.render(context_dict)
+#     result = BytesIO()
+#     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+#     if not pdf.err:
+#         return HttpResponse(result.getvalue(), content_type='application/pdf')
+#     return None
 
 
-def export_data(data, fields):
-    template = get_template('export_items_data.html')
-    data = {
-    'today': datetime.date.today(), 
-    'items':data,
-    'headers':fields
-    }
-    html = template.render(data)
-    pdf = render_to_pdf('export_items_data', data)
-    return pdf
+# def export_data(data, fields):
+#     template = get_template('export_items_data.html')
+#     data = {
+#     'today': datetime.date.today(), 
+#     'items':data,
+#     'headers':fields
+#     }
+#     html = template.render(data)
+#     pdf = render_to_pdf('export_items_data', data)
+#     return pdf
 
 
 @require_http_methods(['POST'])
