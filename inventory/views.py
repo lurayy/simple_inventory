@@ -260,11 +260,13 @@ def delete_purchase_orders(self, request):
                     purchase_order.is_active = False
                     purchase_order.status = PurchaseOrderStatus.objects.filter(is_end=False)[0]
                     purchase_order.save()
-                    log('inventory/purchase_order', 'delete', purchase_order.id, str(purchase_order), {}, user)   
                     for p_item in PurchaseItem.objects.filter(purchase_order = purchase_order):
                         p_item.is_active = False
                         p_item.status = "incomplete"
                         p_item.save()
+                    x = purchase_order.id
+                    purchase_order.delete()
+                    log('inventory/purchase_order', 'delete', x, str(x), {}, user)   
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -398,9 +400,9 @@ def delete_vendors(self, request):
                 raise Exception('Empty Vendor list')
             for id in ids:
                 vendor = Vendor.objects.get(id=int(id))
-                vendor.is_active = False
-                vendor.save()
-                log('inventory/vendor', 'soft-delete', vendor.id, str(vendor), {}, user)
+                x = vendor.id
+                vendor.delete()
+                log('inventory/vendor', 'delete', x, str(x), {}, user)
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -826,9 +828,9 @@ def delete_items(self, request):
             ids = data_json['items_id']
             for id in ids:
                 item = Item.objects.get(id=int(id))
-                item.is_active = False
-                item.save()
-                log('inventory/item', 'soft-delete', item.id, str(item), {}, user)
+                x = item.id
+                item.delete()
+                log('inventory/item', 'delete', x, str(x), {}, user)
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
@@ -1035,9 +1037,9 @@ def delete_item_catagories(self, request):
             ids = data_json['item_catagories_id']
             for id in ids:
                 item_catagories = ItemCatagory.objects.get(id=int(id))
-                item_catagories.is_active = False
-                item_catagories.save()
-                log('inventory/item_category', 'soft-delete', item_catagories.id, str(item_catagories), {}, user)
+                x = item_catagories.id
+                item_catagories.delete()
+                log('inventory/item_category', 'delete', x, str(x), {}, user)
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException) as exp:
@@ -1233,9 +1235,9 @@ def delete_places(self, request):
             user = valid_data['user']
             for id in ids:
                 place_x = Place.objects.get(id=int(id))
-                place_x.is_active = False
-                place_x.save()
-                log('inventory/place', 'soft-delete', place.id, str(place), {}, user)
+                x = place_x.id
+                place_x.delete()
+                log('inventory/place', 'delete', x, str(x), {}, user)
 
             response_json['status'] = True
             return JsonResponse(response_json)

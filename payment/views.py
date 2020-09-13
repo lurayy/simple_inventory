@@ -165,9 +165,9 @@ def delete_gift_cards(self, request):
             uuids = data_json['gift_cards_uuid']
             for uuid in uuids:
                 gift_card = GiftCard.objects.get(uuid=uuid)
-                gift_card.is_active = False
-                gift_card.save()
-                log('payment/gift_card', 'soft-delete', gift_card.id, str(gift_card), {}, user)
+                x = gift_card.id
+                gift_card.delete()
+                log('payment/gift_card', 'delete', x, str(x), {}, user)
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -925,9 +925,9 @@ def delete_gift_card_category(self, request):
             if data_json['action'] == "delete":
                 for category in data_json['gift_card_categories']:
                     x = GiftCardCategory.objects.get(id = category)
-                    x.is_active = False
-                    x.save()
-                    log('payment/gift_card_category', 'soft-delete', x.id, str(x), {}, user)
+                    y = x.id
+                    x.delete()
+                    log('payment/gift_card_category', 'delete', y, str(y), {}, user)
 
                 response_json['status'] = True
             return JsonResponse(response_json)

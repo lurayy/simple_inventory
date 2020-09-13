@@ -254,12 +254,11 @@ def update_invoice(self, request):
                 old_invoice = invoice
                 if (invoice.status.is_sold ==True):
                     raise Exception("Cannot update Invoice Or Invoice Item if it's already sold.")
-                invoice.is_active = True
+                invoice.is_active = False
                 invoice.is_canceled = True
                 invoice.cancelation_reason = data_json['reason']
                 invoice.save()
                 log('sales/invoice', 'update', invoice.id, str(invoice), invoices_to_json([old_invoice]), ss(request))
-
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -315,9 +314,9 @@ def delete_invoices(self, request):
                 raise Exception('Empty Invoice list')
             for id in ids:
                 invoice = Invoice.objects.get(id=int(id))
-                invoice.is_active = False
-                invoice.save()
-                log('sales/invoice', 'soft-delete', invoice.id, str(invoice), {}, ss(request))
+                x = invoice.id
+                invoice.delete()
+                log('sales/invoice', 'delete', x, str(x), {}, ss(request))
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
@@ -444,9 +443,9 @@ def delete_customers(self, request):
                 raise Exception('Empty Customers list')
             for id in ids:
                 customer = Customer.objects.get(id=int(id))
-                customer.is_active = False
-                customer.save()
-                log('sales/customer', 'soft_delete', customer.id, str(customer), {}, ss(request))
+                x = customer.id
+                customer.delete()
+                log('sales/customer', 'delete', x, str(x), {}, ss(request))
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
@@ -657,9 +656,9 @@ def delete_customer_categories(self, request):
                     raise Exception('Empty List')
                 for id in ids:
                     customer = CustomerCategory.objects.get(id=int(id))
-                    customer.is_active = False
-                    customer.save()
-                    log('sales/customer_category', 'soft_delete', customer.id, str(customer), {}, ss(request))
+                    x = customer.id
+                    customer.delete()
+                    log('sales/customer_category', 'delete', x, str(x), {}, ss(request))
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
@@ -1031,9 +1030,9 @@ def delete_discount(self, request):
             ids = data_json['discounts_id']
             for id in ids:
                 discount = Discount.objects.get(id=int(id))
-                discount.is_active = False
-                discount.save()
-                log('sales/discont', 'soft_delete', discount.id, str(discount), {}, ss(request))
+                x = discount.id
+                discount.delete()
+                log('sales/discont', 'delete', x, str(x), {}, ss(request))
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -1177,9 +1176,9 @@ def delete_taxes(self, request):
             ids = data_json['taxes_id']
             for id in ids:
                 tax = Tax.objects.get(id=int(id))
-                tax.is_active = False
-                tax.save()
-                log('sales/tax', 'soft_delete', tax.id, str(tax), {}, ss(request))
+                x = tax.id
+                tax.delete()
+                log('sales/tax', 'delete', x, str(x), {}, ss(request))
 
             response_json['status'] = True
             return JsonResponse(response_json)

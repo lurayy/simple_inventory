@@ -17,6 +17,7 @@ from django.http import HttpResponse
 import django.dispatch
 from user_handler.models import Setting
 
+
 class InvoiceStatus(models.Model):
     name = models.CharField(max_length=255)
     is_sold = models.BooleanField(default=False)
@@ -28,9 +29,9 @@ class InvoiceStatus(models.Model):
 class Invoice(models.Model):
     ''' schema for invoice'''
     added_by = models.ForeignKey(
-        CustomUserBase, on_delete=models.SET_NULL, null=True)
+        CustomUserBase, on_delete=models.PROTECT, null=True)
     customer = models.ForeignKey(
-        Customer, on_delete=models.SET_NULL, null=True)
+        Customer, on_delete=models.PROTECT, null=True)
     invoiced_on = models.DateTimeField(default=0)
     due_on = models.DateTimeField()
     invoice_number = models.CharField(max_length=255)
@@ -49,13 +50,13 @@ class Invoice(models.Model):
     fiscal_year_bs = models.CharField(default='', max_length=6, null=True, blank=True)
 
     status = models.ForeignKey(
-        InvoiceStatus, on_delete=models.SET_NULL, null=True, blank=True)
+        InvoiceStatus, on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     # new fields
     is_synced_with_ird = models.BooleanField(default=False)
     is_bill_printed = models.BooleanField(default=False)
     printed_timestamp = models.DateTimeField(null=True, blank=True)
-    printed_by = models.ForeignKey(CustomUserBase, on_delete=models.SET_NULL, null=True, blank=True, related_name='printed_invoices')
+    printed_by = models.ForeignKey(CustomUserBase, on_delete=models.PROTECT, null=True, blank=True, related_name='printed_invoices')
     is_realtime = models.BooleanField(default=True)
 
     bill_print_count = models.PositiveIntegerField(default = 0, blank=True, null=True)
@@ -225,9 +226,9 @@ def generate_invoice_number(invoice):
 class InvoiceItem(models.Model):
     ''' this model hold the items and the details of that item, that are add to invoice'''
     purchase_item = models.ForeignKey(
-        PurchaseItem, on_delete=models.SET_NULL, null=True)
-    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
-    sold_from = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True)
+        PurchaseItem, on_delete=models.PROTECT, null=True)
+    item = models.ForeignKey(Item, on_delete=models.PROTECT, null=True)
+    sold_from = models.ForeignKey(Place, on_delete=models.PROTECT, null=True)
     invoice = models.ForeignKey(
         Invoice, on_delete=models.CASCADE, related_name='invoice_items')
     quantity = models.PositiveIntegerField(default=1)

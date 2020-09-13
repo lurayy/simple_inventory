@@ -21,7 +21,7 @@ class PurchaseOrder(models.Model):
     uuid = models.UUIDField(unique=True,default= uuid.uuid4)
     third_party_invoice_number = models.CharField(max_length=255, null=True, blank=True)
     added_by = models.ForeignKey(CustomUserBase, on_delete= models.SET_NULL, null=True)
-    vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True)
+    vendor = models.ForeignKey(Vendor, on_delete=models.PROTECT, null=True)
     invoiced_on = models.DateTimeField()
     completed_on = models.DateTimeField(null=True, blank=True) 
     total_cost = models.FloatField(default=0)
@@ -109,7 +109,7 @@ class Item(models.Model):
     weight = models.FloatField(null=True, blank=True)
     average_cost_price = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)
-    catagory = models.ForeignKey(ItemCatagory, on_delete=models.SET_NULL, null=True, blank=True, related_name='items')
+    catagory = models.ForeignKey(ItemCatagory, on_delete=models.PROTECT, null=True, blank=True, related_name='items')
     stock = models.PositiveIntegerField(default=0)
     sales_price = models.FloatField()
     sold = models.PositiveIntegerField(default=0)
@@ -214,7 +214,7 @@ class Place(models.Model):
 
 class Placement(models.Model):
     purchase_item = models.ForeignKey(PurchaseItem, on_delete=models.CASCADE, related_name='items_places')
-    placed_on = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, related_name='placements')
+    placed_on = models.ForeignKey(Place, on_delete=models.CASCADE, null=True, related_name='placements')
     stock = models.PositiveIntegerField(default=0)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_placements', null=True, blank=True)
     is_active = models.BooleanField(default=True)

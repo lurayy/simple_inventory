@@ -18,7 +18,7 @@ class GiftCardCategory(models.Model):
 class GiftCard(models.Model):
     name = models.CharField(max_length=255)
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
-    category = models.ForeignKey(GiftCardCategory, on_delete=models.SET_NULL, blank=True, null=True)
+    category = models.ForeignKey(GiftCardCategory, on_delete=models.PROTECT, blank=True, null=True)
     code = models.CharField(max_length=50)
     discount_types = (
         ('percent', "Perecent"),
@@ -82,7 +82,7 @@ class Payment(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="payments", null=True, blank=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="payments", null=True, blank=True)
     amount = models.FloatField()
-    method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, related_name="payments")
+    method = models.ForeignKey(PaymentMethod, on_delete=models.PROTECT, null=True, related_name="payments")
     transaction_from = models.CharField(max_length=255, null=True, blank=True)                                          # bank account/khali/esewa number
     transaction_id = models.CharField(max_length=255, null=True, blank=True)                                            # id 
     bank_name = models.CharField(max_length=255, null=True, blank=True)

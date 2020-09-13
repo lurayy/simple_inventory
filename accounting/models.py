@@ -41,8 +41,8 @@ class Account(models.Model):
     current_amount = models.FloatField(default=0)
     parent = models.ForeignKey('Account', on_delete=models.SET_NULL, blank=True, null=True, related_name='childs')
 
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
-    vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True, blank=True)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT, null=True, blank=True)
+    vendor = models.ForeignKey(Vendor, on_delete=models.PROTECT, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_closed = models.BooleanField(default=False)
@@ -417,9 +417,6 @@ def update_ledger(entry, amount):
         bundle_id = entry.bundle_id,
     )
     return new_entry
-
-
-
 
 def handle_payment_deletetion(payment):
     ledgers = LedgerEntry.objects.filter(payment = payment)
