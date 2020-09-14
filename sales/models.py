@@ -35,6 +35,7 @@ class Invoice(models.Model):
     invoiced_on = models.DateTimeField(default=0)
     due_on = models.DateTimeField()
     invoice_number = models.CharField(max_length=255)
+
     total_amount = models.FloatField(default=0)
     bill_amount = models.FloatField(default=0)
     paid_amount = models.FloatField(default=0)
@@ -96,41 +97,60 @@ def update_ird_bill(invoice):
     y =  samwat.from_ad(invoice.updated_at.date())
     nepali_invoiced_on = samwat.from_ad(invoice.invoiced_on.date())
     x = datetime.datetime.now()
-    str_datetime = str(x.day).zfill(2) + "." + str(x.month).zfill(2) + '.' + str(x.year) +' ' + str(x.hour).zfill(2) + ':' + str(x.minute).zfill(2) + ':' + str(x.second).zfill(2)
+    str_datetime = str(x.month).zfill(2) + '.' + str(x.day).zfill(2)+ '.' + str(x.year) +' ' + str(x.hour).zfill(2) + ':' + str(x.minute).zfill(2) + ':' + str(x.second).zfill(2)
+    x = str(nepali_invoiced_on.year)+'.'+str(nepali_invoiced_on.month).zfill(2)+'.'+str(nepali_invoiced_on.day)
     data = {
-        'username' : settings.ird_username,
-        'password' : settings.ird_password,
-        'seller_pan' : '999999999',
-        'buyer_pan' : '123456789',
-        'buyer_name' : "",
-        'fiscal_year' : get_fiscal_year(invoice.invoiced_on)['ird_fy'],
+
+        'username' : "Test_CBMS", 
+        'password' : "test@321", 
+        'seller_pan' : "999999999",
+        'buyer_pan' : "123456789",
+        'buyer_name':"", 
+        'fiscal_year' : str(get_fiscal_year(invoice.invoiced_on)['ird_fy']), 
+        'invoice_number': str(invoice.invoice_number),
+        'invoice_date':str(x),
         'ref_invoice_number' : invoice.invoice_number,
         'credit_note_number' : invoice.invoice_number,
-        'credit_note_date' : str(y.year)+'.'+str(y.month)+'.'+str(y.day),
+        'credit_note_date' : str(str(y.year)+'.'+str(y.month)+'.'+str(y.day)),
         'reason_for_return' : str(invoice.cancelation_reason),
-        'total_sales' : invoice.bill_amount,
-        'taxable_sales_vat' :invoice.total_amount - invoice.discount_total,
-        'vat' : invoice.tax_total,
-        'excisable_amount' :0,
-        'excise' : 0,
-        'taxable_sales_hst' :0,
-        'hst' : 0,
-        'amount_for_esf' :0,
-        'esf' : 0,
-        'export_sales' : 0,
-        'tax_exmpted_sales' :0,
-        'isrealtime' :True,
-        'datetimeClient' :  str_datetime,
+        'total_sales':invoice.bill_amount,
+        'taxable_sales_vat':invoice.total_amount - invoice.discount_total, 
+        'vat':invoice.tax_total, 
+        'excisable_amount':0, 
+        'excise':0,
+        'taxable_sales_hst':0,
+        'hst':0, 
+        'amount_for_esf':0, 
+        'esf':0, 
+        'export_sales':0,
+        'tax_exempted_sales':0,
+        'isrealtime':True, 
+        'datetimeclient' : str(str_datetime)
     }
     header = {
         'Content-Type' : 'application/json'
     }
-    # res = requests.post(url,headers = header,  data= json.dumps(data))
-    # print(res.json())
-    # rest = res.json()
-    # if rest  == '200':
+    res = requests.post(url,headers = header,  data= json.dumps(data))
+    if str(res.json()) == "200":
+        response = {
+            'msg' :"Bill synced with IRD server."
+        }
+    elif str(res.json()) == "101":
+        response = {
+            'msg' :"Bill already synced with the server."
+        }
+    elif str(res.json()) == "100":
+        response = {
+            'msg' :"IRD server login username and password doesnot match."
+        }
+    else:
+        response = {
+            'msg' : 'Error while syncing with the IRD server, check your internet connection or try contacting the admins.'
+        }
+    
     invoice.is_synced_with_ird = True
     invoice.save()
+    return response
 
     
 
@@ -144,63 +164,54 @@ def sync_with_ird(invoice):
     import json
     nepali_invoiced_on = samwat.from_ad(invoice.invoiced_on.date())
     x = datetime.datetime.now()
-    str_datetime = str(x.day).zfill(2) + "." + str(x.month).zfill(2) + '.' + str(x.year) +' ' + str(x.hour).zfill(2) + ':' + str(x.minute).zfill(2) + ':' + str(x.second).zfill(2)
-    # data = {
-    #     'username' : settings.ird_username,
-    #     'password' : settings.ird_password,
-    #     'seller_pan' : settings.pan_number,
-    #     'buyer_pan' : invoice.customer.tax_number,
-    #     'buyer_name' : str(invoice.customer),
-    #     'fiscal_year' : get_fiscal_year(invoice.invoiced_on)['ird_fy'],
-    #     'invoice_number' : invoice.invoice_number,
-    #     'invoice_date' : str(nepali_invoiced_on.year)+'.'+str(nepali_invoiced_on.month)+'.'+str(nepali_invoiced_on.day),
-    #     'total_sales' : invoice.bill_amount,
-    #     'taxable_sales_vat' :invoice.total_amount - invoice.discount_total,
-    #     'vat' : invoice.tax_total,
-    #     'excisable_amount' :0,
-    #     'excise' : 0,
-    #     'taxable_sales_hst' :0,
-    #     'hst' : 0,
-    #     'amount_for_esf' :0,
-    #     'esf' : 0,
-    #     'export_sales' : 0,
-    #     'tax_exmpted_sales' :0,
-    #     'isrealtime' :True,
-    #     'datetimeClient' :  str_datetime,
-    # }
-    data = {
-        'username' : settings.ird_username,
-        'password' : settings.ird_password,
-        'seller_pan' : '999999999',
-        'buyer_pan' : '123456789',
-        'buyer_name' : "",
-        'fiscal_year' : str(get_fiscal_year(invoice.invoiced_on)['ird_fy']),
-        'invoice_number' : str(invoice.invoice_number),
-        'invoice_date' : str(nepali_invoiced_on.year)+'.'+str(nepali_invoiced_on.month).zfill(2)+'.'+str(nepali_invoiced_on.day),
-        'total_sales' : invoice.bill_amount,
-        'taxable_sales_vat' :invoice.total_amount - invoice.discount_total,
-        'vat' : invoice.tax_total,
-        'excisable_amount' :0,
-        'excise' : 0,
-        'taxable_sales_hst' :0,
-        'hst' : 0,
-        'amount_for_esf' :0,
-        'esf' : 0,
-        'export_sales' : 0,
-        'tax_exmpted_sales' :0,
-        'isrealtime' :True,
-        'datetimeClient' :  str_datetime,
+    str_datetime = str(x.month).zfill(2) + '.' + str(x.day).zfill(2)+ '.' + str(x.year) +' ' + str(x.hour).zfill(2) + ':' + str(x.minute).zfill(2) + ':' + str(x.second).zfill(2)
+    x = str(nepali_invoiced_on.year)+'.'+str(nepali_invoiced_on.month).zfill(2)+'.'+str(nepali_invoiced_on.day)
+    data  = {
+        'username' : "Test_CBMS", 
+        'password' : "test@321", 
+        'seller_pan' : "999999999",
+        'buyer_pan' : "123456789",
+        'buyer_name':"", 
+        'fiscal_year' : str(get_fiscal_year(invoice.invoiced_on)['ird_fy']), 
+        'invoice_number': str(invoice.invoice_number),
+        'invoice_date':str(x),
+        'total_sales':invoice.bill_amount,
+        'taxable_sales_vat':invoice.total_amount - invoice.discount_total, 
+        'vat':invoice.tax_total, 
+        'excisable_amount':0, 
+        'excise':0,
+        'taxable_sales_hst':0,
+        'hst':0, 
+        'amount_for_esf':0, 
+        'esf':0, 
+        'export_sales':0,
+        'tax_exempted_sales':0,
+        'isrealtime':True, 
+        'datetimeclient' : str(str_datetime)
     }
-    
     header = {
         'Content-Type' : 'application/json'
     }
-    # res = requests.post(url,headers = header,  data = json.dumps(data))
-    # print(res.json())
-    # rest = res.json()
-    # if rest  == '200':
+    res = requests.post(url,headers = header,  data = json.dumps(data))
+    if str(res.json()) == "200":
+        response = {
+            'msg' :"Bill synced with IRD server."
+        }
+    elif str(res.json()) == "101":
+        response = {
+            'msg' :"Bill already synced with the server."
+        }
+    elif str(res.json()) == "100":
+        response = {
+            'msg' :"IRD server login username and password doesnot match."
+        }
+    else:
+        response = {
+            'msg' : 'Error while syncing with the IRD server, check your internet connection or try contacting the admins.'
+        }
     invoice.is_synced_with_ird = True
     invoice.save()
+    return response
 
 
 def generate_invoice_number(invoice):
@@ -270,7 +281,7 @@ def post_save_handler(sender, created, instance, **kwargs):
             instance.discount_amount = instance.discount_amount + \
                 (instance.sub_total*discount.rate)/100
     
-    instance.total_without_tax = instance.sub_total + instance.discount_amount
+    instance.total_without_tax = instance.sub_total - instance.discount_amount
     for tax in applied_taxex:
         if tax.tax_type == 'fixed':
             instance.tax_total = instance.tax_total + \

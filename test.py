@@ -1,7 +1,7 @@
 import requests
 import json
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
-base_url = 'http://localhost:8000/api/v1/'
+base_url = 'http://localhost:8000/api/v1/'  
 
 def login():    
     creds = {
@@ -23,13 +23,13 @@ def call(headers, data, url):
 
 if __name__ == "__main__":
     headers = login()
-    with open('csv.txt', 'r') as f:
-        base = f.read()
+    # with open('csv.txt', 'r') as f:
+    #     base = f.read()
     data = {
-        'action' : 'import',
-        'csv_file' : base
+        'action' : 'sync',
+        'invoice' : 1
     }
-    url = 'inventory/import'
+    url = 'sales/invoice/sync'
     call(headers, data, url)
 
 
@@ -66,29 +66,31 @@ if __name__ == "__main__":
 # #     'datetimeClient' :  str(datetime.datetime.now()),
 # # }
 
-# data  = {
-#     'username' : "Test_CBMS", 
-#     'password' : "test@321", 
-#     'seller_pan' : "999999999",
-#     'buyer_pan' : "123456789",
-#     'buyer_name':"", 
-#     'fiscal_year' : "2077.078", 
-#     'invoice_number':"105KKL sdf",
-#     'invoice_date':"2077.07.06", 
-#     'total_sales':1130,
-#     'taxable_sales_vat':1000, 
-#     'vat':130, 
-#     'excisable_amount':0, 
-#     'excise':0,
-#     'taxable_sales_hst':0,
-#     'hst':0, 
-#     'amount_for_esf':0, 
-#     'esf':0, 
-#     'export_sales':0,
-#     'tax_exempted_sales':0,
-#     'isrealtime':False, 
-#     'datetimeclient' : "11.09.2020 08:16:25" 
-# }; 
+data  = {
+    'username' : "Test_CBMS", 
+    'password' : "test@321", 
+    'seller_pan' : "999999999",
+    'buyer_pan' : "123456789",
+    'buyer_name':"", 
+    'fiscal_year' : "2077.078", 
+    'invoice_number':"105Ksdf",
+
+    'invoice_date':"2077.07.06", 
+    
+    'total_sales':11300,
+    'taxable_sales_vat':10000, 
+    'vat':1300, 
+    'excisable_amount':0, 
+    'excise':0,
+    'taxable_sales_hst':0,
+    'hst':0, 
+    'amount_for_esf':0, 
+    'esf':0, 
+    'export_sales':0,
+    'tax_exempted_sales':0,
+    'isrealtime':False, 
+    'datetimeclient' : "11.09.2020 08:16:25" 
+}; 
 # header = {
 #     'Content-Type' : 'application/json'
 # }
