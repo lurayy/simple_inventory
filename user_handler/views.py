@@ -1166,7 +1166,8 @@ def get_backup_list(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
-
+import time as t
+import django
 @require_http_methods(['POST'])
 @bind
 def restore_backup(self, request):
@@ -1188,24 +1189,19 @@ def restore_backup(self, request):
                     date = data_json['date']
                     time = data_json['time']
                     if os.path.exists(BASE_DIR+'/backups/'+date):
-                        print('one')
                         if os.path.isfile(BASE_DIR+'/backups/'+date+'/'+time+'.zip'):  
-                            print('two') 
                             file_path = BASE_DIR+'/backups/'+date+'/'+time+'.zip'
                             with ZipFile(file_path, 'r') as backup_zip:
                                 try:
-                                    os.mkdir(BASE_DIR+'/tmp')
+                                    os.mkdir(BASE_DIR+'/tmp/')
                                 except:
                                     shutil.rmtree(BASE_DIR+'/tmp/')
-                                    os.mkdir(BASE_DIR+'/tmp')
+                                    os.mkdir(BASE_DIR+'/tmp/')
                                 backup_zip.extractall(BASE_DIR+'/tmp/')
-                                print('there')
                                 send_update(user.uuid, 'Cleaning up database . . . ', 0)
                                 call_command('flush', interactive = False)
-                                print("yoasdf")
                                 send_update(user.uuid, 'Restoring Users and logs . . . ', 10)
                                 call_command('loaddata', 'tmp/user_handler.json')
-                                print('asdfsi')
                                 send_update(user.uuid, 'Restoring Inventories . . . ', 25)
                                 call_command('loaddata', 'tmp/inventory.json')
                                 send_update(user.uuid, 'Restoring Sales . . . ', 45)
@@ -1215,7 +1211,6 @@ def restore_backup(self, request):
                                 send_update(user.uuid, 'Restoring Accounts . . . ', 80)
                                 call_command('loaddata', 'tmp/accounting.json')
                                 send_update(user.uuid, 'Cleaning files . . . ', 90)
-                                print('clearing')
                                 shutil.rmtree(BASE_DIR+'/tmp/')
                                 send_update(user.uuid, 'Restoring Process Complete.', 100)
                         else:

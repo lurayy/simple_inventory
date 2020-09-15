@@ -887,6 +887,18 @@ def get_multiple_item_catagories(self, request):
                     categories = ItemCatagory.objects.filter(is_active=True, parent =catagroy)
                     response_json['sub_categories'] = item_catagories_to_json(categories)
                     response_json['status'] = True
+                if data_json['filter'] == "multiple":
+                    categories = ItemCatagory.objects.filter()
+                    if data_json['filters']['parent']:
+                        categories = categories.filter(parent__id = data_json['filters']['parent'])
+                    if data_json['filters']['name']:
+                        categories = categories.filter(name__icontains = data_json['filters']['name'])
+                    if data_json['filters']['status']:
+                        categories = categories.filter(is_active = data_json['filters']['status']['is_active'])
+                    response_json['count'] = len(catagroies)
+                    catagroies = catagroies[int(data_json['start']):int(data_json['end'])]
+                    response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
+                    response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

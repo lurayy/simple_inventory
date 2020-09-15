@@ -1,7 +1,7 @@
 import requests
 import json
-# base_url = "https://erp.mandalaitsolutions.com/api/v1/"
-base_url = 'http://localhost:8000/api/v1/'  
+base_url = "https://erp.mandalaitsolutions.com/api/v1/"
+# base_url = 'http://localhost:8000/api/v1/'  
 
 def login():    
     creds = {
@@ -21,28 +21,50 @@ def call(headers, data, url):
     sess = requests.post(base_url+url, headers=headers, data=json.dumps(data))
     print(sess.text)
 
-if __name__ == "__main__":
-    headers = login()
-    # url = 'user/backup/create'
-    # data = { 
-    #     'action' : 'backup'
-    # }
-    # call(headers, data, url)
 
-    # url = 'user/backups/get'
-    # data = {
-    #     'action' : 'get',
-    # }
-    # call(headers, data, url)
-
+def restore():    
     url = 'user/backup/restore'
     data = {
         'action' : 'restore',
         'method' : 'selection',
         'date': '2020-09-15',
-        'time' : '13:23:48'
+        'time' : '14:43:00'
     }
     call(headers, data, url)
+
+def backup():
+    url = 'user/backup/create'
+    data = { 
+        'action' : 'backup'
+    }
+    call(headers, data, url)
+
+    url = 'user/backups/get'
+    data = {
+        'action' : 'get',
+    }
+    call(headers, data, url)
+
+
+if __name__ == "__main__":
+    headers = login()
+    # backup()
+    # restore()
+    url = 'accounting/accounts/types/get'
+    data = {
+            "action": "get",
+            "filter": "multiple",
+            "filters": {
+                "name": "a",
+                "header": None,
+                "status": None
+            },
+            "start": 0,
+            "end": 50
+        }
+    call(headers, data, url)
+
+
 
 # import datetime
 
