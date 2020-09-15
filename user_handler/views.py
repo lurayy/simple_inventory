@@ -1166,6 +1166,7 @@ def get_backup_list(self, request):
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
 
+
 import time as t
 import django
 @require_http_methods(['POST'])
@@ -1184,7 +1185,7 @@ def restore_backup(self, request):
                 valid_data = VerifyJSONWebTokenSerializer().validate(data)
                 user = valid_data['user']
                 send_update(user.uuid, 'Starting Restoring Process . . . ', 0)
-                BASE_DIR = settings.BASE_DIR
+                BASE_DIR = settings.BASE_DIR 
                 if data_json['method'] == "selection":
                     date = data_json['date']
                     time = data_json['time']
@@ -1197,10 +1198,14 @@ def restore_backup(self, request):
                                 except:
                                     shutil.rmtree(BASE_DIR+'/tmp/')
                                     os.mkdir(BASE_DIR+'/tmp/')
+                                print("extract")
+                                os.chdir(BASE_DIR+'/tmp/')
                                 backup_zip.extractall(BASE_DIR+'/tmp/')
                                 send_update(user.uuid, 'Cleaning up database . . . ', 0)
                                 call_command('flush', interactive = False)
+                                print('flush')
                                 send_update(user.uuid, 'Restoring Users and logs . . . ', 10)
+                                print(os.getcwd())
                                 call_command('loaddata', 'tmp/user_handler.json')
                                 send_update(user.uuid, 'Restoring Inventories . . . ', 25)
                                 call_command('loaddata', 'tmp/inventory.json')
@@ -1208,7 +1213,6 @@ def restore_backup(self, request):
                                 call_command('loaddata', 'tmp/sales.json')
                                 send_update(user.uuid, 'Restoring Payments . . . ', 60)
                                 call_command('loaddata', 'tmp/payment.json')
-                                send_update(user.uuid, 'Restoring Accounts . . . ', 80)
                                 call_command('loaddata', 'tmp/accounting.json')
                                 send_update(user.uuid, 'Cleaning files . . . ', 90)
                                 shutil.rmtree(BASE_DIR+'/tmp/')

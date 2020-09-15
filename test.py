@@ -1,7 +1,7 @@
 import requests
 import json
-base_url = "https://erp.mandalaitsolutions.com/api/v1/"
-# base_url = 'http://localhost:8000/api/v1/'  
+# base_url = "https://erp.mandalaitsolutions.com/api/v1/"
+base_url = 'http://localhost:8000/api/v1/'  
 
 def login():    
     creds = {
@@ -28,7 +28,7 @@ def restore():
         'action' : 'restore',
         'method' : 'selection',
         'date': '2020-09-15',
-        'time' : '14:43:00'
+        'time' : '16:03:55'
     }
     call(headers, data, url)
 
@@ -49,20 +49,21 @@ def backup():
 if __name__ == "__main__":
     headers = login()
     # backup()
-    # restore()
-    url = 'accounting/accounts/types/get'
-    data = {
-            "action": "get",
-            "filter": "multiple",
-            "filters": {
-                "name": "a",
-                "header": None,
-                "status": None
-            },
-            "start": 0,
-            "end": 50
-        }
-    call(headers, data, url)
+    restore()
+
+    # url = 'accounting/accounts/types/get'
+    # data = {
+    #         "action": "get",
+    #         "filter": "multiple",
+    #         "filters": {
+    #             "name": "a",
+    #             "header": None,
+    #             "status": None
+    #         },
+    #         "start": 0,
+    #         "end": 50
+    #     }
+    # call(headers, data, url)
 
 
 
