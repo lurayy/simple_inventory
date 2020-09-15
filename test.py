@@ -23,13 +23,25 @@ def call(headers, data, url):
 
 if __name__ == "__main__":
     headers = login()
-    # with open('csv.txt', 'r') as f:
-    #     base = f.read()
+    # url = 'user/backup/create'
+    # data = { 
+    #     'action' : 'backup'
+    # }
+    # call(headers, data, url)
+
+    # url = 'user/backups/get'
+    # data = {
+    #     'action' : 'get',
+    # }
+    # call(headers, data, url)
+
+    url = 'user/backup/restore'
     data = {
-        'action' : 'sync',
-        'invoice' : 1
+        'action' : 'restore',
+        'method' : 'selection',
+        'date': '2020-09-15',
+        'time' : '13:23:48'
     }
-    url = 'sales/invoice/sync'
     call(headers, data, url)
 
 # import datetime

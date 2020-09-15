@@ -1188,7 +1188,9 @@ def restore_backup(self, request):
                     date = data_json['date']
                     time = data_json['time']
                     if os.path.exists(BASE_DIR+'/backups/'+date):
-                        if os.path.isfile(BASE_DIR+'/backups/'+date+'/'+time+'.zip'):   
+                        print('one')
+                        if os.path.isfile(BASE_DIR+'/backups/'+date+'/'+time+'.zip'):  
+                            print('two') 
                             file_path = BASE_DIR+'/backups/'+date+'/'+time+'.zip'
                             with ZipFile(file_path, 'r') as backup_zip:
                                 try:
@@ -1197,10 +1199,13 @@ def restore_backup(self, request):
                                     shutil.rmtree(BASE_DIR+'/tmp/')
                                     os.mkdir(BASE_DIR+'/tmp')
                                 backup_zip.extractall(BASE_DIR+'/tmp/')
+                                print('there')
                                 send_update(user.uuid, 'Cleaning up database . . . ', 0)
                                 call_command('flush', interactive = False)
+                                print("yoasdf")
                                 send_update(user.uuid, 'Restoring Users and logs . . . ', 10)
                                 call_command('loaddata', 'tmp/user_handler.json')
+                                print('asdfsi')
                                 send_update(user.uuid, 'Restoring Inventories . . . ', 25)
                                 call_command('loaddata', 'tmp/inventory.json')
                                 send_update(user.uuid, 'Restoring Sales . . . ', 45)
@@ -1210,6 +1215,7 @@ def restore_backup(self, request):
                                 send_update(user.uuid, 'Restoring Accounts . . . ', 80)
                                 call_command('loaddata', 'tmp/accounting.json')
                                 send_update(user.uuid, 'Cleaning files . . . ', 90)
+                                print('clearing')
                                 shutil.rmtree(BASE_DIR+'/tmp/')
                                 send_update(user.uuid, 'Restoring Process Complete.', 100)
                         else:
