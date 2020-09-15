@@ -737,41 +737,40 @@ def update_item(self, request):
             data_json = json.loads(json_str)
             data = {'token':request.headers['Authorization'].split(' ')[1]}
             valid_data = VerifyJSONWebTokenSerializer().validate(data)
-            user = valid_data['user']        
-            
+            user = valid_data['user']
             response_json = {'status':False}
             if data_json['action'] == "update":
                 changes = {}
                 item = Item.objects.get(id=int(data_json['item_id']))
                 if data_json['name']:
-                    changes['name'] : item.name
+                    changes['name'] = item.name
                     item.name = str(data_json['name'])
                 if data_json['description']:
-                    changes['description'] : item.description
+                    changes['description'] = item.description
                     item.description = (data_json['description'])
                 if data_json['weight']:
-                    changes['weight'] : item.weight
+                    changes['weight'] = item.weight
                     item.weight = (data_json['weight'])
-                
                 if data_json['sales_price']:
-                    changes['sales_price'] : item.sales_price
+                    changes['sales_price'] = item.sales_price
                     item.sales_price = (data_json['sales_price'])
                 if data_json['average_cost_price']:
-                    changes['average_cost_price'] : item.average_cost_price
+                    changes['average_cost_price'] = item.average_cost_price
                     item.average_cost_price = (data_json['average_cost_price'])
                 if data_json['barcode']:
-                    changes['barcode'] : item.barcode
+                    changes['barcode'] = item.barcode
                     item.barcode = (data_json['barcode'])
                 if data_json['vat_enabled']:
-                    changes['vat_enabled'] : item.vat_enabled
+                    changes['vat_enabled'] = item.vat_enabled
                     item.vat_enabled = (data_json['vat_enabled'])
                 if data_json['weight_unit']:
-                    changes['weight_unit'] : item.weight_unit
+                    changes['weight_unit'] = item.weight_unit
                     item.weight_unit = (data_json['weight_unit'])
                 if data_json['category']:
-                    changes['category'] : item.category
+                    changes['category'] = item.category
                     category = ItemCatagory.objects.get(id=int(data_json['category']))
                     item.category = category
+                item.save()
                 try:
                     if (data_json['product_images']):
                         for image_data in data_json['product_images']:
