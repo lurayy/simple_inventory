@@ -40,12 +40,12 @@ def get_multiple_account_types(self, request):
                     response_json['account_types'] = accounts_types_to_json(x)
                 if data_json['filter'] == 'multiple':
                     types = AccountType.objects.filter()
-                    if data_json['name']:
-                        types = types.filter(name__icontains = data_json['name'])
-                    if data_json['header']:
-                        types = types.filter(header = data_json['header'])
-                    if data_json['status']:
-                        types = types.filter(is_active = data_json['status']['is_active'])
+                    if data_json['filters']['name']:
+                        types = types.filter(name__icontains = data_json['filters']['name'])
+                    if data_json['filters']['header']:
+                        types = types.filter(header = data_json['filters']['header'])
+                    if data_json['filters']['status']:
+                        types = types.filter(is_active = data_json['filters']['status']['is_active'])
                     response_json['count'] = len(types)
                     types = types[data_json['start']:data_json['end']]
                     response_json['account_types'] = accounts_types_to_json(types)
