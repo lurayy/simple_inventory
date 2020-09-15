@@ -17,7 +17,7 @@ def get_multiple_account_types(self, request):
     url : api/v1/accounting/accounts/get
     {
         "action":"get",
-    }
+    }s
     '''
     response_json = {'status':False}
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
@@ -32,6 +32,7 @@ def get_multiple_account_types(self, request):
                 if data_json['filter'] == "none":
                     x = AccountType.objects.filter(is_active=True)
                     response_json['count'] = len(x)
+                    x = x[data_json['start']:data_json['end']]
                     response_json['account_types'] = accounts_types_to_json(x)
                 if data_json['filter'] == "id":
                     x = AccountType.objects.filter(is_active=True, id= data_json['id'])

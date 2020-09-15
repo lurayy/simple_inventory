@@ -32,10 +32,6 @@ if __name__ == "__main__":
     url = 'sales/invoice/sync'
     call(headers, data, url)
 
-
-
-
-
 # import datetime
 
 # url = "http://103.1.92.174:9050/api/bill"
@@ -66,31 +62,31 @@ if __name__ == "__main__":
 # #     'datetimeClient' :  str(datetime.datetime.now()),
 # # }
 
-data  = {
-    'username' : "Test_CBMS", 
-    'password' : "test@321", 
-    'seller_pan' : "999999999",
-    'buyer_pan' : "123456789",
-    'buyer_name':"", 
-    'fiscal_year' : "2077.078", 
-    'invoice_number':"105Ksdf",
+# data  = {
+#     'username' : "Test_CBMS", 
+#     'password' : "test@321", 
+#     'seller_pan' : "999999999",
+#     'buyer_pan' : "123456789",
+#     'buyer_name':"", 
+#     'fiscal_year' : "2077.078", 
+#     'invoice_number':"105Ksdf",
 
-    'invoice_date':"2077.07.06", 
+#     'invoice_date':"2077.07.06", 
     
-    'total_sales':11300,
-    'taxable_sales_vat':10000, 
-    'vat':1300, 
-    'excisable_amount':0, 
-    'excise':0,
-    'taxable_sales_hst':0,
-    'hst':0, 
-    'amount_for_esf':0, 
-    'esf':0, 
-    'export_sales':0,
-    'tax_exempted_sales':0,
-    'isrealtime':False, 
-    'datetimeclient' : "11.09.2020 08:16:25" 
-}; 
+#     'total_sales':11300,
+#     'taxable_sales_vat':10000, 
+#     'vat':1300, 
+#     'excisable_amount':0, 
+#     'excise':0,
+#     'taxable_sales_hst':0,
+#     'hst':0, 
+#     'amount_for_esf':0, 
+#     'esf':0, 
+#     'export_sales':0,
+#     'tax_exempted_sales':0,
+#     'isrealtime':False, 
+#     'datetimeclient' : "11.09.2020 08:16:25" 
+# }; 
 # header = {
 #     'Content-Type' : 'application/json'
 # }
