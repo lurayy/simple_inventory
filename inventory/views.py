@@ -866,20 +866,21 @@ def get_multiple_item_catagories(self, request):
         if not jwt_check['status']:
             return JsonResponse(jwt_check)    
         try:
+            categories = []
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    catagroies = ItemCatagory.objects.filter(is_active=True).order_by('-id')
-                    response_json['count'] = len(catagroies)
-                    catagroies = catagroies[int(data_json['start']):int(data_json['end'])]
-                    response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
+                    categories = ItemCatagory.objects.filter(is_active=True).order_by('-id')
+                    response_json['count'] = len(categories)
+                    categories = categories[int(data_json['start']):int(data_json['end'])]
+                    response_json['item_catagories'] = item_catagories_to_json(categories, False)
                     response_json['status'] = True
                 if data_json['filter'] == 'parent':
-                    catagroies = ItemCatagory.objects.filter(is_active=True, parent=None).order_by('-id')
-                    response_json['count'] = len(catagroies)
-                    catagroies = catagroies[int(data_json['start']):int(data_json['end'])]
-                    response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
+                    categories = ItemCatagory.objects.filter(is_active=True, parent=None).order_by('-id')
+                    response_json['count'] = len(categories)
+                    categories = categories[int(data_json['start']):int(data_json['end'])]
+                    response_json['item_catagories'] = item_catagories_to_json(categories, False)
                     response_json['status'] = True
                 if data_json['filter'] == "category":
                     catagroy = ItemCatagory.objects.get(is_active=True, id=data_json['category_id'])
@@ -895,9 +896,9 @@ def get_multiple_item_catagories(self, request):
                         categories = categories.filter(name__icontains = data_json['filters']['name'])
                     if data_json['filters']['status']:
                         categories = categories.filter(is_active = data_json['filters']['status']['is_active'])
-                    response_json['count'] = len(catagroies)
-                    catagroies = catagroies[int(data_json['start']):int(data_json['end'])]
-                    response_json['item_catagories'] = item_catagories_to_json(catagroies, False)
+                    response_json['count'] = len(categories)
+                    categories = categories[int(data_json['start']):int(data_json['end'])]
+                    response_json['item_catagories'] = item_catagories_to_json(categories, False)
                     response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
