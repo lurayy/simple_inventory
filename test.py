@@ -1,69 +1,56 @@
 import requests
 import json
+import datetime
+
 # base_url = "https://erp.mandalaitsolutions.com/api/v1/"
-base_url = 'http://localhost:8000/api/v1/'  
+base_url = 'http://localhost:8000/api/'  
 
 def login():    
     creds = {
         "username":"admin",
         "password":"pass"
     }
-    log_in_url = base_url+"user/auth"
+    log_in_url = base_url+"v1/user/auth"
     r = requests.post(log_in_url, data=json.dumps(creds))
     token = r.json()["token"]
     headers = {
         "authorization":'JWT '+token,
     }
-    sess = requests.get(base_url+"user/current", headers=headers)
+    sess = requests.get(base_url+"v1/user/current", headers=headers)
     return headers
 
 def call(headers, data, url):
     sess = requests.post(base_url+url, headers=headers, data=json.dumps(data))
     print(sess.text)
 
-
-def restore():    
-    url = 'user/backup/restore'
-    data = {
-        'action' : 'restore',
-        'method' : 'selection',
-        'date': '2020-09-15',
-        'time' : '16:03:55'
-    }
-    call(headers, data, url)
-
-def backup():
-    url = 'user/backup/create'
-    data = { 
-        'action' : 'backup'
-    }
-    call(headers, data, url)
-
-    url = 'user/backups/get'
-    data = {
-        'action' : 'get',
-    }
-    call(headers, data, url)
-
-
 if __name__ == "__main__":
     headers = login()
-    # backup()
-    restore()
-
-    # url = 'accounting/accounts/types/get'
-    # data = {
-    #         "action": "get",
-    #         "filter": "multiple",
-    #         "filters": {
-    #             "name": "a",
-    #             "header": None,
-    #             "status": None
-    #         },
-    #         "start": 0,
-    #         "end": 50
-    #     }
-    # call(headers, data, url)
+    url = 'v2/sales/invoice/new'
+    data = {
+        'action' : 'create',
+        'invoice' : {
+            'invoiced_on' : str(datetime.datetime.now()),
+            'due_on' : str(datetime.datetime.now()),
+            'status' : 1,
+            'weight_unit' : 'g',
+            'total_weight' : 0,
+            'additional_discount' : 0
+        },
+        'invoice_items' :
+                [
+                    {   
+                        'item' : 1,
+                        'purchase_item' : 1,
+                        'sold_from' : 1,
+                        'quantity' : 2,
+                        'price' : 5,
+                        'discounts' : [],
+                        'taxes' : []
+                    }
+                ]
+    }
+    # print(data)
+    call(headers, data, url)
 
 
 

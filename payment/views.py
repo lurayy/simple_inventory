@@ -995,19 +995,21 @@ def update_payment_settings(self,request):
             if data_json['action'] == "update":
                 if data_json['default_gitf_card_payment_method']:
                     setting.default_gitf_card_payment_method = PaymentMethod.objects.get(id = data_json['default_gitf_card_payment_method'])
+                if data_json['default_payment_method_qk_sales']:
+                    setting.default_payment_method_qk_sales = PaymentMethod.objects.get(id = data_json['default_payment_method_qk_sales'])
                 setting.save()
                 response_json['settings'] = {
-                    'default_gitf_card_payment_method' : setting.default_gitf_card_payment_method.id
+                    'default_gitf_card_payment_method' : setting.default_gitf_card_payment_method.id,
+                    'default_payment_method_qk_sales' : setting.default_payment_method_qk_sales.id
                 }
                 c = {
-                    'default_gitf_card_payment_method' : old.default_gitf_card_payment_method.id
+                    'default_gitf_card_payment_method' : old.default_gitf_card_payment_method.id,
+                    'default_payment_method_qk_sales' : old.default_payment_method_qk_sales.id
                 }
                 data = {'token':request.headers['Authorization'].split(' ')[1]}
                 valid_data = VerifyJSONWebTokenSerializer().validate(data)
                 user = valid_data['user']
-            
                 log('payment/settings', 'update', old.id, str(old),  c , user)
-
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:

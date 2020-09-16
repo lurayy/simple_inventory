@@ -187,11 +187,12 @@ def update_accounting_settings(self,request):
                     setting.default_invoice_action_on_pre_paid_is_add = data_json['default_invoice_action_on_pre_paid_is_add']['state']
                 if data_json['default_invoice_action_on_cash_is_add']:
                     setting.default_invoice_action_on_cash_is_add = data_json['default_invoice_action_on_cash_is_add']['state']
-                
                 if data_json['default_invoice_action_on_selected_account']:
                     setting.default_invoice_action_on_selected_account = data_json['default_invoice_action_on_selected_account']['state']
                 if data_json['default_purchase_action_on_selected_account']:
                     setting.default_purchase_action_on_selected_account = data_json['default_purchase_action_on_selected_account']['state']
+                if data_json['default_account_qk_sales']:
+                    setting.default_account_qk_sales =  Account.objects.get(id = data_json['default_account_qk_sales'])
                 setting.save()
                 response_json['settings'] = AccountingSettingsSerializer(setting).data
                 response_json['status'] = True

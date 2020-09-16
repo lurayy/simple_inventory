@@ -443,7 +443,7 @@ def export_data(data):
 class SalesSetting(models.Model):
     default_place_to_sold_from = models.ForeignKey(Place, on_delete=models.PROTECT)
     default_vat_tax = models.ForeignKey(Tax, on_delete=models.PROTECT)
-    
+    default_customer_qk_sales = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name='settings')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

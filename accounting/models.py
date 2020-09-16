@@ -202,6 +202,8 @@ class AccountingSettings(models.Model):
 
     default_purchase_action_on_selected_account = models.BooleanField(default=True)
 
+    default_account_qk_sales = models.ForeignKey(Account, on_delete=models.PROTECT)
+
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):

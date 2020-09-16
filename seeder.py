@@ -235,7 +235,8 @@ from accounting.models import Account, AccountType
 
 SalesSetting.objects.create(
     default_place_to_sold_from = Place.objects.get(name='Default'),
-    default_vat_tax = vat
+    default_vat_tax = vat,
+    default_customer_qk_sales = Customer.objects.get(id=2)
 )
 
 types = []

@@ -181,6 +181,6 @@ class GiftCardRedeem(models.Model):
 
 
 class Settings(models.Model):
-    default_gitf_card_payment_method = models.ForeignKey(PaymentMethod, on_delete=models.PROTECT)
-
+    default_gitf_card_payment_method = models.ForeignKey(PaymentMethod, on_delete=models.PROTECT, related_name='settings')
+    default_payment_method_qk_sales = models.ForeignKey(PaymentMethod, on_delete=models.PROTECT, related_name='edefa')
     is_active = models.BooleanField(default=True)

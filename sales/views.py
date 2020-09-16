@@ -43,60 +43,6 @@ def ss(request):
 @require_http_methods(['POST'])
 @bind
 def get_multiple_invoices(self, request):
-    ''' fucntion to get data from sales, will add filter later
-    filter = None
-    {
-        'action':'get',
-        'filter':'none',
-        'start':0,
-        'end':10,        
-    }
-
-    filter = Status
-    {
-        'action':'get',
-        'filter':'status',
-        'start':0,
-        'end':10,
-        'status':'draft'/'sent'/'due'/'paid'        
-    }
-    filter by date :
-    {
-        'action':'get',
-        'start':0,
-        'end':20,
-        'filter':'date',
-        'start_date': "2019-11-16T08:15:00.000",
-        'end_date': "2019-11-16T08:15:00.000",
-    }
-    filter by customer :
-    {
-        'action':'get',
-        'start':0,
-        'end':20,
-        'filter':'customer',
-        'customer_id':1
-    }
-    filter by multiple:
-    {
-        'action':'get',
-        'start':0,
-        'end':20,
-        'filter':'multiple',
-        'status':'draft',
-        'customer_id':1,
-        ...... 
-        # need more work after colaborating with front end
-    }
-    add : 
-    {
-        'action':'add',
-    }
-    by date,
-    by customer,
-    by invoice number,
-    by status
-    '''
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
     if jwt_check:
         if not jwt_check['status']:
@@ -673,23 +619,6 @@ def delete_customer_categories(self, request):
 @require_http_methods(['POST'])
 @bind
 def add_new_invoice_item(self, request):
-    '''
-    function to add purchase item 
-    {
-        'action':'add',
-        'item': 1,
-        'purchase_item':5,
-        'sold_from':2,
-        'invoice':3,
-        'quantity':3,
-        'price':34234,
-        'tax_total':55,
-        'discount_type':'fixed',
-        'discount':1351,
-        'sub_total':54,
-        'total':234
-    }
-    '''
     response_json = {'status':False}
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
     if jwt_check:
@@ -1392,6 +1321,9 @@ def update_settings(self,request):
                     settings.default_place_to_sold_from = Place.objects.get(id = data_json['default_place_to_sold_from'])
                 if data_json['default_vat_tax']:
                     settings.default_vat_tax = Tax.objects.get(id  = data_json['default_vat_tax'])
+                if data_json['default_customer_qk_sales']:
+                    settings.default_customer_qk_sales = Customer.objects.get(id  = data_json['default_customer_qk_sales'])
+                
                 settings.save()
                 response_json['settings'] = SalesSettingSerializer(SalesSetting.objects.filter(is_active=True)[0]).data
                 response_json['status'] = True
