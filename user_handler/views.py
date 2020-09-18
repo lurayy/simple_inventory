@@ -193,6 +193,8 @@ def get_multiple_user(self, request):
                 if data_json['filter'] == "name":
                     users = CustomUserBase.objects.filter(Q(username__icontains = data_json['name'])|Q(first_name__icontains = data_json['name'])|Q(last_name__icontains = data_json['name'])).order_by('-id')
                     response_json['count'] = len(users)
+                    users = users[data_json['start']:data_json['end']]
+
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -206,6 +208,7 @@ def get_multiple_user(self, request):
                 if data_json['filter'] == "role":
                     users = CustomUserBase.objects.filter(role__id = data_json['role_id'] ).order_by('-id')
                     response_json['count'] = len(users)
+                    users = users[data_json['start']:data_json['end']]
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -219,6 +222,7 @@ def get_multiple_user(self, request):
                 if data_json['filter'] == "status":
                     users = CustomUserBase.objects.filter(is_active = data_json['is_active'] ).order_by('-id')
                     response_json['count'] = len(users)
+                    users = users[data_json['start']:data_json['end']]
                     for user in users:
                         user_json = user_data(user)
                         try:
@@ -238,6 +242,7 @@ def get_multiple_user(self, request):
                     if data_json['filters']['status']:
                         users = CustomUserBase.objects.filter(is_active = data_json['filters']['is_active']).order_by('-id')
                     response_json['count'] = len(users)
+                    users = users[data_json['start']:data_json['end']]
                     for user in users:
                         user_json = user_data(user)
                         try:
