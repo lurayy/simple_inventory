@@ -37,7 +37,6 @@ class CustomPermission(models.Model):
     update_gift_card_category = models.BooleanField(default=True)
     get_gift_card_category = models.BooleanField(default=True)
     get_gift_card_categories = models.BooleanField(default=True)
-    apply_payment = models.BooleanField(default=True)
     get_payment_methods = models.BooleanField(default=True)
     add_new_gift_cards = models.BooleanField(default=True)
     update_gift_card = models.BooleanField(default=True)
