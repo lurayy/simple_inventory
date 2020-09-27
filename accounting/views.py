@@ -126,6 +126,7 @@ def get_accounting_settings(self,request):
                         acc = Account.objects.get(id = int(temp[x]))
                         response_json['settings'][x_str] = str(acc)
             response_json['status'] = True
+
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})

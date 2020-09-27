@@ -1296,7 +1296,13 @@ def get_sales_settings(self,request):
         if not jwt_check['status']:
             return JsonResponse(jwt_check)
         try:
-            response_json['settings'] = SalesSettingSerializer(SalesSetting.objects.filter(is_active=True)[0]).data
+            sets =SalesSetting.objects.filter(is_active=True)[0]
+            response_json['settings'] = SalesSettingSerializer(sets).data
+            response_json['details'] = {
+                'default_customer_qk_sales' : customers_to_json([sets.default_customer_qk_sales]),
+                'default_vat_tax' : taxes_to_json([sets.default_vat_tax]),
+                'default_place_to_sold_from' : str(sets.default_place_to_sold_from)
+            }
             response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, ObjectDoesNotExist, Exception) as exp:
