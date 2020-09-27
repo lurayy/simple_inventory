@@ -83,7 +83,7 @@ def get_multiple_gift_cards(self, request):
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'code':
-                    x = GiftCard.objects.filter(is_active = True, code__icontains=str(data_json['name']).lower()).order_by('-id')
+                    x = GiftCard.objects.filter(is_active = True, code__icontains=str(data_json['code']).lower()).order_by('-id')
                     response_json['count'] = len(x)
                     x = x[start:end]
                     response_json['gift_cards'] = gift_cards_to_json(x)
@@ -290,15 +290,6 @@ def validate_gift_card(self, request):
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
-
-# {
-#     invoice_id:,
-#     payment_method:
-#     amount
-#     bank_name 
-#     transaction_id
-# }
-
 
 @require_http_methods(['POST'])
 @bind
@@ -699,7 +690,7 @@ def redeeme_gift_card(self, request):
             payment = None
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            if data_json['action'] == "redeeme":
+            if data_json['action'] == "redeem":
                 code = data_json['code']
                 if data_json['invoice']:
                     invoice = Invoice.objects.get(id = data_json['invoice'])
@@ -970,7 +961,8 @@ def get_payment_settings(self,request):
         try:
             setting = Settings.objects.filter(is_active = True)[0]
             response_json['settings'] = {
-                'default_gitf_card_payment_method' : setting.default_gitf_card_payment_method.id
+                'default_gitf_card_payment_method' : setting.default_gitf_card_payment_method.id,
+                'default_payment_method_qk_sales' : setting.default_payment_method_qk_sales.id
             }
             response_json['status'] = True
             return JsonResponse(response_json)

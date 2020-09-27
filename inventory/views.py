@@ -76,10 +76,10 @@ def get_multiple_purchase_orders(self, request):
                             end_date = str_to_datetime(str(data_json['filters']['end_date']))
                             orders = orders.filter(invoiced_on__lte = end_date).order_by('-id')
                     if data_json['filters']['vendor']:
-                        vendor_obj = Vendor.objects.get(id=int(data_json['filters']['vendor_id']))
+                        vendor_obj = Vendor.objects.get(id=int(data_json['filters']['vendor']))
                         orders = orders.filter(vendor=vendor_obj).order_by('-id')
                     if data_json['filters']['status']:
-                        status = PurchaseOrderStatus.objects.get(id=data_json['filters']['status_id'])
+                        status = PurchaseOrderStatus.objects.get(id=data_json['filters']['status']['is_active'])
                         orders = orders.filter(is_active=True, status=status).order_by('-id')
                 response_json['count'] = len(orders)
                 orders = orders[start:end]
@@ -1046,7 +1046,7 @@ def delete_item_catagories(self, request):
             data = {'token':request.headers['Authorization'].split(' ')[1]}
             valid_data = VerifyJSONWebTokenSerializer().validate(data)
             user = valid_data['user']
-            ids = data_json['item_catagories_id']
+            ids = data_json['item_categories_id']
             for id in ids:
                 item_catagories = ItemCatagory.objects.get(id=int(id))
                 x = item_catagories.id
@@ -1092,6 +1092,7 @@ def get_multiple_places(self, request):
             if data_json['action'] == "get":
                 if data_json['filter'] == 'item':
                     placements = Placement.objects.filter(item__id = data_json['item_id']).order_by('-id')
+                    response_json['count'] = len(placements)
                     for p in placements:
                         if p.stock>0:
                             temp = {}
@@ -1186,9 +1187,6 @@ def update_place(self, request):
                 place.name = str(data_json['name'])
                 place.save()
                 response_json = {'status':True}
-            if data_json['action'] == "get":
-                response_json['places'] = places_to_json([place])
-                response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -1638,9 +1636,6 @@ def delete_purchase_items(self, request):
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
 
-
-
-
 @require_http_methods(['POST'])
 @bind
 def purchase_order_statuss(self, request):
@@ -1659,10 +1654,6 @@ def purchase_order_statuss(self, request):
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
     else:
         return JsonResponse({'status':False, "error":'You are not authorized.'})
-
-
-
-
 
 @require_http_methods(['POST'])
 @bind
@@ -1968,7 +1959,6 @@ def import_data(self,request):
                             barcode = data['barcode'][i],
                             vat_enabled = x
                         )
-                    print("here")
                     try:
                         purchase_item = PurchaseItem.objects.get(
                             item = item,

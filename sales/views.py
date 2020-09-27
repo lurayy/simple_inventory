@@ -72,6 +72,7 @@ def get_multiple_invoices(self, request):
                     except:
                         invoices = []
                     response_json['count'] = len(invoices)
+                    invoices =  invoices[data_json['start'] : data_json['end']]
                 if data_json['filter'] == "multiple":
                     start = data_json['start']
                     end = data_json['end']    
