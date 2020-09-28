@@ -15,3 +15,10 @@ urlpatterns = [
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+from sales.models import Invoice, sync_with_ird
+invoices = Invoice.objects.filter(status__is_sold = True, is_synced_with_ird = False)
+print("Syncing , ",len(invoices))
+for invoice in  invoices:
+    sync_with_ird(invoice)
