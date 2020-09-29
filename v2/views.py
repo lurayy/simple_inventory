@@ -11,6 +11,7 @@ from inventory.utils import str_to_datetime
 from user_handler.views import log
 from inventory.models import Item, PurchaseItem, PurchaseOrder, Place, Placement
 from django.conf import settings
+from sales.utils import invoices_to_json
 
 @require_http_methods(['POST'])
 @bind
@@ -31,6 +32,7 @@ def create_invoice_all(self, request):
                 invoice = create_invoice(data_json['invoice'], user)
                 create_invoice_items(data_json['invoice_items'], invoice, user)
                 do_payment(invoice)
+                response_json['invoice'] = invoices_to_json([invoice])
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, Exception) as exp:
