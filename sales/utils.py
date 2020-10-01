@@ -54,6 +54,7 @@ def invoices_to_json(models):
         temp['customer_name'] = str(Customer.objects.get(id=temp['customer']))
         temp['added_by_name'] = str(CustomUserBase.objects.get(id=temp['added_by']))
         temp['status_name'] = str(model.status.name)
+        temp['status_is_sold'] = model.status.is_sold 
         x = ActivityLog.objects.filter(object_id = model.id, model = 'sales/invoice')
         temp['count_revision'] =  len(x)
         if temp['total_weight']:
