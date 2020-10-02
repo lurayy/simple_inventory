@@ -740,7 +740,7 @@ def update_invoice_item(self, request):
                 invoice_item.save()
                 invoice_item.save()
                 invoice_item.invoice.save()
-                log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([old_invoice_item])}, ss(request))
+                log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_items_to_json([old_invoice_item])}, ss(request))
                 response_json['status'] = True
                 return JsonResponse(response_json)
             if data_json['action'] == "update_multiple":
@@ -816,7 +816,7 @@ def delete_invoice_items(self, request):
                 invoice_item = InvoiceItem.objects.get(id=int(id))
                 if (invoice_item.invoice.status.is_sold == True):
                     raise Exception("Cannot Delete items if the invoice's items are already sold.")
-                log('sales/invoice_item', 'delete', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([invoice_item])}, ss(request))
+                log('sales/invoice_item', 'delete', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_items_to_json([invoice_item])}, ss(request))
                 invoice_item.delete()
             response_json['status'] = True
             return JsonResponse(response_json)
