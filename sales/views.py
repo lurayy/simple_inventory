@@ -765,7 +765,7 @@ def update_invoice_item(self, request):
                     invoice_item.save()
                     invoice_item.save()
                     invoice_item.invoice.save()
-                    log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_item_json([old_invoice_item])}, ss(request))
+                    log('sales/invoice_item', 'update', invoice_item.id, str(invoice_item), {'old_invoice_item': invoice_items_to_json([old_invoice_item])}, ss(request))
                     response_json['status'] = True
                 return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, IntegrityError, ObjectDoesNotExist, Exception) as exp:

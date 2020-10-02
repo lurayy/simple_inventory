@@ -20,13 +20,28 @@ def login():
     return headers
 
 def call(headers, data, url):
-    sess = requests.get(base_url+url, headers=headers)
+    sess = requests.post(base_url+url, headers=headers, data= json.dumps(data))
     print(sess.text)
 
 if __name__ == "__main__":
     headers = login()
-    url = 'v1/accounting/settings/get'
+    url = 'v1/sales/invoiceitems/update'
     data = {
-        'action' : 'get',
+        "action": "update_multiple",
+        "invoice_items": [
+            {
+            "invoice_item_id": 1,
+            "invoice": 1,
+            "item": 1,
+            "sold_from": 1,
+            "purchase_item": 1,
+            "quantity": 120,
+            "price": 976,
+            "discounts": [],
+            "taxes": [
+                1
+            ]
+            }
+        ]
     }
     call(headers, data, url)
