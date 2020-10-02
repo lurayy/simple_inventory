@@ -175,7 +175,7 @@ def update_invoice(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            response_json = {'status':False, 'invoice':{}, 'invoice_items':[]}
+            response_json = {'status':False, 'invoice':{}}
             if data_json['action'] == "update":
                 new_status = InvoiceStatus.objects.get(id=data_json['status']) 
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
@@ -194,8 +194,9 @@ def update_invoice(self, request):
                 invoice.weight_unit = data_json['weight_unit']
                 invoice.is_sent = data_json['is_sent']
                 invoice.save()
-                print(invoice.bill_amount)
                 log('sales/invoice', 'update', invoice.id, str(invoice), invoices_to_json([old_invoice]), ss(request))
+                response_json['status'] = True
+                response_json['invoice'] = invoices_to_json([invoice])
             if data_json['action'] == 'cancel':
                 invoice = Invoice.objects.get(id=int(data_json['invoice_id']))
                 old_invoice = invoice
