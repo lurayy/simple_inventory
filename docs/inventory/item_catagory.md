@@ -60,7 +60,7 @@
     {
         'action':'edit',
         is_active :True
-        item_catagory_id: 1
+        item_category_id: 1
         name: "klj"
     }
 ```

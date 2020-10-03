@@ -94,7 +94,7 @@ def post_save_handler_purchase_order(sender, instance, *args, **kwargs):
             item.status = "addedtocirculation"
             item.save()
 
-class ItemCatagory(models.Model):
+class ItemCategory(models.Model):
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
@@ -109,7 +109,7 @@ class Item(models.Model):
     weight = models.FloatField(null=True, blank=True)
     average_cost_price = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)
-    catagory = models.ForeignKey(ItemCatagory, on_delete=models.PROTECT, null=True, blank=True, related_name='items')
+    category = models.ForeignKey(ItemCategory, on_delete=models.PROTECT, null=True, blank=True, related_name='items')
     stock = models.PositiveIntegerField(default=0)
     sales_price = models.FloatField()
     sold = models.PositiveIntegerField(default=0)
@@ -133,7 +133,7 @@ class Item(models.Model):
             return False
     
     class Meta:
-        unique_together = ['name', 'catagory', 'sales_price']
+        unique_together = ['name', 'category', 'sales_price']
 
 @receiver(pre_save, sender=Item)
 def item_pre_save_handler(sender, instance, *args, **kwargs):

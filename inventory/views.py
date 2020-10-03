@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 import json
 import datetime
 from user_handler.models import Vendor, CustomUserBase, Country
-from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus, ItemCatagory, ItemImage
+from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, PurchaseOrderStatus, ItemCategory, ItemImage
 from .utils import purchase_orders_to_json, purchase_items_to_json, str_to_datetime, vendors_to_json, items_to_json, item_catagories_to_json, places_to_json, placements_to_json,items_to_json_with_selection
 from .exceptions import  EmptyValueException
 from django.core.exceptions import ObjectDoesNotExist
@@ -519,7 +519,7 @@ def get_multiple_items(self, request):
         'action':'add',
         name: "klj"
         sales_price: 50000
-        catagory: 1             <- catagory id
+        category: 1             <- category id
     }
     '''
     response_json = {'status':False, 'items':[]}
@@ -539,7 +539,7 @@ def get_multiple_items(self, request):
                     response_json['status'] = True
                     return JsonResponse(response_json)
                 if data_json['filter'] == 'category':
-                    items = items = Item.objects.filter(is_active=True, catagory = ItemCatagory.objects.get(id=data_json['category_id'])).order_by('-id')
+                    items = items = Item.objects.filter(is_active=True, category = ItemCategory.objects.get(id=data_json['category_id'])).order_by('-id')
                     response_json['count'] = len(items)
                     items = items[int(data_json['start']):int(data_json['end'])]
                     response_json['items'] = items_to_json(items)
@@ -621,7 +621,7 @@ def get_multiple_items(self, request):
                     if data_json['filters']['is_applied_sales_price_from'] == True or data_json['filters']['is_applied_sales_price_upto'] == True:
                         items = items.filter(sales_price__range = (temp_start, temp_end))
                     if (data_json['filters']['is_applied_category']):
-                        items = items.filter(catagory__id = int(data_json['filters']['category']))
+                        items = items.filter(category__id = int(data_json['filters']['category']))
                     count = len(items)
                     items = items[int(data_json['start']) : int(data_json['end'])]
                     return JsonResponse({'status':True, 'items':items_to_json(items), 'count' : count })
@@ -650,7 +650,7 @@ def add_new_item(self, request):
                 item = Item.objects.create(
                     name = str(data_json['name']),
                     sales_price = data_json['sales_price'],
-                    catagory = ItemCatagory.objects.get(id=int(data_json['catagory'])),
+                    category = ItemCategory.objects.get(id=int(data_json['category'])),
                     description = data_json['description'],
                     weight = data_json['weight'],
                     average_cost_price = data_json['average_cost_price'],
@@ -700,7 +700,7 @@ def get_item_details(self, request):
         id: 1
         name: "klj"
         is_active:True,
-        catagory: 1
+        category: 1
     }
     '''
     response_json = {'status':'', 'items':[]}
@@ -768,7 +768,7 @@ def update_item(self, request):
                     item.weight_unit = (data_json['weight_unit'])
                 if data_json['category']:
                     changes['category'] = item.category
-                    category = ItemCatagory.objects.get(id=int(data_json['category']))
+                    category = ItemCategory.objects.get(id=int(data_json['category']))
                     item.category = category
                 item.save()
                 try:
@@ -839,7 +839,7 @@ def delete_items(self, request):
 
 
 
-######################################## itemCatagory ########################################
+######################################## itemCategory ########################################
 
 
 @require_http_methods(['POST'])
@@ -870,25 +870,25 @@ def get_multiple_item_catagories(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "get":
                 if data_json['filter'] == 'none':
-                    categories = ItemCatagory.objects.filter(is_active=True).order_by('-id')
+                    categories = ItemCategory.objects.filter(is_active=True).order_by('-id')
                     response_json['count'] = len(categories)
                     categories = categories[int(data_json['start']):int(data_json['end'])]
                     response_json['item_catagories'] = item_catagories_to_json(categories, False)
                     response_json['status'] = True
                 if data_json['filter'] == 'parent':
-                    categories = ItemCatagory.objects.filter(is_active=True, parent=None).order_by('-id')
+                    categories = ItemCategory.objects.filter(is_active=True, parent=None).order_by('-id')
                     response_json['count'] = len(categories)
                     categories = categories[int(data_json['start']):int(data_json['end'])]
                     response_json['item_catagories'] = item_catagories_to_json(categories, False)
                     response_json['status'] = True
                 if data_json['filter'] == "category":
-                    catagroy = ItemCatagory.objects.get(is_active=True, id=data_json['category_id'])
+                    catagroy = ItemCategory.objects.get(is_active=True, id=data_json['category_id'])
                     response_json['category_details'] = item_catagories_to_json([catagroy], False)
-                    categories = ItemCatagory.objects.filter(is_active=True, parent =catagroy)
+                    categories = ItemCategory.objects.filter(is_active=True, parent =catagroy)
                     response_json['sub_categories'] = item_catagories_to_json(categories)
                     response_json['status'] = True
                 if data_json['filter'] == "multiple":
-                    categories = ItemCatagory.objects.filter()
+                    categories = ItemCategory.objects.filter()
                     if data_json['filters']['parent']:
                         categories = categories.filter(parent__id = data_json['filters']['parent'])
                     if data_json['filters']['name']:
@@ -908,7 +908,7 @@ def get_multiple_item_catagories(self, request):
 
 @require_http_methods(['POST'])
 @bind
-def add_new_item_catagory(self, request):
+def add_new_item_category(self, request):
     response_json = {'status':'False'}
     jwt_check = check_permission(self.__name__, request.headers['Authorization'].split(' ')[1])
     if jwt_check:
@@ -919,20 +919,20 @@ def add_new_item_catagory(self, request):
             data_json = json.loads(json_str)
             if data_json['action'] == "add":
                 try:
-                    parent = ItemCatagory.objects.get(id=data_json['parent'])
+                    parent = ItemCategory.objects.get(id=data_json['parent'])
                 except:
                     parent = None
-                catagory = ItemCatagory.objects.create(
+                category = ItemCategory.objects.create(
                     name = data_json['name'],
                     parent = parent
                 )
-                catagory.save()
-                response_json['item_category'] = item_catagories_to_json([catagory])
+                category.save()
+                response_json['item_category'] = item_catagories_to_json([category])
                 response_json['status'] = True
                 data = {'token':request.headers['Authorization'].split(' ')[1]}
                 valid_data = VerifyJSONWebTokenSerializer().validate(data)
                 user = valid_data['user']        
-                log('inventory/item_category', 'create', catagory.id, str(catagory), {}, user)
+                log('inventory/item_category', 'create', category.id, str(category), {}, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -959,13 +959,13 @@ def get_parent_categories(category):
 
 @require_http_methods(['POST'])
 @bind
-def get_item_catagory_details(self, request):
+def get_item_category_details(self, request):
     '''
     POST For editing
     {
         'action':'update',
         is_active :True
-        item_catagory_id: 1
+        item_category_id: 1
         name: "klj"
     }
     '''
@@ -977,13 +977,13 @@ def get_item_catagory_details(self, request):
         try:
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
-            item_catagory = ItemCatagory.objects.get(id=int(data_json['item_category_id']))
+            item_category = ItemCategory.objects.get(id=int(data_json['item_category_id']))
             response_json = {'status':False}
             if data_json['action'] == "get":
-                response_json['item_category'] = item_catagories_to_json([item_catagory])
-                sub_categories = ItemCatagory.objects.filter(is_active=True, parent = item_catagory)
+                response_json['item_category'] = item_catagories_to_json([item_category])
+                sub_categories = ItemCategory.objects.filter(is_active=True, parent = item_category)
                 response_json['sub_categories'] = item_catagories_to_json(sub_categories)
-                response_json['parent_tree'] = get_parent_categories(item_catagory)
+                response_json['parent_tree'] = get_parent_categories(item_category)
                 response_json['status'] = True
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, IntegrityError, ObjectDoesNotExist, Exception) as exp:
@@ -1004,20 +1004,20 @@ def update_item_category(self, request):
             json_str = request.body.decode(encoding='UTF-8')
             data_json = json.loads(json_str)
             if data_json['action'] == "update":
-                item_catagory = ItemCatagory.objects.get(id=int(data_json['item_category_id']))
-                old = item_catagory.name
-                item_catagory.name = str(data_json['name'])
+                item_category = ItemCategory.objects.get(id=int(data_json['item_category_id']))
+                old = item_category.name
+                item_category.name = str(data_json['name'])
                 try:
-                    parent = ItemCatagory.objects.get(id=data_json['parent'])
+                    parent = ItemCategory.objects.get(id=data_json['parent'])
                 except:
                     parent = None
-                item_catagory.parent = parent
-                item_catagory.save()
+                item_category.parent = parent
+                item_category.save()
                 response_json = {'status':True}
                 data = {'token':request.headers['Authorization'].split(' ')[1]}
                 valid_data = VerifyJSONWebTokenSerializer().validate(data)
                 user = valid_data['user']        
-                log('inventory/item_category', 'update', item_catagory.id, str(item_catagory), {'item_category.name':old}, user)
+                log('inventory/item_category', 'update', item_category.id, str(item_category), {'item_category.name':old}, user)
             return JsonResponse(response_json)
         except (KeyError, json.decoder.JSONDecodeError, EmptyValueException, Exception) as exp:
             return JsonResponse({'status':False,'error': f'{exp.__class__.__name__}: {exp}'})
@@ -1048,7 +1048,7 @@ def delete_item_catagories(self, request):
             user = valid_data['user']
             ids = data_json['item_categories_id']
             for id in ids:
-                item_catagories = ItemCatagory.objects.get(id=int(id))
+                item_catagories = ItemCategory.objects.get(id=int(id))
                 x = item_catagories.id
                 item_catagories.delete()
                 log('inventory/item_category', 'delete', x, str(x), {}, user)
@@ -1704,7 +1704,7 @@ def export_inventory(self, request):
                     if data_json['filters']['sales_price']['upto']:
                         items = items.filter(sales_price__lte = data_json['filters']['sold']['upto'])
                 if (data_json['filters']['category']):
-                    items = items.filter(catagory__id = int(data_json['filters']['category']))
+                    items = items.filter(category__id = int(data_json['filters']['category']))
                 try:
                     if data_json['filters']['barcode']:
                         items = items.filter(barcode__icontains = data_json['filters']['barcode'])
@@ -1938,11 +1938,11 @@ def import_data(self,request):
                 purchase_items_data = []
                 for i in range(len(data['name'])):
                     try:
-                        category = ItemCatagory.objects.get(name = data['category'][i])
+                        category = ItemCategory.objects.get(name = data['category'][i])
                     except:
-                        category = ItemCatagory.objects.create(name = data['category'][i])
+                        category = ItemCategory.objects.create(name = data['category'][i])
                     try:
-                        item = Item.objects.get(name = data['name'][i], catagory = category, sales_price = data['sales_price'][i])
+                        item = Item.objects.get(name = data['name'][i], category = category, sales_price = data['sales_price'][i])
                     except:
                         if data['vat_enabled'][i] == 0:
                             x = False
@@ -1951,7 +1951,7 @@ def import_data(self,request):
                         item = Item.objects.create(
                             name = data['name'][i],
                             description = data['description'][i],
-                            catagory = category,
+                            category = category,
                             weight = data['weight'][i],
                             average_cost_price = data['purchase_price'][i],
                             sales_price = data['sales_price'][i],

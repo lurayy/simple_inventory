@@ -25,17 +25,21 @@ def call(headers, data, url):
 
 if __name__ == "__main__":
     headers = login()
-    url = 'v1/sales/invoice/update'
+    url = 'v1/inventory/item/update'
     data ={
   "action": "update",
-  "invoice_id": 1,
-  "customer": 8,
-  "invoiced_on": "2020-10-02T07:04:44.142Z",
-  "due_on": "2020-10-02T07:04:44.142Z",
-  "additional_discount": 0,
-  "total_weight": 3.84,
-  "is_sent": False,
+  "item_id": 1,
+  "name": "test closed",
+  "sales_price": 444,
+  "category": 1,
+  "description": "",
+  "weight": 0.065,
   "weight_unit": "kg",
-  "status": 1
+  "average_cost_price": 33,
+  "product_images": [],
+  "remove_image": [],
+  "barcode": "443434",
+  "vat_enabled": True,
+  "is_active": True
 }
     call(headers, data, url)

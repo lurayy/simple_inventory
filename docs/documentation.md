@@ -46,7 +46,7 @@
 - Location: '/api/v1/inventory/...'
 - Contains: 
     1. [Items](inventory/item.md)
-    2. [Items catagory](inventory/item_catagory.md)
+    2. [Items category](inventory/item_category.md)
     3. [Places](inventory/place.md)
     4. [Purchase Items](inventory/purchase_item.md)
     5. [Purchase Order](inventory/purchase_order.md)

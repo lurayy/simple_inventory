@@ -1,7 +1,7 @@
-from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, ItemCatagory, PurchaseOrderStatus, ItemImage
+from .models import PurchaseOrder, Item, PurchaseItem, Place, Placement, ItemCategory, PurchaseOrderStatus, ItemImage
 from django.forms.models import model_to_dict 
 from user_handler.models import Vendor, CustomUserBase, Setting
-from .serializers import PurchaseOrderSerializer, PurchaseItemSerializer, VendorSerializer, ItemSerializer, PlaceSerializer,ItemCatagorySerializer, PlacementSerializer, ItemImageSerializer
+from .serializers import PurchaseOrderSerializer, PurchaseItemSerializer, VendorSerializer, ItemSerializer, PlaceSerializer,ItemCategorySerializer, PlacementSerializer, ItemImageSerializer
 import dateutil.parser
 from user_handler.models import ActivityLog, Country
 from user_handler.serializers import CountrySerializer
@@ -49,7 +49,7 @@ def items_to_json(items):
     data = []
     for item in items:
         temp = ItemSerializer(item).data
-        temp['catagory_str'] = str(item.catagory)
+        temp['category_str'] = str(item.category)
         temp['images'] = []
         if temp['weight']:
             unit = Setting.objects.filter(is_active=True)[0].default_weight_unit
@@ -66,7 +66,7 @@ def items_to_json_with_selection(items,fields):
     for item in items:
         final = []
         temp = ItemSerializer(item).data
-        temp['catagory'] = str(ItemCatagory.objects.get(id=temp['catagory']))
+        temp['category'] = str(ItemCategory.objects.get(id=temp['category']))
         for field in fields:
             final.append(temp[field])
         data.append(final)
@@ -74,10 +74,10 @@ def items_to_json_with_selection(items,fields):
 
 def item_catagories_to_json(catagories, include_items = True):
     data = []
-    for catagory in catagories:
-        temp = ItemCatagorySerializer(catagory).data
-        temp['parent_str'] = str(catagory.parent)
-        temp['count_item'] = len(Item.objects.filter(catagory = catagory))
+    for category in catagories:
+        temp = ItemCategorySerializer(category).data
+        temp['parent_str'] = str(category.parent)
+        temp['count_item'] = len(Item.objects.filter(category = category))
         if include_items:
             pass
         data.append(temp)

@@ -1826,11 +1826,11 @@ digraph model_graph {
     </TABLE>
     >]
 
-  inventory_models_ItemCatagory [label=<
+  inventory_models_ItemCategory [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
     <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    ItemCatagory
+    ItemCategory
     </B></FONT></TD></TR>
   
   
@@ -1885,7 +1885,7 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>catagory</B></FONT>
+    <FONT COLOR="#7B7B7B" FACE="Roboto"><B>category</B></FONT>
     </TD><TD ALIGN="LEFT">
     <FONT COLOR="#7B7B7B" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
     </TD></TR>
@@ -2476,7 +2476,7 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">add_new_item_catagory</FONT>
+    <FONT FACE="Roboto">add_new_item_category</FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto">BooleanField</FONT>
     </TD></TR>
@@ -2948,7 +2948,7 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">get_item_catagory_details</FONT>
+    <FONT FACE="Roboto">get_item_category_details</FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto">BooleanField</FONT>
     </TD></TR>
@@ -5112,11 +5112,11 @@ digraph model_graph {
   inventory_models_PurchaseOrder -> inventory_models_PurchaseOrderStatus
   [label=" status (purchaseorder)"] [arrowhead=none, arrowtail=dot, dir=both];
 
-  inventory_models_ItemCatagory -> inventory_models_ItemCatagory
-  [label=" parent (itemcatagory)"] [arrowhead=none, arrowtail=dot, dir=both];
+  inventory_models_ItemCategory -> inventory_models_ItemCategory
+  [label=" parent (itemcategory)"] [arrowhead=none, arrowtail=dot, dir=both];
 
-  inventory_models_Item -> inventory_models_ItemCatagory
-  [label=" catagory (items)"] [arrowhead=none, arrowtail=dot, dir=both];
+  inventory_models_Item -> inventory_models_ItemCategory
+  [label=" category (items)"] [arrowhead=none, arrowtail=dot, dir=both];
 
   inventory_models_ItemImage -> inventory_models_Item
   [label=" item (itemimage)"] [arrowhead=none, arrowtail=dot, dir=both];

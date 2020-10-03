@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import CustomUserBase, Vendor, PurchaseOrder, PurchaseItem, Item, Place, Placement, ItemCatagory, PurchaseOrderStatus, ItemImage
+from .models import CustomUserBase, Vendor, PurchaseOrder, PurchaseItem, Item, Place, Placement, ItemCategory, PurchaseOrderStatus, ItemImage
 # Register your models here.
 
-admin.site.register(ItemCatagory)
+admin.site.register(ItemCategory)
 admin.site.register(CustomUserBase)
 admin.site.register(Vendor)
 admin.site.register(Item)

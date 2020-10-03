@@ -7,7 +7,7 @@ import datetime
 import random
 from faker import Faker
 from user_handler.models import CustomUserBase, Vendor, Customer, Tax, Discount, CustomerCategory, Setting, NotificationSetting
-from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCatagory, Item, PurchaseItem, Place, Placement
+from inventory.models import PurchaseOrderStatus, PurchaseOrder, ItemCategory, Item, PurchaseItem, Place, Placement
 from sales.models import Invoice, InvoiceItem, InvoiceStatus, SalesSetting
 from payment.models import GiftCard, UniqueCard, GiftCardCategory
 from user_handler.models_permission import CustomPermission
@@ -164,20 +164,20 @@ temp = PurchaseOrderStatus.objects.create(
 temp.save()
 
 
-print("--------------------------- ItemCatagory -------------------------")
+print("--------------------------- ItemCategory -------------------------")
 for _ in range(ITEM_CATAGORY_COUNT):
-    temp = ItemCatagory.objects.create(
+    temp = ItemCategory.objects.create(
         name = fake.first_name()
     )
     temp.save()
     print (f'{temp} created.')
 
 print("--------------------------- Item -------------------------")
-global_temp = ItemCatagory.objects.all()
+global_temp = ItemCategory.objects.all()
 for _ in range(ITEM_COUNT):
     temp = Item.objects.create(
         name = fake.first_name(),
-        catagory = global_temp[random.randint(0, len(global_temp)-1)],
+        category = global_temp[random.randint(0, len(global_temp)-1)],
         stock = 0,
         sold = 0,
         barcode = random.randint(0000, 9999),
