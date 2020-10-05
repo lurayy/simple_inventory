@@ -67,23 +67,24 @@ WSGI_APPLICATION = 'simple_im.wsgi.application'
 ASGI_APPLICATION = "simple_im.routing.application"
 
 
-# DATABASES = {
-#    'default': {
-#       'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'erp_database',
-#         'USER': 'main_user',
-#         'PASSWORD': 'p@ssw0rd',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+   'default': {
+      'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'erp_database',
+        'USER': 'main_user',
+        'PASSWORD': 'p@ssw0rd',
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -201,25 +202,25 @@ DBBACKUP_STORAGE_OPTIONS = {'location': location}
 DBBACKUP_FILENAME_TEMPLATE = 'database__{datetime}.backup'
 DBBACKUP_MEDIA_FILENAME_TEMPLATE = 'mediafiles__{datetime}.tar'
 
-# import channels_redis
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [("localhost", 6379)],
-#         },
-#     },
-# }
-
-from redislite import Redis
-rdb = Redis('/tmp/redis.db', serverconfig={'port': '6379'})
-
+import channels_redis
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+            "hosts": [("localhost", 6379)],
         },
     },
 }
+
+# from redislite import Redis
+# rdb = Redis('/tmp/redis.db', serverconfig={'port': '6379'})
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+#         },
+#     },
+# }
 

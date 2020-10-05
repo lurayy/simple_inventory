@@ -1,8 +1,14 @@
-FROM python:3.6
+FROM python:3.8.3
 ENV PYTHONUNBUFFERED 1
-RUN mkdir /app
-WORKDIR /app
-ADD requirements.txt /app/
+RUN mkdir /usr/src/app
+WORKDIR /usr/src/app
+COPY ./requirements.txt /usr/src/app
+
 RUN apt-get update 
+RUN apt-get install libpq-dev gcc libcairo2 pango1.0-tests python3-dev python3-psycopg2 postgresql postgresql-contrib -y
+RUN python3 -m pip install --upgrade pip
 RUN pip install -r requirements.txt
-ADD . /app/
+
+COPY . /usr/src/app
+CMD ["./seeder.sh"]
+EXPOSE 8000
