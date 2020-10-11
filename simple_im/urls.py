@@ -3,6 +3,7 @@ from django.urls import path, include, re_path
 from django.views.static import serve
 from django.conf import settings
 from django.conf.urls.static import static
+from django.core import management
 
 urlpatterns = [
     path('api/v1/sales/', include('sales.urls')),
@@ -16,6 +17,9 @@ urlpatterns = [
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+if settings.RUN_MIGRATION:
+    management.call_command('makemigrations')
+    management.call_command('migrate')
 
 # from sales.models import Invoice, sync_with_ird
 # invoices = Invoice.objects.filter(status__is_sold = True, is_synced_with_ird = False)
