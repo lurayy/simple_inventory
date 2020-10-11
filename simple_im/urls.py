@@ -3,7 +3,8 @@ from django.urls import path, include, re_path
 from django.views.static import serve
 from django.conf import settings
 from django.conf.urls.static import static
-from django.core import management
+import os 
+import json
 
 urlpatterns = [
     path('api/v1/sales/', include('sales.urls')),
@@ -17,9 +18,19 @@ urlpatterns = [
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-if settings.RUN_MIGRATION:
-    management.call_command('makemigrations')
-    management.call_command('migrate')
+print("hasdf")
+# x = False
+# with open('settings.json') as extra_settings_file:
+#     x = json.load(extra_settings_file)['run_migrations']
+#     print("asdadsf ",x)
+# if x:
+#     with open('settings.json','r') as ex:
+#         data = {
+#             'run_migrations' : False
+#         }
+#         json.dump(data, ex)
+        
+    #  os.system('./seeder.sh')
 
 # from sales.models import Invoice, sync_with_ird
 # invoices = Invoice.objects.filter(status__is_sold = True, is_synced_with_ird = False)
