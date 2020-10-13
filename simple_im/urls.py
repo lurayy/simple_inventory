@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 import os 
 import json
+from simple_im.views import index
 
 urlpatterns = [
     path('api/v1/sales/', include('sales.urls')),
@@ -13,12 +14,14 @@ urlpatterns = [
     path('api/v1/payment/', include('payment.urls')),
     path('api/v1/accounting/', include('accounting.urls')),
     path('api/v2/sales/', include('v2.urls')),
-    path('', admin.site.urls)
+    path('super/', admin.site.urls)
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-print("hasdf")
+urlpatterns.append(
+    re_path(r'^(?:.*)/?$',  index, name = " entry point"))
+
 # x = False
 # with open('settings.json') as extra_settings_file:
 #     x = json.load(extra_settings_file)['run_migrations']

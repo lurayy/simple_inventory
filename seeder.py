@@ -12,7 +12,7 @@ import datetime
 # from payment.models import GiftCard, UniqueCard, GiftCardCategory
 # from user_handler.models_permission import CustomPermission
 # from payment.models import PaymentMethod
-from user_handler.models import Setting
+from user_handler.models import Setting, CustomPermission
 # USER_COUNT = 0
 # VENDOR_COUNT = 5
 # CUSTOMER_COUNT = 10
@@ -38,20 +38,20 @@ from user_handler.models import Setting
 
 # Faker.seed(22506)
 
-# permission = CustomPermission.objects.create(
-#     id = 1,
-#     name="super_role"
-# )
-# permission.save()
+permission = CustomPermission.objects.create(
+    id = 1,
+    name="super_role"
+)
+permission.save()
 
 ## craete fake users
 # fake = Faker()
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
-User.objects.create_superuser('admin', 'admin@myproject.com', 'pass')
-
-
+admin = User.objects.create_superuser('admin', 'admin@myproject.com', 'pass')
+admin.role = permission
+admin.save()
 
 Setting.objects.create(
     default_weight_unit = "kg",

@@ -3,6 +3,7 @@ from django.db import models
 class CustomPermission(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
+    index = models.BooleanField(default=True)
     create_invoice_all = models.BooleanField(default=True)
     update_accounting_settings = models.BooleanField(default=True)
     get_accounting_settings = models.BooleanField(default=True)

@@ -1,0 +1,1 @@
+{"version":3,"sources":["Pages/AccountTypes/AccountType.js"],"names":["AccountType"],"mappings":"sHAAA,2BAUeA,UARf,WACI,OACI","file":"static/js/108.f3733bd7.chunk.js","sourcesContent":["import React from 'react'\n\nfunction AccountType() {\n    return (\n        <div>\n            account type homepage\n        </div>\n    )\n}\n\nexport default AccountType\n"],"sourceRoot":""}

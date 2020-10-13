@@ -3,12 +3,11 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
 COPY ./requirements.txt /usr/src/app
-
 RUN apt-get update 
-RUN apt-get install libpq-dev gcc libcairo2 pango1.0-tests python3-dev python3-psycopg2 postgresql postgresql-contrib -y
+RUN apt-get install libpq-dev gcc libcairo2 pango1.0-tests python3-dev python3-psycopg2 postgresql postgresql-contrib nginx -y
 RUN python3 -m pip install --upgrade pip
 RUN pip install -r requirements.txt
 COPY . /usr/src/app
-RUN chmod +x /usr/local/bin/dockerrun.sh 
-CMD ["docker-entrypoint.sh"]
-EXPOSE 8000
+RUN rm /etc/nginx/sites-enabled/*
+COPY nginx.conf /etc/nginx/sites-enabled/
+EXPOSE 80

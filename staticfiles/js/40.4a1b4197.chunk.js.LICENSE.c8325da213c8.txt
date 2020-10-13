@@ -1,0 +1,12 @@
+/*
+      object-assign
+      (c) Sindre Sorhus
+      @license MIT
+      */
+
+/*! Copyright (c) 2016 Naufal Rabbani (http://github.com/BosNaufal)
+      * Licensed Under MIT (http://opensource.org/licenses/MIT)
+      *
+      * React File Base64 - Version@1.0.0
+      *
+      */

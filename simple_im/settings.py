@@ -50,7 +50,7 @@ ROOT_URLCONF = 'simple_im.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend'), os.path.join(BASE_DIR, 'template')],
+        'DIRS': [os.path.join(BASE_DIR, 'build'), os.path.join(BASE_DIR, 'template')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -114,7 +114,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
+STATIC_URL = '/staticfiles/'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
 
 django_heroku.settings(locals())
 
@@ -155,9 +157,9 @@ CSRF_TRUSTED_ORIGINS = [
     'localhost:3000','localhost:8000','*'
 ]
 
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'frontend', "build", "static"),  # update the STATICFILES_DIRS
-# )
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "build", "static"),  # update the STATICFILES_DIRS
+)
 
 
 REST_FRAMEWORK = {
