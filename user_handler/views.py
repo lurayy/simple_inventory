@@ -30,13 +30,14 @@ from django.conf import settings
 from django.template.loader import get_template 
 import django
 from user_handler.models import log
-
+from os import path
 from django.core import management
 import sys
 from django.core.management import call_command
 from zipfile import ZipFile
 import shutil
 import os 
+import imp  
 
 def csrf(request):
     return JsonResponse({'x-csrftoken': get_token(request)})
@@ -504,8 +505,10 @@ def add_new_role(self, request):
                     for i in range (len(data_json['values'])):
                         f.write('      '+data_json['powers'][i]+' = '+str(data_json['values'][i])+',\n')
                     f.write('   )')
-                from .temp import tes
-                tes()
+                    f.close()
+                from . import temp
+                imp.reload(temp)
+                temp.tes()
                 response_json['status'] = True
                 log('user/roles', 'create', 0, str(0), {}, ss(request))
             return JsonResponse(response_json)

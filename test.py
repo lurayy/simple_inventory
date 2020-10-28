@@ -2,7 +2,6 @@ import requests
 import json
 import datetime
 
-# base_url = "https://erp.mandalaitsolutions.com/api/v1/"
 base_url = 'http://localhost:8000/api/'  
 
 def login():    
@@ -21,25 +20,25 @@ def login():
 
 def call(headers, data, url):
     sess = requests.post(base_url+url, headers=headers, data= json.dumps(data))
-    print(sess.text)
+    return (sess.json())
 
 if __name__ == "__main__":
     headers = login()
-    url = 'v1/inventory/item/update'
-    data ={
-  "action": "update",
-  "item_id": 1,
-  "name": "test closed",
-  "sales_price": 444,
-  "category": 1,
-  "description": "",
-  "weight": 0.065,
-  "weight_unit": "kg",
-  "average_cost_price": 33,
-  "product_images": [],
-  "remove_image": [],
-  "barcode": "443434",
-  "vat_enabled": True,
-  "is_active": True
-}
-    call(headers, data, url)
+    url = 'v1/user/role/valid'
+    data = {
+        'action' : 'get'
+    }
+    valids = call(headers, data, url)['valid_powers']
+    data = {
+        'action' : 'add',
+        'name' : 'sdf33',
+        'description' : 'asdfasdfasdf',
+        'powers' : valids,
+    }
+    values = []
+    for valid in valids:
+        values.append(True)
+    data['values'] = values
+    url = 'v1/user/role/add'
+    print(call(headers, data, url))
+
