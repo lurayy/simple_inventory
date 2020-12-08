@@ -1,2 +1,0 @@
-(this["webpackJsonperp-frontend"]=this["webpackJsonperp-frontend"]||[]).push([[114],{175:function(n,e,t){"use strict";t.r(e);var r=t(0),p=t.n(r);e.default=function(){return p.a.createElement("div",null,"playground page")}}}]);
-//# sourceMappingURL=114.9a2bba07.chunk.js.map

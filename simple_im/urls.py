@@ -6,6 +6,8 @@ from django.conf.urls.static import static
 import os 
 import json
 from simple_im.views import index
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('api/v1/sales/', include('sales.urls')),
@@ -18,25 +20,7 @@ urlpatterns = [
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns.append(
-    re_path(r'^(?:.*)/?$',  index, name = " entry point"))
-
-# x = False
-# with open('settings.json') as extra_settings_file:
-#     x = json.load(extra_settings_file)['run_migrations']
-#     print("asdadsf ",x)
-# if x:
-#     with open('settings.json','r') as ex:
-#         data = {
-#             'run_migrations' : False
-#         }
-#         json.dump(data, ex)
-        
-    #  os.system('./seeder.sh')
-
-# from sales.models import Invoice, sync_with_ird
-# invoices = Invoice.objects.filter(status__is_sold = True, is_synced_with_ird = False)
-# print("Syncing , ",len(invoices))
-# for invoice in  invoices:
-#     sync_with_ird(invoice)
+    re_path(r'^(?:.*)/?$',  index, name = " entry point"))  

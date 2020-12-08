@@ -1,0 +1,2 @@
+(this["webpackJsonperp-frontend"]=this["webpackJsonperp-frontend"]||[]).push([[113],{191:function(e,n,t){"use strict";t.r(n);var r=t(0),a=t.n(r);n.default=function(){return a.a.createElement("div",null,"Customer Category Page here")}}}]);
+//# sourceMappingURL=113.7c6991c0.chunk.js.map

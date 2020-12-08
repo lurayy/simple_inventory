@@ -79,14 +79,6 @@ DATABASES = {
     }
 }
 
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -205,26 +197,35 @@ DBBACKUP_STORAGE_OPTIONS = {'location': location}
 DBBACKUP_FILENAME_TEMPLATE = 'database__{datetime}.backup'
 DBBACKUP_MEDIA_FILENAME_TEMPLATE = 'mediafiles__{datetime}.tar'
 
-import channels_redis
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [("localhost", 6379)],
-        },
-    },
-}
-
-# from redislite import Redis
-# rdb = Redis('/tmp/redis.db', serverconfig={'port': '6379'})
-
+# import channels_redis
 # CHANNEL_LAYERS = {
 #     'default': {
 #         'BACKEND': 'channels_redis.core.RedisChannelLayer',
 #         'CONFIG': {
-#             "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+#             "hosts": [("localhost", 6379)],
 #         },
 #     },
 # }
 
+from redislite import Redis
+rdb = Redis('/tmp/redis.db', serverconfig={'port': '6379'})
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+        },
+    },
+}
+
 RUN_MIGRATION = True
+
+import mimetypes
+mimetypes.add_type("application/javascript", ".js", True)
+mimetypes.add_type("text/css", ".css", True)
+
+WHITENOISE_MIMETYPES = {
+    '.js': 'application/javascript',
+    '.css': 'text/css'
+}
