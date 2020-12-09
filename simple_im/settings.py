@@ -1,6 +1,4 @@
 import os
-import dj_database_url
-import django_heroku
 import datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,10 +69,10 @@ ASGI_APPLICATION = "simple_im.routing.application"
 DATABASES = {
    'default': {
       'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'erp_database',
+        'NAME': 'erp',
         'USER': 'main_user',
         'PASSWORD': 'p@ssw0rd',
-        'HOST': 'db',
+        'HOST': 'localhost',
         'PORT': 5432,
     }
 }
@@ -111,7 +109,6 @@ STATIC_URL = '/staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
-django_heroku.settings(locals())
 
 AUTH_USER_MODEL = 'user_handler.CustomUserBase'
 
