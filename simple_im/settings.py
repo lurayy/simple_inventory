@@ -175,15 +175,9 @@ JWT_AUTH = {
 }
 
 
-# EMAIL_HOST = 'smtp.mailgun.org'
-# EMAIL_HOST_USER = 'brad@sandbox5a850769f2524f8c93e1eaa27e6eaa91.mailgun.org'
-# EMAIL_HOST_PASSWORD = '97dc4ec12cc71d0d7cf6b1ecbe2470e0-a2b91229-4c7de35f'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-
 EMAIL_HOST = 'smtp.mailtrap.io'
-EMAIL_HOST_USER = 'af0e3f81bcbe90'
-EMAIL_HOST_PASSWORD = '5f482ca89b5e92'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 EMAIL_PORT = '2525'
 
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
